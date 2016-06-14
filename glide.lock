@@ -1,5 +1,5 @@
-hash: f2bc5d7f285bb8ff56455a34d938e916230464a8964e8248d44a7d49b3b6e934
-updated: 2016-05-18T00:11:11.569405705-04:00
+hash: e3e64879babd521567b9ebe3e3de6d33f43eaca8fffa2b0f3bcf6ce0ec62f4c3
+updated: 2016-06-14T22:11:15.812602521+10:00
 imports:
 - name: github.com/beorn7/perks
   version: 3ac7bf7a47d159a033b107610db8a1b6575507a4
@@ -17,7 +17,7 @@ imports:
   - redis
   - internal
 - name: github.com/go-kit/kit
-  version: 4479f0122fd25f40d8b429ce76e193b6e2319ff4
+  version: 8e29ecb32abaeb834f62d5b0f1666d45686a49a0
   vcs: git
   subpackages:
   - endpoint
@@ -56,7 +56,7 @@ imports:
 - name: github.com/micromdm/dep
   version: 38c81b11544f31c2be14e0b3bcfa12f656fcc709
 - name: github.com/micromdm/mdm
-  version: ff5dae3256bfea7dbaa543145f0c76410055785c
+  version: 156db12f2588e3f9c7f02236f44d0ea6cb4f012a
 - name: github.com/pkg/errors
   version: 42fa80f2ac6ed17a977ce826074bd3009593fa9d
 - name: github.com/prometheus/client_golang
@@ -82,6 +82,10 @@ imports:
   - push
   - payload
   - payload/badge
+- name: github.com/rs/cors
+  version: 3ca2b550f6a4333b63c845850f760a7d00412cd6
+- name: github.com/rs/xhandler
+  version: d9d9599b6aaf6a058cb7b1f48291ded2cbd13390
 - name: github.com/satori/go.uuid
   version: f9ab0dce87d815821e221626b772e3475a0d2749
 - name: golang.org/x/crypto

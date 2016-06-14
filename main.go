@@ -20,6 +20,7 @@ import (
 	"github.com/micromdm/micromdm/workflow"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"golang.org/x/net/context"
+	"github.com/rs/cors"
 )
 
 var (
@@ -51,6 +52,7 @@ func main() {
 		flDEPsim       = flag.Bool("depsim", envBool("DEP_USE_DEPSIM"), "use default depsim credentials")
 		flDEPServerURL = flag.String("dep-server-url", envString("DEP_SERVER_URL", ""), "dep server url. for testing. Use blank if not running against depsim")
 		flPkgRepo      = flag.String("pkg-repo", envString("MICROMDM_PKG_REPO", ""), "path to pkg repo")
+		flCorsOrigin   = flag.String("cors-origin", envString("MICROMDM_CORS_ORIGIN", ""), "allowed domain for cross origin resource sharing")
 	)
 
 	// set tls to true by default. let user set it to false
@@ -171,7 +173,20 @@ func main() {
 		mux.Handle("/repo/", http.StripPrefix("/repo/", http.FileServer(http.Dir(*flPkgRepo))))
 	}
 
-	http.Handle("/", mux)
+	if *flCorsOrigin != "" {
+		c := cors.New(cors.Options{
+			AllowedOrigins: []string{*flCorsOrigin},
+			AllowCredentials: true,
+		})
+
+		corsHandler := c.Handler(mux)
+		http.Handle("/", corsHandler)
+	} else {
+		http.Handle("/", mux)
+	}
+
+
+
 	http.Handle("/metrics", stdprometheus.Handler())
 
 	serve(logger, *flTLS, *flPort, *flTLSKey, *flTLSCert)

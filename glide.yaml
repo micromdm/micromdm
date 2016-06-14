@@ -4,8 +4,8 @@ import:
   subpackages:
   - redis
 - package: github.com/go-kit/kit
-  vcs: git
   version: master
+  vcs: git
   subpackages:
   - endpoint
   - log
@@ -24,3 +24,4 @@ import:
 - package: golang.org/x/net
   subpackages:
   - context
+- package: github.com/rs/cors

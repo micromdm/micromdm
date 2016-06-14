@@ -16,9 +16,10 @@ services:
       - POSTGRES_DB=micromdm
       - SSLMODE=disable
   mdm:
-    build: .
-    image: micromdm
-#    image: micromdm/micromdm:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: micromdm-dev
     links:
       - postgres:db
       - redis
@@ -42,6 +43,7 @@ services:
       MICROMDM_POSTGRES_CONN_URL: 'postgres://micromdm:micromdm@db/micromdm?sslmode=disable'
       # Redis connection expects host:port
       MICROMDM_REDIS_CONN_URL: 'redis:6379'
+      MICROMDM_CORS_ORIGIN: '*'
       DEP_CONSUMER_KEY: na
       DEP_CONSUMER_SECRET: na
       DEP_ACCESS_TOKEN: na
