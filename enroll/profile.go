@@ -1,6 +1,9 @@
 package enroll
 
-import "time"
+import (
+	"github.com/satori/go.uuid"
+	"time"
+)
 
 type Payload struct {
 	PayloadType         string      `json:"type" db:"type"`
@@ -34,11 +37,36 @@ func NewProfile() Profile {
 	return &Profile{
 		PayloadVersion: 1,
 		PayloadType:    "Configuration",
+		PayloadUUID:    uuid.NewV4(),
 	}
 }
 
-type ProfileServicePayload struct {
-	URL              string
-	DeviceAttributes []string
-	Challenge        string
+func NewPayload(identifier string) Payload {
+	return &Payload{
+		PayloadVersion:    1,
+		PayloadIdentifier: identifier,
+		PayloadUUID:       uuid.NewV4(),
+	}
+}
+
+type SCEPPayload struct {
+	CAFingerprint []byte `plist:"omitempty"` // NSData
+	Challenge     string `plist:"omitempty"`
+	Keysize       int
+	KeyType       string `plist:"Key Type"`
+	KeyUsage      int    `plist:"Key Usage"`
+	Name          string
+	Subject       [][][]string `plist:"omitempty"`
+	URL           string
+}
+
+// TODO: Actually this is one of those non-nested payloads that doesnt respect the PayloadContent key.
+type MDMPayload struct {
+	AccessRights            int
+	CheckInURL              string
+	CheckOutWhenRemoved     bool
+	IdentityCertificateUUID string
+	ServerCapabilities      []string `plist:"omitempty"`
+	ServerURL               string
+	Topic                   string
 }
