@@ -11,7 +11,7 @@ type service struct {
 	Topic         string // APNS Topic for MDM notifications
 }
 
-func (svc service) Enroll() {
+func (svc service) Enroll() (Profile, error) {
 	profile := NewProfile()
 	profile.PayloadIdentifier = "com.github.micromdm.micromdm.mdm"
 	profile.PayloadOrganization = "MicroMDM"
@@ -40,7 +40,7 @@ func (svc service) Enroll() {
 	scepPayload.PayloadDisplayName = "SCEP"
 	scepPayload.PayloadContent = scepContent
 
-	mdmContent := MDMPayload{
+	mdmPayload := MDMPayload{
 		AccessRights:            8191,
 		CheckInURL:              svc.Url + "/mdm/checkin",
 		CheckOutWhenRemoved:     true,
@@ -49,7 +49,16 @@ func (svc service) Enroll() {
 		Topic: svc.Topic,
 	}
 
-	mdmPayload := NewPayload("com.apple.mdm")
+	mdmPayload.PayloadVersion = 1
+	mdmPayload.PayloadType = "com.apple.mdm"
 	mdmPayload.PayloadDescription = "Enrolls with the MDM server"
+	mdmPayload.PayloadOrganization = "MicroMDM"
 
+	caPayload := NewPayload("com.apple.ssl.certificate")
+	caPayload.PayloadDisplayName = "Root certificate for MicroMDM"
+	caPayload.PayloadDescription = "Installs the root CA certificate for MicroMDM"
+
+	append(profile.PayloadContent, scepPayload, mdmPayload, caPayload)
+
+	return profile
 }

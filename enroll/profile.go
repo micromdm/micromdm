@@ -62,6 +62,7 @@ type SCEPPayload struct {
 
 // TODO: Actually this is one of those non-nested payloads that doesnt respect the PayloadContent key.
 type MDMPayload struct {
+	Payload
 	AccessRights            int
 	CheckInURL              string
 	CheckOutWhenRemoved     bool
