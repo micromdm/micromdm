@@ -128,6 +128,7 @@ func (svc service) Enroll() (Profile, error) {
 	scepPayload := NewPayload("com.apple.security.scep")
 	scepPayload.PayloadDescription = "Configures SCEP"
 	scepPayload.PayloadDisplayName = "SCEP"
+	scepPayload.PayloadIdentifier = "com.github.micromdm.scep"
 	scepPayload.PayloadContent = scepContent
 
 	mdmPayload := MDMPayloadContent{
