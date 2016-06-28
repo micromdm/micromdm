@@ -188,7 +188,7 @@ func main() {
 	commandSvc := command.NewService(commandDB)
 	checkinSvc := checkin.NewService(deviceDB, mgmtSvc, commandSvc, enrollmentProfile)
 	connectSvc := connect.NewService(deviceDB, commandSvc)
-	enrollSvc := enroll.NewService()
+	enrollSvc, _ := enroll.NewService(*flPushCert, *flPushPass)
 
 	httpLogger := log.NewContext(logger).With("component", "http")
 	managementHandler := management.ServiceHandler(ctx, mgmtSvc, httpLogger)
