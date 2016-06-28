@@ -53,7 +53,7 @@ func NewPayload(identifier string) *Payload {
 	}
 }
 
-type SCEPPayload struct {
+type SCEPPayloadContent struct {
 	CAFingerprint []byte `plist:"omitempty"` // NSData
 	Challenge     string `plist:"omitempty"`
 	Keysize       int
@@ -65,7 +65,7 @@ type SCEPPayload struct {
 }
 
 // TODO: Actually this is one of those non-nested payloads that doesnt respect the PayloadContent key.
-type MDMPayload struct {
+type MDMPayloadContent struct {
 	Payload                 Payload
 	AccessRights            int
 	CheckInURL              string

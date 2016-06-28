@@ -32,7 +32,7 @@ func (svc service) Enroll() (*Profile, error) {
 	profile.PayloadDisplayName = "Enrollment Profile"
 	profile.PayloadDescription = "The server may alter your settings"
 
-	scepContent := SCEPPayload{
+	scepContent := SCEPPayloadContent{
 		Challenge: svc.SCEPChallenge,
 		URL:       svc.SCEPUrl,
 		Keysize:   1024,
@@ -47,7 +47,7 @@ func (svc service) Enroll() (*Profile, error) {
 	scepPayload.PayloadDisplayName = "SCEP"
 	scepPayload.PayloadContent = scepContent
 
-	mdmPayload := MDMPayload{
+	mdmPayload := MDMPayloadContent{
 		Payload: Payload{
 			PayloadVersion:      1,
 			PayloadType:         "com.apple.mdm",

@@ -37,7 +37,7 @@ func decodeMDMEnrollRequest(_ context.Context, r *http.Request) (interface{}, er
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(mdmEnrollResponse)
 
-	plistData, err := plist.Marshal(resp)
+	plistData, err := plist.Marshal(resp.Profile)
 	if err != nil {
 		return err
 	}
