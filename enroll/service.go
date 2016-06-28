@@ -104,6 +104,7 @@ type service struct {
 	Url           string
 	SCEPUrl       string
 	SCEPChallenge string
+	SCEPSubject   [][][]string
 	Topic         string // APNS Topic for MDM notifications
 }
 
@@ -114,13 +115,6 @@ func (svc service) Enroll() (Profile, error) {
 	profile.PayloadDisplayName = "Enrollment Profile"
 	profile.PayloadDescription = "The server may alter your settings"
 
-	scepSubject := []string{
-		[]string{
-			[]string{"O", "MicroMDM"},
-			[]string{"CN", "MDM Identity Certificate:UDID"},
-		},
-	}
-
 	scepContent := SCEPPayload{
 		Challenge: svc.SCEPChallenge,
 		URL:       svc.SCEPUrl,
@@ -128,7 +122,7 @@ func (svc service) Enroll() (Profile, error) {
 		KeyType:   "RSA",
 		KeyUsage:  0,
 		Name:      "Device Management Identity Certificate",
-		Subject:   scepSubject,
+		Subject:   svc.SCEPSubject,
 	}
 
 	scepPayload := NewPayload("com.apple.security.scep")
@@ -137,6 +131,12 @@ func (svc service) Enroll() (Profile, error) {
 	scepPayload.PayloadContent = scepContent
 
 	mdmPayload := MDMPayload{
+		Payload{
+			PayloadVersion:      1,
+			PayloadType:         "com.apple.mdm",
+			PayloadDescription:  "Enrolls with the MDM server",
+			PayloadOrganization: "MicroMDM",
+		},
 		AccessRights:            8191,
 		CheckInURL:              svc.Url + "/mdm/checkin",
 		CheckOutWhenRemoved:     true,
