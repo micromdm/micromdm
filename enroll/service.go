@@ -1,12 +1,12 @@
 package enroll
 
 type Service interface {
-	Enroll() (Profile, error)
+	Enroll() (*Profile, error)
 }
 
 func NewService() Service {
-	scepSubject := []string{
-		[]string{
+	scepSubject := [][][]string{
+		[][]string{
 			[]string{"O", "MicroMDM"},
 			[]string{"CN", "MDM Identity Certificate:UDID"},
 		},
@@ -25,7 +25,7 @@ type service struct {
 	Topic         string // APNS Topic for MDM notifications
 }
 
-func (svc service) Enroll() (Profile, error) {
+func (svc service) Enroll() (*Profile, error) {
 	profile := NewProfile()
 	profile.PayloadIdentifier = "com.github.micromdm.micromdm.mdm"
 	profile.PayloadOrganization = "MicroMDM"
@@ -48,7 +48,7 @@ func (svc service) Enroll() (Profile, error) {
 	scepPayload.PayloadContent = scepContent
 
 	mdmPayload := MDMPayload{
-		Payload{
+		Payload: Payload{
 			PayloadVersion:      1,
 			PayloadType:         "com.apple.mdm",
 			PayloadDescription:  "Enrolls with the MDM server",
@@ -66,7 +66,7 @@ func (svc service) Enroll() (Profile, error) {
 	caPayload.PayloadDisplayName = "Root certificate for MicroMDM"
 	caPayload.PayloadDescription = "Installs the root CA certificate for MicroMDM"
 
-	append(profile.PayloadContent, scepPayload, mdmPayload, caPayload)
+	profile.PayloadContent = []interface{}{scepPayload, mdmPayload, caPayload}
 
-	return profile
+	return profile, nil
 }

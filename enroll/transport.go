@@ -8,6 +8,7 @@ import (
 	kitlog "github.com/go-kit/kit/log"
 	kithttp "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
+	"github.com/groob/plist"
 )
 
 // ServiceHandler returns an HTTP Handler for the enroll service
@@ -36,8 +37,13 @@ func decodeMDMEnrollRequest(_ context.Context, r *http.Request) (interface{}, er
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	resp := response.(mdmEnrollResponse)
 
-	if len(resp) != 0 {
-		w.Write(resp)
+	plistData, err := plist.Marshal(resp)
+	if err != nil {
+		return err
+	}
+
+	if len(plistData) != 0 {
+		w.Write(plistData)
 	}
 	return nil
 }

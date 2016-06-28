@@ -18,6 +18,6 @@ func makeEnrollEndpoint(svc Service) endpoint.Endpoint {
 		if err != nil {
 			return mdmEnrollResponse{}, err
 		}
-		return mdmEnrollResponse{profile}
+		return mdmEnrollResponse{profile}, nil
 	}
 }

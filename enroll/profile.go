@@ -33,19 +33,23 @@ type Profile struct {
 	ConsentText              map[string]string `json:"consent_text" db:"consent_text" plist:"omitempty"`
 }
 
-func NewProfile() Profile {
+func NewProfile() *Profile {
+	payloadUuid := uuid.NewV4()
+
 	return &Profile{
 		PayloadVersion: 1,
 		PayloadType:    "Configuration",
-		PayloadUUID:    uuid.NewV4(),
+		PayloadUUID:    payloadUuid.String(),
 	}
 }
 
-func NewPayload(identifier string) Payload {
+func NewPayload(identifier string) *Payload {
+	payloadUuid := uuid.NewV4()
+
 	return &Payload{
 		PayloadVersion:    1,
 		PayloadIdentifier: identifier,
-		PayloadUUID:       uuid.NewV4(),
+		PayloadUUID:       payloadUuid.String(),
 	}
 }
 
@@ -62,7 +66,7 @@ type SCEPPayload struct {
 
 // TODO: Actually this is one of those non-nested payloads that doesnt respect the PayloadContent key.
 type MDMPayload struct {
-	Payload
+	Payload                 Payload
 	AccessRights            int
 	CheckInURL              string
 	CheckOutWhenRemoved     bool
