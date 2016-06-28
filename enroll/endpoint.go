@@ -8,7 +8,7 @@ import (
 type mdmEnrollRequest struct{}
 
 type mdmEnrollResponse struct {
-	*Profile
+	Profile
 }
 
 func makeEnrollEndpoint(svc Service) endpoint.Endpoint {

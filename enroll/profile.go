@@ -13,7 +13,7 @@ type Payload struct {
 	PayloadDisplayName  string      `json:"displayname" db:"displayname"`
 	PayloadDescription  string      `json:"description,omitempty" db:"description"`
 	PayloadOrganization string      `json:"organization,omitempty" db:"organization"`
-	PayloadContent      interface{} `json:"content,omitempty"`
+	PayloadContent      interface{} `json:"content,omitempty" plist:"PayloadContent,omitempty"`
 }
 
 type Profile struct {
@@ -43,35 +43,35 @@ func NewProfile() *Profile {
 	}
 }
 
-func NewPayload(identifier string) *Payload {
+func NewPayload(payloadType string) *Payload {
 	payloadUuid := uuid.NewV4()
 
 	return &Payload{
-		PayloadVersion:    1,
-		PayloadIdentifier: identifier,
-		PayloadUUID:       payloadUuid.String(),
+		PayloadVersion: 1,
+		PayloadType:    payloadType,
+		PayloadUUID:    payloadUuid.String(),
 	}
 }
 
 type SCEPPayloadContent struct {
-	CAFingerprint []byte `plist:"omitempty"` // NSData
-	Challenge     string `plist:"omitempty"`
+	CAFingerprint []byte `plist:"CAFingerprint,omitempty"` // NSData
+	Challenge     string `plist:"Challenge,omitempty"`
 	Keysize       int
 	KeyType       string `plist:"Key Type"`
 	KeyUsage      int    `plist:"Key Usage"`
 	Name          string
-	Subject       [][][]string `plist:"omitempty"`
+	Subject       [][][]string `plist:"Subject,omitempty"`
 	URL           string
 }
 
 // TODO: Actually this is one of those non-nested payloads that doesnt respect the PayloadContent key.
 type MDMPayloadContent struct {
-	Payload                 Payload
+	Payload
 	AccessRights            int
 	CheckInURL              string
 	CheckOutWhenRemoved     bool
 	IdentityCertificateUUID string
-	ServerCapabilities      []string `plist:"omitempty"`
+	ServerCapabilities      []string `plist:"ServerCapabilities,omitempty"`
 	ServerURL               string
 	Topic                   string
 }
