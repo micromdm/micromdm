@@ -131,7 +131,7 @@ func (svc service) Enroll() (Profile, error) {
 	scepPayload.PayloadContent = scepContent
 
 	mdmPayload := MDMPayload{
-		Payload{
+		Payload: Payload{
 			PayloadVersion:      1,
 			PayloadType:         "com.apple.mdm",
 			PayloadDescription:  "Enrolls with the MDM server",
@@ -145,16 +145,11 @@ func (svc service) Enroll() (Profile, error) {
 		Topic: svc.Topic,
 	}
 
-	mdmPayload.PayloadVersion = 1
-	mdmPayload.PayloadType = "com.apple.mdm"
-	mdmPayload.PayloadDescription = "Enrolls with the MDM server"
-	mdmPayload.PayloadOrganization = "MicroMDM"
-
 	caPayload := NewPayload("com.apple.ssl.certificate")
 	caPayload.PayloadDisplayName = "Root certificate for MicroMDM"
 	caPayload.PayloadDescription = "Installs the root CA certificate for MicroMDM"
 
-	append(profile.PayloadContent, scepPayload, mdmPayload, caPayload)
+	profile.PayloadContent = []interface{}{scepPayload, mdmPayload, caPayload}
 
-	return profile
+	return profile, nil
 }
