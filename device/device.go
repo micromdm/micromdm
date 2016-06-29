@@ -71,7 +71,7 @@ func (status *DEPProfileStatus) Scan(value interface{}) error {
 		return nil
 	}
 	if sv, err := driver.String.ConvertValue(value); err == nil {
-		if v, ok := sv.([]byte); ok {
+		if v, ok := sv.(string); ok {
 			*status = DEPProfileStatus(v)
 			return nil
 		}
