@@ -1,13 +1,25 @@
 package enroll
 
+import "io/ioutil"
+
 type Service interface {
 	Enroll() (Profile, error)
 }
 
-func NewService(pushCertPath string, pushCertPass string) (Service, error) {
+func NewService(pushCertPath string, pushCertPass string, caCertPath string) (Service, error) {
 	pushTopic, err := GetPushTopicFromPKCS12(pushCertPath, pushCertPass)
 	if err != nil {
 		return nil, err
+	}
+
+	var caCert []byte
+
+	if caCertPath != "" {
+		caCert, err = ioutil.ReadFile(caCertPath)
+
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	scepSubject := [][][]string{
@@ -22,7 +34,7 @@ func NewService(pushCertPath string, pushCertPass string) (Service, error) {
 		SCEPUrl:     "http://micromdm.local:2019/scep",
 		SCEPSubject: scepSubject,
 		Topic:       pushTopic,
-		CACert:      []byte{},
+		CACert:      caCert,
 	}, nil
 }
 
@@ -73,12 +85,16 @@ func (svc service) Enroll() (Profile, error) {
 		Topic: svc.Topic,
 	}
 
-	//caPayload := NewPayload("com.apple.ssl.certificate")
-	//caPayload.PayloadDisplayName = "Root certificate for MicroMDM"
-	//caPayload.PayloadDescription = "Installs the root CA certificate for MicroMDM"
-	//caPayload.PayloadContent = []byte{}
+	if len(svc.CACert) > 0 {
+		caPayload := NewPayload("com.apple.ssl.certificate")
+		caPayload.PayloadDisplayName = "Root certificate for MicroMDM"
+		caPayload.PayloadDescription = "Installs the root CA certificate for MicroMDM"
+		caPayload.PayloadContent = svc.CACert
 
-	profile.PayloadContent = []interface{}{*scepPayload, mdmPayloadContent}
+		profile.PayloadContent = []interface{}{*scepPayload, mdmPayloadContent, *caPayload}
+	} else {
+		profile.PayloadContent = []interface{}{*scepPayload, mdmPayloadContent}
+	}
 
 	return *profile, nil
 }
