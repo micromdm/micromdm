@@ -48,6 +48,7 @@ func (svc service) Authenticate(cmd mdm.CheckinCommand) error {
 		IMEI:         cmd.IMEI,
 		MEID:         cmd.MEID,
 		MDMTopic:     cmd.Topic,
+		DeviceName:   cmd.DeviceName,
 	}
 
 	_, err := svc.devices.New("authenticate", dev)
