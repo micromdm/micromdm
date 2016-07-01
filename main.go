@@ -39,11 +39,13 @@ func main() {
 
 	//flags
 	var (
+		flUrl          = flag.String("url", envString("MICROMDM_URL", ""), "public facing url")
 		flPort         = flag.String("port", envString("MICROMDM_HTTP_LISTEN_PORT", ""), "port to listen on")
 		flTLS          = flag.Bool("tls", envBool("MICROMDM_USE_TLS"), "use https")
 		flTLSCert      = flag.String("tls-cert", envString("MICROMDM_TLS_CERT", ""), "path to TLS certificate")
 		flTLSKey       = flag.String("tls-key", envString("MICROMDM_TLS_KEY", ""), "path to TLS private key")
 		flTLSCACert    = flag.String("tls-ca-cert", envString("MICROMDM_TLS_CA_CERT", ""), "path to CA certificate")
+		flScepUrl      = flag.String("scep-url", envString("MICROMDM_SCEP_URL", ""), "url of SCEP server")
 		flPGconn       = flag.String("postgres", envString("MICROMDM_POSTGRES_CONN_URL", ""), "postgres connection url")
 		flRedisconn    = flag.String("redis", envString("MICROMDM_REDIS_CONN_URL", ""), "redis connection url")
 		flVersion      = flag.Bool("version", false, "print version information")
@@ -189,14 +191,12 @@ func main() {
 	commandSvc := command.NewService(commandDB)
 	checkinSvc := checkin.NewService(deviceDB, mgmtSvc, commandSvc, enrollmentProfile)
 	connectSvc := connect.NewService(deviceDB, commandSvc)
-	enrollSvc, _ := enroll.NewService(*flPushCert, *flPushPass, *flTLSCACert)
 
 	httpLogger := log.NewContext(logger).With("component", "http")
 	managementHandler := management.ServiceHandler(ctx, mgmtSvc, httpLogger)
 	commandHandler := command.ServiceHandler(ctx, commandSvc, httpLogger)
 	checkinHandler := checkin.ServiceHandler(ctx, checkinSvc, httpLogger)
 	connectHandler := connect.ServiceHandler(ctx, connectSvc, httpLogger)
-	enrollHandler := enroll.ServiceHandler(ctx, enrollSvc, httpLogger)
 
 	mux := http.NewServeMux()
 
@@ -205,7 +205,14 @@ func main() {
 	mux.Handle("/mdm/commands/", commandHandler)
 	mux.Handle("/mdm/checkin", checkinHandler)
 	mux.Handle("/mdm/connect", connectHandler)
-	mux.Handle("/mdm/enroll", enrollHandler)
+
+	if checkEmptyArgs(*flUrl, *flScepUrl) {
+		logger.Log("warn", "Enrollment endpoint /mdm/enroll will be disabled because you did not specify flags for the external URL or SCEP URL")
+	} else {
+		enrollSvc, _ := enroll.NewService(*flPushCert, *flPushPass, *flTLSCACert, *flUrl, *flScepUrl)
+		enrollHandler := enroll.ServiceHandler(ctx, enrollSvc, httpLogger)
+		mux.Handle("/mdm/enroll", enrollHandler)
+	}
 
 	if *flPkgRepo != "" {
 		mux.Handle("/repo/", http.StripPrefix("/repo/", http.FileServer(http.Dir(*flPkgRepo))))
