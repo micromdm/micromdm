@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 
+	"database/sql"
+	"github.com/DavidHuie/gomigrate"
 	"github.com/RobotsAndPencils/buford/certificate"
 	"github.com/RobotsAndPencils/buford/push"
 	"github.com/go-kit/kit/log"
@@ -16,14 +18,13 @@ import (
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/connect"
 	"github.com/micromdm/micromdm/device"
+	"github.com/micromdm/micromdm/enroll"
 	"github.com/micromdm/micromdm/management"
 	"github.com/micromdm/micromdm/workflow"
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
-	"golang.org/x/net/context"
 	"github.com/rs/cors"
-	"github.com/DavidHuie/gomigrate"
+	"golang.org/x/net/context"
 	"time"
-	"database/sql"
 )
 
 var (
@@ -42,6 +43,7 @@ func main() {
 		flTLS          = flag.Bool("tls", envBool("MICROMDM_USE_TLS"), "use https")
 		flTLSCert      = flag.String("tls-cert", envString("MICROMDM_TLS_CERT", ""), "path to TLS certificate")
 		flTLSKey       = flag.String("tls-key", envString("MICROMDM_TLS_KEY", ""), "path to TLS private key")
+		flTLSCACert    = flag.String("tls-ca-cert", envString("MICROMDM_TLS_CA_CERT", ""), "path to CA certificate")
 		flPGconn       = flag.String("postgres", envString("MICROMDM_POSTGRES_CONN_URL", ""), "postgres connection url")
 		flRedisconn    = flag.String("redis", envString("MICROMDM_REDIS_CONN_URL", ""), "redis connection url")
 		flVersion      = flag.Bool("version", false, "print version information")
@@ -187,12 +189,14 @@ func main() {
 	commandSvc := command.NewService(commandDB)
 	checkinSvc := checkin.NewService(deviceDB, mgmtSvc, commandSvc, enrollmentProfile)
 	connectSvc := connect.NewService(deviceDB, commandSvc)
+	enrollSvc, _ := enroll.NewService(*flPushCert, *flPushPass, *flTLSCACert)
 
 	httpLogger := log.NewContext(logger).With("component", "http")
 	managementHandler := management.ServiceHandler(ctx, mgmtSvc, httpLogger)
 	commandHandler := command.ServiceHandler(ctx, commandSvc, httpLogger)
 	checkinHandler := checkin.ServiceHandler(ctx, checkinSvc, httpLogger)
 	connectHandler := connect.ServiceHandler(ctx, connectSvc, httpLogger)
+	enrollHandler := enroll.ServiceHandler(ctx, enrollSvc, httpLogger)
 
 	mux := http.NewServeMux()
 
@@ -201,13 +205,15 @@ func main() {
 	mux.Handle("/mdm/commands/", commandHandler)
 	mux.Handle("/mdm/checkin", checkinHandler)
 	mux.Handle("/mdm/connect", connectHandler)
+	mux.Handle("/mdm/enroll", enrollHandler)
+
 	if *flPkgRepo != "" {
 		mux.Handle("/repo/", http.StripPrefix("/repo/", http.FileServer(http.Dir(*flPkgRepo))))
 	}
 
 	if *flCorsOrigin != "" {
 		c := cors.New(cors.Options{
-			AllowedOrigins: []string{*flCorsOrigin},
+			AllowedOrigins:   []string{*flCorsOrigin},
 			AllowCredentials: true,
 		})
 
@@ -216,8 +222,6 @@ func main() {
 	} else {
 		http.Handle("/", mux)
 	}
-
-
 
 	http.Handle("/metrics", stdprometheus.Handler())
 
