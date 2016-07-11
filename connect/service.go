@@ -12,6 +12,7 @@ import (
 type Service interface {
 	Acknowledge(ctx context.Context, req mdm.Response) (int, error)
 	NextCommand(ctx context.Context, req mdm.Response) ([]byte, int, error)
+	FailCommand(ctx context.Context, req mdm.Response) (int, error)
 
 	RegisterAckHandler(requestType string, handler func(req mdm.Response, datastores map[string]interface{}) error, datastores map[string]interface{})
 	FindAckHandler(requestType string) (func(req mdm.Response) error, bool)
@@ -66,6 +67,10 @@ func (svc service) NextCommand(ctx context.Context, req mdm.Response) ([]byte, i
 	return svc.commands.NextCommand(req.UDID)
 }
 
+func (svc service) FailCommand(ctx context.Context, req mdm.Response) (int, error) {
+	return svc.commands.DeleteCommand(req.UDID, req.CommandUUID)
+}
+
 func (svc service) checkRequeue(deviceUDID string) (int, error) {
 	existing, err := svc.devices.GetDeviceByUDID(deviceUDID, []string{"awaiting_configuration"}...)
 	if err != nil {
@@ -85,6 +90,7 @@ func (svc service) checkRequeue(deviceUDID string) (int, error) {
 	return 0, nil
 }
 
+// Register a handler function for a given RequestType, include datastore dependencies as a map.
 func (svc service) RegisterAckHandler(requestType string, handler func(req mdm.Response, datastores map[string]interface{}) error, datastores map[string]interface{}) {
 	datastoreInjectedHandler := func(req mdm.Response) error {
 		return handler(req, datastores)
@@ -92,7 +98,7 @@ func (svc service) RegisterAckHandler(requestType string, handler func(req mdm.R
 	svc.handlers = append(svc.handlers, ackHandler{requestType, datastoreInjectedHandler})
 }
 
-// If not found, second return variable is false
+// Find a handler function which is registered to deal with the RequestType
 func (svc service) FindAckHandler(requestType string) (func(req mdm.Response) error, bool) {
 	for _, h := range svc.handlers {
 		if h.requestType == requestType {
@@ -103,6 +109,7 @@ func (svc service) FindAckHandler(requestType string) (func(req mdm.Response) er
 	return nil, false
 }
 
+// Execute any registered handler function which matches the given RequestType
 func (svc service) ExecAckHandler(requestType string, req mdm.Response) error {
 	handler, found := svc.FindAckHandler(requestType)
 	if !found {
