@@ -203,6 +203,18 @@ func main() {
 	checkinSvc := checkin.NewService(deviceDB, mgmtSvc, commandSvc, enrollmentProfile)
 	connectSvc := connect.NewService(deviceDB, commandSvc)
 
+	connectSvc.RegisterAckHandler(
+		"InstalledApplicationList",
+		applications.AcknowledgeInstalledApplicationListResponse,
+		map[string]interface{}{"applications": appsDB},
+	)
+
+	connectSvc.RegisterAckHandler(
+		"DeviceInformation",
+		device.AcknowledgeDeviceInformationResponse,
+		map[string]interface{}{"devices": deviceDB},
+	)
+
 	httpLogger := log.NewContext(logger).With("component", "http")
 	managementHandler := management.ServiceHandler(ctx, mgmtSvc, httpLogger)
 	commandHandler := command.ServiceHandler(ctx, commandSvc, httpLogger)

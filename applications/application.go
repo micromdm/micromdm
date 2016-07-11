@@ -1,14 +1,16 @@
 package applications
 
+import "database/sql"
+
 type Application struct {
-	Identifier   string `plist:",omitempty" json:"identifier,omitempty"`
-	Version      string `plist:",omitempty" json:"version,omitempty"`
-	ShortVersion string `plist:",omitempty" json:"short_version,omitempty"`
-	Name         string `json:"name,omitempty"`
-	BundleSize   int    `plist:",omitempty" json:"bundle_size,omitempty"`
+	Identifier   sql.NullString `plist:",omitempty" json:"identifier,omitempty"`
+	Version      sql.NullString `plist:",omitempty" json:"version,omitempty"`
+	ShortVersion sql.NullString `plist:",omitempty" json:"short_version,omitempty"`
+	Name         string         `json:"name,omitempty"`
+	BundleSize   sql.NullInt64  `plist:",omitempty" json:"bundle_size,omitempty"`
 
 	// The size of the app's document, library, and other folders, in bytes.
-	DynamicSize int `plist:",omitempty" json:"dynamic_size,omitempty"`
+	DynamicSize sql.NullInt64 `plist:",omitempty" json:"dynamic_size,omitempty"`
 
-	IsValidated bool `plist:",omitempty" json:"is_validated,omitempty"`
+	IsValidated sql.NullBool `plist:",omitempty" json:"is_validated,omitempty"`
 }
