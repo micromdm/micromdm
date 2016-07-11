@@ -204,14 +204,14 @@ func main() {
 	connectSvc := connect.NewService(deviceDB, commandSvc)
 
 	connectSvc.RegisterAckHandler(
-		"InstalledApplicationList",
-		applications.AcknowledgeInstalledApplicationListResponse,
+		applications.AppListPredicate,
+		applications.AppListResponse,
 		map[string]interface{}{"applications": appsDB},
 	)
 
 	connectSvc.RegisterAckHandler(
-		"DeviceInformation",
-		device.AcknowledgeDeviceInformationResponse,
+		device.AckQueryResponsesPredicate,
+		device.AckQueryResponsesResponse,
 		map[string]interface{}{"devices": deviceDB},
 	)
 
