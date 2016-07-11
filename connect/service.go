@@ -1,6 +1,7 @@
 package connect
 
 import (
+	"fmt"
 	"github.com/micromdm/mdm"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/device"
@@ -14,9 +15,9 @@ type Service interface {
 	NextCommand(ctx context.Context, req mdm.Response) ([]byte, int, error)
 	FailCommand(ctx context.Context, req mdm.Response) (int, error)
 
-	RegisterAckHandler(requestType string, handler func(req mdm.Response, datastores map[string]interface{}) error, datastores map[string]interface{})
-	FindAckHandler(requestType string) (func(req mdm.Response) error, bool)
-	ExecAckHandler(requestType string, req mdm.Response) error
+	RegisterAckHandler(predicate func(req mdm.Response) bool, handler func(req mdm.Response, datastores map[string]interface{}) error, datastores map[string]interface{})
+	FindAckHandler(req mdm.Response) (func(req mdm.Response) error, bool)
+	ExecAckHandler(req mdm.Response) error
 }
 
 // NewService creates a mdm service
@@ -24,12 +25,13 @@ func NewService(devices device.Datastore, cs command.Service) Service {
 	return &service{
 		commands: cs,
 		devices:  devices,
+		handlers: []ackHandler{},
 	}
 }
 
 type ackHandler struct {
-	requestType string
-	handler     func(req mdm.Response) error
+	predicate func(req mdm.Response) bool
+	handler   func(req mdm.Response) error
 }
 
 type service struct {
@@ -39,15 +41,10 @@ type service struct {
 }
 
 func (svc service) Acknowledge(ctx context.Context, req mdm.Response) (int, error) {
-
-	err := svc.ExecAckHandler(req.RequestType, req)
-
-	//// Need to handle the absence of RequestType in IOS8 devices
-	//if req.QueryResponses.UDID != "" {
-	//	if err := svc.ackQueryResponses(req); err != nil {
-	//		return 0, err
-	//	}
-	//}
+	err := svc.ExecAckHandler(req)
+	if err != nil {
+		return 0, err
+	}
 
 	total, err := svc.commands.DeleteCommand(req.UDID, req.CommandUUID)
 	if err != nil {
@@ -90,18 +87,20 @@ func (svc service) checkRequeue(deviceUDID string) (int, error) {
 	return 0, nil
 }
 
-// Register a handler function for a given RequestType, include datastore dependencies as a map.
-func (svc service) RegisterAckHandler(requestType string, handler func(req mdm.Response, datastores map[string]interface{}) error, datastores map[string]interface{}) {
+// Register a handler function for a given request, include datastore dependencies as a map.
+func (svc *service) RegisterAckHandler(predicate func(req mdm.Response) bool, handler func(req mdm.Response, datastores map[string]interface{}) error, datastores map[string]interface{}) {
 	datastoreInjectedHandler := func(req mdm.Response) error {
 		return handler(req, datastores)
 	}
-	svc.handlers = append(svc.handlers, ackHandler{requestType, datastoreInjectedHandler})
+	newHandler := ackHandler{predicate: predicate, handler: datastoreInjectedHandler}
+	svc.handlers = append(svc.handlers, newHandler)
 }
 
 // Find a handler function which is registered to deal with the RequestType
-func (svc service) FindAckHandler(requestType string) (func(req mdm.Response) error, bool) {
-	for _, h := range svc.handlers {
-		if h.requestType == requestType {
+func (svc service) FindAckHandler(req mdm.Response) (func(req mdm.Response) error, bool) {
+	for i, h := range svc.handlers {
+		fmt.Println(i)
+		if h.predicate(req) {
 			return h.handler, true
 		}
 	}
@@ -110,10 +109,10 @@ func (svc service) FindAckHandler(requestType string) (func(req mdm.Response) er
 }
 
 // Execute any registered handler function which matches the given RequestType
-func (svc service) ExecAckHandler(requestType string, req mdm.Response) error {
-	handler, found := svc.FindAckHandler(requestType)
+func (svc service) ExecAckHandler(req mdm.Response) error {
+	handler, found := svc.FindAckHandler(req)
 	if !found {
-		return errors.Errorf("There is no registered handler for the response type: %s", requestType)
+		return errors.New("There is no registered handler for the response.")
 	}
 
 	return handler(req)

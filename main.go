@@ -203,14 +203,14 @@ func main() {
 	enrollSvc, _ := enroll.NewService(*flPushCert, *flPushPass, *flTLSCACert)
 
 	connectSvc.RegisterAckHandler(
-		"InstalledApplicationList",
-		applications.AcknowledgeInstalledApplicationListResponse,
+		applications.AppListPredicate,
+		applications.AppListResponse,
 		map[string]interface{}{"applications": appsDB},
 	)
 
 	connectSvc.RegisterAckHandler(
-		"DeviceInformation",
-		device.AcknowledgeDeviceInformationResponse,
+		device.AckQueryResponsesPredicate,
+		device.AckQueryResponsesResponse,
 		map[string]interface{}{"devices": deviceDB},
 	)
 

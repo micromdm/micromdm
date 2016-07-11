@@ -7,8 +7,21 @@ import (
 	"time"
 )
 
+func AckQueryResponsesPredicate(req mdm.Response) bool {
+	if req.RequestType == "DeviceInformation" {
+		return true
+	}
+
+	//// Need to handle the absence of RequestType in IOS8 devices
+	if req.QueryResponses.UDID != "" {
+		return true
+	}
+
+	return false
+}
+
 // Acknowledge Queries sent with DeviceInformation command
-func AcknowledgeDeviceInformationResponse(req mdm.Response, datastores map[string]interface{}) error {
+func AckQueryResponsesResponse(req mdm.Response, datastores map[string]interface{}) error {
 	store, found := datastores["devices"]
 	if !found {
 		return errors.New("Do not have access to datastore for saving device information")
