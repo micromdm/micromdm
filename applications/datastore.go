@@ -44,6 +44,10 @@ func NewDB(driver, conn string, logger kitlog.Logger) (Datastore, error) {
 	}
 }
 
+func (store pgStore) New(src string, a *Application) (string, error) {
+	return "", nil
+}
+
 func (store pgStore) GetApplicationsByDeviceUUID(deviceUUID string) (*[]Application, error) {
 	apps := []Application{}
 	query := `SELECT * FROM applications
