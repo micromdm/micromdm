@@ -1,12 +1,13 @@
 package connect
 
 import (
-	"fmt"
+	"encoding/json"
 	"github.com/micromdm/mdm"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/device"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
+	"time"
 )
 
 // Service defines methods for an MDM service
@@ -14,10 +15,6 @@ type Service interface {
 	Acknowledge(ctx context.Context, req mdm.Response) (int, error)
 	NextCommand(ctx context.Context, req mdm.Response) ([]byte, int, error)
 	FailCommand(ctx context.Context, req mdm.Response) (int, error)
-
-	RegisterAckHandler(predicate func(req mdm.Response) bool, handler func(req mdm.Response, datastores map[string]interface{}) error, datastores map[string]interface{})
-	FindAckHandler(req mdm.Response) (func(req mdm.Response) error, bool)
-	ExecAckHandler(req mdm.Response) error
 }
 
 // NewService creates a mdm service
@@ -25,25 +22,27 @@ func NewService(devices device.Datastore, cs command.Service) Service {
 	return &service{
 		commands: cs,
 		devices:  devices,
-		handlers: []ackHandler{},
 	}
-}
-
-type ackHandler struct {
-	predicate func(req mdm.Response) bool
-	handler   func(req mdm.Response) error
 }
 
 type service struct {
 	devices  device.Datastore
 	commands command.Service
-	handlers []ackHandler
 }
 
 func (svc service) Acknowledge(ctx context.Context, req mdm.Response) (int, error) {
-	err := svc.ExecAckHandler(req)
-	if err != nil {
-		return 0, err
+	switch req.RequestType {
+	case "DeviceInformation":
+		if err := svc.ackQueryResponses(req); err != nil {
+			return 0, err
+		}
+	default:
+		// Need to handle the absence of RequestType in IOS8 devices
+		if req.QueryResponses.UDID != "" {
+			if err := svc.ackQueryResponses(req); err != nil {
+				return 0, err
+			}
+		}
 	}
 
 	total, err := svc.commands.DeleteCommand(req.UDID, req.CommandUUID)
@@ -87,33 +86,46 @@ func (svc service) checkRequeue(deviceUDID string) (int, error) {
 	return 0, nil
 }
 
-// Register a handler function for a given request, include datastore dependencies as a map.
-func (svc *service) RegisterAckHandler(predicate func(req mdm.Response) bool, handler func(req mdm.Response, datastores map[string]interface{}) error, datastores map[string]interface{}) {
-	datastoreInjectedHandler := func(req mdm.Response) error {
-		return handler(req, datastores)
-	}
-	newHandler := ackHandler{predicate: predicate, handler: datastoreInjectedHandler}
-	svc.handlers = append(svc.handlers, newHandler)
-}
+// Acknowledge Queries sent with DeviceInformation command
+func (svc service) ackQueryResponses(req mdm.Response) error {
+	devices, err := svc.devices.Devices(
+		device.SerialNumber{SerialNumber: req.QueryResponses.SerialNumber},
+		device.UDID{UDID: req.UDID},
+	)
 
-// Find a handler function which is registered to deal with the RequestType
-func (svc service) FindAckHandler(req mdm.Response) (func(req mdm.Response) error, bool) {
-	for i, h := range svc.handlers {
-		fmt.Println(i)
-		if h.predicate(req) {
-			return h.handler, true
-		}
+	if err != nil {
+		return err
 	}
 
-	return nil, false
-}
-
-// Execute any registered handler function which matches the given RequestType
-func (svc service) ExecAckHandler(req mdm.Response) error {
-	handler, found := svc.FindAckHandler(req)
-	if !found {
-		return errors.New("There is no registered handler for the response.")
+	if len(devices) > 1 {
+		return errors.New("expected a single query result for device, got more than one.")
 	}
 
-	return handler(req)
+	existing := devices[0]
+
+	now := time.Now()
+	existing.LastCheckin = &now
+	existing.LastQueryResponse, err = json.Marshal(req.QueryResponses)
+
+	if err != nil {
+		return err
+	}
+
+	var serialNumber device.JsonNullString
+	serialNumber.Scan(req.QueryResponses.SerialNumber)
+
+	existing.ProductName = req.QueryResponses.ProductName
+	existing.BuildVersion = req.QueryResponses.BuildVersion
+	existing.DeviceName = req.QueryResponses.DeviceName
+	existing.IMEI = req.QueryResponses.IMEI
+	existing.MEID = req.QueryResponses.MEID
+	existing.Model = req.QueryResponses.Model
+	existing.OSVersion = req.QueryResponses.OSVersion
+	existing.SerialNumber = serialNumber
+
+	return svc.devices.Save("queryResponses", &existing)
 }
+
+//func (svc service) ackInstalledApplicationList(req mdm.Response) error {
+//
+//}
