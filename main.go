@@ -202,18 +202,6 @@ func main() {
 	connectSvc := connect.NewService(deviceDB, commandSvc)
 	enrollSvc, _ := enroll.NewService(*flPushCert, *flPushPass, *flTLSCACert)
 
-	connectSvc.RegisterAckHandler(
-		applications.AppListPredicate,
-		applications.AppListResponse,
-		map[string]interface{}{"applications": appsDB},
-	)
-
-	connectSvc.RegisterAckHandler(
-		device.AckQueryResponsesPredicate,
-		device.AckQueryResponsesResponse,
-		map[string]interface{}{"devices": deviceDB},
-	)
-
 	httpLogger := log.NewContext(logger).With("component", "http")
 	managementHandler := management.ServiceHandler(ctx, mgmtSvc, httpLogger)
 	commandHandler := command.ServiceHandler(ctx, commandSvc, httpLogger)
