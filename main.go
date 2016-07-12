@@ -42,10 +42,12 @@ func main() {
 	var (
 		flUrl          = flag.String("url", envString("MICROMDM_URL", ""), "public facing url")
 		flPort         = flag.String("port", envString("MICROMDM_HTTP_LISTEN_PORT", ""), "port to listen on")
+		flURL          = flag.String("url", envString("MICROMDM_PUBLIC_URL", ""), "public facing url")
 		flTLS          = flag.Bool("tls", envBool("MICROMDM_USE_TLS"), "use https")
 		flTLSCert      = flag.String("tls-cert", envString("MICROMDM_TLS_CERT", ""), "path to TLS certificate")
 		flTLSKey       = flag.String("tls-key", envString("MICROMDM_TLS_KEY", ""), "path to TLS private key")
 		flTLSCACert    = flag.String("tls-ca-cert", envString("MICROMDM_TLS_CA_CERT", ""), "path to CA certificate")
+		flSCEPURL      = flag.String("scep-url", envString("MICROMDM_SCEP_URL", ""), "scep server url. If blank, enroll profile will not use a scep payload.")
 		flScepUrl      = flag.String("scep-url", envString("MICROMDM_SCEP_URL", ""), "url of SCEP server")
 		flPGconn       = flag.String("postgres", envString("MICROMDM_POSTGRES_CONN_URL", ""), "postgres connection url")
 		flRedisconn    = flag.String("redis", envString("MICROMDM_REDIS_CONN_URL", ""), "redis connection url")
