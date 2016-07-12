@@ -66,7 +66,7 @@ func AppListResponse(response mdm.Response, datastores map[string]interface{}) e
 
 	var uuids []string
 	for _, app := range response.InstalledApplicationList {
-		var uuid string
+		//var uuid string
 
 		existingApps, err := appsStore.Applications(Name{app.Name}, Version{app.Version})
 		if err != nil {
