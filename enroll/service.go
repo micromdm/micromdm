@@ -6,7 +6,7 @@ type Service interface {
 	Enroll() (Profile, error)
 }
 
-func NewService(pushCertPath string, pushCertPass string, caCertPath string) (Service, error) {
+func NewService(pushCertPath string, pushCertPass string, caCertPath string, scepURL string, url string) (Service, error) {
 	pushTopic, err := GetPushTopicFromPKCS12(pushCertPath, pushCertPass)
 	if err != nil {
 		return nil, err
@@ -30,8 +30,8 @@ func NewService(pushCertPath string, pushCertPass string, caCertPath string) (Se
 	}
 
 	return &service{
-		Url:         "https://micromdm.local:6443",
-		SCEPUrl:     "http://micromdm.local:2019/scep",
+		Url:         url,
+		SCEPUrl:     scepURL,
 		SCEPSubject: scepSubject,
 		Topic:       pushTopic,
 		CACert:      caCert,
