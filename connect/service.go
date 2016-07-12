@@ -14,6 +14,7 @@ import (
 type Service interface {
 	Acknowledge(ctx context.Context, req mdm.Response) (int, error)
 	NextCommand(ctx context.Context, req mdm.Response) ([]byte, int, error)
+	FailCommand(ctx context.Context, req mdm.Response) (int, error)
 }
 
 // NewService creates a mdm service
