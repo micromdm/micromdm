@@ -15,10 +15,16 @@ type Datastore interface {
 	New(a *Application) (string, error)
 	Applications(params ...interface{}) ([]Application, error)
 	GetApplicationsByDeviceUUID(deviceUUID string) (*[]Application, error)
+	SaveApplicationByDeviceUUID(deviceUUID string, app *Application) error
 }
 
 type pgStore struct {
 	*sqlx.DB
+	logger kitlog.Logger
+}
+
+func NewDatastore(connection *sqlx.DB, logger kitlog.Logger) (Datastore, error) {
+	return pgStore{DB: connection, logger: logger}, nil
 }
 
 func NewDB(driver, conn string, logger kitlog.Logger) (Datastore, error) {
@@ -26,7 +32,7 @@ func NewDB(driver, conn string, logger kitlog.Logger) (Datastore, error) {
 	case "postgres":
 		db, err := sqlx.Open(driver, conn)
 		if err != nil {
-			return nil, errors.Wrap(err, "device datastore")
+			return nil, errors.Wrap(err, "applications datastore")
 		}
 		var dbError error
 		maxAttempts := 20
@@ -39,7 +45,7 @@ func NewDB(driver, conn string, logger kitlog.Logger) (Datastore, error) {
 			time.Sleep(time.Duration(attempts) * time.Second)
 		}
 		if dbError != nil {
-			return nil, errors.Wrap(dbError, "device datastore")
+			return nil, errors.Wrap(dbError, "applications datastore")
 		}
 		return pgStore{DB: db}, nil
 	default:
@@ -83,13 +89,13 @@ func (store pgStore) New(a *Application) (string, error) {
 			dynamic_size,
 			is_validated
 			)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		VALUES ($0, $1, $2, $3, $4, $5, $6)
 		ON CONFLICT (name, version) DO UPDATE SET
-			identifier=$2,
-			short_version=$3,
-			bundle_size=$5,
-			dynamic_size=$6,
-			is_validated=$7
+			identifier=$1,
+			short_version=$2,
+			bundle_size=$4,
+			dynamic_size=$5,
+			is_validated=$6
 		RETURNING application_uuid;`,
 		a.Name,
 		a.Identifier,
@@ -133,6 +139,16 @@ func (store pgStore) GetApplicationsByDeviceUUID(deviceUUID string) (*[]Applicat
 	}
 
 	return &apps, nil
+}
+
+// Associate the given applications with the given device uuid by inserting into `device_applications`.
+func (store pgStore) SaveApplicationByDeviceUUID(deviceUUID string, app *Application) error {
+	stmt := `INSERT INTO devices_applications (
+		device_uuid, application_uuid
+		) VALUES ($1, $2)`
+
+	_, err := store.Exec(stmt, deviceUUID, app.UUID)
+	return err
 }
 
 // whereer is for building args passed into a method which finds resources
