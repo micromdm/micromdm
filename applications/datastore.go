@@ -66,13 +66,13 @@ func (store pgStore) New(a *Application) (string, error) {
 			dynamic_size,
 			is_validated
 			)
-		VALUES ($0, $1, $2, $3, $4, $5, $6)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		ON CONFLICT (name, version) DO UPDATE SET
-			identifier=$1,
-			short_version=$2,
-			bundle_size=$4,
-			dynamic_size=$5,
-			is_validated=$6
+			identifier=$2,
+			short_version=$3,
+			bundle_size=$5,
+			dynamic_size=$6,
+			is_validated=$7
 		RETURNING application_uuid;`,
 		a.Name,
 		a.Identifier,
@@ -92,7 +92,16 @@ func (store pgStore) New(a *Application) (string, error) {
 
 // Retrieve a list of applications
 func (store pgStore) Applications(params ...interface{}) ([]Application, error) {
-	stmt := `SELECT * FROM applications`
+	stmt := `SELECT
+		application_uuid,
+		name,
+		identifier,
+		short_version,
+		version,
+		bundle_size,
+		dynamic_size,
+		is_validated
+	FROM applications`
 	stmt = addWhereFilters(stmt, "OR", params...)
 
 	var apps []Application
@@ -106,13 +115,25 @@ func (store pgStore) Applications(params ...interface{}) ([]Application, error) 
 
 // Retrieve only applications which are installed on the given device.
 func (store pgStore) GetApplicationsByDeviceUUID(deviceUUID string) ([]Application, error) {
+	if len(deviceUUID) == 0 {
+		return nil, errors.New("empty uuid supplied to GetApplicationsByDeviceUUID")
+	}
+
 	var apps []Application
-	query := `SELECT * FROM applications
+	query := `SELECT
+		applications.application_uuid AS application_uuid,
+		name,
+		identifier,
+		short_version,
+		version,
+		bundle_size,
+		dynamic_size,
+		is_validated
+	FROM applications
 	RIGHT JOIN devices_applications ON applications.application_uuid = devices_applications.application_uuid
 	WHERE devices_applications.device_uuid=$1`
 
 	err := store.Select(&apps, query, deviceUUID)
-
 	if err != nil {
 		return nil, err
 	}
@@ -122,6 +143,14 @@ func (store pgStore) GetApplicationsByDeviceUUID(deviceUUID string) ([]Applicati
 
 // Associate the given applications with the given device uuid by inserting into `device_applications`.
 func (store pgStore) SaveApplicationByDeviceUUID(deviceUUID string, app *Application) error {
+	if deviceUUID == "" {
+		return errors.New("empty uuid supplied to SaveApplicationByDeviceUUID for deviceUUID")
+	}
+
+	if app.UUID == "" {
+		return errors.New("empty uuid supplied to SaveApplicationByDeviceUUID for application")
+	}
+
 	stmt := `INSERT INTO devices_applications (
 		device_uuid, application_uuid
 		) VALUES ($1, $2)`
