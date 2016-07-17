@@ -78,6 +78,9 @@ func (p Version) where() string {
 	return fmt.Sprintf("version = '%s'", p.Version)
 }
 
+// This function inserts a new application into the applications table.
+// Applications are uniquely identifier by both their name and their long form version because some do not have
+// identifiers, and some do not have short versions.
 func (store pgStore) New(a *Application) (string, error) {
 	err := store.QueryRow(
 		`INSERT INTO applications (
@@ -113,6 +116,7 @@ func (store pgStore) New(a *Application) (string, error) {
 	return a.UUID, nil
 }
 
+// Retrieve a list of applications
 func (store pgStore) Applications(params ...interface{}) ([]Application, error) {
 	stmt := `SELECT * FROM applications`
 	stmt = addWhereFilters(stmt, "OR", params...)
@@ -126,8 +130,9 @@ func (store pgStore) Applications(params ...interface{}) ([]Application, error) 
 	return apps, nil
 }
 
+// Retrieve only applications which are installed on the given device.
 func (store pgStore) GetApplicationsByDeviceUUID(deviceUUID string) (*[]Application, error) {
-	apps := []Application{}
+	var apps []Application
 	query := `SELECT * FROM applications
 	RIGHT JOIN devices_applications ON applications.application_uuid = devices_applications.application_uuid
 	WHERE devices_applications.device_uuid=$1`
@@ -170,4 +175,68 @@ func addWhereFilters(stmt string, separator string, params ...interface{}) strin
 		stmt = fmt.Sprintf("%s WHERE %s", stmt, whereFilter)
 	}
 	return stmt
+}
+
+// boolean operators are applied to where conditions which are part of a whereClauseGroup
+type booleanOperator string
+
+const (
+	OR  = "OR"
+	AND = "AND"
+)
+
+type whereClauseGroup struct {
+	Operator booleanOperator
+	Clauses  []whereClause
+}
+
+// Get a string representing the where clause
+// Second return value is an array of arguments to give to db.Exec etc.
+func (cg whereClauseGroup) String() (string, []string) {
+	var clauses []string
+	var values []string = make([]string, len(cg.Clauses))
+
+	for i, c := range cg.Clauses {
+		c.Placeholder = fmt.Sprintf("$%d", i)
+		clauses = append(clauses, c.String())
+		values = append(values, c.Value)
+	}
+
+	return strings.Join(clauses, string(cg.Operator)), values
+}
+
+// Struct representation of a where clause. Does not deal with field name escaping or any inference of the value.
+// I.E Do your own quoting.
+type whereClause struct {
+	Operator    string
+	Field       string
+	Value       string
+	Placeholder string
+}
+
+func (c whereClause) String() string {
+	return fmt.Sprintf(`%s %s %s`, c.Field, c.Operator, c.Value)
+}
+
+func Where(field string, operator string, value string) whereClause {
+	return whereClause{
+		Operator:    operator,
+		Field:       field,
+		Value:       value,
+		Placeholder: "$1",
+	}
+}
+
+func WhereAnd(clauses ...whereClause) whereClauseGroup {
+	return whereClauseGroup{
+		Operator: "AND",
+		Clauses:  clauses,
+	}
+}
+
+func WhereOr(clauses ...whereClause) whereClauseGroup {
+	return whereClauseGroup{
+		Operator: "OR",
+		Clauses:  clauses,
+	}
 }

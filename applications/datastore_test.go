@@ -11,9 +11,40 @@ import (
 const MockUUID string = "ABCD-EFGH-IJKL"
 const MockName string = "Mock Application"
 
+var appFixtures []Application = []Application{
+	{ // Normal macOS Application
+		UUID:         "aba03d9d-6d80-4b96-bc6d-04233bddb26d",
+		Name:         "Keychain Access",
+		Identifier:   sql.NullString{"com.apple.keychainaccess", true},
+		ShortVersion: sql.NullString{"9.0", true},
+		Version:      sql.NullString{"9.0", true},
+		BundleSize:   sql.NullInt64{14166172, true},
+	},
+	{ // macOS Application with no versioning available
+		UUID:       "ddacb35f-6a6a-42eb-8ce6-aad55da5a237",
+		Name:       "unetbootin",
+		Identifier: sql.NullString{"com.yourcompany.unetbootin", true},
+		BundleSize: sql.NullInt64{22292686, true},
+	},
+	{ // macOS Application with no bundle size available
+		UUID:         "cdd950a1-f596-4777-a63a-9839c28e4d48",
+		Name:         "FileMerge",
+		Identifier:   sql.NullString{"com.apple.FileMerge", true},
+		ShortVersion: sql.NullString{"2.9.1", true},
+		Version:      sql.NullString{"2.9.1", true},
+	},
+	{ // macOS Application with no bundle identifier
+		UUID:       "84c78174-8331-4cf3-98c3-a4b1434617e5",
+		Name:       "Wireless Network Utility",
+		BundleSize: sql.NullInt64{2416111, true},
+	},
+}
+
+var logger log.Logger = log.NewNopLogger()
+
 //func TestNewDB(t *testing.T) {
-//	var log log.Logger = log.NewNopLogger()
-//	appsDB, err := NewDB("postgres", "host=localhost", log)
+//	var logger logger.Logger = logger.NewNopLogger()
+//	appsDB, err := NewDB("postgres", "host=localhost", logger)
 //
 //	if err != nil {
 //		t.Error(err)
@@ -26,7 +57,6 @@ const MockName string = "Mock Application"
 //}
 
 func TestNewDatastore(t *testing.T) {
-	var log log.Logger = log.NewNopLogger()
 	db, _, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -34,13 +64,12 @@ func TestNewDatastore(t *testing.T) {
 	dbx := sqlx.NewDb(db, "mock")
 	defer dbx.Close()
 
-	if _, err := NewDatastore(dbx, log); err != nil {
+	if _, err := NewDatastore(dbx, logger); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestNewApplication(t *testing.T) {
-	var log log.Logger = log.NewNopLogger()
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -48,38 +77,31 @@ func TestNewApplication(t *testing.T) {
 	dbx := sqlx.NewDb(db, "mock")
 	defer dbx.Close()
 
-	appsDs, err := NewDatastore(dbx, log)
+	appsDs, err := NewDatastore(dbx, logger)
 	if err != nil {
 		t.Error(err)
 	}
 
-	// macOS style: no DynamicSize, no IsValidated
-	fixture := Application{
-		Name:         "Keychain Access",
-		Identifier:   sql.NullString{"com.apple.keychainaccess", true},
-		ShortVersion: sql.NullString{"9.0", true},
-		Version:      sql.NullString{"9.0", true},
-		BundleSize:   sql.NullInt64{14166172, true},
-	}
+	for _, fixture := range appFixtures {
+		newRow := sqlmock.NewRows([]string{"application_uuid"}).AddRow(MockUUID)
+		mock.ExpectQuery("INSERT INTO applications").WithArgs(
+			fixture.Name,
+			fixture.Identifier,
+			fixture.ShortVersion,
+			fixture.Version,
+			fixture.BundleSize,
+			nil,
+			nil,
+		).WillReturnRows(newRow)
 
-	newRow := sqlmock.NewRows([]string{"application_uuid"}).AddRow(MockUUID)
-	mock.ExpectQuery("INSERT INTO applications").WithArgs(
-		fixture.Name,
-		fixture.Identifier.String,
-		fixture.ShortVersion.String,
-		fixture.Version.String,
-		fixture.BundleSize.Int64,
-		nil,
-		nil,
-	).WillReturnRows(newRow)
+		appUuid, err := appsDs.New(&fixture)
+		if err != nil {
+			t.Error(err)
+		}
 
-	appUuid, err := appsDs.New(&fixture)
-	if err != nil {
-		t.Error(err)
-	}
-
-	if appUuid != MockUUID {
-		t.Errorf("inserting a mock application did not return the mock uuid, got: %s", appUuid)
+		if appUuid != MockUUID {
+			t.Errorf("inserting a mock application did not return the mock uuid, got: %s", appUuid)
+		}
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -88,7 +110,6 @@ func TestNewApplication(t *testing.T) {
 }
 
 func TestApplications(t *testing.T) {
-	var log log.Logger = log.NewNopLogger()
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -96,7 +117,7 @@ func TestApplications(t *testing.T) {
 	dbx := sqlx.NewDb(db, "mock")
 	defer dbx.Close()
 
-	appsDs, err := NewDatastore(dbx, log)
+	appsDs, err := NewDatastore(dbx, logger)
 	if err != nil {
 		t.Error(err)
 	}
@@ -115,7 +136,6 @@ func TestApplications(t *testing.T) {
 }
 
 func TestApplicationsWhereUUID(t *testing.T) {
-	var log log.Logger = log.NewNopLogger()
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -123,13 +143,13 @@ func TestApplicationsWhereUUID(t *testing.T) {
 	dbx := sqlx.NewDb(db, "mock")
 	defer dbx.Close()
 
-	appsDs, err := NewDatastore(dbx, log)
+	appsDs, err := NewDatastore(dbx, logger)
 	if err != nil {
 		t.Error(err)
 	}
 
 	mockRow := sqlmock.NewRows([]string{"application_uuid"}).AddRow(MockUUID)
-	mock.ExpectQuery(`WHERE application_uuid =`).WithArgs(MockUUID).WillReturnRows(mockRow)
+	mock.ExpectQuery(`WHERE application_uuid =`).WillReturnRows(mockRow)
 
 	apps, err := appsDs.Applications(UUID{MockUUID})
 	if err != nil {
@@ -150,7 +170,6 @@ func TestApplicationsWhereUUID(t *testing.T) {
 }
 
 func TestApplicationsWhereName(t *testing.T) {
-	var log log.Logger = log.NewNopLogger()
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -158,13 +177,13 @@ func TestApplicationsWhereName(t *testing.T) {
 	dbx := sqlx.NewDb(db, "mock")
 	defer dbx.Close()
 
-	appsDs, err := NewDatastore(dbx, log)
+	appsDs, err := NewDatastore(dbx, logger)
 	if err != nil {
 		t.Error(err)
 	}
 
 	mockRow := sqlmock.NewRows([]string{"application_uuid", "name"}).AddRow(MockUUID, MockName)
-	mock.ExpectQuery(`WHERE name =`).WithArgs(MockName).WillReturnRows(mockRow)
+	mock.ExpectQuery(`WHERE name =`).WillReturnRows(mockRow)
 
 	apps, err := appsDs.Applications(Name{MockName})
 	if err != nil {
@@ -185,7 +204,6 @@ func TestApplicationsWhereName(t *testing.T) {
 }
 
 func TestGetApplicationsByDeviceUUID(t *testing.T) {
-	var log log.Logger = log.NewNopLogger()
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -193,7 +211,7 @@ func TestGetApplicationsByDeviceUUID(t *testing.T) {
 	dbx := sqlx.NewDb(db, "mock")
 	defer dbx.Close()
 
-	appsDs, err := NewDatastore(dbx, log)
+	appsDs, err := NewDatastore(dbx, logger)
 	if err != nil {
 		t.Error(err)
 	}
@@ -211,7 +229,6 @@ func TestGetApplicationsByDeviceUUID(t *testing.T) {
 }
 
 func TestSaveApplicationByDeviceUUID(t *testing.T) {
-	var log log.Logger = log.NewNopLogger()
 	db, mock, err := sqlmock.New()
 	if err != nil {
 		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
@@ -219,20 +236,16 @@ func TestSaveApplicationByDeviceUUID(t *testing.T) {
 	dbx := sqlx.NewDb(db, "mock")
 	defer dbx.Close()
 
-	appsDs, err := NewDatastore(dbx, log)
+	appsDs, err := NewDatastore(dbx, logger)
 	if err != nil {
 		t.Error(err)
 	}
 
-	fixture := Application{
-		Name:         "Keychain Access",
-		Identifier:   sql.NullString{"com.apple.keychainaccess", true},
-		ShortVersion: sql.NullString{"9.0", true},
-		Version:      sql.NullString{"9.0", true},
-		BundleSize:   sql.NullInt64{14166172, true},
-	}
-	if err := appsDs.SaveApplicationByDeviceUUID(MockUUID, &fixture); err != nil {
-		t.Error(err)
+	for _, fixture := range appFixtures {
+		mock.ExpectExec("INSERT INTO devices_applications").WithArgs(MockUUID, fixture.UUID).WillReturnResult(sqlmock.NewResult(1, 1))
+		if err := appsDs.SaveApplicationByDeviceUUID(MockUUID, &fixture); err != nil {
+			t.Error(err)
+		}
 	}
 
 	if err := mock.ExpectationsWereMet(); err != nil {
