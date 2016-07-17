@@ -41,6 +41,11 @@ func (svc service) Acknowledge(ctx context.Context, req mdm.Response) (int, erro
 		if err := svc.ackQueryResponses(req); err != nil {
 			return 0, err
 		}
+	case "InstalledApplicationList":
+		if err := svc.ackInstalledApplicationList(req); err != nil {
+			fmt.Printf("Got an error acknowledging InstalledApplicationList: %v\n", err)
+			return 0, err
+		}
 	default:
 		// Need to handle the absence of RequestType in IOS8 devices
 		if req.QueryResponses.UDID != "" {
@@ -137,62 +142,93 @@ func (svc service) ackQueryResponses(req mdm.Response) error {
 
 // Acknowledge a response to `InstalledApplicationList`.
 func (svc service) ackInstalledApplicationList(req mdm.Response) error {
-	device, err := svc.devices.GetDeviceByUDID(req.UDID)
+	fmt.Println("Acknowledging installed applications")
+
+	device, err := svc.devices.GetDeviceByUDID(req.UDID, "device_uuid")
 	if err != nil {
-		return err
+		return errors.Wrap(err, "getting a device record by udid")
+	}
+
+	requestApps := make([]apps.Application, len(req.InstalledApplicationList))
+	// Update or insert application records that do not exist, returning the UUID so that it can be inserted for
+	// the device sending the response.
+	for _, reqApp := range req.InstalledApplicationList {
+		identifier := sql.NullString{reqApp.Identifier, reqApp.Identifier != ""}
+		shortVersion := sql.NullString{reqApp.ShortVersion, reqApp.ShortVersion != ""}
+		version := sql.NullString{reqApp.Version, reqApp.Version != ""}
+
+		bundleSize := sql.NullInt64{}
+		bundleSize.Scan(reqApp.BundleSize)
+
+		dynamicSize := sql.NullInt64{}
+		dynamicSize.Scan(reqApp.DynamicSize)
+
+		newApp := apps.Application{
+			Name:         reqApp.Name,
+			Identifier:   identifier,
+			ShortVersion: shortVersion,
+			Version:      version,
+			BundleSize:   bundleSize,
+			DynamicSize:  dynamicSize,
+		}
+		appUuid, err := svc.apps.New(&newApp)
+		if err != nil {
+			return err
+		}
+
+		newApp.UUID = appUuid
+		requestApps = append(requestApps, newApp)
 	}
 
 	deviceApps, err := svc.apps.GetApplicationsByDeviceUUID(device.UUID)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "getting applications by device uuid")
 	}
 
-	var removed []apps.Application = make([]apps.Application, len(req.InstalledApplicationList))
-	var deviceAppsRemaining []apps.Application = make([]apps.Application, len(req.InstalledApplicationList))
+	var deviceRemoved []apps.Application = make([]apps.Application, len(req.InstalledApplicationList))
+	var deviceNotRemoved []apps.Application = make([]apps.Application, len(req.InstalledApplicationList))
 
 	// Check to see whether installed applications exist in the latest response
 	// If they do not, they are added to the removed slice.
 	// TODO: This is a pretty horrible algorithm and I should re-design it at some point. m.
+	fmt.Println("Determining apps removed")
 removedouter:
 	for _, deviceApp := range deviceApps {
-		for _, app := range req.InstalledApplicationList {
-			if deviceApp.Version.Valid && deviceApp.Version.String == app.Version && deviceApp.Name == app.Name {
-				deviceAppsRemaining = append(deviceAppsRemaining, deviceApp)
+		for _, app := range requestApps {
+			if deviceApp.Version == app.Version && deviceApp.Name == app.Name {
+				deviceNotRemoved = append(deviceNotRemoved, deviceApp)
 				continue removedouter
 			}
 		}
 
-		removed = append(removed, deviceApp)
+		deviceRemoved = append(deviceRemoved, deviceApp)
 	}
 
 	// Any installed applications that are already represented in the `applications` table AND
 	// allocated to the device in `devices_applications` should be skipped.
 	var updated []apps.Application = make([]apps.Application, len(req.InstalledApplicationList))
 
+	fmt.Println("Determining apps changed or added")
 skip:
-	for _, ackApp := range req.InstalledApplicationList {
-		for _, app := range deviceAppsRemaining {
-			if app.Name == ackApp.Name && app.Version.Valid && app.Version.String == ackApp.Version {
+	for _, ackApp := range requestApps {
+		for _, app := range deviceNotRemoved {
+			if app.Name == ackApp.Name && app.Version == ackApp.Version {
 				continue skip
 			}
 		}
 
-		identifier := sql.NullString{ackApp.Identifier, ackApp.Identifier != ""}
-
-		appUpdated := apps.Application{
-			Name:       ackApp.Name,
-			Identifier: identifier,
-			//ShortVersion: sql.NullString{}.Scan(ackApp.ShortVersion),
-			//Version: sql.NullString{}.Scan(ackApp.Version),
-			//BundleSize: sql.NullInt64{}.Scan(ackApp.BundleSize),
-			//DynamicSize: sql.NullInt64{}.Scan(ackApp.DynamicSize),
-			//IsValidated: sql.NullBool{}.Scan(ackApp.IsValidated),
-		}
-		updated = append(updated, appUpdated)
+		updated = append(updated, ackApp)
 	}
 
-	fmt.Printf("removed %#v\n", removed)
-	fmt.Printf("updated %#v\n", updated)
+	fmt.Printf("removed %d application(s)\n", len(deviceRemoved))
+	fmt.Printf("updated %d application(s)\n", len(updated))
+
+	for _, insertApp := range updated {
+		if err := svc.apps.SaveApplicationByDeviceUUID(device.UUID, &insertApp); err != nil {
+			fmt.Printf("could not save application, no valid uuid: %s\n", insertApp.Name)
+			// return errors.Wrap(err, "saving installed application for a device")
+		}
+	}
 
 	return nil
 }
