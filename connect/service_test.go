@@ -20,7 +20,11 @@ func (md MockDevices) GetDeviceByUUID(uuid string, fields ...string) (*device.De
 	return &device.Device{}, nil
 }
 func (md MockDevices) Devices(params ...interface{}) ([]device.Device, error) {
-	return []device.Device{}, nil
+	return []device.Device{
+		{
+			UUID: "ABCD-EFGH-IJKL",
+		},
+	}, nil
 }
 func (md MockDevices) Save(msg string, dev *device.Device) error {
 	return nil
@@ -77,6 +81,36 @@ func TestAckQueryResponses(t *testing.T) {
 		CommandUUID:    "10000000-1111-2222-3333-444455556666",
 		RequestType:    "DeviceInformation",
 		QueryResponses: mdm.QueryResponses{},
+	}
+
+	mockDevices := MockDevices{}
+	mockApps := MockApps{}
+	mockCmd := MockCmd{}
+
+	svc := NewService(mockDevices, mockApps, mockCmd)
+	svc.Acknowledge(MockContext{}, response)
+}
+
+func TestAckInstalledApplicationList(t *testing.T) {
+
+	response := mdm.Response{
+		UDID:        "00000000-1111-2222-3333-444455556666",
+		Status:      "Acknowledged",
+		CommandUUID: "10000000-1111-2222-3333-444455556666",
+		RequestType: "InstalledApplicationList",
+		InstalledApplicationList: []mdm.InstalledApplicationListItem{
+			{
+				Name:       "Wireless Network Utility",
+				BundleSize: 2416111,
+			},
+			{
+				Name:         "Keychain Access",
+				Identifier:   "com.apple.keychainaccess",
+				ShortVersion: "9.0",
+				Version:      "9.0",
+				BundleSize:   14166172,
+			},
+		},
 	}
 
 	mockDevices := MockDevices{}
