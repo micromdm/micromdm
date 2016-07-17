@@ -22,6 +22,6 @@ func makeInstalledAppsEndpoint(svc Service) endpoint.Endpoint {
 		if err != nil {
 			return installedAppsResponse{Err: err}, nil
 		}
-		return installedAppsResponse{applications: *apps}, nil
+		return installedAppsResponse{applications: apps}, nil
 	}
 }

@@ -10,9 +10,10 @@ type Application struct {
 	Name         string         `json:"name,omitempty" db:"name"`
 	BundleSize   sql.NullInt64  `plist:",omitempty" json:"bundle_size,omitempty" db:"bundle_size"`
 
-	// The size of the app's document, library, and other folders, in bytes.
+	// The size of the app's document, library, and other folders, in bytes. Only applies to iOS
 	DynamicSize sql.NullInt64 `plist:",omitempty" json:"dynamic_size,omitempty" db:"dynamic_size"`
 
+	// iOS only.
 	IsValidated sql.NullBool `plist:",omitempty" json:"is_validated,omitempty" db:"is_validated"`
 }
 

@@ -29,7 +29,7 @@ type Service interface {
 	Device(uuid string) (*device.Device, error)
 
 	// Installed Applications
-	InstalledApps(deviceUUID string) (*[]applications.Application, error)
+	InstalledApps(deviceUUID string) ([]applications.Application, error)
 
 	// AssignWorkflow assigns a workflow to a device
 	AssignWorkflow(deviceUUID, workflowUUID string) error
@@ -165,7 +165,7 @@ func (svc service) AssignWorkflow(deviceUUID, workflowUUID string) error {
 	return svc.devices.Save("assignWorkflow", dev)
 }
 
-func (svc service) InstalledApps(deviceUUID string) (*[]applications.Application, error) {
+func (svc service) InstalledApps(deviceUUID string) ([]applications.Application, error) {
 	apps, err := svc.applications.GetApplicationsByDeviceUUID(deviceUUID)
 	if err != nil {
 		return nil, errors.Wrap(err, "management: installed apps")

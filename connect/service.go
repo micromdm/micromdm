@@ -1,10 +1,11 @@
 package connect
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"github.com/micromdm/mdm"
-	"github.com/micromdm/micromdm/applications"
+	apps "github.com/micromdm/micromdm/applications"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/device"
 	"github.com/pkg/errors"
@@ -20,7 +21,7 @@ type Service interface {
 }
 
 // NewService creates a mdm service
-func NewService(devices device.Datastore, apps applications.Datastore, cs command.Service) Service {
+func NewService(devices device.Datastore, apps apps.Datastore, cs command.Service) Service {
 	return &service{
 		commands: cs,
 		devices:  devices,
@@ -30,7 +31,7 @@ func NewService(devices device.Datastore, apps applications.Datastore, cs comman
 
 type service struct {
 	devices  device.Datastore
-	apps     applications.Datastore
+	apps     apps.Datastore
 	commands command.Service
 }
 
@@ -98,11 +99,15 @@ func (svc service) ackQueryResponses(req mdm.Response) error {
 	)
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "ackQueryResponses fetching device")
+	}
+
+	if len(devices) == 0 {
+		return errors.New("no enrolled device matches the one responding")
 	}
 
 	if len(devices) > 1 {
-		return errors.New("expected a single query result for device, got more than one.")
+		return fmt.Errorf("expected a single device for udid: %s, serial number: %s, but got more than one.", req.UDID, req.QueryResponses.SerialNumber)
 	}
 
 	existing := devices[0]
@@ -142,48 +147,52 @@ func (svc service) ackInstalledApplicationList(req mdm.Response) error {
 		return err
 	}
 
-	// Any installed applications that are already represented in the applications datastore should be skipped.
-	var updated []applications.Application = make([]applications.Application, len(req.InstalledApplicationList))
+	var removed []apps.Application = make([]apps.Application, len(req.InstalledApplicationList))
+	var deviceAppsRemaining []apps.Application = make([]apps.Application, len(req.InstalledApplicationList))
+
+	// Check to see whether installed applications exist in the latest response
+	// If they do not, they are added to the removed slice.
+	// TODO: This is a pretty horrible algorithm and I should re-design it at some point. m.
+removedouter:
+	for _, deviceApp := range deviceApps {
+		for _, app := range req.InstalledApplicationList {
+			if deviceApp.Version.Valid && deviceApp.Version.String == app.Version && deviceApp.Name == app.Name {
+				deviceAppsRemaining = append(deviceAppsRemaining, deviceApp)
+				continue removedouter
+			}
+		}
+
+		removed = append(removed, deviceApp)
+	}
+
+	// Any installed applications that are already represented in the `applications` table AND
+	// allocated to the device in `devices_applications` should be skipped.
+	var updated []apps.Application = make([]apps.Application, len(req.InstalledApplicationList))
 
 skip:
 	for _, ackApp := range req.InstalledApplicationList {
-		for _, app := range *deviceApps {
-			if app.Name == ackApp.Name && app.Version == ackApp.Version {
+		for _, app := range deviceAppsRemaining {
+			if app.Name == ackApp.Name && app.Version.Valid && app.Version.String == ackApp.Version {
 				continue skip
 			}
 		}
 
-		updated = append(updated, ackApp)
+		identifier := sql.NullString{ackApp.Identifier, ackApp.Identifier != ""}
+
+		appUpdated := apps.Application{
+			Name:       ackApp.Name,
+			Identifier: identifier,
+			//ShortVersion: sql.NullString{}.Scan(ackApp.ShortVersion),
+			//Version: sql.NullString{}.Scan(ackApp.Version),
+			//BundleSize: sql.NullInt64{}.Scan(ackApp.BundleSize),
+			//DynamicSize: sql.NullInt64{}.Scan(ackApp.DynamicSize),
+			//IsValidated: sql.NullBool{}.Scan(ackApp.IsValidated),
+		}
+		updated = append(updated, appUpdated)
 	}
 
-	if len(updated) == 0 {
-		return nil
-	}
-
-	// Determine applications which we have no record of at all, then insert them (find or create).
-	for _, newApp := range updated {
-		existing, err := svc.apps.Applications(applications.Name{newApp.Name}, applications.Version{newApp.Version})
-		if err != nil {
-			return err
-		}
-
-		switch {
-		case len(existing) > 1:
-			return fmt.Errorf("expected a single application match for application name: %s, got %d results", newApp.Name, len(existing))
-		case len(existing) == 0: // No record exists and therefore both the application row and device association must be created.
-			appUuid, err := svc.apps.New(newApp)
-			if err != nil {
-				return err
-			}
-
-			newApp.UUID = appUuid
-		}
-
-		// For both len(existing) == 0 and len(existing) == 1, the row must be inserted for devices_applications.
-		if err := svc.apps.SaveApplicationByDeviceUUID(device.UUID, newApp.UUID); err != nil {
-			return err
-		}
-	}
+	fmt.Printf("removed %#v\n", removed)
+	fmt.Printf("updated %#v\n", updated)
 
 	return nil
 }
