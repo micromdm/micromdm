@@ -14,10 +14,12 @@ import (
 
 var m *http.ServeMux
 var respRec *httptest.ResponseRecorder
-var ctx context.Context
+
+//var ctx context.Context
 var handler http.Handler
 var kitService Service
-var logger log.Logger
+
+//var logger log.Logger
 
 // TODO: Mock services
 var deviceDB device.Datastore
