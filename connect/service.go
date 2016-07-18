@@ -35,6 +35,9 @@ type service struct {
 	commands command.Service
 }
 
+// Acknowledge a response from a device.
+// NOTE: IOS devices do not always include the key `RequestType` in their response. Only the presence of the
+// result key can be used to identify the response (or the command UUID)
 func (svc service) Acknowledge(ctx context.Context, req mdm.Response) (int, error) {
 	switch req.RequestType {
 	case "DeviceInformation":
@@ -50,6 +53,12 @@ func (svc service) Acknowledge(ctx context.Context, req mdm.Response) (int, erro
 		// Need to handle the absence of RequestType in IOS8 devices
 		if req.QueryResponses.UDID != "" {
 			if err := svc.ackQueryResponses(req); err != nil {
+				return 0, err
+			}
+		}
+
+		if req.InstalledApplicationList != nil {
+			if err := svc.ackInstalledApplicationList(req); err != nil {
 				return 0, err
 			}
 		}

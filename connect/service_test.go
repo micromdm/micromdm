@@ -148,3 +148,8 @@ func TestAckInstalledApplicationList(t *testing.T) {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }
+
+// TODO: A regression exists where a device reports the installed application list twice and apps are duplicated.
+func TestAckInstalledApplicationListDuplicateRegression(t *testing.T) {
+
+}
