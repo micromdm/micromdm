@@ -142,14 +142,12 @@ func (svc service) ackQueryResponses(req mdm.Response) error {
 
 // Acknowledge a response to `InstalledApplicationList`.
 func (svc service) ackInstalledApplicationList(req mdm.Response) error {
-	fmt.Println("Acknowledging installed applications")
-
 	device, err := svc.devices.GetDeviceByUDID(req.UDID, "device_uuid")
 	if err != nil {
 		return errors.Wrap(err, "getting a device record by udid")
 	}
 
-	requestApps := make([]apps.Application, len(req.InstalledApplicationList))
+	var requestApps []apps.Application = []apps.Application{}
 	// Update or insert application records that do not exist, returning the UUID so that it can be inserted for
 	// the device sending the response.
 	for _, reqApp := range req.InstalledApplicationList {
@@ -171,12 +169,12 @@ func (svc service) ackInstalledApplicationList(req mdm.Response) error {
 			BundleSize:   bundleSize,
 			DynamicSize:  dynamicSize,
 		}
-		appUuid, err := svc.apps.New(&newApp)
+		_, err := svc.apps.New(&newApp)
 		if err != nil {
 			return err
 		}
 
-		newApp.UUID = appUuid
+		//newApp.UUID = appUuid
 		requestApps = append(requestApps, newApp)
 	}
 
@@ -185,15 +183,15 @@ func (svc service) ackInstalledApplicationList(req mdm.Response) error {
 		return errors.Wrap(err, "getting applications by device uuid")
 	}
 
-	var deviceRemoved []apps.Application = make([]apps.Application, len(req.InstalledApplicationList))
-	var deviceNotRemoved []apps.Application = make([]apps.Application, len(req.InstalledApplicationList))
+	var deviceRemoved []apps.Application = []apps.Application{}
+	var deviceNotRemoved []apps.Application = []apps.Application{}
 
 	// Check to see whether installed applications exist in the latest response
 	// If they do not, they are added to the removed slice.
 	// TODO: This is a pretty horrible algorithm and I should re-design it at some point. m.
-	fmt.Println("Determining apps removed")
 removedouter:
 	for _, deviceApp := range deviceApps {
+		fmt.Printf("Is app removed? %s\n", deviceApp.Name)
 		for _, app := range requestApps {
 			if deviceApp.Version == app.Version && deviceApp.Name == app.Name {
 				deviceNotRemoved = append(deviceNotRemoved, deviceApp)
@@ -207,8 +205,6 @@ removedouter:
 	// Any installed applications that are already represented in the `applications` table AND
 	// allocated to the device in `devices_applications` should be skipped.
 	var updated []apps.Application = make([]apps.Application, len(req.InstalledApplicationList))
-
-	fmt.Println("Determining apps changed or added")
 skip:
 	for _, ackApp := range requestApps {
 		for _, app := range deviceNotRemoved {
@@ -220,12 +216,10 @@ skip:
 		updated = append(updated, ackApp)
 	}
 
-	fmt.Printf("removed %d application(s)\n", len(deviceRemoved))
-	fmt.Printf("updated %d application(s)\n", len(updated))
-
 	for _, insertApp := range updated {
 		if err := svc.apps.SaveApplicationByDeviceUUID(device.UUID, &insertApp); err != nil {
-			fmt.Printf("could not save application, no valid uuid: %s\n", insertApp.Name)
+			fmt.Println(err)
+			fmt.Printf("could not save application, no valid uuid: %s, %s\n", insertApp.Name, insertApp.UUID)
 			// return errors.Wrap(err, "saving installed application for a device")
 		}
 	}
