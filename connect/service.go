@@ -191,7 +191,6 @@ func (svc service) ackInstalledApplicationList(req mdm.Response) error {
 	// TODO: This is a pretty horrible algorithm and I should re-design it at some point. m.
 removedouter:
 	for _, deviceApp := range deviceApps {
-		fmt.Printf("Is app removed? %s\n", deviceApp.Name)
 		for _, app := range requestApps {
 			if deviceApp.Version == app.Version && deviceApp.Name == app.Name {
 				deviceNotRemoved = append(deviceNotRemoved, deviceApp)
@@ -204,7 +203,7 @@ removedouter:
 
 	// Any installed applications that are already represented in the `applications` table AND
 	// allocated to the device in `devices_applications` should be skipped.
-	var updated []apps.Application = make([]apps.Application, len(req.InstalledApplicationList))
+	var updated []apps.Application = []apps.Application{}
 skip:
 	for _, ackApp := range requestApps {
 		for _, app := range deviceNotRemoved {
@@ -218,9 +217,7 @@ skip:
 
 	for _, insertApp := range updated {
 		if err := svc.apps.SaveApplicationByDeviceUUID(device.UUID, &insertApp); err != nil {
-			fmt.Println(err)
-			fmt.Printf("could not save application, no valid uuid: %s, %s\n", insertApp.Name, insertApp.UUID)
-			// return errors.Wrap(err, "saving installed application for a device")
+			return errors.Wrap(err, "saving installed application for a device")
 		}
 	}
 
