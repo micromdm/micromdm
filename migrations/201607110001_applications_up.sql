@@ -8,8 +8,8 @@ CREATE TABLE IF NOT EXISTS applications (
   identifier text,
   short_version text,
   version text,
-  bundle_size integer,
-  dynamic_size integer,
+  bundle_size bigint,
+  dynamic_size bigint,
   is_validated bool,
 
   install_count integer DEFAULT 1,

@@ -115,6 +115,10 @@ func TestAckInstalledApplicationList(t *testing.T) {
 				Version:      "9.0",
 				BundleSize:   14166172,
 			},
+			{
+				Name:       "Bundle Size Regression",
+				BundleSize: 2463209237,
+			},
 		},
 	}
 
@@ -126,6 +130,8 @@ func TestAckInstalledApplicationList(t *testing.T) {
 	mock.ExpectQuery("INSERT INTO applications").WithArgs("Wireless Network Utility", nil, nil, nil, 2416111, 0, nil).WillReturnRows(wifiAppUuidRow)
 	kcAppUuidRow := sqlmock.NewRows([]string{"application_uuid"}).AddRow("A0000000-1111-2222-3333-444455556666")
 	mock.ExpectQuery("INSERT INTO applications").WithArgs("Keychain Access", "com.apple.keychainaccess", "9.0", "9.0", 14166172, 0, nil).WillReturnRows(kcAppUuidRow)
+	sizeAppUuidRow := sqlmock.NewRows([]string{"application_uuid"}).AddRow("B0000000-1111-2222-3333-444455556666")
+	mock.ExpectQuery("INSERT INTO applications").WithArgs("Bundle Size Regression", nil, nil, nil, 2463209237, 0, nil).WillReturnRows(sizeAppUuidRow)
 
 	// Expect query for device installed apps
 	deviceAppsRow := sqlmock.NewRows([]string{"application_uuid", "name"}).AddRow("APP00000-1111-2222-3333-444455556666", "Mock Application")
@@ -133,6 +139,7 @@ func TestAckInstalledApplicationList(t *testing.T) {
 
 	mock.ExpectExec("INSERT INTO devices_applications").WithArgs("00000000-1111-2222-3333-444455556666", "90000000-1111-2222-3333-444455556666").WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectExec("INSERT INTO devices_applications").WithArgs("00000000-1111-2222-3333-444455556666", "A0000000-1111-2222-3333-444455556666").WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO devices_applications").WithArgs("00000000-1111-2222-3333-444455556666", "B0000000-1111-2222-3333-444455556666").WillReturnResult(sqlmock.NewResult(1, 1))
 
 	svc := NewService(mockDevices, appDs, mockCmd)
 	svc.Acknowledge(ctx, response)
