@@ -6,7 +6,7 @@ type Service interface {
 	Enroll() (Profile, error)
 }
 
-func NewService(pushCertPath string, pushCertPass string, caCertPath string, url string, scepUrl string) (Service, error) {
+func NewService(pushCertPath string, pushCertPass string, caCertPath string, scepURL string, scepChallenge string, url string) (Service, error) {
 	pushTopic, err := GetPushTopicFromPKCS12(pushCertPath, pushCertPass)
 	if err != nil {
 		return nil, err
@@ -30,11 +30,12 @@ func NewService(pushCertPath string, pushCertPass string, caCertPath string, url
 	}
 
 	return &service{
-		Url:         url,
-		SCEPUrl:     scepUrl,
-		SCEPSubject: scepSubject,
-		Topic:       pushTopic,
-		CACert:      caCert,
+		Url:           url,
+		SCEPUrl:       scepURL,
+		SCEPSubject:   scepSubject,
+		SCEPChallenge: scepChallenge,
+		Topic:         pushTopic,
+		CACert:        caCert,
 	}, nil
 }
 

@@ -48,6 +48,7 @@ func main() {
 		flTLSCACert    = flag.String("tls-ca-cert", envString("MICROMDM_TLS_CA_CERT", ""), "path to CA certificate")
 		flSCEPURL      = flag.String("scep-url", envString("MICROMDM_SCEP_URL", ""), "scep server url. If blank, enroll profile will not use a scep payload.")
 		flScepUrl      = flag.String("scep-url", envString("MICROMDM_SCEP_URL", ""), "url of SCEP server")
+		flSCEPPass     = flag.String("scep-challenge", envString("MICROMDM_SCEP_CHALLENGE", ""), "scep server challenge")
 		flPGconn       = flag.String("postgres", envString("MICROMDM_POSTGRES_CONN_URL", ""), "postgres connection url")
 		flRedisconn    = flag.String("redis", envString("MICROMDM_REDIS_CONN_URL", ""), "redis connection url")
 		flVersion      = flag.Bool("version", false, "print version information")
