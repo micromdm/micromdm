@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/micromdm/mdm"
 	apps "github.com/micromdm/micromdm/applications"
+	"github.com/micromdm/micromdm/certificates"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/device"
 	"github.com/pkg/errors"
@@ -21,11 +22,12 @@ type Service interface {
 }
 
 // NewService creates a mdm service
-func NewService(devices device.Datastore, apps apps.Datastore, cs command.Service) Service {
+func NewService(devices device.Datastore, apps apps.Datastore, certs certificates.Datastore, cs command.Service) Service {
 	return &service{
 		commands: cs,
 		devices:  devices,
 		apps:     apps,
+		certs:    certs,
 	}
 }
 
@@ -33,6 +35,7 @@ type service struct {
 	devices  device.Datastore
 	apps     apps.Datastore
 	commands command.Service
+	certs    certificates.Datastore
 }
 
 // Acknowledge a response from a device.
@@ -46,11 +49,12 @@ func (svc service) Acknowledge(ctx context.Context, req mdm.Response) (int, erro
 		}
 	case "InstalledApplicationList":
 		if err := svc.ackInstalledApplicationList(req); err != nil {
-			fmt.Printf("Got an error acknowledging InstalledApplicationList: %v\n", err)
 			return 0, err
 		}
 	case "CertificateList":
-		return 0, nil
+		if err := svc.ackCertificateList(req); err != nil {
+			return 0, err
+		}
 	default:
 		// Need to handle the absence of RequestType in IOS8 devices
 		if req.QueryResponses.UDID != "" {
@@ -61,6 +65,12 @@ func (svc service) Acknowledge(ctx context.Context, req mdm.Response) (int, erro
 
 		if req.InstalledApplicationList != nil {
 			if err := svc.ackInstalledApplicationList(req); err != nil {
+				return 0, err
+			}
+		}
+
+		if req.CertificateList != nil {
+			if err := svc.ackCertificateList(req); err != nil {
 				return 0, err
 			}
 		}
@@ -237,9 +247,23 @@ skip:
 
 // Acknowledge a response to `CertificateList`.
 func (svc service) ackCertificateList(req mdm.Response) error {
-	_, err := svc.devices.GetDeviceByUDID(req.UDID, "device_uuid")
+	device, err := svc.devices.GetDeviceByUDID(req.UDID, "device_uuid")
 	if err != nil {
 		return errors.Wrap(err, "getting a device record by udid")
+	}
+
+	for _, cert := range req.CertificateList {
+		newCert := certificates.Certificate{
+			CommonName: cert.CommonName,
+			IsIdentity: cert.IsIdentity,
+			//Data: cert.Data,
+			DeviceUUID: device.UUID,
+		}
+
+		_, err := svc.certs.New(&newCert)
+		if err != nil {
+			return errors.Wrap(err, "persisting a device certificate")
+		}
 	}
 
 	return nil

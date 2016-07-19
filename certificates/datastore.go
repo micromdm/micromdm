@@ -11,25 +11,38 @@ import (
 )
 
 var (
-	insertCertificateStmt = `INSERT INTO certificates (
+	insertCertificateStmt = `INSERT INTO devices_certificates (
+		device_uuid,
 		common_name,
 		data,
 		is_identity
-	) VALUES ($1, $2, $3)
+	) VALUES ($1, $2, $3, $4)
 	RETURNING certificate_uuid;`
 
 	selectCertificatesStmt = `SELECT
 		certificate_uuid,
+		device_uuid
 		common_name,
 		data,
 		is_identity
 		FROM certificates`
+
+	selectCertificatesByDeviceStmt = `SELECT
+		certificate_uuid,
+		certificates.device_uuid device_uuid
+		common_name,
+		data,
+		is_identity
+		FROM certificates
+		INNER JOIN devices ON certificates.device_uuid = devices.device_uuid
+		WHERE devices.udid = $1`
 )
 
 // This Datastore manages a list of certificates assigned to devices.
 type Datastore interface {
 	New(crt *Certificate) (string, error)
 	Certificates(params ...interface{}) ([]Certificate, error)
+	GetCertificatesByDeviceUDID(udid string) ([]Certificate, error)
 }
 
 type pgStore struct {
@@ -63,7 +76,7 @@ func NewDB(driver, conn string, logger kitlog.Logger) (Datastore, error) {
 }
 
 func (store pgStore) New(c *Certificate) (string, error) {
-	if err := store.QueryRow(insertCertificateStmt, c.CommonName, "", c.IsIdentity).Scan(&c.UUID); err != nil {
+	if err := store.QueryRow(insertCertificateStmt, c.DeviceUUID, c.CommonName, "", c.IsIdentity).Scan(&c.UUID); err != nil {
 		return "", err
 	}
 
@@ -81,6 +94,15 @@ func (store pgStore) Certificates(params ...interface{}) ([]Certificate, error) 
 	return certificates, nil
 }
 
+func (store pgStore) GetCertificatesByDeviceUDID(udid string) ([]Certificate, error) {
+	var certificates []Certificate
+	err := store.Select(&certificates, selectCertificatesByDeviceStmt, udid)
+	if err != nil {
+		return nil, errors.Wrap(err, "pgStore GetCertificatesByDeviceUDID")
+	}
+	return certificates, nil
+}
+
 // UUID is a filter that can be added as a parameter to narrow down the list of returned results
 type UUID struct {
 	UUID string
@@ -88,6 +110,15 @@ type UUID struct {
 
 func (p UUID) where() string {
 	return fmt.Sprintf("certificate_uuid = '%s'", p.UUID)
+}
+
+// Filter by a device uuid
+type DeviceUUID struct {
+	UUID string
+}
+
+func (p DeviceUUID) where() string {
+	return fmt.Sprintf("device_uuid = '%s'", p.UUID)
 }
 
 // whereer is for building args passed into a method which finds resources
