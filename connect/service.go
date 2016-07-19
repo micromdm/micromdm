@@ -1,8 +1,12 @@
 package connect
 
 import (
+	"crypto/x509"
+	"database/sql"
 	"encoding/json"
 	"github.com/micromdm/mdm"
+	apps "github.com/micromdm/micromdm/applications"
+	"github.com/micromdm/micromdm/certificates"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/device"
 	"github.com/pkg/errors"
@@ -17,7 +21,6 @@ type Service interface {
 }
 
 // NewService creates a mdm service
-func NewService(devices device.Datastore, cs command.Service) Service {
 func NewService(devices device.Datastore, apps apps.Datastore, certs certificates.Datastore, cs command.Service) Service {
 	return &service{
 		commands: cs,
@@ -243,11 +246,19 @@ func (svc service) ackCertificateList(req mdm.Response) error {
 		return errors.Wrap(err, "getting a device record by udid")
 	}
 
+	var certData *x509.Certificate
 	for _, cert := range req.CertificateList {
+
+		if certData, err = x509.ParseCertificate(cert.Data); err != nil {
+			return errors.Wrap(err, "decoding device certificate")
+		}
+
+		fmt.Printf("%s\n", certData.Subject)
+
 		newCert := certificates.Certificate{
 			CommonName: cert.CommonName,
 			IsIdentity: cert.IsIdentity,
-			//Data: cert.Data,
+			Data:       cert.Data,
 			DeviceUUID: device.UUID,
 		}
 
