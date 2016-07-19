@@ -42,19 +42,22 @@ var appFixtures []Application = []Application{
 
 var logger log.Logger = log.NewNopLogger()
 
-//func TestNewDB(t *testing.T) {
-//	var logger logger.Logger = logger.NewNopLogger()
-//	appsDB, err := NewDB("postgres", "host=localhost", logger)
-//
-//	if err != nil {
-//		t.Error(err)
-//	}
-//
-//	if _, ok := appsDB.(Datastore); !ok {
-//		t.Log("Did not get a datastore")
-//		t.Fail()
-//	}
-//}
+func NewDatastore(connection *sqlx.DB, logger log.Logger) (Datastore, error) {
+	return pgStore{DB: connection, logger: logger}, nil
+}
+
+func TestNewDB(t *testing.T) {
+	appsDB, err := NewDB("postgres", "host=localhost", logger)
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	if _, ok := appsDB.(Datastore); !ok {
+		t.Log("Did not get a datastore")
+		t.Fail()
+	}
+}
 
 func TestNewDatastore(t *testing.T) {
 	db, _, err := sqlmock.New()
