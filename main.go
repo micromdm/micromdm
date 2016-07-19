@@ -14,6 +14,8 @@ import (
 	"github.com/RobotsAndPencils/buford/push"
 	"github.com/go-kit/kit/log"
 	"github.com/micromdm/dep"
+	"github.com/micromdm/micromdm/applications"
+	"github.com/micromdm/micromdm/certificates"
 	"github.com/micromdm/micromdm/checkin"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/connect"
