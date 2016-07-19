@@ -5,6 +5,7 @@ import (
 	"github.com/RobotsAndPencils/buford/push"
 	"github.com/micromdm/dep"
 	"github.com/micromdm/micromdm/applications"
+	"github.com/micromdm/micromdm/certificates"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/workflow"
 	"github.com/pkg/errors"
@@ -31,6 +32,9 @@ type Service interface {
 	// Installed Applications
 	InstalledApps(deviceUUID string) ([]applications.Application, error)
 
+	// Installed Certificates
+	Certificates(deviceUUID string) ([]certificates.Certificate, error)
+
 	// AssignWorkflow assigns a workflow to a device
 	AssignWorkflow(deviceUUID, workflowUUID string) error
 
@@ -43,13 +47,14 @@ type Service interface {
 }
 
 // NewService creates a management service
-func NewService(ds device.Datastore, ws workflow.Datastore, dc dep.Client, ps *push.Service, as applications.Datastore) Service {
+func NewService(ds device.Datastore, ws workflow.Datastore, dc dep.Client, ps *push.Service, as applications.Datastore, cs certificates.Datastore) Service {
 	return &service{
 		devices:      ds,
 		depClient:    dc,
 		workflows:    ws,
 		pushsvc:      ps,
 		applications: as,
+		certificates: cs,
 	}
 }
 
@@ -59,6 +64,7 @@ type service struct {
 	workflows    workflow.Datastore
 	pushsvc      *push.Service
 	applications applications.Datastore
+	certificates certificates.Datastore
 }
 
 func (svc service) Push(deviceUDID string) (string, error) {
@@ -172,4 +178,13 @@ func (svc service) InstalledApps(deviceUUID string) ([]applications.Application,
 	}
 
 	return apps, nil
+}
+
+func (svc service) Certificates(deviceUUID string) ([]certificates.Certificate, error) {
+	certs, err := svc.certificates.GetCertificatesByDeviceUDID(deviceUUID)
+	if err != nil {
+		return nil, errors.Wrap(err, "management: certificates")
+	}
+
+	return certs, nil
 }

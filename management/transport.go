@@ -108,6 +108,13 @@ func ServiceHandler(ctx context.Context, svc Service, logger kitlog.Logger) http
 		encodeResponse,
 		opts...,
 	)
+	certificatesHandler := kithttp.NewServer(
+		ctx,
+		makeCertificatesEndpoint(svc),
+		decodeCertificatesRequest,
+		encodeResponse,
+		opts...,
+	)
 
 	r := mux.NewRouter()
 
@@ -119,6 +126,7 @@ func ServiceHandler(ctx context.Context, svc Service, logger kitlog.Logger) http
 	r.Handle("/management/v1/devices/{uuid}", updateDeviceHandler).Methods("PATCH")
 	r.Handle("/management/v1/devices/{udid}/push", pushHandler).Methods("POST")
 	r.Handle("/management/v1/devices/{uuid}/applications", installedAppsHandler).Methods("GET")
+	r.Handle("/management/v1/devices/{uuid}/certificates", certificatesHandler).Methods("GET")
 	// profiles
 	r.Handle("/management/v1/profiles", addProfileHandler).Methods("POST")
 	r.Handle("/management/v1/profiles", listProfilesHandler).Methods("GET")
@@ -239,6 +247,21 @@ func decodeInstalledAppsRequest(_ context.Context, r *http.Request) (interface{}
 	}
 
 	var request = installedAppsRequest{UUID: deviceUUID}
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err == io.EOF {
+		return nil, errEmptyRequest
+	}
+	return request, nil
+}
+
+func decodeCertificatesRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	vars := mux.Vars(r)
+	deviceUUID, ok := vars["uuid"]
+	if !ok {
+		return nil, errBadRouting
+	}
+
+	var request = certificatesRequest{UUID: deviceUUID}
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err == io.EOF {
 		return nil, errEmptyRequest

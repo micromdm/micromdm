@@ -15,6 +15,7 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/micromdm/dep"
 	"github.com/micromdm/micromdm/applications"
+	"github.com/micromdm/micromdm/certificates"
 	"github.com/micromdm/micromdm/checkin"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/connect"
@@ -197,11 +198,21 @@ func main() {
 		os.Exit(1)
 	}
 
+	certsDB, err := certificates.NewDB(
+		"postgres",
+		*flPGconn,
+		logger,
+	)
+	if err != nil {
+		logger.Log("err", err)
+		os.Exit(1)
+	}
+
 	dc := depClient(logger, *flDEPCK, *flDEPCS, *flDEPAT, *flDEPAS, *flDEPServerURL, *flDEPsim)
-	mgmtSvc := management.NewService(deviceDB, workflowDB, dc, pushSvc, appsDB)
+	mgmtSvc := management.NewService(deviceDB, workflowDB, dc, pushSvc, appsDB, certsDB)
 	commandSvc := command.NewService(commandDB)
 	checkinSvc := checkin.NewService(deviceDB, mgmtSvc, commandSvc, enrollmentProfile)
-	connectSvc := connect.NewService(deviceDB, appsDB, commandSvc)
+	connectSvc := connect.NewService(deviceDB, appsDB, certsDB, commandSvc)
 	enrollSvc, _ := enroll.NewService(*flPushCert, *flPushPass, *flTLSCACert, *flSCEPURL, *flURL)
 
 	httpLogger := log.NewContext(logger).With("component", "http")
