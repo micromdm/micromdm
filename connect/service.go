@@ -49,6 +49,8 @@ func (svc service) Acknowledge(ctx context.Context, req mdm.Response) (int, erro
 			fmt.Printf("Got an error acknowledging InstalledApplicationList: %v\n", err)
 			return 0, err
 		}
+	case "CertificateList":
+		return 0, nil
 	default:
 		// Need to handle the absence of RequestType in IOS8 devices
 		if req.QueryResponses.UDID != "" {
@@ -228,6 +230,16 @@ skip:
 		if err := svc.apps.SaveApplicationByDeviceUUID(device.UUID, &insertApp); err != nil {
 			return errors.Wrap(err, "saving installed application for a device")
 		}
+	}
+
+	return nil
+}
+
+// Acknowledge a response to `CertificateList`.
+func (svc service) ackCertificateList(req mdm.Response) error {
+	_, err := svc.devices.GetDeviceByUDID(req.UDID, "device_uuid")
+	if err != nil {
+		return errors.Wrap(err, "getting a device record by udid")
 	}
 
 	return nil
