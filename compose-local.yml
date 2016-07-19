@@ -14,3 +14,11 @@ postgres:
         - SSLMODE=disable
     ports:
         - "127.0.0.1:5432:5432"
+
+scep:
+    image: micromdm/scep
+    restart: always
+    ports:
+      - "2016:8080"
+    volumes:
+      - ./.docker/depot:/depot
