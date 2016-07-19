@@ -29,6 +29,9 @@ type service struct {
 	commands command.Service
 }
 
+// Acknowledge a response from a device.
+// NOTE: IOS devices do not always include the key `RequestType` in their response. Only the presence of the
+// result key can be used to identify the response (or the command UUID)
 func (svc service) Acknowledge(ctx context.Context, req mdm.Response) (int, error) {
 	switch req.RequestType {
 	case "DeviceInformation":
@@ -89,11 +92,15 @@ func (svc service) ackQueryResponses(req mdm.Response) error {
 	)
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "ackQueryResponses fetching device")
+	}
+
+	if len(devices) == 0 {
+		return errors.New("no enrolled device matches the one responding")
 	}
 
 	if len(devices) > 1 {
-		return errors.New("expected a single query result for device, got more than one.")
+		return fmt.Errorf("expected a single device for udid: %s, serial number: %s, but got more than one.", req.UDID, req.QueryResponses.SerialNumber)
 	}
 
 	existing := devices[0]
@@ -119,4 +126,98 @@ func (svc service) ackQueryResponses(req mdm.Response) error {
 	existing.SerialNumber = serialNumber
 
 	return svc.devices.Save("queryResponses", &existing)
+}
+
+// Acknowledge a response to `InstalledApplicationList`.
+func (svc service) ackInstalledApplicationList(req mdm.Response) error {
+	device, err := svc.devices.GetDeviceByUDID(req.UDID, "device_uuid")
+	if err != nil {
+		return errors.Wrap(err, "getting a device record by udid")
+	}
+
+	var requestApps []apps.Application = []apps.Application{}
+	// Update or insert application records that do not exist, returning the UUID so that it can be inserted for
+	// the device sending the response.
+	for _, reqApp := range req.InstalledApplicationList {
+		identifier := sql.NullString{reqApp.Identifier, reqApp.Identifier != ""}
+		shortVersion := sql.NullString{reqApp.ShortVersion, reqApp.ShortVersion != ""}
+		version := sql.NullString{reqApp.Version, reqApp.Version != ""}
+
+		bundleSize := sql.NullInt64{}
+		bundleSize.Scan(reqApp.BundleSize)
+
+		dynamicSize := sql.NullInt64{}
+		dynamicSize.Scan(reqApp.DynamicSize)
+
+		newApp := apps.Application{
+			Name:         reqApp.Name,
+			Identifier:   identifier,
+			ShortVersion: shortVersion,
+			Version:      version,
+			BundleSize:   bundleSize,
+			DynamicSize:  dynamicSize,
+		}
+		_, err := svc.apps.New(&newApp)
+		if err != nil {
+			return err
+		}
+
+		//newApp.UUID = appUuid
+		requestApps = append(requestApps, newApp)
+	}
+
+	deviceApps, err := svc.apps.GetApplicationsByDeviceUUID(device.UUID)
+	if err != nil {
+		return errors.Wrap(err, "getting applications by device uuid")
+	}
+
+	var deviceRemoved []apps.Application = []apps.Application{}
+	var deviceNotRemoved []apps.Application = []apps.Application{}
+
+	// Check to see whether installed applications exist in the latest response
+	// If they do not, they are added to the removed slice.
+	// TODO: This is a pretty horrible algorithm and I should re-design it at some point. m.
+removedouter:
+	for _, deviceApp := range deviceApps {
+		for _, app := range requestApps {
+			if deviceApp.Version == app.Version && deviceApp.Name == app.Name {
+				deviceNotRemoved = append(deviceNotRemoved, deviceApp)
+				continue removedouter
+			}
+		}
+
+		deviceRemoved = append(deviceRemoved, deviceApp)
+	}
+
+	// Any installed applications that are already represented in the `applications` table AND
+	// allocated to the device in `devices_applications` should be skipped.
+	var updated []apps.Application = []apps.Application{}
+skip:
+	for _, ackApp := range requestApps {
+		for _, app := range deviceNotRemoved {
+			if app.Name == ackApp.Name && app.Version == ackApp.Version {
+				continue skip
+			}
+		}
+
+		updated = append(updated, ackApp)
+	}
+
+	for _, insertApp := range updated {
+		if err := svc.apps.SaveApplicationByDeviceUUID(device.UUID, &insertApp); err != nil {
+			return errors.Wrap(err, "saving installed application for a device")
+		}
+	}
+
+	return nil
+}
+
+// Acknowledge a response to `CertificateList`.
+func (svc service) ackCertificateList(req mdm.Response) error {
+	_, err := svc.devices.GetDeviceByUDID(req.UDID, "device_uuid")
+	if err != nil {
+		return errors.Wrap(err, "getting a device record by udid")
+	}
+
+	return nil
 }
