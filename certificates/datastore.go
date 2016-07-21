@@ -103,29 +103,6 @@ func (store pgStore) GetCertificatesByDeviceUDID(udid string) ([]Certificate, er
 	return certificates, nil
 }
 
-// UUID is a filter that can be added as a parameter to narrow down the list of returned results
-type UUID struct {
-	UUID string
-}
-
-func (p UUID) where() string {
-	return fmt.Sprintf("certificate_uuid = '%s'", p.UUID)
-}
-
-// Filter by a device uuid
-type DeviceUUID struct {
-	UUID string
-}
-
-func (p DeviceUUID) where() string {
-	return fmt.Sprintf("device_uuid = '%s'", p.UUID)
-}
-
-// whereer is for building args passed into a method which finds resources
-type whereer interface {
-	where() string
-}
-
 // add WHERE clause from params
 func addWhereFilters(stmt string, separator string, params ...interface{}) string {
 	var where []string
