@@ -19,7 +19,7 @@ var tests = []testpair{
 	{Where{"field", nil, "IS"}, "field IS NULL"},
 }
 
-func TestWhere(t *testing.T) {
+func TestWhere_String(t *testing.T) {
 	for _, test := range tests {
 		v := test.when.String()
 		if v != test.then {

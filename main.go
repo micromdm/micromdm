@@ -243,7 +243,7 @@ func main() {
 
 	if *flCorsOrigin != "" {
 		c := cors.New(cors.Options{
-			AllowedOrigins: []string{*flCorsOrigin},
+			AllowedOrigins:   []string{*flCorsOrigin},
 			AllowCredentials: true,
 		})
 
