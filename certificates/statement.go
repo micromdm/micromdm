@@ -53,12 +53,28 @@ type whereer interface {
 
 type WhereAnd []Where
 
-func (wa WhereAnd) String() {
-	return strings.Join(wa, " AND ")
+func (wa WhereAnd) String() string {
+	var result string
+	for i, cond := range wa {
+		result += cond.String()
+		if i < len(wa)-1 {
+			result += " AND "
+		}
+	}
+
+	return result
 }
 
 type WhereOr []Where
 
-func (wo WhereOr) String() {
-	return strings.Join(wo, " OR ")
+func (wo WhereOr) String() string {
+	var result string
+	for i, cond := range wo {
+		result += cond.String()
+		if i < len(wo)-1 {
+			result += " OR "
+		}
+	}
+
+	return result
 }
