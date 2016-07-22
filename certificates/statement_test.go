@@ -31,12 +31,34 @@ func TestWhere(t *testing.T) {
 	}
 }
 
-var waTests = []testpair{
+var waTests = []struct {
+	when WhereAnd
+	then string
+}{
 	{WhereAnd{Where{"field", "value", "="}, Where{"field", "bar", "="}}, "field = 'value' AND field = 'bar'"},
 }
 
 func TestWhereAnd_String(t *testing.T) {
 	for _, test := range waTests {
+		v := test.when.String()
+		if v != test.then {
+			t.Error(
+				"Expected", test.then,
+				"got", v,
+			)
+		}
+	}
+}
+
+var woTests = []struct {
+	when WhereOr
+	then string
+}{
+	{WhereOr{Where{"field", "value", "="}, Where{"field", "bar", "="}}, "field = 'value' OR field = 'bar'"},
+}
+
+func TestWhereOr_String(t *testing.T) {
+	for _, test := range woTests {
 		v := test.when.String()
 		if v != test.then {
 			t.Error(
