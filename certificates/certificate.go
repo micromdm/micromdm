@@ -1,7 +1,5 @@
 package certificates
 
-import ()
-
 type Certificate struct {
 	UUID       string `db:"certificate_uuid" json:"uuid"`
 	DeviceUUID string `db:"device_uuid" json:"device_uuid"`
