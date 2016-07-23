@@ -199,7 +199,8 @@ func (store pgStore) Save(msg string, dev *Device) error {
 		awaiting_configuration=:awaiting_configuration,
 		apple_push_magic=:apple_push_magic,
 		apple_mdm_token=:apple_mdm_token,
-		mdm_enrolled=:mdm_enrolled
+		mdm_enrolled=:mdm_enrolled,
+		unlock_token=:unlock_token
 		WHERE device_uuid=:device_uuid`
 	case "checkout":
 		stmt = `UPDATE devices SET

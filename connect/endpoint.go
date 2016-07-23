@@ -55,6 +55,20 @@ func makeConnectEndpoint(svc Service) endpoint.Endpoint {
 				return mdmConnectResponse{}, nil
 			}
 			return mdmConnectResponse{payload: next}, nil
+		case "Error":
+			total, err := svc.FailCommand(ctx, req.Response)
+			if err != nil {
+				return mdmConnectResponse{Err: err}, nil
+			}
+			// TODO: Deal with command failures
+			if total != 0 {
+				next, _, err := svc.NextCommand(ctx, req.Response)
+				if err != nil {
+					return mdmConnectResponse{Err: err}, nil
+				}
+				return mdmConnectResponse{payload: next}, nil
+			}
+
 		default:
 			return mdmConnectResponse{Err: errInvalidMessageType}, nil
 		}
