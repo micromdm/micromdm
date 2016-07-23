@@ -1,7 +1,6 @@
 package connect
 
 import (
-	"crypto/x509"
 	"database/sql"
 	"encoding/json"
 	"github.com/micromdm/mdm"
@@ -246,15 +245,8 @@ func (svc service) ackCertificateList(req mdm.Response) error {
 		return errors.Wrap(err, "getting a device record by udid")
 	}
 
-	var certData *x509.Certificate
+	var certs []certificates.Certificate = []certificates.Certificate{}
 	for _, cert := range req.CertificateList {
-
-		if certData, err = x509.ParseCertificate(cert.Data); err != nil {
-			return errors.Wrap(err, "decoding device certificate")
-		}
-
-		fmt.Printf("%s\n", certData.Subject)
-
 		newCert := certificates.Certificate{
 			CommonName: cert.CommonName,
 			IsIdentity: cert.IsIdentity,
@@ -262,10 +254,11 @@ func (svc service) ackCertificateList(req mdm.Response) error {
 			DeviceUUID: device.UUID,
 		}
 
-		_, err := svc.certs.New(&newCert)
-		if err != nil {
-			return errors.Wrap(err, "persisting a device certificate")
-		}
+		certs = append(certs, newCert)
+	}
+
+	if err := svc.certs.ReplaceCertificatesByDeviceUUID(device.UUID, certs); err != nil {
+		return err
 	}
 
 	return nil

@@ -43,6 +43,7 @@ type Datastore interface {
 	New(crt *Certificate) (string, error)
 	Certificates(params ...interface{}) ([]Certificate, error)
 	GetCertificatesByDeviceUDID(udid string) ([]Certificate, error)
+	ReplaceCertificatesByDeviceUUID(uuid string, certificates []Certificate) error
 }
 
 type pgStore struct {
@@ -103,27 +104,25 @@ func (store pgStore) GetCertificatesByDeviceUDID(udid string) ([]Certificate, er
 	return certificates, nil
 }
 
-// UUID is a filter that can be added as a parameter to narrow down the list of returned results
-type UUID struct {
-	UUID string
-}
+func (store pgStore) ReplaceCertificatesByDeviceUUID(uuid string, certificates []Certificate) error {
+	tx, err := store.Beginx()
+	if err != nil {
+		return err
+	}
 
-func (p UUID) where() string {
-	return fmt.Sprintf("certificate_uuid = '%s'", p.UUID)
-}
+	tx.MustExec("DELETE FROM devices_certificates WHERE device_uuid = $1", uuid)
 
-// Filter by a device uuid
-type DeviceUUID struct {
-	UUID string
-}
+	var insertedUuids []string = []string{}
+	for _, cert := range certificates {
+		uuid, err := store.New(&cert)
+		if err != nil {
+			return err
+		}
+		insertedUuids = append(insertedUuids, uuid)
+	}
 
-func (p DeviceUUID) where() string {
-	return fmt.Sprintf("device_uuid = '%s'", p.UUID)
-}
-
-// whereer is for building args passed into a method which finds resources
-type whereer interface {
-	where() string
+	fmt.Println(strings.Join(insertedUuids, ","))
+	return nil
 }
 
 // add WHERE clause from params
