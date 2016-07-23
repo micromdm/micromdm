@@ -256,17 +256,12 @@ func decodeInstalledAppsRequest(_ context.Context, r *http.Request) (interface{}
 
 func decodeCertificatesRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	vars := mux.Vars(r)
-	deviceUUID, ok := vars["uuid"]
+	uuid, ok := vars["uuid"]
 	if !ok {
 		return nil, errBadRouting
 	}
 
-	var request = certificatesRequest{UUID: deviceUUID}
-	err := json.NewDecoder(r.Body).Decode(&request)
-	if err == io.EOF {
-		return nil, errEmptyRequest
-	}
-	return request, nil
+	return listCertificatesRequest{UUID: uuid}, nil
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {

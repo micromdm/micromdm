@@ -21,21 +21,31 @@ var (
 
 	selectCertificatesStmt = `SELECT
 		certificate_uuid,
-		device_uuid
+		device_uuid,
 		common_name,
 		data,
 		is_identity
-		FROM certificates`
+		FROM devices_certificates`
 
-	selectCertificatesByDeviceStmt = `SELECT
+	selectCertificatesByDeviceUdidStmt = `SELECT
 		certificate_uuid,
-		certificates.device_uuid device_uuid
+		devices_certificates.device_uuid device_uuid,
 		common_name,
 		data,
 		is_identity
-		FROM certificates
-		INNER JOIN devices ON certificates.device_uuid = devices.device_uuid
+		FROM devices_certificates
+		INNER JOIN devices ON devices_certificates.device_uuid = devices.device_uuid
 		WHERE devices.udid = $1`
+
+	selectCertificatesByDeviceUuidStmt = `SELECT
+		certificate_uuid,
+		devices_certificates.device_uuid device_uuid,
+		common_name,
+		data,
+		is_identity
+		FROM devices_certificates
+		INNER JOIN devices ON devices_certificates.device_uuid = devices.device_uuid
+		WHERE devices.device_uuid = $1`
 )
 
 // This Datastore manages a list of certificates assigned to devices.
@@ -43,6 +53,7 @@ type Datastore interface {
 	New(crt *Certificate) (string, error)
 	Certificates(params ...interface{}) ([]Certificate, error)
 	GetCertificatesByDeviceUDID(udid string) ([]Certificate, error)
+	GetCertificatesByDeviceUUID(uuid string) ([]Certificate, error)
 	ReplaceCertificatesByDeviceUUID(uuid string, certificates []Certificate) error
 }
 
@@ -97,9 +108,18 @@ func (store pgStore) Certificates(params ...interface{}) ([]Certificate, error) 
 
 func (store pgStore) GetCertificatesByDeviceUDID(udid string) ([]Certificate, error) {
 	var certificates []Certificate
-	err := store.Select(&certificates, selectCertificatesByDeviceStmt, udid)
+	err := store.Select(&certificates, selectCertificatesByDeviceUdidStmt, udid)
 	if err != nil {
 		return nil, errors.Wrap(err, "pgStore GetCertificatesByDeviceUDID")
+	}
+	return certificates, nil
+}
+
+func (store pgStore) GetCertificatesByDeviceUUID(uuid string) ([]Certificate, error) {
+	var certificates []Certificate
+	err := store.Select(&certificates, selectCertificatesByDeviceUuidStmt, uuid)
+	if err != nil {
+		return nil, errors.Wrap(err, "pgStore GetCertificatesByDeviceUUID")
 	}
 	return certificates, nil
 }
@@ -117,7 +137,7 @@ func (store pgStore) ReplaceCertificatesByDeviceUUID(uuid string, certificates [
 	for _, cert := range certificates {
 		if err := tx.QueryRow(insertCertificateStmt, cert.DeviceUUID, cert.CommonName, "", cert.IsIdentity).Scan(&cert.UUID); err != nil {
 			tx.Rollback()
-			return "", err
+			return err
 		}
 
 		insertedUuids = append(insertedUuids, cert.UUID)
