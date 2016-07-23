@@ -181,7 +181,7 @@ func (svc service) InstalledApps(deviceUUID string) ([]applications.Application,
 }
 
 func (svc service) Certificates(deviceUUID string) ([]certificates.Certificate, error) {
-	certs, err := svc.certificates.GetCertificatesByDeviceUDID(deviceUUID)
+	certs, err := svc.certificates.GetCertificatesByDeviceUUID(deviceUUID)
 	if err != nil {
 		return nil, errors.Wrap(err, "management: certificates")
 	}
