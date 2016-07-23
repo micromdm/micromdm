@@ -43,6 +43,7 @@ type Datastore interface {
 	New(crt *Certificate) (string, error)
 	Certificates(params ...interface{}) ([]Certificate, error)
 	GetCertificatesByDeviceUDID(udid string) ([]Certificate, error)
+	ReplaceCertificatesByDeviceUUID(uuid string, certificates []Certificate) error
 }
 
 type pgStore struct {
@@ -101,6 +102,27 @@ func (store pgStore) GetCertificatesByDeviceUDID(udid string) ([]Certificate, er
 		return nil, errors.Wrap(err, "pgStore GetCertificatesByDeviceUDID")
 	}
 	return certificates, nil
+}
+
+func (store pgStore) ReplaceCertificatesByDeviceUUID(uuid string, certificates []Certificate) error {
+	tx, err := store.Beginx()
+	if err != nil {
+		return err
+	}
+
+	tx.MustExec("DELETE FROM devices_certificates WHERE device_uuid = $1", uuid)
+
+	var insertedUuids []string = []string{}
+	for _, cert := range certificates {
+		uuid, err := store.New(&cert)
+		if err != nil {
+			return err
+		}
+		insertedUuids = append(insertedUuids, uuid)
+	}
+
+	fmt.Println(strings.Join(insertedUuids, ","))
+	return nil
 }
 
 // add WHERE clause from params

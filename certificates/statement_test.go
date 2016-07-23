@@ -4,12 +4,10 @@ import (
 	"testing"
 )
 
-type testpair struct {
+var whereTests = []struct {
 	when Where
 	then string
-}
-
-var tests = []testpair{
+}{
 	{Where{"field", "value", "="}, "field = 'value'"},
 	{Where{"field", 1, "="}, "field = 1"},
 	{Where{"field", false, "="}, "field = false"},
@@ -20,7 +18,7 @@ var tests = []testpair{
 }
 
 func TestWhere_String(t *testing.T) {
-	for _, test := range tests {
+	for _, test := range whereTests {
 		v := test.when.String()
 		if v != test.then {
 			t.Error(
