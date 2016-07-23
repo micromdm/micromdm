@@ -107,6 +107,7 @@ func (store pgStore) GetCertificatesByDeviceUDID(udid string) ([]Certificate, er
 func (store pgStore) ReplaceCertificatesByDeviceUUID(uuid string, certificates []Certificate) error {
 	tx, err := store.Beginx()
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
 
@@ -114,13 +115,15 @@ func (store pgStore) ReplaceCertificatesByDeviceUUID(uuid string, certificates [
 
 	var insertedUuids []string = []string{}
 	for _, cert := range certificates {
-		uuid, err := store.New(&cert)
-		if err != nil {
-			return err
+		if err := tx.QueryRow(insertCertificateStmt, cert.DeviceUUID, cert.CommonName, "", cert.IsIdentity).Scan(&cert.UUID); err != nil {
+			tx.Rollback()
+			return "", err
 		}
-		insertedUuids = append(insertedUuids, uuid)
+
+		insertedUuids = append(insertedUuids, cert.UUID)
 	}
 
+	tx.Commit()
 	fmt.Println(strings.Join(insertedUuids, ","))
 	return nil
 }
