@@ -222,11 +222,13 @@ func main() {
 		c := cors.New(cors.Options{
 			AllowedOrigins:   []string{*flCorsOrigin},
 			AllowCredentials: true,
+			AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE"},
 		})
 
 		corsHandler := c.Handler(mux)
 		http.Handle("/", corsHandler)
 	} else {
+		logger.Log("warn", "CORS header is disabled")
 		http.Handle("/", mux)
 	}
 
