@@ -28,6 +28,7 @@ type Datastore interface {
 	QueueCommand(deviceUDID, commandUUID string) error
 	NextCommand(deviceUDID string) ([]byte, int, error)
 	DeleteCommand(deviceUDID, commandUUID string) (int, error)
+	Commands(deviceUDID string) ([]mdm.Payload, error)
 }
 
 //NewDB creates a Datastore
@@ -122,6 +123,31 @@ func (rds redisDB) DeleteCommand(deviceUDID, commandUUID string) (int, error) {
 		return 0, err
 	}
 	return total, nil
+}
+
+func (rds redisDB) Commands(deviceUDID string) ([]mdm.Payload, error) {
+	conn := rds.pool.Get()
+	defer conn.Close()
+
+	commandUuids, err := redis.Values(conn.Do("LRANGE", deviceUDID, "0", "-1"))
+	if err != nil {
+		return nil, err
+	}
+
+	var payloads []mdm.Payload = make([]mdm.Payload, len(commandUuids))
+
+	for i, commandUuid := range commandUuids {
+		payloadData, err := redis.Bytes(conn.Do("GET", commandUuid))
+		if err != nil {
+			return nil, err
+		}
+
+		if err := plist.NewDecoder(bytes.NewReader(payloadData)).Decode(&payloads[i]); err != nil {
+			return nil, err
+		}
+	}
+
+	return payloads, nil
 }
 
 func redisPool(conn string, logger kitlog.Logger) *redis.Pool {

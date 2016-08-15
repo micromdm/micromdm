@@ -7,6 +7,7 @@ type Service interface {
 	NewCommand(*mdm.CommandRequest) (*mdm.Payload, error)
 	NextCommand(udid string) ([]byte, int, error)
 	DeleteCommand(deviceUDID, commandUUID string) (int, error)
+	Commands(deviceUDID string) ([]mdm.Payload, error)
 }
 
 // NewService returns a new command service
@@ -48,4 +49,8 @@ func (svc service) NextCommand(udid string) ([]byte, int, error) {
 // DeleteCommand returns an MDM Payload from a list of queued payloads
 func (svc service) DeleteCommand(deviceUDID, commandUUID string) (int, error) {
 	return svc.db.DeleteCommand(deviceUDID, commandUUID)
+}
+
+func (svc service) Commands(deviceUDID string) ([]mdm.Payload, error) {
+	return svc.db.Commands(deviceUDID)
 }
