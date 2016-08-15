@@ -90,6 +90,7 @@ func (svc service) Enroll() (Profile, error) {
 		caPayload := NewPayload("com.apple.ssl.certificate")
 		caPayload.PayloadDisplayName = "Root certificate for MicroMDM"
 		caPayload.PayloadDescription = "Installs the root CA certificate for MicroMDM"
+		caPayload.PayloadIdentifier = "com.github.micromdm.ssl.ca"
 		caPayload.PayloadContent = svc.CACert
 
 		profile.PayloadContent = []interface{}{*scepPayload, mdmPayloadContent, *caPayload}

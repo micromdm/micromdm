@@ -39,30 +39,28 @@ func main() {
 
 	//flags
 	var (
-		flUrl          = flag.String("url", envString("MICROMDM_URL", ""), "public facing url")
-		flPort         = flag.String("port", envString("MICROMDM_HTTP_LISTEN_PORT", ""), "port to listen on")
-		flURL          = flag.String("url", envString("MICROMDM_PUBLIC_URL", ""), "public facing url")
-		flTLS          = flag.Bool("tls", envBool("MICROMDM_USE_TLS"), "use https")
-		flTLSCert      = flag.String("tls-cert", envString("MICROMDM_TLS_CERT", ""), "path to TLS certificate")
-		flTLSKey       = flag.String("tls-key", envString("MICROMDM_TLS_KEY", ""), "path to TLS private key")
-		flTLSCACert    = flag.String("tls-ca-cert", envString("MICROMDM_TLS_CA_CERT", ""), "path to CA certificate")
-		flSCEPURL      = flag.String("scep-url", envString("MICROMDM_SCEP_URL", ""), "scep server url. If blank, enroll profile will not use a scep payload.")
-		flScepUrl      = flag.String("scep-url", envString("MICROMDM_SCEP_URL", ""), "url of SCEP server")
-		flSCEPPass     = flag.String("scep-challenge", envString("MICROMDM_SCEP_CHALLENGE", ""), "scep server challenge")
-		flPGconn       = flag.String("postgres", envString("MICROMDM_POSTGRES_CONN_URL", ""), "postgres connection url")
-		flRedisconn    = flag.String("redis", envString("MICROMDM_REDIS_CONN_URL", ""), "redis connection url")
-		flVersion      = flag.Bool("version", false, "print version information")
-		flPushCert     = flag.String("push-cert", envString("MICROMDM_PUSH_CERT", ""), "path to push certificate")
-		flPushPass     = flag.String("push-pass", envString("MICROMDM_PUSH_PASS", ""), "push certificate password")
-		flEnrollment   = flag.String("profile", envString("MICROMDM_ENROLL_PROFILE", ""), "path to enrollment profile")
-		flDEPCK        = flag.String("dep-consumer-key", envString("DEP_CONSUMER_KEY", ""), "dep consumer key")
-		flDEPCS        = flag.String("dep-consumer-secret", envString("DEP_CONSUMER_SECRET", ""), "dep consumer secret")
-		flDEPAT        = flag.String("dep-access-token", envString("DEP_ACCESS_TOKEN", ""), "dep access token")
-		flDEPAS        = flag.String("dep-access-secret", envString("DEP_ACCESS_SECRET", ""), "dep access secret")
-		flDEPsim       = flag.Bool("depsim", envBool("DEP_USE_DEPSIM"), "use default depsim credentials")
-		flDEPServerURL = flag.String("dep-server-url", envString("DEP_SERVER_URL", ""), "dep server url. for testing. Use blank if not running against depsim")
-		flPkgRepo      = flag.String("pkg-repo", envString("MICROMDM_PKG_REPO", ""), "path to pkg repo")
-		flCorsOrigin   = flag.String("cors-origin", envString("MICROMDM_CORS_ORIGIN", ""), "allowed domain for cross origin resource sharing")
+		flUrl           = flag.String("url", envString("MICROMDM_URL", ""), "public facing url")
+		flPort          = flag.String("port", envString("MICROMDM_HTTP_LISTEN_PORT", ""), "port to listen on")
+		flTLS           = flag.Bool("tls", envBool("MICROMDM_USE_TLS"), "use https")
+		flTLSCert       = flag.String("tls-cert", envString("MICROMDM_TLS_CERT", ""), "path to TLS certificate")
+		flTLSKey        = flag.String("tls-key", envString("MICROMDM_TLS_KEY", ""), "path to TLS private key")
+		flTLSCACert     = flag.String("tls-ca-cert", envString("MICROMDM_TLS_CA_CERT", ""), "path to CA certificate")
+		flScepUrl       = flag.String("scep-url", envString("MICROMDM_SCEP_URL", ""), "scep server url. If blank, enroll profile will not use a scep payload.")
+		flScepChallenge = flag.String("scep-challenge", envString("MICROMDM_SCEP_CHALLENGE", ""), "scep server challenge")
+		flPGconn        = flag.String("postgres", envString("MICROMDM_POSTGRES_CONN_URL", ""), "postgres connection url")
+		flRedisconn     = flag.String("redis", envString("MICROMDM_REDIS_CONN_URL", ""), "redis connection url")
+		flVersion       = flag.Bool("version", false, "print version information")
+		flPushCert      = flag.String("push-cert", envString("MICROMDM_PUSH_CERT", ""), "path to push certificate")
+		flPushPass      = flag.String("push-pass", envString("MICROMDM_PUSH_PASS", ""), "push certificate password")
+		flEnrollment    = flag.String("profile", envString("MICROMDM_ENROLL_PROFILE", ""), "path to enrollment profile")
+		flDEPCK         = flag.String("dep-consumer-key", envString("DEP_CONSUMER_KEY", ""), "dep consumer key")
+		flDEPCS         = flag.String("dep-consumer-secret", envString("DEP_CONSUMER_SECRET", ""), "dep consumer secret")
+		flDEPAT         = flag.String("dep-access-token", envString("DEP_ACCESS_TOKEN", ""), "dep access token")
+		flDEPAS         = flag.String("dep-access-secret", envString("DEP_ACCESS_SECRET", ""), "dep access secret")
+		flDEPsim        = flag.Bool("depsim", envBool("DEP_USE_DEPSIM"), "use default depsim credentials")
+		flDEPServerURL  = flag.String("dep-server-url", envString("DEP_SERVER_URL", ""), "dep server url. for testing. Use blank if not running against depsim")
+		flPkgRepo       = flag.String("pkg-repo", envString("MICROMDM_PKG_REPO", ""), "path to pkg repo")
+		flCorsOrigin    = flag.String("cors-origin", envString("MICROMDM_CORS_ORIGIN", ""), "allowed domain for cross origin resource sharing")
 	)
 
 	// set tls to true by default. let user set it to false
@@ -210,9 +208,16 @@ func main() {
 	mux.Handle("/mdm/connect", connectHandler)
 
 	if checkEmptyArgs(*flUrl, *flScepUrl) {
-		logger.Log("warn", "Enrollment endpoint /mdm/enroll will be disabled because you did not specify flags for the external URL or SCEP URL")
+		logger.Log("warn", "Enrollment endpoint /mdm/enroll will be disabled because you did not specify flags/environment vars for the external URL (--url MICROMDM_URL) or SCEP URL (--scep-url/MICROMDM_SCEP_URL)")
 	} else {
-		enrollSvc, _ := enroll.NewService(*flPushCert, *flPushPass, *flTLSCACert, *flUrl, *flScepUrl)
+		if *flScepChallenge == "" {
+			logger.Log("warn", "You did not specify a SCEP challenge via --scep-challenge or MICROMDM_SCEP_CHALLENGE (this may not be what you intended).")
+		}
+
+		if *flTLSCACert == "" {
+			logger.Log("warn", "You did not specify a CA Certificate to trust via --tls-ca-cert or MICROMDM_TLS_CA_CERT. If your certificates are self signed, devices may not be able to enroll.")
+		}
+		enrollSvc, _ := enroll.NewService(*flPushCert, *flPushPass, *flTLSCACert, *flScepUrl, *flScepChallenge, *flUrl)
 		enrollHandler := enroll.ServiceHandler(ctx, enrollSvc, httpLogger)
 		mux.Handle("/mdm/enroll", enrollHandler)
 	}
