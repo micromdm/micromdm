@@ -53,6 +53,7 @@ func (svc service) Enroll() (Profile, error) {
 	profile.PayloadOrganization = "MicroMDM"
 	profile.PayloadDisplayName = "Enrollment Profile"
 	profile.PayloadDescription = "The server may alter your settings"
+	profile.PayloadScope = "System"
 
 	scepContent := SCEPPayloadContent{
 		Challenge: svc.SCEPChallenge,
@@ -69,11 +70,13 @@ func (svc service) Enroll() (Profile, error) {
 	scepPayload.PayloadDisplayName = "SCEP"
 	scepPayload.PayloadIdentifier = "com.github.micromdm.scep"
 	scepPayload.PayloadContent = scepContent
+	scepPayload.PayloadScope = "System"
 
 	mdmPayload := NewPayload("com.apple.mdm")
 	mdmPayload.PayloadDescription = "Enrolls with the MDM server"
 	mdmPayload.PayloadOrganization = "MicroMDM"
 	mdmPayload.PayloadIdentifier = "com.github.micromdm.mdm"
+	mdmPayload.PayloadScope = "System"
 
 	mdmPayloadContent := MDMPayloadContent{
 		Payload:                 *mdmPayload,

@@ -1,0 +1,4 @@
+-- ALTER TABLE devices_applications DROP CONSTRAINT IF EXISTS devices_applications_application_uuid_fkey;
+--
+-- ALTER TABLE devices_applications ADD CONSTRAINT devices_applications.application_uuid PRIMARY KEY;
+-- ALTER TABLE devices_applications ALTER application_uuid SET DEFAULT uuid_generate_v4();

@@ -11,10 +11,11 @@ import (
 
 // Datastore manages devices in a database
 type Datastore interface {
-	New(a *Application) (string, error)
+	NewDeviceApp(da *DeviceApplication) error
 	Applications(params ...interface{}) ([]Application, error)
 	GetApplicationsByDeviceUUID(deviceUUID string) ([]Application, error)
 	SaveApplicationByDeviceUUID(deviceUUID string, app *Application) error
+	DeleteDeviceApplications(deviceUUID string) error
 }
 
 type pgStore struct {
@@ -55,9 +56,10 @@ func NewDB(driver, conn string, logger kitlog.Logger) (Datastore, error) {
 // This function inserts a new application into the applications table.
 // Applications are uniquely identifier by both their name and their long form version because some do not have
 // identifiers, and some do not have short versions.
-func (store pgStore) New(a *Application) (string, error) {
+func (store pgStore) NewDeviceApp(da *DeviceApplication) error {
 	err := store.QueryRow(
-		`INSERT INTO applications (
+		`INSERT INTO devices_applications (
+			device_uuid,
 			name,
 			identifier,
 			short_version,
@@ -66,28 +68,32 @@ func (store pgStore) New(a *Application) (string, error) {
 			dynamic_size,
 			is_validated
 			)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
-		ON CONFLICT (name, version) DO UPDATE SET
-			identifier=$2,
-			short_version=$3,
-			bundle_size=$5,
-			dynamic_size=$6,
-			is_validated=$7
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 		RETURNING application_uuid;`,
-		a.Name,
-		a.Identifier,
-		a.ShortVersion,
-		a.Version,
-		a.BundleSize,
-		a.DynamicSize,
-		a.IsValidated,
-	).Scan(&a.UUID)
+		da.DeviceUUID,
+		da.Name,
+		da.Identifier,
+		da.ShortVersion,
+		da.Version,
+		da.BundleSize,
+		da.DynamicSize,
+		da.IsValidated,
+	).Scan(&da.ApplicationUUID)
 
 	if err != nil {
-		return "", err
+		return fmt.Errorf("inserting application: %s", err)
 	}
 
-	return a.UUID, nil
+	return nil
+}
+
+func (store pgStore) DeleteDeviceApplications(deviceUUID string) error {
+	_, err := store.Exec(
+		`DELETE FROM devices_applications WHERE device_uuid = $1`,
+		deviceUUID,
+	)
+
+	return err
 }
 
 // Retrieve a list of applications

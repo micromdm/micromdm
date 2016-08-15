@@ -13,6 +13,7 @@ type Payload struct {
 	PayloadDisplayName  string      `json:"displayname" db:"displayname"`
 	PayloadDescription  string      `json:"description,omitempty" db:"description"`
 	PayloadOrganization string      `json:"organization,omitempty" db:"organization"`
+	PayloadScope        string      `json:"scope" db:"scope" plist:"omitempty"`
 	PayloadContent      interface{} `json:"content,omitempty" plist:"PayloadContent,omitempty"`
 }
 

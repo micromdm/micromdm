@@ -156,10 +156,14 @@ func (svc service) ackInstalledApplicationList(req mdm.Response) error {
 		return errors.Wrap(err, "getting a device record by udid")
 	}
 
-	var requestApps []apps.Application = []apps.Application{}
+	if err := svc.apps.DeleteDeviceApplications(device.UUID); err != nil {
+		return fmt.Errorf("clearing applications for device: %s", err)
+	}
+
+	var requestApps []apps.DeviceApplication = make([]apps.DeviceApplication, len(req.InstalledApplicationList))
 	// Update or insert application records that do not exist, returning the UUID so that it can be inserted for
 	// the device sending the response.
-	for _, reqApp := range req.InstalledApplicationList {
+	for i, reqApp := range req.InstalledApplicationList {
 		identifier := sql.NullString{reqApp.Identifier, reqApp.Identifier != ""}
 		shortVersion := sql.NullString{reqApp.ShortVersion, reqApp.ShortVersion != ""}
 		version := sql.NullString{reqApp.Version, reqApp.Version != ""}
@@ -170,7 +174,8 @@ func (svc service) ackInstalledApplicationList(req mdm.Response) error {
 		dynamicSize := sql.NullInt64{}
 		dynamicSize.Scan(reqApp.DynamicSize)
 
-		newApp := apps.Application{
+		newApp := apps.DeviceApplication{
+			DeviceUUID:   device.UUID,
 			Name:         reqApp.Name,
 			Identifier:   identifier,
 			ShortVersion: shortVersion,
@@ -178,57 +183,18 @@ func (svc service) ackInstalledApplicationList(req mdm.Response) error {
 			BundleSize:   bundleSize,
 			DynamicSize:  dynamicSize,
 		}
-		_, err := svc.apps.New(&newApp)
-		if err != nil {
-			return err
+
+		if err := svc.apps.NewDeviceApp(&newApp); err != nil {
+			fmt.Println(err)
+			fmt.Printf("%v\n", newApp)
+			return fmt.Errorf("inserting an application for device: %s", err)
 		}
 
-		//newApp.UUID = appUuid
-		requestApps = append(requestApps, newApp)
+		requestApps[i] = newApp
+		//fmt.Printf("%v\n", newApp)
 	}
 
-	deviceApps, err := svc.apps.GetApplicationsByDeviceUUID(device.UUID)
-	if err != nil {
-		return errors.Wrap(err, "getting applications by device uuid")
-	}
-
-	var deviceRemoved []apps.Application = []apps.Application{}
-	var deviceNotRemoved []apps.Application = []apps.Application{}
-
-	// Check to see whether installed applications exist in the latest response
-	// If they do not, they are added to the removed slice.
-	// TODO: This is a pretty horrible algorithm and I should re-design it at some point. m.
-removedouter:
-	for _, deviceApp := range deviceApps {
-		for _, app := range requestApps {
-			if deviceApp.Version == app.Version && deviceApp.Name == app.Name {
-				deviceNotRemoved = append(deviceNotRemoved, deviceApp)
-				continue removedouter
-			}
-		}
-
-		deviceRemoved = append(deviceRemoved, deviceApp)
-	}
-
-	// Any installed applications that are already represented in the `applications` table AND
-	// allocated to the device in `devices_applications` should be skipped.
-	var updated []apps.Application = []apps.Application{}
-skip:
-	for _, ackApp := range requestApps {
-		for _, app := range deviceNotRemoved {
-			if app.Name == ackApp.Name && app.Version == ackApp.Version {
-				continue skip
-			}
-		}
-
-		updated = append(updated, ackApp)
-	}
-
-	for _, insertApp := range updated {
-		if err := svc.apps.SaveApplicationByDeviceUUID(device.UUID, &insertApp); err != nil {
-			return errors.Wrap(err, "saving installed application for a device")
-		}
-	}
+	//fmt.Printf("%v\n", requestApps)
 
 	return nil
 }
