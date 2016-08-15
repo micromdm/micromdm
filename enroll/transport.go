@@ -5,28 +5,28 @@ import (
 
 	"golang.org/x/net/context"
 
-	kitlog "github.com/go-kit/kit/log"
-	kithttp "github.com/go-kit/kit/transport/http"
+	"github.com/go-kit/kit/log"
+	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/groob/plist"
 )
 
 // ServiceHandler returns an HTTP Handler for the enroll service
-func ServiceHandler(ctx context.Context, svc Service, logger kitlog.Logger) http.Handler {
-	opts := []kithttp.ServerOption{
-		kithttp.ServerErrorLogger(logger),
+func MakeHTTPHandler(ctx context.Context, svc Service, logger log.Logger) http.Handler {
+	r := mux.NewRouter()
+	e := MakeServerEndpoints(svc)
+	opts := []httptransport.ServerOption{
+		httptransport.ServerErrorLogger(logger),
 	}
 
-	connectHandler := kithttp.NewServer(
+	r.Methods("GET").Path("/mdm/enroll").Handler(httptransport.NewServer(
 		ctx,
-		makeEnrollEndpoint(svc),
+		e.GetEnrollEndpoint,
 		decodeMDMEnrollRequest,
 		encodeResponse,
 		opts...,
-	)
-	r := mux.NewRouter()
+	))
 
-	r.Handle("/mdm/enroll", connectHandler).Methods("GET")
 	return r
 }
 

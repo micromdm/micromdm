@@ -5,19 +5,25 @@ import (
 	"golang.org/x/net/context"
 )
 
+type Endpoints struct {
+	GetEnrollEndpoint endpoint.Endpoint
+}
+
 type mdmEnrollRequest struct{}
 
 type mdmEnrollResponse struct {
 	Profile
 }
 
-func makeEnrollEndpoint(svc Service) endpoint.Endpoint {
+func MakeServerEndpoints(s Service) Endpoints {
+	return Endpoints{
+		GetEnrollEndpoint: MakeGetEnrollEndpoint(s),
+	}
+}
+
+func MakeGetEnrollEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		//req := request.(mdmEnrollRequest)
-		profile, err := svc.Enroll()
-		if err != nil {
-			return mdmEnrollResponse{}, err
-		}
-		return mdmEnrollResponse{profile}, nil
+		profile, err := s.Enroll(ctx)
+		return mdmEnrollResponse{profile}, err
 	}
 }

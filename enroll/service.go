@@ -1,9 +1,12 @@
 package enroll
 
-import "io/ioutil"
+import (
+	"golang.org/x/net/context"
+	"io/ioutil"
+)
 
 type Service interface {
-	Enroll() (Profile, error)
+	Enroll(ctx context.Context) (Profile, error)
 }
 
 func NewService(pushCertPath string, pushCertPass string, caCertPath string, scepURL string, scepChallenge string, url string) (Service, error) {
@@ -48,7 +51,7 @@ type service struct {
 	CACert        []byte
 }
 
-func (svc service) Enroll() (Profile, error) {
+func (svc service) Enroll(ctx context.Context) (Profile, error) {
 	profile := NewProfile()
 	profile.PayloadIdentifier = "com.github.micromdm.micromdm.mdm"
 	profile.PayloadOrganization = "MicroMDM"
