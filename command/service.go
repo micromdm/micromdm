@@ -8,6 +8,7 @@ type Service interface {
 	NextCommand(udid string) ([]byte, int, error)
 	DeleteCommand(deviceUDID, commandUUID string) (int, error)
 	Commands(deviceUDID string) ([]mdm.Payload, error)
+	Find(commandUUID string) (*mdm.Payload, error)
 }
 
 // NewService returns a new command service
@@ -53,4 +54,8 @@ func (svc service) DeleteCommand(deviceUDID, commandUUID string) (int, error) {
 
 func (svc service) Commands(deviceUDID string) ([]mdm.Payload, error) {
 	return svc.db.Commands(deviceUDID)
+}
+
+func (svc service) Find(commandUUID string) (*mdm.Payload, error) {
+	return svc.db.Find(commandUUID)
 }

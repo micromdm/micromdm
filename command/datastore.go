@@ -29,6 +29,7 @@ type Datastore interface {
 	NextCommand(deviceUDID string) ([]byte, int, error)
 	DeleteCommand(deviceUDID, commandUUID string) (int, error)
 	Commands(deviceUDID string) ([]mdm.Payload, error)
+	Find(commandUUID string) (*mdm.Payload, error)
 }
 
 //NewDB creates a Datastore
@@ -148,6 +149,23 @@ func (rds redisDB) Commands(deviceUDID string) ([]mdm.Payload, error) {
 	}
 
 	return payloads, nil
+}
+
+func (rds redisDB) Find(commandUUID string) (*mdm.Payload, error) {
+	conn := rds.pool.Get()
+	defer conn.Close()
+
+	payloadData, err := redis.Bytes(conn.Do("GET", commandUUID))
+	if err != nil {
+		return nil, err
+	}
+
+	var payload *mdm.Payload
+	if err := plist.NewDecoder(bytes.NewReader(payloadData)).Decode(&payload); err != nil {
+		return nil, err
+	}
+
+	return payload, nil
 }
 
 func redisPool(conn string, logger kitlog.Logger) *redis.Pool {

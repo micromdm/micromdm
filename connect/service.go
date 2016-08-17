@@ -3,6 +3,8 @@ package connect
 import (
 	"encoding/json"
 	"github.com/micromdm/mdm"
+	apps "github.com/micromdm/micromdm/applications"
+	"github.com/micromdm/micromdm/certificates"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/device"
 	"github.com/pkg/errors"
@@ -14,6 +16,7 @@ import (
 type Service interface {
 	Acknowledge(ctx context.Context, req mdm.Response) (int, error)
 	NextCommand(ctx context.Context, req mdm.Response) ([]byte, int, error)
+	FailCommand(ctx context.Context, req mdm.Response) (int, error)
 }
 
 // NewService creates a mdm service
@@ -29,10 +32,23 @@ type service struct {
 	commands command.Service
 }
 
+// Acknowledge a response from a device.
+// NOTE: IOS devices do not always include the key `RequestType` in their response. Only the presence of the
+// result key can be used to identify the response (or the command UUID)
 func (svc service) Acknowledge(ctx context.Context, req mdm.Response) (int, error) {
-	switch req.RequestType {
+	requestPayload, err := svc.commands.Find(req.CommandUUID)
+
+	switch requestPayload.Command.RequestType {
 	case "DeviceInformation":
 		if err := svc.ackQueryResponses(req); err != nil {
+			return 0, err
+		}
+	case "InstalledApplicationList":
+		if err := svc.ackInstalledApplicationList(req); err != nil {
+			return 0, err
+		}
+	case "CertificateList":
+		if err := svc.ackCertificateList(req); err != nil {
 			return 0, err
 		}
 	default:
@@ -42,6 +58,7 @@ func (svc service) Acknowledge(ctx context.Context, req mdm.Response) (int, erro
 				return 0, err
 			}
 		}
+		// Unhandled MDM client response
 	}
 
 	total, err := svc.commands.DeleteCommand(req.UDID, req.CommandUUID)
@@ -60,6 +77,10 @@ func (svc service) Acknowledge(ctx context.Context, req mdm.Response) (int, erro
 
 func (svc service) NextCommand(ctx context.Context, req mdm.Response) ([]byte, int, error) {
 	return svc.commands.NextCommand(req.UDID)
+}
+
+func (svc service) FailCommand(ctx context.Context, req mdm.Response) (int, error) {
+	return svc.commands.DeleteCommand(req.UDID, req.CommandUUID)
 }
 
 func (svc service) checkRequeue(deviceUDID string) (int, error) {
@@ -89,11 +110,15 @@ func (svc service) ackQueryResponses(req mdm.Response) error {
 	)
 
 	if err != nil {
-		return err
+		return errors.Wrap(err, "ackQueryResponses fetching device")
+	}
+
+	if len(devices) == 0 {
+		return errors.New("no enrolled device matches the one responding")
 	}
 
 	if len(devices) > 1 {
-		return errors.New("expected a single query result for device, got more than one.")
+		return fmt.Errorf("expected a single device for udid: %s, serial number: %s, but got more than one.", req.UDID, req.QueryResponses.SerialNumber)
 	}
 
 	existing := devices[0]
