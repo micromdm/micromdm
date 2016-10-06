@@ -8,33 +8,34 @@ import (
 	"testing"
 )
 
-var (
+type datastoreFixtures struct {
 	ds     Datastore
 	logger log.Logger
-	err    error
-)
+}
 
-//func setup() {
-//	l = log.NewLogfmtLogger(os.Stdout)
-//	d, err := NewDB("redis", "localhost", l)
-//	if err != nil {
-//		panic("Test set up failed")
-//	}
-//}
-//
-//func teardown() {
-//
-//}
+func setup() (datastoreFixtures, error) {
+	logger := log.NewLogfmtLogger(os.Stdout)
+	commandsDb, err := NewDB("redis", "localhost", logger)
+	if err != nil {
+		return nil, err
+	}
+
+	return datastoreFixtures{ds: commandsDb, logger: logger}
+}
+
+func teardown() {
+
+}
 
 func TestService_Commands(t *testing.T) {
-	logger = log.NewLogfmtLogger(os.Stdout)
-	ds, err = NewDB("redis", "localhost:6379", logger)
+	fixtures, err := setup()
+	defer teardown()
 	if err != nil {
 		t.Errorf("error making new datastore: %v", err)
 	}
 
 	var commands []mdm.Payload
-	commands, err = ds.Commands("ABCDEF")
+	commands, err = fixtures.ds.Commands("ABCDEF")
 	if err != nil {
 		t.Errorf("datastore.Commands returned error: %v", err)
 	}
