@@ -39,14 +39,14 @@ func main() {
 
 	//flags
 	var (
-		flUrl           = flag.String("url", envString("MICROMDM_URL", ""), "public facing url")
+		flURL           = flag.String("url", envString("MICROMDM_URL", ""), "public facing url")
 		flPort          = flag.String("port", envString("MICROMDM_HTTP_LISTEN_PORT", ""), "port to listen on")
 		flTLS           = flag.Bool("tls", envBool("MICROMDM_USE_TLS"), "use https")
 		flTLSCert       = flag.String("tls-cert", envString("MICROMDM_TLS_CERT", ""), "path to TLS certificate")
 		flTLSKey        = flag.String("tls-key", envString("MICROMDM_TLS_KEY", ""), "path to TLS private key")
 		flTLSCACert     = flag.String("tls-ca-cert", envString("MICROMDM_TLS_CA_CERT", ""), "path to CA certificate")
-		flScepUrl       = flag.String("scep-url", envString("MICROMDM_SCEP_URL", ""), "scep server url. If blank, enroll profile will not use a scep payload.")
-		flScepChallenge = flag.String("scep-challenge", envString("MICROMDM_SCEP_CHALLENGE", ""), "scep server challenge")
+		flSCEPURL       = flag.String("scep-url", envString("MICROMDM_SCEP_URL", ""), "scep server url. If blank, enroll profile will not use a scep payload.")
+		flSCEPChallenge = flag.String("scep-challenge", envString("MICROMDM_SCEP_CHALLENGE", ""), "scep server challenge")
 		flPGconn        = flag.String("postgres", envString("MICROMDM_POSTGRES_CONN_URL", ""), "postgres connection url")
 		flRedisconn     = flag.String("redis", envString("MICROMDM_REDIS_CONN_URL", ""), "redis connection url")
 		flVersion       = flag.Bool("version", false, "print version information")
@@ -60,7 +60,7 @@ func main() {
 		flDEPsim        = flag.Bool("depsim", envBool("DEP_USE_DEPSIM"), "use default depsim credentials")
 		flDEPServerURL  = flag.String("dep-server-url", envString("DEP_SERVER_URL", ""), "dep server url. for testing. Use blank if not running against depsim")
 		flPkgRepo       = flag.String("pkg-repo", envString("MICROMDM_PKG_REPO", ""), "path to pkg repo")
-		flCorsOrigin    = flag.String("cors-origin", envString("MICROMDM_CORS_ORIGIN", ""), "allowed domain for cross origin resource sharing")
+		flCORSOrigin    = flag.String("cors-origin", envString("MICROMDM_CORS_ORIGIN", ""), "allowed domain for cross origin resource sharing")
 	)
 
 	// set tls to true by default. let user set it to false
@@ -207,17 +207,17 @@ func main() {
 	mux.Handle("/mdm/checkin", checkinHandler)
 	mux.Handle("/mdm/connect", connectHandler)
 
-	if checkEmptyArgs(*flUrl, *flScepUrl) {
+	if checkEmptyArgs(*flURL, *flSCEPURL) {
 		logger.Log("warn", "Enrollment endpoint /mdm/enroll will be disabled because you did not specify flags/environment vars for the external URL (--url MICROMDM_URL) or SCEP URL (--scep-url/MICROMDM_SCEP_URL)")
 	} else {
-		if *flScepChallenge == "" {
+		if *flSCEPChallenge == "" {
 			logger.Log("warn", "You did not specify a SCEP challenge via --scep-challenge or MICROMDM_SCEP_CHALLENGE (this may not be what you intended).")
 		}
 
 		if *flTLSCACert == "" {
 			logger.Log("warn", "You did not specify a CA Certificate to trust via --tls-ca-cert or MICROMDM_TLS_CA_CERT. If your certificates are self signed, devices may not be able to enroll.")
 		}
-		enrollSvc, _ := enroll.NewService(*flPushCert, *flPushPass, *flTLSCACert, *flScepUrl, *flScepChallenge, *flUrl)
+		enrollSvc, _ := enroll.NewService(*flPushCert, *flPushPass, *flTLSCACert, *flSCEPURL, *flSCEPChallenge, *flURL)
 		enrollHandler := enroll.MakeHTTPHandler(ctx, enrollSvc, httpLogger)
 		mux.Handle("/mdm/enroll", enrollHandler)
 	}
@@ -226,9 +226,9 @@ func main() {
 		mux.Handle("/repo/", http.StripPrefix("/repo/", http.FileServer(http.Dir(*flPkgRepo))))
 	}
 
-	if *flCorsOrigin != "" {
+	if *flCORSOrigin != "" {
 		c := cors.New(cors.Options{
-			AllowedOrigins:   []string{*flCorsOrigin},
+			AllowedOrigins:   []string{*flCORSOrigin},
 			AllowCredentials: true,
 		})
 
