@@ -33,8 +33,8 @@ func NewService(pushCertPath string, pushCertPass string, caCertPath string, sce
 	}
 
 	return &service{
-		Url:           url,
-		SCEPUrl:       scepURL,
+		URL:           url,
+		SCEPURL:       scepURL,
 		SCEPSubject:   scepSubject,
 		SCEPChallenge: scepChallenge,
 		Topic:         pushTopic,
@@ -43,8 +43,8 @@ func NewService(pushCertPath string, pushCertPass string, caCertPath string, sce
 }
 
 type service struct {
-	Url           string
-	SCEPUrl       string
+	URL           string
+	SCEPURL       string
 	SCEPChallenge string
 	SCEPSubject   [][][]string
 	Topic         string // APNS Topic for MDM notifications
@@ -60,7 +60,7 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 
 	scepContent := SCEPPayloadContent{
 		Challenge: svc.SCEPChallenge,
-		URL:       svc.SCEPUrl,
+		URL:       svc.SCEPURL,
 		Keysize:   1024,
 		KeyType:   "RSA",
 		KeyUsage:  0,
@@ -82,9 +82,9 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 	mdmPayloadContent := MDMPayloadContent{
 		Payload:                 *mdmPayload,
 		AccessRights:            8191,
-		CheckInURL:              svc.Url + "/mdm/checkin",
+		CheckInURL:              svc.URL + "/mdm/checkin",
 		CheckOutWhenRemoved:     true,
-		ServerURL:               svc.Url + "/mdm/connect",
+		ServerURL:               svc.URL + "/mdm/connect",
 		IdentityCertificateUUID: scepPayload.PayloadUUID,
 		Topic: svc.Topic,
 	}
@@ -102,59 +102,4 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 	}
 
 	return *profile, nil
-}
-
-type service struct {
-	Url           string
-	SCEPUrl       string
-	SCEPChallenge string
-	SCEPSubject   [][][]string
-	Topic         string // APNS Topic for MDM notifications
-}
-
-func (svc service) Enroll() (Profile, error) {
-	profile := NewProfile()
-	profile.PayloadIdentifier = "com.github.micromdm.micromdm.mdm"
-	profile.PayloadOrganization = "MicroMDM"
-	profile.PayloadDisplayName = "Enrollment Profile"
-	profile.PayloadDescription = "The server may alter your settings"
-
-	scepContent := SCEPPayloadContent{
-		Challenge: svc.SCEPChallenge,
-		URL:       svc.SCEPUrl,
-		Keysize:   1024,
-		KeyType:   "RSA",
-		KeyUsage:  0,
-		Name:      "Device Management Identity Certificate",
-		Subject:   svc.SCEPSubject,
-	}
-
-	scepPayload := NewPayload("com.apple.security.scep")
-	scepPayload.PayloadDescription = "Configures SCEP"
-	scepPayload.PayloadDisplayName = "SCEP"
-	scepPayload.PayloadIdentifier = "com.github.micromdm.scep"
-	scepPayload.PayloadContent = scepContent
-
-	mdmPayload := MDMPayloadContent{
-		Payload: Payload{
-			PayloadVersion:      1,
-			PayloadType:         "com.apple.mdm",
-			PayloadDescription:  "Enrolls with the MDM server",
-			PayloadOrganization: "MicroMDM",
-		},
-		AccessRights:            8191,
-		CheckInURL:              svc.Url + "/mdm/checkin",
-		CheckOutWhenRemoved:     true,
-		ServerURL:               svc.Url + "/mdm/connect",
-		IdentityCertificateUUID: scepPayload.PayloadUUID,
-		Topic: svc.Topic,
-	}
-
-	caPayload := NewPayload("com.apple.ssl.certificate")
-	caPayload.PayloadDisplayName = "Root certificate for MicroMDM"
-	caPayload.PayloadDescription = "Installs the root CA certificate for MicroMDM"
-
-	profile.PayloadContent = []interface{}{scepPayload, mdmPayload, caPayload}
-
-	return profile, nil
 }
