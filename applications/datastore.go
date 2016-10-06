@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Datastore manages devices in a database
+// This Datastore manages a list of known applications, and their relationship to devices.
 type Datastore interface {
 	NewDeviceApp(da *DeviceApplication) error
 	Applications(params ...interface{}) ([]Application, error)
@@ -20,11 +20,6 @@ type Datastore interface {
 
 type pgStore struct {
 	*sqlx.DB
-	logger kitlog.Logger
-}
-
-func NewDatastore(connection *sqlx.DB, logger kitlog.Logger) (Datastore, error) {
-	return pgStore{DB: connection, logger: logger}, nil
 }
 
 func NewDB(driver, conn string, logger kitlog.Logger) (Datastore, error) {
