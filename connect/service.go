@@ -151,12 +151,12 @@ func (svc service) ackQueryResponses(req mdm.Response) error {
 
 // Acknowledge a response to `InstalledApplicationList`.
 func (svc service) ackInstalledApplicationList(req mdm.Response) error {
-	device, err := svc.devices.GetDeviceByUDID(req.UDID, "device_uuid")
+	dev, err := svc.devices.GetDeviceByUDID(req.UDID, "device_uuid")
 	if err != nil {
 		return errors.Wrap(err, "getting a device record by udid")
 	}
 
-	if err := svc.apps.DeleteDeviceApplications(device.UUID); err != nil {
+	if err := svc.apps.DeleteDeviceApplications(dev.UUID); err != nil {
 		return fmt.Errorf("clearing applications for device: %s", err)
 	}
 
@@ -175,7 +175,7 @@ func (svc service) ackInstalledApplicationList(req mdm.Response) error {
 		dynamicSize.Scan(reqApp.DynamicSize)
 
 		newApp := apps.DeviceApplication{
-			DeviceUUID:   device.UUID,
+			DeviceUUID:   dev.UUID,
 			Name:         reqApp.Name,
 			Identifier:   identifier,
 			ShortVersion: shortVersion,
@@ -191,10 +191,7 @@ func (svc service) ackInstalledApplicationList(req mdm.Response) error {
 		}
 
 		requestApps[i] = newApp
-		//fmt.Printf("%v\n", newApp)
 	}
-
-	//fmt.Printf("%v\n", requestApps)
 
 	return nil
 }
