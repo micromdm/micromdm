@@ -12,7 +12,8 @@ type Endpoints struct {
 type mdmEnrollRequest struct{}
 
 type mdmEnrollResponse struct {
-	Profile
+	Profile,
+	Err error `plist:"error,omitempty"`
 }
 
 func MakeServerEndpoints(s Service) Endpoints {
@@ -24,6 +25,6 @@ func MakeServerEndpoints(s Service) Endpoints {
 func MakeGetEnrollEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		profile, err := s.Enroll(ctx)
-		return mdmEnrollResponse{profile}, err
+		return mdmEnrollResponse{profile, err}, nil
 	}
 }
