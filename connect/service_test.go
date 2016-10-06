@@ -50,7 +50,7 @@ func (mc MockCmd) DeleteCommand(deviceUDID, commandUUID string) (int, error) {
 }
 
 var ctx context.Context
-var appDs applications.Datastore
+var appsDB applications.Datastore
 var db *sql.DB
 var mock sqlmock.Sqlmock
 var dbx *sqlx.DB
@@ -59,12 +59,9 @@ var logger log.Logger
 func setupServiceTests() {
 	ctx = context.Background()
 	db, mock, _ = sqlmock.New()
-	//if err != nil {
-	//	t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	//}
 	dbx = sqlx.NewDb(db, "mock")
 	logger = log.NewLogfmtLogger(os.Stdout)
-	appDs, _ = applications.NewDatastore(dbx, logger)
+	appsDB, _ := applications.NewDB("postgres", "host=localhost", logger)
 }
 
 func teardownServiceTests() {
@@ -86,7 +83,7 @@ func TestAckQueryResponses(t *testing.T) {
 	mockDevices := MockDevices{}
 	mockCmd := MockCmd{}
 
-	svc := NewService(mockDevices, appDs, mockCmd)
+	svc := NewService(mockDevices, appsDB, mockCmd)
 	svc.Acknowledge(ctx, response)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
@@ -141,7 +138,7 @@ func TestAckInstalledApplicationList(t *testing.T) {
 	mock.ExpectExec("INSERT INTO devices_applications").WithArgs("00000000-1111-2222-3333-444455556666", "A0000000-1111-2222-3333-444455556666").WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectExec("INSERT INTO devices_applications").WithArgs("00000000-1111-2222-3333-444455556666", "B0000000-1111-2222-3333-444455556666").WillReturnResult(sqlmock.NewResult(1, 1))
 
-	svc := NewService(mockDevices, appDs, mockCmd)
+	svc := NewService(mockDevices, appsDB, mockCmd)
 	svc.Acknowledge(ctx, response)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
