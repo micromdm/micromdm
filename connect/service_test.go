@@ -49,28 +49,38 @@ func (mc MockCmd) DeleteCommand(deviceUDID, commandUUID string) (int, error) {
 	return 0, nil
 }
 
-var ctx context.Context
-var appsDB applications.Datastore
-var db *sql.DB
-var mock sqlmock.Sqlmock
-var dbx *sqlx.DB
-var logger log.Logger
-
-func setupServiceTests() {
-	ctx = context.Background()
-	db, mock, _ = sqlmock.New()
-	dbx = sqlx.NewDb(db, "mock")
-	logger = log.NewLogfmtLogger(os.Stdout)
-	appsDB, _ := applications.NewDB("postgres", "host=localhost", logger)
+type serviceFixtures struct {
+	dbx    sqlx.DB
+	appsDB applications.Datastore
+	mock   sqlmock.Sqlmock
 }
 
-func teardownServiceTests() {
-	dbx.Close()
+func setup() (serviceFixtures, error) {
+	db, mock, err := sqlmock.New()
+	if err != nil {
+		return nil, err
+	}
+	dbx := sqlx.NewDb(db, "mock")
+	logger := log.NewLogfmtLogger(os.Stdout)
+	appsDB, err := applications.NewDB("postgres", "host=localhost", logger)
+	if err != nil {
+		return nil, err
+	}
+
+	return serviceFixtures{dbx, appsDB, mock}, nil
+}
+
+func teardown(fixtures serviceFixtures) {
+	fixtures.dbx.Close()
 }
 
 func TestAckQueryResponses(t *testing.T) {
-	setupServiceTests()
-	defer teardownServiceTests()
+	fixtures, err := setup()
+	if err != nil {
+		t.Fatalf("could not set up fixtures: %s", err)
+	}
+	defer teardown(fixtures.dbx)
+	ctx := context.Background()
 
 	response := mdm.Response{
 		UDID:           "00000000-1111-2222-3333-444455556666",
@@ -83,17 +93,21 @@ func TestAckQueryResponses(t *testing.T) {
 	mockDevices := MockDevices{}
 	mockCmd := MockCmd{}
 
-	svc := NewService(mockDevices, appsDB, mockCmd)
+	svc := NewService(mockDevices, fixtures.appsDB, mockCmd)
 	svc.Acknowledge(ctx, response)
 
-	if err := mock.ExpectationsWereMet(); err != nil {
+	if err := fixtures.mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("there were unfulfilled expectations: %s", err)
 	}
 }
 
 func TestAckInstalledApplicationList(t *testing.T) {
-	setupServiceTests()
-	defer teardownServiceTests()
+	fixtures, err := setup()
+	if err != nil {
+		t.Fatalf("could not set up fixtures: %s", err)
+	}
+	defer teardown(fixtures.dbx)
+	ctx := context.Background()
 
 	response := mdm.Response{
 		UDID:        "00000000-1111-2222-3333-444455556666",
@@ -121,6 +135,7 @@ func TestAckInstalledApplicationList(t *testing.T) {
 
 	mockDevices := MockDevices{}
 	mockCmd := MockCmd{}
+	mock := fixtures.mock
 
 	// Expect insert applications as new
 	wifiAppUuidRow := sqlmock.NewRows([]string{"application_uuid"}).AddRow("90000000-1111-2222-3333-444455556666")
@@ -138,7 +153,7 @@ func TestAckInstalledApplicationList(t *testing.T) {
 	mock.ExpectExec("INSERT INTO devices_applications").WithArgs("00000000-1111-2222-3333-444455556666", "A0000000-1111-2222-3333-444455556666").WillReturnResult(sqlmock.NewResult(1, 1))
 	mock.ExpectExec("INSERT INTO devices_applications").WithArgs("00000000-1111-2222-3333-444455556666", "B0000000-1111-2222-3333-444455556666").WillReturnResult(sqlmock.NewResult(1, 1))
 
-	svc := NewService(mockDevices, appsDB, mockCmd)
+	svc := NewService(mockDevices, fixtures.appsDB, mockCmd)
 	svc.Acknowledge(ctx, response)
 
 	if err := mock.ExpectationsWereMet(); err != nil {
