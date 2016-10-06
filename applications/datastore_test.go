@@ -40,215 +40,30 @@ var appFixtures []Application = []Application{
 	},
 }
 
-var logger log.Logger = log.NewNopLogger()
+var (
+	logger log.Logger
+)
 
-//func TestNewDB(t *testing.T) {
-//	var logger logger.Logger = logger.NewNopLogger()
-//	appsDB, err := NewDB("postgres", "host=localhost", logger)
-//
-//	if err != nil {
-//		t.Error(err)
-//	}
-//
-//	if _, ok := appsDB.(Datastore); !ok {
-//		t.Log("Did not get a datastore")
-//		t.Fail()
-//	}
-//}
-
-func TestNewDatastore(t *testing.T) {
-	db, _, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	dbx := sqlx.NewDb(db, "mock")
-	defer dbx.Close()
-
-	if _, err := NewDatastore(dbx, logger); err != nil {
-		t.Error(err)
-	}
+func setup() {
+	logger = log.NewNopLogger()
 }
 
-func TestNewApplication(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	dbx := sqlx.NewDb(db, "mock")
-	defer dbx.Close()
+func teardown() {
 
-	appsDs, err := NewDatastore(dbx, logger)
-	if err != nil {
-		t.Error(err)
-	}
-
-	for _, fixture := range appFixtures {
-		newRow := sqlmock.NewRows([]string{"application_uuid"}).AddRow(MockUUID)
-		mock.ExpectQuery("INSERT INTO applications").WithArgs(
-			fixture.Name,
-			fixture.Identifier,
-			fixture.ShortVersion,
-			fixture.Version,
-			fixture.BundleSize,
-			nil,
-			nil,
-		).WillReturnRows(newRow)
-
-		appUuid, err := appsDs.New(&fixture)
-		if err != nil {
-			t.Error(err)
-		}
-
-		if appUuid != MockUUID {
-			t.Errorf("inserting a mock application did not return the mock uuid, got: %s", appUuid)
-		}
-	}
-
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("there were unfulfilled expectations: %s", err)
-	}
 }
 
-func TestApplications(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	dbx := sqlx.NewDb(db, "mock")
-	defer dbx.Close()
+func TestNewDB(t *testing.T) {
+	setup()
+	defer teardown()
 
-	appsDs, err := NewDatastore(dbx, logger)
+	appsDB, err := NewDB("postgres", "host=localhost", logger)
+
 	if err != nil {
 		t.Error(err)
 	}
 
-	mock.ExpectQuery(`SELECT .* FROM applications`).WillReturnRows(
-		sqlmock.NewRows([]string{"application_uuid"}),
-	)
-
-	if _, err := appsDs.Applications(); err != nil {
-		t.Error(err)
-	}
-
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("there were unfulfilled expectations: %s", err)
-	}
-}
-
-func TestApplicationsWhereUUID(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	dbx := sqlx.NewDb(db, "mock")
-	defer dbx.Close()
-
-	appsDs, err := NewDatastore(dbx, logger)
-	if err != nil {
-		t.Error(err)
-	}
-
-	mockRow := sqlmock.NewRows([]string{"application_uuid"}).AddRow(MockUUID)
-	mock.ExpectQuery(`WHERE application_uuid =`).WillReturnRows(mockRow)
-
-	apps, err := appsDs.Applications(UUID{MockUUID})
-	if err != nil {
-		t.Error(err)
-	}
-
-	if len(apps) != 1 {
-		t.Fatalf("unexpected number of results returned: %d", len(apps))
-	}
-
-	if apps[0].UUID != MockUUID {
-		t.Errorf("unexpected application uuid when querying: %s", apps[0].UUID)
-	}
-
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("there were unfulfilled expectations: %s", err)
-	}
-}
-
-func TestApplicationsWhereName(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	dbx := sqlx.NewDb(db, "mock")
-	defer dbx.Close()
-
-	appsDs, err := NewDatastore(dbx, logger)
-	if err != nil {
-		t.Error(err)
-	}
-
-	mockRow := sqlmock.NewRows([]string{"application_uuid", "name"}).AddRow(MockUUID, MockName)
-	mock.ExpectQuery(`WHERE name =`).WillReturnRows(mockRow)
-
-	apps, err := appsDs.Applications(Name{MockName})
-	if err != nil {
-		t.Error(err)
-	}
-
-	if len(apps) != 1 {
-		t.Fatalf("unexpected number of results returned: %d", len(apps))
-	}
-
-	if apps[0].UUID != MockUUID {
-		t.Errorf("unexpected application uuid when querying: %s", apps[0].UUID)
-	}
-
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("there were unfulfilled expectations: %s", err)
-	}
-}
-
-func TestGetApplicationsByDeviceUUID(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	dbx := sqlx.NewDb(db, "mock")
-	defer dbx.Close()
-
-	appsDs, err := NewDatastore(dbx, logger)
-	if err != nil {
-		t.Error(err)
-	}
-
-	mockRow := sqlmock.NewRows([]string{"application_uuid", "name"}).AddRow(MockUUID, MockName)
-	mock.ExpectQuery(`WHERE devices_applications.device_uuid=`).WithArgs(MockUUID).WillReturnRows(mockRow)
-
-	if _, err := appsDs.GetApplicationsByDeviceUUID(MockUUID); err != nil {
-		t.Error(err)
-	}
-
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("there were unfulfilled expectations: %s", err)
-	}
-}
-
-func TestSaveApplicationByDeviceUUID(t *testing.T) {
-	db, mock, err := sqlmock.New()
-	if err != nil {
-		t.Fatalf("an error '%s' was not expected when opening a stub database connection", err)
-	}
-	dbx := sqlx.NewDb(db, "mock")
-	defer dbx.Close()
-
-	appsDs, err := NewDatastore(dbx, logger)
-	if err != nil {
-		t.Error(err)
-	}
-
-	for _, fixture := range appFixtures {
-		mock.ExpectExec("INSERT INTO devices_applications").WithArgs(MockUUID, fixture.UUID).WillReturnResult(sqlmock.NewResult(1, 1))
-		if err := appsDs.SaveApplicationByDeviceUUID(MockUUID, &fixture); err != nil {
-			t.Error(err)
-		}
-	}
-
-	if err := mock.ExpectationsWereMet(); err != nil {
-		t.Errorf("there were unfulfilled expectations: %s", err)
+	if _, ok := appsDB.(Datastore); !ok {
+		t.Log("Did not get a datastore")
+		t.Fail()
 	}
 }
