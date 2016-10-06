@@ -3,8 +3,6 @@ package applications
 import (
 	"database/sql"
 	"github.com/go-kit/kit/log"
-	"github.com/jmoiron/sqlx"
-	"gopkg.in/DATA-DOG/go-sqlmock.v1"
 	"testing"
 )
 
