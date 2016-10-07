@@ -18,25 +18,25 @@ func TestTraceServer(t *testing.T) {
 	contextSpan := tracer.StartSpan("").(*mocktracer.MockSpan)
 	ctx := opentracing.ContextWithSpan(context.Background(), contextSpan)
 
-	var innerEndpoint endpoint.Endpoint
-	innerEndpoint = func(context.Context, interface{}) (interface{}, error) {
-		return struct{}{}, nil
-	}
-	tracedEndpoint := kitot.TraceServer(tracer, "testOp")(innerEndpoint)
+	tracedEndpoint := kitot.TraceServer(tracer, "testOp")(endpoint.Nop)
 	if _, err := tracedEndpoint(ctx, struct{}{}); err != nil {
 		t.Fatal(err)
 	}
-	if want, have := 1, len(tracer.FinishedSpans); want != have {
+
+	finishedSpans := tracer.FinishedSpans()
+	if want, have := 1, len(finishedSpans); want != have {
 		t.Fatalf("Want %v span(s), found %v", want, have)
 	}
 
-	endpointSpan := tracer.FinishedSpans[0]
 	// Test that the op name is updated
+	endpointSpan := finishedSpans[0]
 	if want, have := "testOp", endpointSpan.OperationName; want != have {
 		t.Fatalf("Want %q, have %q", want, have)
 	}
-	// ... and that the ID is unmodified.
-	if want, have := contextSpan.SpanID, endpointSpan.SpanID; want != have {
+	contextContext := contextSpan.Context().(mocktracer.MockSpanContext)
+	endpointContext := endpointSpan.Context().(mocktracer.MockSpanContext)
+	// ...and that the ID is unmodified.
+	if want, have := contextContext.SpanID, endpointContext.SpanID; want != have {
 		t.Errorf("Want SpanID %q, have %q", want, have)
 	}
 }
@@ -44,21 +44,19 @@ func TestTraceServer(t *testing.T) {
 func TestTraceServerNoContextSpan(t *testing.T) {
 	tracer := mocktracer.New()
 
-	var innerEndpoint endpoint.Endpoint
-	innerEndpoint = func(context.Context, interface{}) (interface{}, error) {
-		return struct{}{}, nil
-	}
-	tracedEndpoint := kitot.TraceServer(tracer, "testOp")(innerEndpoint)
-	// Empty/background context:
+	// Empty/background context.
+	tracedEndpoint := kitot.TraceServer(tracer, "testOp")(endpoint.Nop)
 	if _, err := tracedEndpoint(context.Background(), struct{}{}); err != nil {
 		t.Fatal(err)
 	}
-	// tracedEndpoint created a new Span:
-	if want, have := 1, len(tracer.FinishedSpans); want != have {
+
+	// tracedEndpoint created a new Span.
+	finishedSpans := tracer.FinishedSpans()
+	if want, have := 1, len(finishedSpans); want != have {
 		t.Fatalf("Want %v span(s), found %v", want, have)
 	}
 
-	endpointSpan := tracer.FinishedSpans[0]
+	endpointSpan := finishedSpans[0]
 	if want, have := "testOp", endpointSpan.OperationName; want != have {
 		t.Fatalf("Want %q, have %q", want, have)
 	}
@@ -72,25 +70,48 @@ func TestTraceClient(t *testing.T) {
 	defer parentSpan.Finish()
 	ctx := opentracing.ContextWithSpan(context.Background(), parentSpan)
 
-	var innerEndpoint endpoint.Endpoint
-	innerEndpoint = func(context.Context, interface{}) (interface{}, error) {
-		return struct{}{}, nil
-	}
-	tracedEndpoint := kitot.TraceClient(tracer, "testOp")(innerEndpoint)
+	tracedEndpoint := kitot.TraceClient(tracer, "testOp")(endpoint.Nop)
 	if _, err := tracedEndpoint(ctx, struct{}{}); err != nil {
 		t.Fatal(err)
 	}
-	// tracedEndpoint created a new Span:
-	if want, have := 1, len(tracer.FinishedSpans); want != have {
+
+	// tracedEndpoint created a new Span.
+	finishedSpans := tracer.FinishedSpans()
+	if want, have := 1, len(finishedSpans); want != have {
 		t.Fatalf("Want %v span(s), found %v", want, have)
 	}
 
-	endpointSpan := tracer.FinishedSpans[0]
+	endpointSpan := finishedSpans[0]
 	if want, have := "testOp", endpointSpan.OperationName; want != have {
 		t.Fatalf("Want %q, have %q", want, have)
 	}
+
+	parentContext := parentSpan.Context().(mocktracer.MockSpanContext)
+	endpointContext := parentSpan.Context().(mocktracer.MockSpanContext)
+
 	// ... and that the parent ID is set appropriately.
-	if want, have := parentSpan.SpanID, endpointSpan.ParentID; want != have {
+	if want, have := parentContext.SpanID, endpointContext.SpanID; want != have {
 		t.Errorf("Want ParentID %q, have %q", want, have)
+	}
+}
+
+func TestTraceClientNoContextSpan(t *testing.T) {
+	tracer := mocktracer.New()
+
+	// Empty/background context.
+	tracedEndpoint := kitot.TraceClient(tracer, "testOp")(endpoint.Nop)
+	if _, err := tracedEndpoint(context.Background(), struct{}{}); err != nil {
+		t.Fatal(err)
+	}
+
+	// tracedEndpoint created a new Span.
+	finishedSpans := tracer.FinishedSpans()
+	if want, have := 1, len(finishedSpans); want != have {
+		t.Fatalf("Want %v span(s), found %v", want, have)
+	}
+
+	endpointSpan := finishedSpans[0]
+	if want, have := "testOp", endpointSpan.OperationName; want != have {
+		t.Fatalf("Want %q, have %q", want, have)
 	}
 }

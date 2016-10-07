@@ -1,25 +1,25 @@
 hash: 9065f050a8e87468098f6df070622f57a29d2de83efebb67363efa781f612080
-updated: 2016-06-23T08:26:13.449606435-04:00
+updated: 2016-10-07T10:39:12.797010091-04:00
 imports:
 - name: github.com/beorn7/perks
-  version: 3ac7bf7a47d159a033b107610db8a1b6575507a4
+  version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
   subpackages:
   - quantile
 - name: github.com/DavidHuie/gomigrate
-  version: 1b90a570dc6b7aaaefa233eacf304be363a89603
+  version: 4004e6142040f5d622e9d2be6e833a4652741571
 - name: github.com/fullsailor/pkcs7
-  version: 9ab43480afa35dcb6df2c5b80e5e158f421c03c7
+  version: 3befe47e6c80b97ab6863a5fe1b6a611003a5ab0
 - name: github.com/garyburd/go-oauth
   version: 719b069913e1151a73ea30d2ea4f90deda3ce234
   subpackages:
   - oauth
 - name: github.com/garyburd/redigo
-  version: b8dc90050f24c1a73a52f107f3f575be67b21b7c
+  version: ffa8d46ada782d81cfda81a0fbd9f45ceae448e8
   subpackages:
-  - redis
   - internal
+  - redis
 - name: github.com/go-kit/kit
-  version: c64e6811a23b727332adcf86ea66e9cd4eb42413
+  version: f4b6110ad931c7b2915f65bace5081ec60e17d64
   vcs: git
   subpackages:
   - endpoint
@@ -32,23 +32,23 @@ imports:
 - name: github.com/go-stack/stack
   version: 100eb0c0a9c5b306ca2fb4f165df21d80ada4b82
 - name: github.com/golang/protobuf
-  version: 0c1f6d65b5a189c2250d10e71a5506f06f9fa0a0
+  version: c3cefd437628a0b7d31b34fe44b3a7a540e98527
   subpackages:
   - proto
 - name: github.com/gorilla/context
-  version: aed02d124ae4a0e94fea4541c8effd05bf0c8296
+  version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
-  version: 9fa818a44c2bf1396a17f9d5a3c0f6dd39d2ff8e
+  version: 0b13a922203ebdbfd236c818efcd5ed46097d690
 - name: github.com/groob/plist
   version: e9ca5cd129407b401d850bc3248338865a7490ae
 - name: github.com/jmoiron/sqlx
-  version: bdae0c3219c3bdb92f3d7c70825018712787c933
+  version: 05b81a7d5d38058e42148dc01f17daf4acba4640
   subpackages:
   - reflectx
 - name: github.com/kr/logfmt
   version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
 - name: github.com/lib/pq
-  version: e2402a7cd1e57e08a576b94cdfed36ae30366545
+  version: 50761b0867bd1d9d069276790bcd4a3bccf2324a
   subpackages:
   - oid
 - name: github.com/matttproud/golang_protobuf_extensions
@@ -58,11 +58,11 @@ imports:
 - name: github.com/micromdm/dep
   version: 38c81b11544f31c2be14e0b3bcfa12f656fcc709
 - name: github.com/micromdm/mdm
-  version: 3848d523aa33c6a9bd256c581c7ebd97047f0944
+  version: 1b3e0e090d7a4faa4b2e432a84d2eca04dbe2e95
 - name: github.com/pkg/errors
-  version: cbd18b5440315aa74a17dee2e50b67675b872b49
+  version: 17b591df37844cde689f4d5813e5cea0927d8dd2
 - name: github.com/prometheus/client_golang
-  version: 488edd04dc224ba64c401747cd0a4b5f05dfb234
+  version: c5b7fccd204277076155f10851dad72b76a49317
   subpackages:
   - prometheus
 - name: github.com/prometheus/client_model
@@ -70,7 +70,7 @@ imports:
   subpackages:
   - go
 - name: github.com/prometheus/common
-  version: 3a184ff7dfd46b9091030bf2e56c71112b0ddb0e
+  version: 9a94032291f2192936512bab367bc45e77990d6a
   subpackages:
   - expfmt
   - internal/bitbucket.org/ww/goautoneg
@@ -81,26 +81,28 @@ imports:
   version: 2861f2a5612806afe88232539f5e4255d39ae544
   subpackages:
   - certificate
-  - push
   - payload
   - payload/badge
+  - push
 - name: github.com/rs/cors
   version: a62a804a8a009876ca59105f7899938a1349f4b3
 - name: github.com/rs/xhandler
   version: ed27b6fd65218132ee50cd95f38474a3d8a2cd12
 - name: github.com/satori/go.uuid
-  version: 879c5887cd475cd7864858769793b2ceb0d44feb
+  version: b061729afc07e77a8aa4fad0a2fd840958f1942a
 - name: golang.org/x/crypto
-  version: f3241ce8505855877cc8a9717bd61a0f7c4ea83c
+  version: bc89c496413265e715159bdc8478ee9a92fdc265
   subpackages:
   - pkcs12
   - pkcs12/internal/rc2
 - name: golang.org/x/net
-  version: bc3663df0ac92f928d419e31e0d2af22e683a5a2
+  version: 4d38db76854b199960801a1734443fd02870d7e1
   subpackages:
   - context
-  - http2
   - context/ctxhttp
+  - http2
   - http2/hpack
   - lex/httplex
-devImports: []
+testImports:
+- name: gopkg.in/DATA-DOG/go-sqlmock.v1
+  version: 9958e5c69de03e97ec215b23f6fcae1f600c3fb6
