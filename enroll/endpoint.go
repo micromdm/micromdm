@@ -12,7 +12,7 @@ type Endpoints struct {
 type mdmEnrollRequest struct{}
 
 type mdmEnrollResponse struct {
-	Profile,
+	Profile
 	Err error `plist:"error,omitempty"`
 }
 
