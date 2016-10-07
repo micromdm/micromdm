@@ -98,3 +98,26 @@ func makeDeleteCommandEndpoint(svc Service) endpoint.Endpoint {
 		return deleteCommandResponse{Total: total}, nil
 	}
 }
+
+type getCommandsRequest struct {
+	UDID string
+}
+
+type getCommandsResponse struct {
+	Commands []mdm.Payload `json:"commands,omitempty"`
+	Err      error         `json:"error,omitempty"`
+}
+
+func makeGetCommandsEndpoint(svc Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(getCommandsRequest)
+		if req.UDID == "" {
+			return getCommandsResponse{Err: ErrEmptyRequest}, nil
+		}
+		commands, err := svc.Commands(req.UDID)
+		if err != nil {
+			return getCommandsResponse{Err: err}, nil
+		}
+		return getCommandsResponse{Commands: commands}, nil
+	}
+}

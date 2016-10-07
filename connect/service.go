@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/micromdm/mdm"
 	apps "github.com/micromdm/micromdm/applications"
+	"github.com/micromdm/micromdm/certificates"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/device"
 	"github.com/pkg/errors"
@@ -39,14 +40,19 @@ type service struct {
 // NOTE: IOS devices do not always include the key `RequestType` in their response. Only the presence of the
 // result key can be used to identify the response (or the command UUID)
 func (svc service) Acknowledge(ctx context.Context, req mdm.Response) (int, error) {
-	switch req.RequestType {
+	requestPayload, err := svc.commands.Find(req.CommandUUID)
+
+	switch requestPayload.Command.RequestType {
 	case "DeviceInformation":
 		if err := svc.ackQueryResponses(req); err != nil {
 			return 0, err
 		}
 	case "InstalledApplicationList":
 		if err := svc.ackInstalledApplicationList(req); err != nil {
-			fmt.Printf("Got an error acknowledging InstalledApplicationList: %v\n", err)
+			return 0, err
+		}
+	case "CertificateList":
+		if err := svc.ackCertificateList(req); err != nil {
 			return 0, err
 		}
 	default:
@@ -56,12 +62,7 @@ func (svc service) Acknowledge(ctx context.Context, req mdm.Response) (int, erro
 				return 0, err
 			}
 		}
-
-		if req.InstalledApplicationList != nil {
-			if err := svc.ackInstalledApplicationList(req); err != nil {
-				return 0, err
-			}
-		}
+		// Unhandled MDM client response
 	}
 
 	total, err := svc.commands.DeleteCommand(req.UDID, req.CommandUUID)

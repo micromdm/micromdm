@@ -28,6 +28,8 @@ type Datastore interface {
 	QueueCommand(deviceUDID, commandUUID string) error
 	NextCommand(deviceUDID string) ([]byte, int, error)
 	DeleteCommand(deviceUDID, commandUUID string) (int, error)
+	Commands(deviceUDID string) ([]mdm.Payload, error)
+	Find(commandUUID string) (*mdm.Payload, error)
 }
 
 //NewDB creates a Datastore
@@ -122,6 +124,48 @@ func (rds redisDB) DeleteCommand(deviceUDID, commandUUID string) (int, error) {
 		return 0, err
 	}
 	return total, nil
+}
+
+func (rds redisDB) Commands(deviceUDID string) ([]mdm.Payload, error) {
+	conn := rds.pool.Get()
+	defer conn.Close()
+
+	commandUUIDs, err := redis.Values(conn.Do("LRANGE", deviceUDID, "0", "-1"))
+	if err != nil {
+		return nil, err
+	}
+
+	var payloads []mdm.Payload = make([]mdm.Payload, len(commandUUIDs))
+
+	for i, commandUUID := range commandUUIDs {
+		payloadData, err := redis.Bytes(conn.Do("GET", commandUUID))
+		if err != nil {
+			return nil, err
+		}
+
+		if err := plist.NewDecoder(bytes.NewReader(payloadData)).Decode(&payloads[i]); err != nil {
+			return nil, err
+		}
+	}
+
+	return payloads, nil
+}
+
+func (rds redisDB) Find(commandUUID string) (*mdm.Payload, error) {
+	conn := rds.pool.Get()
+	defer conn.Close()
+
+	payloadData, err := redis.Bytes(conn.Do("GET", commandUUID))
+	if err != nil {
+		return nil, err
+	}
+
+	var payload *mdm.Payload
+	if err := plist.NewDecoder(bytes.NewReader(payloadData)).Decode(&payload); err != nil {
+		return nil, err
+	}
+
+	return payload, nil
 }
 
 func redisPool(conn string, logger kitlog.Logger) *redis.Pool {

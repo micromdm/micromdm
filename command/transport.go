@@ -38,9 +38,17 @@ func ServiceHandler(ctx context.Context, svc Service, logger kitlog.Logger) http
 		encodeResponse,
 		opts...,
 	)
+	getCommandsHandler := kithttp.NewServer(
+		ctx,
+		makeGetCommandsEndpoint(svc),
+		decodeGetCommandsRequest,
+		encodeResponse,
+		opts...,
+	)
 
 	r := mux.NewRouter()
 
+	r.Handle("/mdm/commands/{udid}", getCommandsHandler).Methods("GET")
 	r.Handle("/mdm/commands", newCommandHandler).Methods("POST")
 	r.Handle("/mdm/commands/{udid}/next", nextCommandHandler).Methods("GET")
 	r.Handle("/mdm/commands/{udid}/{uuid}", deleteCommandHandler).Methods("DELETE")
@@ -78,6 +86,17 @@ func decodeDeleteCommandRequest(_ context.Context, r *http.Request) (interface{}
 	var request deleteCommandRequest
 	request.UDID = udid
 	request.UUID = uuid
+	return request, nil
+}
+
+func decodeGetCommandsRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	vars := mux.Vars(r)
+	udid, ok := vars["udid"]
+	if !ok {
+		return nil, errBadRouting
+	}
+
+	request := getCommandsRequest{UDID: udid}
 	return request, nil
 }
 
