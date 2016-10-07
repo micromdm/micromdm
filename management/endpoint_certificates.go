@@ -3,7 +3,7 @@ package management
 import (
 	"encoding/json"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/micromdm/micromdm/certificates"
+	"github.com/micromdm/micromdm/certificate"
 	"golang.org/x/net/context"
 	"net/http"
 )
@@ -13,8 +13,8 @@ type listCertificatesRequest struct {
 }
 
 type listCertificatesResponse struct {
-	certificates []certificates.Certificate `json:"certificates,omitempty"`
-	Err          error                      `json:"error,omitempty"`
+	certificates []certificate.Certificate `json:"certificates,omitempty"`
+	Err          error                     `json:"error,omitempty"`
 }
 
 func (r listCertificatesResponse) error() error { return r.Err }

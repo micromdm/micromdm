@@ -2,7 +2,7 @@ package management
 
 import (
 	"github.com/go-kit/kit/endpoint"
-	"github.com/micromdm/micromdm/applications"
+	"github.com/micromdm/micromdm/application"
 	"golang.org/x/net/context"
 )
 
@@ -11,7 +11,7 @@ type installedAppsRequest struct {
 }
 
 type installedAppsResponse struct {
-	applications []applications.Application
+	applications []application.Application
 	Err          error `json:"error,omitempty"`
 }
 

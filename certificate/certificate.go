@@ -1,4 +1,4 @@
-package certificates
+package certificate
 
 type Certificate struct {
 	UUID       string `db:"certificate_uuid" json:"uuid"`

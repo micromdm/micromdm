@@ -1,4 +1,4 @@
-package certificates
+package certificate
 
 import (
 	"fmt"

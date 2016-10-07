@@ -5,8 +5,8 @@ import (
 	"github.com/RobotsAndPencils/buford/payload"
 	"github.com/RobotsAndPencils/buford/push"
 	"github.com/micromdm/dep"
-	"github.com/micromdm/micromdm/applications"
-	"github.com/micromdm/micromdm/certificates"
+	"github.com/micromdm/micromdm/application"
+	"github.com/micromdm/micromdm/certificate"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/workflow"
 	"github.com/pkg/errors"
@@ -31,10 +31,10 @@ type Service interface {
 	Device(uuid string) (*device.Device, error)
 
 	// Installed Applications
-	InstalledApps(deviceUUID string) ([]applications.Application, error)
+	InstalledApps(deviceUUID string) ([]application.Application, error)
 
 	// Installed Certificates
-	Certificates(deviceUUID string) ([]certificates.Certificate, error)
+	Certificates(deviceUUID string) ([]certificate.Certificate, error)
 
 	// AssignWorkflow assigns a workflow to a device
 	AssignWorkflow(deviceUUID, workflowUUID string) error
@@ -48,7 +48,7 @@ type Service interface {
 }
 
 // NewService creates a management service
-func NewService(ds device.Datastore, ws workflow.Datastore, dc dep.Client, ps *push.Service, as applications.Datastore, cs certificates.Datastore) Service {
+func NewService(ds device.Datastore, ws workflow.Datastore, dc dep.Client, ps *push.Service, as application.Datastore, cs certificate.Datastore) Service {
 	return &service{
 		devices:      ds,
 		depClient:    dc,
@@ -64,8 +64,8 @@ type service struct {
 	devices      device.Datastore
 	workflows    workflow.Datastore
 	pushsvc      *push.Service
-	applications applications.Datastore
-	certificates certificates.Datastore
+	applications application.Datastore
+	certificates certificate.Datastore
 }
 
 func (svc service) Push(deviceUDID string) (string, error) {
@@ -172,7 +172,7 @@ func (svc service) AssignWorkflow(deviceUUID, workflowUUID string) error {
 	return svc.devices.Save("assignWorkflow", dev)
 }
 
-func (svc service) InstalledApps(deviceUUID string) ([]applications.Application, error) {
+func (svc service) InstalledApps(deviceUUID string) ([]application.Application, error) {
 	apps, err := svc.applications.GetApplicationsByDeviceUUID(deviceUUID)
 	if err != nil {
 		return nil, errors.Wrap(err, "management: installed apps")
@@ -181,7 +181,7 @@ func (svc service) InstalledApps(deviceUUID string) ([]applications.Application,
 	return apps, nil
 }
 
-func (svc service) Certificates(deviceUUID string) ([]certificates.Certificate, error) {
+func (svc service) Certificates(deviceUUID string) ([]certificate.Certificate, error) {
 	certs, err := svc.certificates.GetCertificatesByDeviceUUID(deviceUUID)
 	if err != nil {
 		return nil, errors.Wrap(err, "management: certificates")

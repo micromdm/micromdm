@@ -1,4 +1,4 @@
-package applications
+package application
 
 import "database/sql"
 
