@@ -58,12 +58,6 @@ func (svc service) Acknowledge(ctx context.Context, req mdm.Response) (int, erro
 			return 0, err
 		}
 	default:
-		// Need to handle the absence of RequestType in IOS8 devices
-		if req.QueryResponses.UDID != "" {
-			if err := svc.ackQueryResponses(req); err != nil {
-				return 0, err
-			}
-		}
 		// Unhandled MDM client response
 	}
 
@@ -194,6 +188,35 @@ func (svc service) ackInstalledApplicationList(req mdm.Response) error {
 		}
 
 		requestApps[i] = newApp
+		//fmt.Printf("%v\n", newApp)
+	}
+
+	//fmt.Printf("%v\n", requestApps)
+
+	return nil
+}
+
+// Acknowledge a response to `CertificateList`.
+func (svc service) ackCertificateList(req mdm.Response) error {
+	device, err := svc.devices.GetDeviceByUDID(req.UDID, "device_uuid")
+	if err != nil {
+		return errors.Wrap(err, "getting a device record by udid")
+	}
+
+	var certs []certificates.Certificate = []certificates.Certificate{}
+	for _, cert := range req.CertificateList {
+		newCert := certificates.Certificate{
+			CommonName: cert.CommonName,
+			IsIdentity: cert.IsIdentity,
+			Data:       cert.Data,
+			DeviceUUID: device.UUID,
+		}
+
+		certs = append(certs, newCert)
+	}
+
+	if err := svc.certs.ReplaceCertificatesByDeviceUUID(device.UUID, certs); err != nil {
+		return err
 	}
 
 	return nil

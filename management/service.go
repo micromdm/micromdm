@@ -1,6 +1,7 @@
 package management
 
 import (
+	"fmt"
 	"github.com/RobotsAndPencils/buford/payload"
 	"github.com/RobotsAndPencils/buford/push"
 	"github.com/micromdm/dep"
@@ -75,7 +76,7 @@ func (svc service) Push(deviceUDID string) (string, error) {
 		}...,
 	)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("retrieving device by UDID: %s", err)
 	}
 
 	p := payload.MDM{Token: dev.PushMagic}

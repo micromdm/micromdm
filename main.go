@@ -199,11 +199,21 @@ func main() {
 		os.Exit(1)
 	}
 
+	certsDB, err := certificates.NewDB(
+		"postgres",
+		*flPGconn,
+		logger,
+	)
+	if err != nil {
+		logger.Log("err", err)
+		os.Exit(1)
+	}
+
 	dc := depClient(logger, *flDEPCK, *flDEPCS, *flDEPAT, *flDEPAS, *flDEPServerURL, *flDEPsim)
-	mgmtSvc := management.NewService(deviceDB, workflowDB, dc, pushSvc, appsDB)
+	mgmtSvc := management.NewService(deviceDB, workflowDB, dc, pushSvc, appsDB, certsDB)
 	commandSvc := command.NewService(commandDB)
 	checkinSvc := checkin.NewService(deviceDB, mgmtSvc, commandSvc, enrollmentProfile)
-	connectSvc := connect.NewService(deviceDB, commandSvc)
+	connectSvc := connect.NewService(deviceDB, appsDB, certsDB, commandSvc)
 
 	httpLogger := log.NewContext(logger).With("component", "http")
 	managementHandler := management.ServiceHandler(ctx, mgmtSvc, httpLogger)

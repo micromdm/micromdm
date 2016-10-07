@@ -15,6 +15,8 @@ type pushResponse struct {
 	Err    error  `json:"error,omitempty"`
 }
 
+func (r pushResponse) error() error { return r.Err }
+
 func makePushEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(pushRequest)
