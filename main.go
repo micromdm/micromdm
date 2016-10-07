@@ -14,8 +14,8 @@ import (
 	"github.com/RobotsAndPencils/buford/push"
 	"github.com/go-kit/kit/log"
 	"github.com/micromdm/dep"
-	"github.com/micromdm/micromdm/applications"
-	"github.com/micromdm/micromdm/certificates"
+	"github.com/micromdm/micromdm/application"
+	mdmCert "github.com/micromdm/micromdm/certificate"
 	"github.com/micromdm/micromdm/checkin"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/connect"
@@ -189,7 +189,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	appsDB, err := applications.NewDB(
+	appsDB, err := application.NewDB(
 		"postgres",
 		*flPGconn,
 		logger,
@@ -199,7 +199,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	certsDB, err := certificates.NewDB(
+	certsDB, err := mdmCert.NewDB(
 		"postgres",
 		*flPGconn,
 		logger,

@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/micromdm/mdm"
-	apps "github.com/micromdm/micromdm/applications"
-	"github.com/micromdm/micromdm/certificates"
+	"github.com/micromdm/micromdm/application"
+	"github.com/micromdm/micromdm/certificate"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/device"
 	"github.com/pkg/errors"
@@ -22,7 +22,7 @@ type Service interface {
 }
 
 // NewService creates a mdm service
-func NewService(devices device.Datastore, apps apps.Datastore, certs certificates.Datastore, cs command.Service) Service {
+func NewService(devices device.Datastore, apps application.Datastore, certs certificate.Datastore, cs command.Service) Service {
 	return &service{
 		commands: cs,
 		devices:  devices,
@@ -33,9 +33,9 @@ func NewService(devices device.Datastore, apps apps.Datastore, certs certificate
 
 type service struct {
 	devices  device.Datastore
-	apps     apps.Datastore
+	apps     application.Datastore
 	commands command.Service
-	certs    certificates.Datastore
+	certs    certificate.Datastore
 }
 
 // Acknowledge a response from a device.
@@ -157,7 +157,7 @@ func (svc service) ackInstalledApplicationList(req mdm.Response) error {
 		return fmt.Errorf("clearing applications for device: %s", err)
 	}
 
-	var requestApps []apps.DeviceApplication = make([]apps.DeviceApplication, len(req.InstalledApplicationList))
+	var requestApps []application.DeviceApplication = make([]application.DeviceApplication, len(req.InstalledApplicationList))
 	// Update or insert application records that do not exist, returning the UUID so that it can be inserted for
 	// the device sending the response.
 	for i, reqApp := range req.InstalledApplicationList {
@@ -171,7 +171,7 @@ func (svc service) ackInstalledApplicationList(req mdm.Response) error {
 		dynamicSize := sql.NullInt64{}
 		dynamicSize.Scan(reqApp.DynamicSize)
 
-		newApp := apps.DeviceApplication{
+		newApp := application.DeviceApplication{
 			DeviceUUID:   dev.UUID,
 			Name:         reqApp.Name,
 			Identifier:   identifier,
@@ -203,9 +203,9 @@ func (svc service) ackCertificateList(req mdm.Response) error {
 		return errors.Wrap(err, "getting a device record by udid")
 	}
 
-	var certs []certificates.Certificate = []certificates.Certificate{}
+	var certs []certificate.Certificate = []certificate.Certificate{}
 	for _, cert := range req.CertificateList {
-		newCert := certificates.Certificate{
+		newCert := certificate.Certificate{
 			CommonName: cert.CommonName,
 			IsIdentity: cert.IsIdentity,
 			Data:       cert.Data,
