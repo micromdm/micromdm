@@ -130,15 +130,15 @@ func (rds redisDB) Commands(deviceUDID string) ([]mdm.Payload, error) {
 	conn := rds.pool.Get()
 	defer conn.Close()
 
-	commandUuids, err := redis.Values(conn.Do("LRANGE", deviceUDID, "0", "-1"))
+	commandUUIDs, err := redis.Values(conn.Do("LRANGE", deviceUDID, "0", "-1"))
 	if err != nil {
 		return nil, err
 	}
 
-	var payloads []mdm.Payload = make([]mdm.Payload, len(commandUuids))
+	var payloads []mdm.Payload = make([]mdm.Payload, len(commandUUIDs))
 
-	for i, commandUuid := range commandUuids {
-		payloadData, err := redis.Bytes(conn.Do("GET", commandUuid))
+	for i, commandUUID := range commandUUIDs {
+		payloadData, err := redis.Bytes(conn.Do("GET", commandUUID))
 		if err != nil {
 			return nil, err
 		}
