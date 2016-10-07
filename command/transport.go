@@ -96,8 +96,7 @@ func decodeGetCommandsRequest(_ context.Context, r *http.Request) (interface{}, 
 		return nil, errBadRouting
 	}
 
-	var request getCommandsRequest
-	request.UDID = udid
+	request := getCommandsRequest{UDID: udid}
 	return request, nil
 }
 
