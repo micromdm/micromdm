@@ -73,6 +73,7 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 	scepPayload.PayloadDescription = "Configures SCEP"
 	scepPayload.PayloadDisplayName = "SCEP"
 	scepPayload.PayloadIdentifier = "com.github.micromdm.scep"
+	scepPayload.PayloadOrganization = "MicroMDM"
 	scepPayload.PayloadContent = scepContent
 	scepPayload.PayloadScope = "System"
 

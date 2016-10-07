@@ -22,11 +22,12 @@ type Service interface {
 }
 
 // NewService creates a mdm service
-func NewService(devices device.Datastore, apps apps.Datastore, cs command.Service) Service {
+func NewService(devices device.Datastore, apps apps.Datastore, certs certificates.Datastore, cs command.Service) Service {
 	return &service{
 		commands: cs,
 		devices:  devices,
 		apps:     apps,
+		certs:    certs,
 	}
 }
 
@@ -34,6 +35,7 @@ type service struct {
 	devices  device.Datastore
 	apps     apps.Datastore
 	commands command.Service
+	certs    certificates.Datastore
 }
 
 // Acknowledge a response from a device.
