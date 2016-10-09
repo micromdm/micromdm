@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"path"
 	"regexp"
+	"strings"
 )
 
 // NewRouter returns a new router instance.
@@ -76,8 +77,9 @@ func (r *Router) Match(req *http.Request, match *RouteMatch) bool {
 // mux.Vars(request).
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if !r.skipClean {
+		path := getPath(req)
 		// Clean path to canonical form and redirect.
-		if p := cleanPath(req.URL.Path); p != req.URL.Path {
+		if p := cleanPath(path); p != path {
 
 			// Added 3 lines (Philip Schlump) - It was dropping the query string and #whatever from query.
 			// This matches with fix in go 1.2 r.c. 4 for same problem.  Go Issue:
@@ -285,6 +287,9 @@ func (r *Router) walk(walkFn WalkFunc, ancestors []*Route) error {
 		if err == SkipRouter {
 			continue
 		}
+		if err != nil {
+			return err
+		}
 		for _, sr := range t.matchers {
 			if h, ok := sr.(*Router); ok {
 				err := h.walk(walkFn, ancestors)
@@ -354,6 +359,28 @@ func setCurrentRoute(r *http.Request, val interface{}) *http.Request {
 // ----------------------------------------------------------------------------
 // Helpers
 // ----------------------------------------------------------------------------
+
+// getPath returns the escaped path if possible; doing what URL.EscapedPath()
+// which was added in go1.5 does
+func getPath(req *http.Request) string {
+	if req.RequestURI != "" {
+		// Extract the path from RequestURI (which is escaped unlike URL.Path)
+		// as detailed here as detailed in https://golang.org/pkg/net/url/#URL
+		// for < 1.5 server side workaround
+		// http://localhost/path/here?v=1 -> /path/here
+		path := req.RequestURI
+		path = strings.TrimPrefix(path, req.URL.Scheme+`://`)
+		path = strings.TrimPrefix(path, req.URL.Host)
+		if i := strings.LastIndex(path, "?"); i > -1 {
+			path = path[:i]
+		}
+		if i := strings.LastIndex(path, "#"); i > -1 {
+			path = path[:i]
+		}
+		return path
+	}
+	return req.URL.Path
+}
 
 // cleanPath returns the canonical path for p, eliminating . and .. elements.
 // Borrowed from the net/http package.

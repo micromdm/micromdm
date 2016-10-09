@@ -12,7 +12,6 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/jmoiron/sqlx"
 	"github.com/micromdm/dep"
-	"github.com/micromdm/micromdm/applications"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/workflow"
 	"golang.org/x/net/context"

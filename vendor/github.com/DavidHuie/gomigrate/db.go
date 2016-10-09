@@ -55,7 +55,7 @@ func (m Mysql) CreateMigrationTableSql() string {
                   id           INT          NOT NULL AUTO_INCREMENT,
                   migration_id BIGINT       NOT NULL UNIQUE,
                   PRIMARY KEY (id)
-                ) ENGINE=MyISAM`
+                )`
 }
 
 func (m Mysql) GetMigrationSql() string {

@@ -1,16 +1,14 @@
 package connect
 
 import (
-	"database/sql"
+	"os"
+	"testing"
+
 	"github.com/go-kit/kit/log"
 	"github.com/jmoiron/sqlx"
 	"github.com/micromdm/mdm"
-	"github.com/micromdm/micromdm/applications"
 	"github.com/micromdm/micromdm/device"
 	"golang.org/x/net/context"
-	"gopkg.in/DATA-DOG/go-sqlmock.v1"
-	"os"
-	"testing"
 )
 
 type MockDevices struct{}
