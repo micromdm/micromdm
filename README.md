@@ -1,4 +1,4 @@
-mircomdm is a Mobile Device Management server for Apple Devices(primarily OS X macs).
+mircomdm is a Mobile Device Management server for Apple Devices (primarily OS X macs).
 
 While I intend to implement all the commands defined by Apple in the spec, the current focus is on implementing the features necessary to fit Apple's new(er) management tools (MDM, VPP, DEP) into existing enterprise environments.
 
@@ -29,7 +29,7 @@ Installation and configuration instructions will be maintained on the [website](
 * micromdm is an open source project written as an http server in [Go](https://golang.org/)
 * deployed as a single binary.
 * almost everything in the project is a separate library/service. `main` just wraps these together and provides configuration flags
-* [PostgreSQL](http://www.postgresql.org/) for long lived data(devices, users, profiles, workflows)
+* [PostgreSQL](http://www.postgresql.org/) for long lived data (devices, users, profiles, workflows)
 * uses Redis to queue MDM Commands
 * API driven - there will be an admin cli and a web ui, but the server itself is build as a RESTful API.
 * exposes metrics data in [Prometheus](https://prometheus.io/) format.
@@ -51,7 +51,7 @@ If you're familiar with Munki's [manifest](https://github.com/munki/munki/wiki/M
 
 ## If you're new to Go
 Go is a bit different from other languages in its requirements for how it expects its programmers to organize Go code on a system.
-First, Go expects you to choose a folder, called a workspace(you can name it anything you'd like). The path to this folder must always be set in an environment variable - `GOPATH`(example: `GOPATH=/Users/groob/code/go`)  
+First, Go expects you to choose a folder, called a workspace (you can name it anything you'd like). The path to this folder must always be set in an environment variable - `GOPATH` (example: `GOPATH=/Users/groob/code/go`)  
 Your `GOPATH` must have thee subfolders - `bin`, `pkg` and `src`, and any code you create must live inside the `src` folder. It's also helpful to add `$GOPATH/bin` to your environment's `PATH` as that is where `go install` will place go binaries that you build.
 
 A few helpful resources for getting started with Go.
@@ -86,7 +86,7 @@ If you want to run locally for testing/development, an easy way to run PostgreSQ
 `docker-compose -f compose-pg.yml up`
 
 ## Dockerfiles for development and release.
-* `Dockerfile` will build the latest release(by downloading the binaries.  
+* `Dockerfile` will build the latest release (by downloading the binaries).
 This is equivalent to `docker pull micromdm/micromdm:latest`
 
 * `Dockerfile.dev` builds the latest version from the local source.
