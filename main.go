@@ -1,6 +1,8 @@
 package main
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"flag"
 	"fmt"
@@ -333,9 +335,32 @@ func checkEmptyArgs(args ...string) bool {
 }
 
 // choose http or https
-func serve(logger log.Logger, tls bool, port, key, cert string) {
+func serve(logger log.Logger, tlsEnabled bool, port, key, cert string) {
 	portStr := fmt.Sprintf(":%v", port)
-	if tls {
+	if tlsEnabled {
+		chain, err := tls.LoadX509KeyPair(cert, key)
+		if err != nil {
+			logger.Log("err", "failed to load TLS certificate or private key")
+			os.Exit(1)
+		}
+
+		cert, err := x509.ParseCertificate(chain.Certificate[0]) // Leaf is always the first entry
+		if err != nil {
+			return err
+		}
+
+		if _, err := cert.Verify(x509.VerifyOptions{}); err != nil {
+			switch e := err.(type) {
+			case x509.CertificateInvalidError:
+				switch e.Reason {
+				case x509.Expired:
+					logger.Log("err", "certificate has expired")
+				default:
+					logger.Log("err", "certificate is invalid")
+				}
+			}
+		}
+
 		logger.Log("msg", "HTTPs", "addr", port)
 		logger.Log("err", http.ListenAndServeTLS(portStr, cert, key, nil))
 	} else {
