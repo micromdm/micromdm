@@ -8,6 +8,7 @@ import (
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/management"
+	"time"
 )
 
 // Service defines methods for and MDM Checkin service
@@ -60,6 +61,7 @@ func (svc service) Authenticate(cmd mdm.CheckinCommand) error {
 		MDMTopic:     cmd.Topic,
 		Model:        cmd.Model,
 		DeviceName:   cmd.DeviceName,
+		LastCheckin:  time.Now().UTC(),
 	}
 
 	_, err := svc.devices.New("authenticate", dev)
@@ -83,6 +85,8 @@ func (svc service) TokenUpdate(cmd mdm.CheckinCommand) error {
 	existing.UnlockToken = unlockToken
 	existing.AwaitingConfiguration = cmd.AwaitingConfiguration
 	existing.Enrolled = true
+	existing.LastCheckin = time.Now().UTC()
+
 	err = svc.devices.Save("tokenUpdate", existing)
 	if err != nil {
 		return err

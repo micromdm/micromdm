@@ -123,8 +123,7 @@ func (svc service) ackQueryResponses(req mdm.Response) error {
 
 	existing := devices[0]
 
-	now := time.Now()
-	existing.LastCheckin = &now
+	existing.LastCheckin = time.Now().UTC()
 	existing.LastQueryResponse, err = json.Marshal(req.QueryResponses)
 
 	if err != nil {

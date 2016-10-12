@@ -24,9 +24,10 @@ var (
 	dep_profile_push_time,
 	dep_profile_assigned_date,
 	dep_profile_assigned_by,
-	dep_device
+	dep_device,
+	last_checkin
 	) 
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 	ON CONFLICT (serial_number)
 	DO UPDATE SET
 	model = $2,
@@ -39,7 +40,8 @@ var (
 	dep_profile_push_time = $9,
 	dep_profile_assigned_date = $10,
 	dep_profile_assigned_by = $11,
-	dep_device = $12
+	dep_device = $12,
+	last_checkin = $13
 	RETURNING device_uuid;`
 
 	authenticateMDM = `INSERT INTO devices (
@@ -50,9 +52,11 @@ var (
 	product_name,
 	serial_number,
 	imei,
-	meid
+	meid,
+	model,
+	last_checkin
 	)
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8) 
+    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
     ON CONFLICT (serial_number)
     DO UPDATE SET
     	udid=$1,
@@ -63,7 +67,8 @@ var (
     serial_number=$6,
     imei=$7,
     meid=$8,
-    model=$9
+    model=$9,
+    last_checkin=$10
 	RETURNING device_uuid;`
 
 	selectDevicesStmt = `SELECT
@@ -151,6 +156,7 @@ func (store pgStore) New(src string, d *Device) (string, error) {
 			d.DEPProfileAssignedDate,
 			d.DEPProfileAssignedBy,
 			true,
+			time.Time{},
 		).Scan(&d.UUID)
 		if err != nil {
 			return "", err
@@ -168,6 +174,7 @@ func (store pgStore) New(src string, d *Device) (string, error) {
 			d.IMEI,
 			d.MEID,
 			d.Model,
+			d.LastCheckin,
 		).Scan(&d.UUID)
 		if err != nil {
 			return "", err
@@ -202,7 +209,8 @@ func (store pgStore) Save(msg string, dev *Device) error {
 		apple_push_magic=:apple_push_magic,
 		apple_mdm_token=:apple_mdm_token,
 		mdm_enrolled=:mdm_enrolled,
-		unlock_token=:unlock_token
+		unlock_token=:unlock_token,
+		last_checkin=:last_checkin
 		WHERE device_uuid=:device_uuid`
 	case "checkout":
 		stmt = `UPDATE devices SET
@@ -218,7 +226,8 @@ func (store pgStore) Save(msg string, dev *Device) error {
 		imei=:imei,
 		meid=:meid,
 		os_version=:os_version,
-		build_version=:build_version
+		build_version=:build_version,
+		last_checkin=:last_checkin
 		WHERE device_uuid=:device_uuid`
 	default:
 		return errors.New("device: unsupported update msg")
