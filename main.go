@@ -335,10 +335,10 @@ func checkEmptyArgs(args ...string) bool {
 }
 
 // choose http or https
-func serve(logger log.Logger, tlsEnabled bool, port, key, cert string) {
+func serve(logger log.Logger, tlsEnabled bool, port, key, certPath string) {
 	portStr := fmt.Sprintf(":%v", port)
 	if tlsEnabled {
-		chain, err := tls.LoadX509KeyPair(cert, key)
+		chain, err := tls.LoadX509KeyPair(certPath, key)
 		if err != nil {
 			logger.Log("err", "failed to load TLS certificate or private key")
 			os.Exit(1)
@@ -346,7 +346,8 @@ func serve(logger log.Logger, tlsEnabled bool, port, key, cert string) {
 
 		cert, err := x509.ParseCertificate(chain.Certificate[0]) // Leaf is always the first entry
 		if err != nil {
-			return err
+			logger.Log("err", "error parsing TLS certificate")
+			os.Exit(1)
 		}
 
 		if _, err := cert.Verify(x509.VerifyOptions{}); err != nil {
@@ -362,7 +363,7 @@ func serve(logger log.Logger, tlsEnabled bool, port, key, cert string) {
 		}
 
 		logger.Log("msg", "HTTPs", "addr", port)
-		logger.Log("err", http.ListenAndServeTLS(portStr, cert, key, nil))
+		logger.Log("err", http.ListenAndServeTLS(portStr, certPath, key, nil))
 	} else {
 		logger.Log("msg", "HTTP", "addr", port)
 		logger.Log("err", http.ListenAndServe(portStr, nil))
