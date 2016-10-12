@@ -1,5 +1,5 @@
 hash: 9065f050a8e87468098f6df070622f57a29d2de83efebb67363efa781f612080
-updated: 2016-10-07T10:39:12.797010091-04:00
+updated: 2016-10-11T23:26:43.205635472-04:00
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -19,7 +19,7 @@ imports:
   - internal
   - redis
 - name: github.com/go-kit/kit
-  version: f4b6110ad931c7b2915f65bace5081ec60e17d64
+  version: fa37eda80c7ca0329458495b0299f068f3f19d70
   vcs: git
   subpackages:
   - endpoint
@@ -48,7 +48,7 @@ imports:
 - name: github.com/kr/logfmt
   version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
 - name: github.com/lib/pq
-  version: 50761b0867bd1d9d069276790bcd4a3bccf2324a
+  version: 068cb1c8e4be77b9bdef4d0d91f162160537779e
   subpackages:
   - oid
 - name: github.com/matttproud/golang_protobuf_extensions
@@ -58,7 +58,7 @@ imports:
 - name: github.com/micromdm/dep
   version: 38c81b11544f31c2be14e0b3bcfa12f656fcc709
 - name: github.com/micromdm/mdm
-  version: 1b3e0e090d7a4faa4b2e432a84d2eca04dbe2e95
+  version: 6e0586cca72594720a1c7c48214661a87c73bd17
 - name: github.com/pkg/errors
   version: 17b591df37844cde689f4d5813e5cea0927d8dd2
 - name: github.com/prometheus/client_golang
