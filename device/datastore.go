@@ -62,7 +62,8 @@ var (
     product_name=$5,
     serial_number=$6,
     imei=$7,
-    meid=$8
+    meid=$8,
+    model=$9
 	RETURNING device_uuid;`
 
 	selectDevicesStmt = `SELECT
@@ -166,6 +167,7 @@ func (store pgStore) New(src string, d *Device) (string, error) {
 			d.SerialNumber,
 			d.IMEI,
 			d.MEID,
+			d.Model,
 		).Scan(&d.UUID)
 		if err != nil {
 			return "", err

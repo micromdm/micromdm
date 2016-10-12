@@ -58,6 +58,7 @@ func (svc service) Authenticate(cmd mdm.CheckinCommand) error {
 		IMEI:         cmd.IMEI,
 		MEID:         cmd.MEID,
 		MDMTopic:     cmd.Topic,
+		Model:        cmd.Model,
 		DeviceName:   cmd.DeviceName,
 	}
 
