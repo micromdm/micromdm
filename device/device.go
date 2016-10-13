@@ -107,9 +107,9 @@ func NewFromDEP(dd dep.Device) *Device {
 		AssetTag:               dd.AssetTag,
 		DEPProfileStatus:       DEPProfileStatus(dd.ProfileStatus),
 		DEPProfileUUID:         dd.ProfileUUID,
-		DEPProfileAssignTime:   &dd.ProfileAssignTime,
-		DEPProfilePushTime:     &dd.ProfilePushTime,
-		DEPProfileAssignedDate: &dd.DeviceAssignedDate,
+		DEPProfileAssignTime:   dd.ProfileAssignTime,
+		DEPProfilePushTime:     dd.ProfilePushTime,
+		DEPProfileAssignedDate: dd.DeviceAssignedDate,
 		DEPProfileAssignedBy:   dd.DeviceAssignedBy,
 	}
 }
