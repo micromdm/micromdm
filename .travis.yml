@@ -1,0 +1,16 @@
+language: go
+go:
+  - 1.7
+  - tip
+
+services:
+  - redis-server
+  - postgresql
+
+before_script:
+  - psql -c 'create database travis_ci_test;' -U postgres
+
+before_install:
+  - sudo add-apt-repository ppa:masterminds/glide -y
+  - sudo apt-get update -q
+  - sudo apt-get install glide -y
