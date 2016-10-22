@@ -239,7 +239,7 @@ func main() {
 		if *flTLSCACert == "" {
 			logger.Log("warn", "You did not specify a CA Certificate to trust via --tls-ca-cert or MICROMDM_TLS_CA_CERT. If your certificates are self signed, devices may not be able to enroll.")
 		}
-		enrollSvc, _ := enroll.NewService(*flPushCert, *flPushPass, *flTLSCACert, *flSCEPURL, *flSCEPChallenge, *flURL)
+		enrollSvc, _ := enroll.NewService(*flPushCert, *flPushPass, *flTLSCACert, *flSCEPURL, *flSCEPChallenge, *flURL, *flTLSCert)
 		enrollHandler := enroll.MakeHTTPHandler(ctx, enrollSvc, httpLogger)
 		mux.Handle("/mdm/enroll", enrollHandler)
 	}

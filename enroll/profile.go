@@ -31,7 +31,7 @@ type Profile struct {
 	PayloadScope             string            `json:"scope" db:"scope" plist:",omitempty"`
 	RemovalDate              *time.Time        `json:"removal_date" db:"removal_date" plist:"-" plist:",omitempty"`
 	DurationUntilRemoval     float32           `json:"duration_until_removal" db:"duration_until_removal" plist:",omitempty"`
-	ConsentText              map[string]string `json:"consent_text" db:"consent_text" plist:"omitempty"`
+	ConsentText              map[string]string `json:"consent_text" db:"consent_text" plist:",omitempty"`
 }
 
 func NewProfile() *Profile {

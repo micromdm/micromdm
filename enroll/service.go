@@ -9,16 +9,24 @@ type Service interface {
 	Enroll(ctx context.Context) (Profile, error)
 }
 
-func NewService(pushCertPath string, pushCertPass string, caCertPath string, scepURL string, scepChallenge string, url string) (Service, error) {
+func NewService(pushCertPath string, pushCertPass string, caCertPath string, scepURL string, scepChallenge string, url string, tlsCertPath string) (Service, error) {
 	pushTopic, err := GetPushTopicFromPKCS12(pushCertPath, pushCertPass)
 	if err != nil {
 		return nil, err
 	}
 
-	var caCert []byte
+	var caCert, tlsCert []byte
 
 	if caCertPath != "" {
 		caCert, err = ioutil.ReadFile(caCertPath)
+
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if tlsCertPath != "" {
+		tlsCert, err = ioutil.ReadFile(tlsCertPath)
 
 		if err != nil {
 			return nil, err
@@ -39,6 +47,7 @@ func NewService(pushCertPath string, pushCertPass string, caCertPath string, sce
 		SCEPChallenge: scepChallenge,
 		Topic:         pushTopic,
 		CACert:        caCert,
+		TLSCert:       tlsCert,
 	}, nil
 }
 
@@ -49,6 +58,7 @@ type service struct {
 	SCEPSubject   [][][]string
 	Topic         string // APNS Topic for MDM notifications
 	CACert        []byte
+	TLSCert       []byte
 }
 
 func (svc service) Enroll(ctx context.Context) (Profile, error) {
@@ -93,6 +103,8 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 		Topic: svc.Topic,
 	}
 
+	payloadContent := []interface{}{*scepPayload, mdmPayloadContent}
+
 	if len(svc.CACert) > 0 {
 		caPayload := NewPayload("com.apple.ssl.certificate")
 		caPayload.PayloadDisplayName = "Root certificate for MicroMDM"
@@ -100,10 +112,21 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 		caPayload.PayloadIdentifier = "com.github.micromdm.ssl.ca"
 		caPayload.PayloadContent = svc.CACert
 
-		profile.PayloadContent = []interface{}{*scepPayload, mdmPayloadContent, *caPayload}
-	} else {
-		profile.PayloadContent = []interface{}{*scepPayload, mdmPayloadContent}
+		payloadContent = append(payloadContent, *caPayload)
 	}
+
+	// Client needs to trust us at this point if we are using a self signed certificate.
+	if len(svc.TLSCert) > 0 {
+		tlsPayload := NewPayload("com.apple.security.pkcs1")
+		tlsPayload.PayloadDisplayName = "Self-signed TLS certificate for MicroMDM"
+		tlsPayload.PayloadDescription = "Installs the TLS certificate for MicroMDM"
+		tlsPayload.PayloadIdentifier = "com.github.micromdm.tls"
+		tlsPayload.PayloadContent = svc.TLSCert
+
+		payloadContent = append(payloadContent, *tlsPayload)
+	}
+
+	profile.PayloadContent = payloadContent
 
 	return *profile, nil
 }
