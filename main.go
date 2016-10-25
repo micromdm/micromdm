@@ -360,7 +360,6 @@ func serve(logger log.Logger, tlsEnabled bool, port, key, certPath string) {
 					logger.Log("err", "certificate is invalid")
 				}
 			}
-			os.Exit(1)
 		}
 
 		logger.Log("msg", "HTTPs", "addr", port)
