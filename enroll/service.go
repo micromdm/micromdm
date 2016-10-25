@@ -36,7 +36,9 @@ func NewService(pushCertPath string, pushCertPass string, caCertPath string, sce
 	scepSubject := [][][]string{
 		[][]string{
 			[]string{"O", "MicroMDM"},
-			[]string{"CN", "MDM Identity Certificate:UDID"},
+		},
+		[][]string{
+			[]string{"CN", "MDM Identity Certificate UDID"},
 		},
 	}
 
@@ -69,24 +71,6 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 	profile.PayloadDescription = "The server may alter your settings"
 	profile.PayloadScope = "System"
 
-	scepContent := SCEPPayloadContent{
-		Challenge: svc.SCEPChallenge,
-		URL:       svc.SCEPURL,
-		Keysize:   1024,
-		KeyType:   "RSA",
-		KeyUsage:  0,
-		Name:      "Device Management Identity Certificate",
-		Subject:   svc.SCEPSubject,
-	}
-
-	scepPayload := NewPayload("com.apple.security.scep")
-	scepPayload.PayloadDescription = "Configures SCEP"
-	scepPayload.PayloadDisplayName = "SCEP"
-	scepPayload.PayloadIdentifier = "com.github.micromdm.scep"
-	scepPayload.PayloadOrganization = "MicroMDM"
-	scepPayload.PayloadContent = scepContent
-	scepPayload.PayloadScope = "System"
-
 	mdmPayload := NewPayload("com.apple.mdm")
 	mdmPayload.PayloadDescription = "Enrolls with the MDM server"
 	mdmPayload.PayloadOrganization = "MicroMDM"
@@ -94,19 +78,46 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 	mdmPayload.PayloadScope = "System"
 
 	mdmPayloadContent := MDMPayloadContent{
-		Payload:                 *mdmPayload,
-		AccessRights:            8191,
-		CheckInURL:              svc.URL + "/mdm/checkin",
-		CheckOutWhenRemoved:     true,
-		ServerURL:               svc.URL + "/mdm/connect",
-		IdentityCertificateUUID: scepPayload.PayloadUUID,
-		Topic: svc.Topic,
+		Payload:             *mdmPayload,
+		AccessRights:        8191,
+		CheckInURL:          svc.URL + "/mdm/checkin",
+		CheckOutWhenRemoved: true,
+		ServerURL:           svc.URL + "/mdm/connect",
+		Topic:               svc.Topic,
 	}
 
-	payloadContent := []interface{}{*scepPayload, mdmPayloadContent}
+	payloadContent := []interface{}{}
+
+	if svc.SCEPURL != "" {
+		scepContent := SCEPPayloadContent{
+			URL:      svc.SCEPURL,
+			Keysize:  1024,
+			KeyType:  "RSA",
+			KeyUsage: 0,
+			Name:     "Device Management Identity Certificate",
+			Subject:  svc.SCEPSubject,
+		}
+
+		if svc.SCEPChallenge != "" {
+			scepContent.Challenge = svc.SCEPChallenge
+		}
+
+		scepPayload := NewPayload("com.apple.security.scep")
+		scepPayload.PayloadDescription = "Configures SCEP"
+		scepPayload.PayloadDisplayName = "SCEP"
+		scepPayload.PayloadIdentifier = "com.github.micromdm.scep"
+		scepPayload.PayloadOrganization = "MicroMDM"
+		scepPayload.PayloadContent = scepContent
+		scepPayload.PayloadScope = "System"
+
+		payloadContent = append(payloadContent, *scepPayload)
+		mdmPayloadContent.IdentityCertificateUUID = scepPayload.PayloadUUID
+	}
+
+	payloadContent = append(payloadContent, mdmPayloadContent)
 
 	if len(svc.CACert) > 0 {
-		caPayload := NewPayload("com.apple.ssl.certificate")
+		caPayload := NewPayload("com.apple.security.root")
 		caPayload.PayloadDisplayName = "Root certificate for MicroMDM"
 		caPayload.PayloadDescription = "Installs the root CA certificate for MicroMDM"
 		caPayload.PayloadIdentifier = "com.github.micromdm.ssl.ca"

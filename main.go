@@ -235,7 +235,7 @@ func main() {
 		logger.Log("warn", "Enrollment endpoint /mdm/enroll will be disabled because you did not specify flags/environment vars for the external URL (--url MICROMDM_URL) or SCEP URL (--scep-url/MICROMDM_SCEP_URL)")
 	} else {
 		if *flSCEPChallenge == "" {
-			logger.Log("warn", "You did not specify a SCEP challenge via --scep-challenge or MICROMDM_SCEP_CHALLENGE (this may not be what you intended).")
+			logger.Log("warn", "You did not specify a SCEP challenge via --scep-challenge or MICROMDM_SCEP_CHALLENGE (this may not be what you intended, the user will be prompted for a challenge).")
 		}
 
 		if *flTLSCACert == "" {
