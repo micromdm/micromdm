@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CommandUUID</key>
+	<string>00000000-1111-2222-3333-444455556666</string>
+	<key>InstalledApplicationList</key>
+	<array>
+		<dict>
+			<key>BundleSize</key>
+			<integer>5855484</integer>
+			<key>Identifier</key>
+			<string>com.apple.systempreferences</string>
+			<key>Name</key>
+			<string>System Preferences</string>
+			<key>ShortVersion</key>
+			<string>14.0</string>
+			<key>Version</key>
+			<string>14.0</string>
+		</dict>
+		<dict>
+			<key>BundleSize</key>
+			<integer>65092</integer>
+			<key>Name</key>
+			<string>Set Info</string>
+		</dict>
+		<dict>
+			<key>BundleSize</key>
+			<integer>0</integer>
+			<key>Name</key>
+			<string>Install OS X Yosemite</string>
+		</dict>
+	</array>
+	<key>RequestType</key>
+	<string>InstalledApplicationList</string>
+	<key>Status</key>
+	<string>Acknowledged</string>
+	<key>UDID</key>
+	<string>00000000-1111-2222-3333-444455556666</string>
+</dict>
+</plist>
