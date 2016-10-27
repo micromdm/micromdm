@@ -18,7 +18,9 @@ import (
 	"testing"
 )
 
-type mockCommandService struct{}
+type mockCommandService struct {
+	t *testing.T
+}
 
 func (svc mockCommandService) NewCommand(*mdm.CommandRequest) (*mdm.Payload, error) {
 	return nil, nil
@@ -37,10 +39,14 @@ func (svc mockCommandService) Commands(deviceUDID string) ([]mdm.Payload, error)
 }
 
 func (svc mockCommandService) Find(commandUUID string) (*mdm.Payload, error) {
+	svc.t.Logf("Mock finding command with UUID %s", commandUUID)
 	cmd := mdm.CommandRequest{
 		RequestType: "InstalledApplicationList",
 	}
-	return mdm.NewPayload(&cmd)
+	payload, _ := mdm.NewPayload(&cmd)
+	payload.CommandUUID = commandUUID
+
+	return payload, nil
 }
 
 type connectFixtures struct {
@@ -92,7 +98,18 @@ func setup(t *testing.T) *connectFixtures {
 		t.Fatal(err)
 	}
 
-	cs = mockCommandService{}
+	cs = mockCommandService{t}
+
+	d := &device.Device{
+		UDID:         sql.NullString{"00000000-1111-2222-3333-444455556666", true},
+		MDMTopic:     "mdmtopic",
+		OSVersion:    "10.11",
+		BuildVersion: "10G1000",
+		ProductName:  "Mock Product",
+		SerialNumber: sql.NullString{"11111111", true},
+		Model:        "MockModel",
+	}
+	devices.New("authenticate", d)
 
 	svc := NewService(devices, apps, certs, cs)
 	handler := ServiceHandler(ctx, svc, logger)
@@ -154,6 +171,11 @@ func TestInstalledApplicationListResponse(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Log(response.Status)
+	if response.StatusCode != 200 {
+		var body []byte
+		response.Body.Read(body)
+		t.Log(body)
+		t.Error(response.Status)
+	}
 
 }
