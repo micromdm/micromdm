@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CommandUUID</key>
+	<string>00000000-1111-2222-3333-444455556666</string>
+	<key>ErrorChain</key>
+	<array>
+		<dict>
+			<key>ErrorCode</key>
+			<integer>12021</integer>
+			<key>ErrorDomain</key>
+			<string>MCMDMErrorDomain</string>
+			<key>LocalizedDescription</key>
+			<string>“OSUpdateStatus” is not a valid request type.</string>
+			<key>USEnglishDescription</key>
+			<string>“OSUpdateStatus” is not a valid request type.</string>
+		</dict>
+	</array>
+	<key>Status</key>
+	<string>Error</string>
+	<key>UDID</key>
+	<string>00000000-1111-2222-3333-444455556666</string>
+</dict>
+</plist>
