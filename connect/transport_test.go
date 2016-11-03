@@ -19,10 +19,12 @@ import (
 )
 
 type mockCommandService struct {
-	t *testing.T
+	t           *testing.T
+	MockCommand *mdm.CommandRequest
 }
 
-func (svc mockCommandService) NewCommand(*mdm.CommandRequest) (*mdm.Payload, error) {
+func (svc mockCommandService) NewCommand(cmd *mdm.CommandRequest) (*mdm.Payload, error) {
+	svc.MockCommand = cmd
 	return nil, nil
 }
 
@@ -31,6 +33,7 @@ func (svc mockCommandService) NextCommand(udid string) ([]byte, int, error) {
 }
 
 func (svc mockCommandService) DeleteCommand(deviceUDID, commandUUID string) (int, error) {
+	svc.t.Logf("Deleting mock command with UUID %s", commandUUID)
 	return 1, nil
 }
 
@@ -40,10 +43,8 @@ func (svc mockCommandService) Commands(deviceUDID string) ([]mdm.Payload, error)
 
 func (svc mockCommandService) Find(commandUUID string) (*mdm.Payload, error) {
 	svc.t.Logf("Returning mock response finding command with UUID %s", commandUUID)
-	cmd := mdm.CommandRequest{
-		RequestType: "InstalledApplicationList",
-	}
-	payload, _ := mdm.NewPayload(&cmd)
+
+	payload, _ := mdm.NewPayload(svc.MockCommand)
 	payload.CommandUUID = commandUUID
 
 	return payload, nil
@@ -61,7 +62,7 @@ type connectFixtures struct {
 	deviceUUID string
 }
 
-func setup(t *testing.T) *connectFixtures {
+func setup(t *testing.T, cmd *mdm.CommandRequest) *connectFixtures {
 	ctx := context.Background()
 	l := log.NewLogfmtLogger(os.Stderr)
 	logger := log.NewContext(l).With("source", "testing")
@@ -100,7 +101,7 @@ func setup(t *testing.T) *connectFixtures {
 		t.Fatal(err)
 	}
 
-	cs = mockCommandService{t}
+	cs = mockCommandService{t, cmd}
 
 	d := &device.Device{
 		UDID:         device.JsonNullString{sql.NullString{"00000000-1111-2222-3333-444455556666", true}},
@@ -137,6 +138,7 @@ func setup(t *testing.T) *connectFixtures {
 func teardown(fixtures *connectFixtures) {
 	defer fixtures.db.Close()
 	defer fixtures.server.Close()
+
 	drop := `
 	DROP TABLE IF EXISTS devices;
 	DROP INDEX IF EXISTS devices.serial_idx;
@@ -152,16 +154,51 @@ func teardown(fixtures *connectFixtures) {
 	fixtures.db.Exec(drop)
 }
 
-func TestInstalledApplicationListResponse(t *testing.T) {
-	fixtures := setup(t)
+func TestAcknowledgeDeviceInformation(t *testing.T) {
+	// create the faux command in the command service because connect will search for a match
+	cmd := mdm.CommandRequest{
+		UDID:        "00000000-1111-2222-3333-444455556666",
+		RequestType: "DeviceInformation",
+	}
+
+	fixtures := setup(t, &cmd)
 	defer teardown(fixtures)
 
+	requestBody, err := ioutil.ReadFile("../testdata/responses/macos/10.11.x/certificate_list.plist")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	client := http.DefaultClient
+	theURL := fixtures.server.URL + "/mdm/connect"
+	req, err := http.NewRequest("PUT", theURL, bytes.NewReader(requestBody))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	response, err := client.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if response.StatusCode != 200 {
+		var body []byte
+		response.Body.Read(body)
+		t.Logf("response body: %v", body)
+		t.Error(response.Status)
+	}
+
+}
+
+func TestAcknowledgeInstalledApplicationList(t *testing.T) {
 	// create the faux command in the command service because connect will search for a match
 	cmd := mdm.CommandRequest{
 		UDID:        "00000000-1111-2222-3333-444455556666",
 		RequestType: "InstalledApplicationList",
 	}
-	fixtures.cs.NewCommand(&cmd)
+
+	fixtures := setup(t, &cmd)
+	defer teardown(fixtures)
 
 	requestBody, err := ioutil.ReadFile("../testdata/responses/macos/10.11.x/installed_application_list.plist")
 	if err != nil {
@@ -187,7 +224,6 @@ func TestInstalledApplicationListResponse(t *testing.T) {
 		t.Error(response.Status)
 	}
 
-	t.Log("asserting correct number of applications have been inserted")
 	var count int
 	err = fixtures.db.QueryRow("SELECT COUNT(*) FROM devices_applications;").Scan(&count)
 	if err != nil {
@@ -195,6 +231,41 @@ func TestInstalledApplicationListResponse(t *testing.T) {
 	}
 
 	if count != 3 {
-		t.Fail()
+		t.Error("expected number of inserted applications to be 3")
+	}
+}
+
+func TestAcknowledgeCertificateList(t *testing.T) {
+	// create the faux command in the command service because connect will search for a match
+	cmd := mdm.CommandRequest{
+		UDID:        "00000000-1111-2222-3333-444455556666",
+		RequestType: "CertificateList",
+	}
+
+	fixtures := setup(t, &cmd)
+	defer teardown(fixtures)
+
+	requestBody, err := ioutil.ReadFile("../testdata/responses/macos/10.11.x/certificate_list.plist")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	client := http.DefaultClient
+	theURL := fixtures.server.URL + "/mdm/connect"
+	req, err := http.NewRequest("PUT", theURL, bytes.NewReader(requestBody))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	response, err := client.Do(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if response.StatusCode != 200 {
+		var body []byte
+		response.Body.Read(body)
+		t.Logf("response body: %v", body)
+		t.Error(response.Status)
 	}
 }
