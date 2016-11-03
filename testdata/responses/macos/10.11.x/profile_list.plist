@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>CommandUUID</key>
+        <string>00000000-1111-2222-3333-444455556666</string>
+        <key>ProfileList</key>
+        <array>
+            <dict>
+                <key>HasRemovalPasscode</key>
+                <false/>
+                <key>IsEncrypted</key>
+                <false/>
+                <key>PayloadContent</key>
+                <array>
+                    <dict>
+                        <key>PayloadDescription</key>
+                        <string>Installs the TLS certificate for MicroMDM</string>
+                        <key>PayloadDisplayName</key>
+                        <string>Self-signed TLS certificate for MicroMDM</string>
+                        <key>PayloadIdentifier</key>
+                        <string>com.github.micromdm.tls</string>
+                        <key>PayloadOrganization</key>
+                        <string></string>
+                        <key>PayloadType</key>
+                        <string>com.apple.security.pkcs1</string>
+                        <key>PayloadUUID</key>
+                        <string>4b12d46f-0cfb-4d58-ab5c-74873235b60b</string>
+                        <key>PayloadVersion</key>
+                        <integer>1</integer>
+                    </dict>
+                    <dict>
+                        <key>PayloadDescription</key>
+                        <string>Installs the root CA certificate for MicroMDM</string>
+                        <key>PayloadDisplayName</key>
+                        <string>Root certificate for MicroMDM</string>
+                        <key>PayloadIdentifier</key>
+                        <string>com.github.micromdm.ssl.ca</string>
+                        <key>PayloadOrganization</key>
+                        <string></string>
+                        <key>PayloadType</key>
+                        <string>com.apple.security.root</string>
+                        <key>PayloadUUID</key>
+                        <string>de6a8869-e0c3-4fa3-ba3e-f89001f8ee71</string>
+                        <key>PayloadVersion</key>
+                        <integer>1</integer>
+                    </dict>
+                    <dict>
+                        <key>PayloadDescription</key>
+                        <string>Enrolls with the MDM server</string>
+                        <key>PayloadDisplayName</key>
+                        <string></string>
+                        <key>PayloadIdentifier</key>
+                        <string>com.github.micromdm.mdm</string>
+                        <key>PayloadOrganization</key>
+                        <string>MicroMDM</string>
+                        <key>PayloadType</key>
+                        <string>com.apple.mdm</string>
+                        <key>PayloadUUID</key>
+                        <string>e021da61-092a-4b73-8c26-00f5fdcf7e4e</string>
+                        <key>PayloadVersion</key>
+                        <integer>1</integer>
+                    </dict>
+                    <dict>
+                        <key>PayloadDescription</key>
+                        <string>Configures SCEP</string>
+                        <key>PayloadDisplayName</key>
+                        <string>SCEP</string>
+                        <key>PayloadIdentifier</key>
+                        <string>com.github.micromdm.scep</string>
+                        <key>PayloadOrganization</key>
+                        <string>MicroMDM</string>
+                        <key>PayloadType</key>
+                        <string>com.apple.security.scep</string>
+                        <key>PayloadUUID</key>
+                        <string>519e158c-c699-42fd-8cdf-1cd5612088df</string>
+                        <key>PayloadVersion</key>
+                        <integer>1</integer>
+                    </dict>
+                </array>
+                <key>PayloadDescription</key>
+                <string>The server may alter your settings</string>
+                <key>PayloadDisplayName</key>
+                <string>Enrollment Profile</string>
+                <key>PayloadIdentifier</key>
+                <string>com.github.micromdm.micromdm.mdm</string>
+                <key>PayloadOrganization</key>
+                <string>MicroMDM</string>
+                <key>PayloadRemovalDisallowed</key>
+                <false/>
+                <key>PayloadUUID</key>
+                <string>dd3c707b-b18c-4979-bd94-2fe5cd804a47</string>
+                <key>PayloadVersion</key>
+                <integer>1</integer>
+                <key>SignerCertificates</key>
+                <array/>
+            </dict>
+        </array>
+        <key>RequestType</key>
+        <string>ProfileList</string>
+        <key>Status</key>
+        <string>Acknowledged</string>
+        <key>UDID</key>
+        <string>00000000-1111-2222-3333-444455556666</string>
+    </dict>
+</plist>

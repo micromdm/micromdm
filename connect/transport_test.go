@@ -39,7 +39,7 @@ func (svc mockCommandService) Commands(deviceUDID string) ([]mdm.Payload, error)
 }
 
 func (svc mockCommandService) Find(commandUUID string) (*mdm.Payload, error) {
-	svc.t.Logf("Mock finding command with UUID %s", commandUUID)
+	svc.t.Logf("Returning mock response finding command with UUID %s", commandUUID)
 	cmd := mdm.CommandRequest{
 		RequestType: "InstalledApplicationList",
 	}
@@ -57,6 +57,7 @@ type connectFixtures struct {
 	apps    application.Datastore
 	certs   certificate.Datastore
 	cs      command.Service
+	logger  log.Logger
 }
 
 func setup(t *testing.T) *connectFixtures {
@@ -101,12 +102,12 @@ func setup(t *testing.T) *connectFixtures {
 	cs = mockCommandService{t}
 
 	d := &device.Device{
-		UDID:         sql.NullString{"00000000-1111-2222-3333-444455556666", true},
+		UDID:         device.JsonNullString{sql.NullString{"00000000-1111-2222-3333-444455556666", true}},
 		MDMTopic:     "mdmtopic",
 		OSVersion:    "10.11",
 		BuildVersion: "10G1000",
 		ProductName:  "Mock Product",
-		SerialNumber: sql.NullString{"11111111", true},
+		SerialNumber: device.JsonNullString{sql.NullString{"11111111", true}},
 		Model:        "MockModel",
 	}
 	devices.New("authenticate", d)
@@ -123,11 +124,13 @@ func setup(t *testing.T) *connectFixtures {
 		apps:    apps,
 		certs:   certs,
 		cs:      cs,
+		logger:  logger,
 	}
 }
 
 func teardown(fixtures *connectFixtures) {
 	defer fixtures.db.Close()
+	defer fixtures.server.Close()
 	drop := `
 	DROP TABLE IF EXISTS devices;
 	DROP INDEX IF EXISTS devices.serial_idx;
@@ -174,7 +177,7 @@ func TestInstalledApplicationListResponse(t *testing.T) {
 	if response.StatusCode != 200 {
 		var body []byte
 		response.Body.Read(body)
-		t.Log(body)
+		t.Logf("response body: %v", body)
 		t.Error(response.Status)
 	}
 
