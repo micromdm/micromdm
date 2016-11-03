@@ -3,6 +3,7 @@ package connect
 import (
 	"bytes"
 	"database/sql"
+	"fmt"
 	"github.com/DavidHuie/gomigrate"
 	"github.com/go-kit/kit/log"
 	"github.com/micromdm/mdm"
@@ -31,7 +32,7 @@ func (svc mockCommandService) NextCommand(udid string) ([]byte, int, error) {
 }
 
 func (svc mockCommandService) DeleteCommand(deviceUDID, commandUUID string) (int, error) {
-	return 0, nil
+	return 1, nil
 }
 
 func (svc mockCommandService) Commands(deviceUDID string) ([]mdm.Payload, error) {
@@ -50,14 +51,15 @@ func (svc mockCommandService) Find(commandUUID string) (*mdm.Payload, error) {
 }
 
 type connectFixtures struct {
-	db      *sql.DB
-	server  *httptest.Server
-	svc     Service
-	devices device.Datastore
-	apps    application.Datastore
-	certs   certificate.Datastore
-	cs      command.Service
-	logger  log.Logger
+	db         *sql.DB
+	server     *httptest.Server
+	svc        Service
+	devices    device.Datastore
+	apps       application.Datastore
+	certs      certificate.Datastore
+	cs         command.Service
+	logger     log.Logger
+	deviceUUID string
 }
 
 func setup(t *testing.T) *connectFixtures {
@@ -110,21 +112,26 @@ func setup(t *testing.T) *connectFixtures {
 		SerialNumber: device.JsonNullString{sql.NullString{"11111111", true}},
 		Model:        "MockModel",
 	}
-	devices.New("authenticate", d)
+	deviceUUID, err := devices.New("authenticate", d)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("created mock device with UUID %v", deviceUUID)
 
 	svc := NewService(devices, apps, certs, cs)
 	handler := ServiceHandler(ctx, svc, logger)
 	server := httptest.NewServer(handler)
 
 	return &connectFixtures{
-		db:      db,
-		server:  server,
-		svc:     svc,
-		devices: devices,
-		apps:    apps,
-		certs:   certs,
-		cs:      cs,
-		logger:  logger,
+		db:         db,
+		server:     server,
+		svc:        svc,
+		devices:    devices,
+		apps:       apps,
+		certs:      certs,
+		cs:         cs,
+		logger:     logger,
+		deviceUUID: deviceUUID,
 	}
 }
 
@@ -181,4 +188,14 @@ func TestInstalledApplicationListResponse(t *testing.T) {
 		t.Error(response.Status)
 	}
 
+	t.Log("asserting correct number of applications have been inserted")
+	var count int
+	err = fixtures.db.QueryRow("SELECT COUNT(*) FROM devices_applications;").Scan(&count)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if count != 3 {
+		t.Fail()
+	}
 }

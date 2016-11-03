@@ -187,10 +187,7 @@ func (svc service) ackInstalledApplicationList(req mdm.Response) error {
 		}
 
 		requestApps[i] = newApp
-		//fmt.Printf("%v\n", newApp)
 	}
-
-	//fmt.Printf("%v\n", requestApps)
 
 	return nil
 }
