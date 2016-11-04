@@ -6,12 +6,9 @@ import (
 	"fmt"
 	"github.com/DavidHuie/gomigrate"
 	"github.com/go-kit/kit/log"
-	"github.com/micromdm/micromdm/application"
-	"github.com/micromdm/micromdm/certificate"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/management"
-	"github.com/micromdm/micromdm/workflow"
 	"golang.org/x/net/context"
 	"io/ioutil"
 	"net/http"
@@ -35,58 +32,10 @@ var (
 )
 
 // mockMgmtService mocks the management.Service interface which is a dependency of checkin.Service
-type mockMgmtService struct{}
-
-func (s *mockMgmtService) AddProfile(prf *workflow.Profile) (*workflow.Profile, error) {
-	return nil, nil
-}
-
-func (s *mockMgmtService) Profiles() ([]workflow.Profile, error) {
-	return []workflow.Profile{}, nil
-}
-
-func (s *mockMgmtService) Profile(uuid string) (*workflow.Profile, error) {
-	return nil, nil
-}
-
-func (s *mockMgmtService) DeleteProfile(uuid string) error {
-	return nil
-}
-
-func (s *mockMgmtService) AddWorkflow(wf *workflow.Workflow) (*workflow.Workflow, error) {
-	return nil, nil
-}
-
-func (s *mockMgmtService) Workflows() ([]workflow.Workflow, error) {
-	return nil, nil
-}
-
-func (s *mockMgmtService) Devices() ([]device.Device, error) {
-	return nil, nil
-}
-
-func (s *mockMgmtService) Device(uuid string) (*device.Device, error) {
-	return nil, nil
-}
-
-func (s *mockMgmtService) InstalledApps(deviceUUID string) ([]application.Application, error) {
-	return nil, nil
-}
-
-func (s *mockMgmtService) Certificates(deviceUUID string) ([]certificate.Certificate, error) {
-	return nil, nil
-}
-
-func (s *mockMgmtService) AssignWorkflow(deviceUUID, workflowUUID string) error {
-	return nil
-}
+type mockMgmtService struct{ management.Service }
 
 func (s *mockMgmtService) Push(deviceUDID string) (string, error) {
 	return "", nil
-}
-
-func (s *mockMgmtService) FetchDEPDevices() error {
-	return nil
 }
 
 func TestMain(m *testing.M) {
