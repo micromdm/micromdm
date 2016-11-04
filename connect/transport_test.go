@@ -3,6 +3,7 @@ package connect
 import (
 	"bytes"
 	"database/sql"
+	"fmt"
 	"github.com/DavidHuie/gomigrate"
 	"github.com/go-kit/kit/log"
 	"github.com/micromdm/mdm"
@@ -18,6 +19,8 @@ import (
 	"testing"
 )
 
+// mockCommandService implements the command.Service interface and returns only the single command struct given to it
+// instead of querying a live redis instance.
 type mockCommandService struct {
 	t           *testing.T
 	MockCommand *mdm.CommandRequest
@@ -60,6 +63,7 @@ type connectFixtures struct {
 	cs         command.Service
 	logger     log.Logger
 	deviceUUID string
+	migrator   *gomigrate.Migrator
 }
 
 func setup(t *testing.T, cmd *mdm.CommandRequest) *connectFixtures {
@@ -81,9 +85,8 @@ func setup(t *testing.T, cmd *mdm.CommandRequest) *connectFixtures {
 		t.Fatal(err)
 	}
 	migrator, _ := gomigrate.NewMigrator(db, gomigrate.Postgres{}, "../migrations")
-	migrationErr := migrator.Migrate()
-	if migrationErr != nil {
-		t.Fatal(err)
+	if err = migrator.Migrate(); err != nil {
+		t.Fatalf("migrating tables: %s", err)
 	}
 
 	devices, err = device.NewDB("postgres", testConn, logger)
@@ -112,9 +115,10 @@ func setup(t *testing.T, cmd *mdm.CommandRequest) *connectFixtures {
 		SerialNumber: device.JsonNullString{sql.NullString{"11111111", true}},
 		Model:        "MockModel",
 	}
+
 	deviceUUID, err := devices.New("authenticate", d)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("creating fixture device: %s", err)
 	}
 	t.Logf("created mock device with UUID %v", deviceUUID)
 
@@ -132,30 +136,18 @@ func setup(t *testing.T, cmd *mdm.CommandRequest) *connectFixtures {
 		cs:         cs,
 		logger:     logger,
 		deviceUUID: deviceUUID,
+		migrator:   migrator,
 	}
 }
 
 func teardown(fixtures *connectFixtures) {
-	defer fixtures.db.Close()
 	defer fixtures.server.Close()
+	defer fixtures.db.Close()
 
-	drop := `
-	DROP TABLE IF EXISTS devices;
-	DROP INDEX IF EXISTS devices.serial_idx;
-	DROP INDEX IF EXISTS devices.udid_idx;
-	DROP TABLE IF EXISTS workflow_profile;
-	DROP TABLE IF EXISTS workflow_workflow;
-	DROP TABLE IF EXISTS workflows;
-	DROP TABLE IF EXISTS profiles;
-	DROP TABLE IF EXISTS applications;
-	DROP TABLE IF EXISTS devices_applications;
-	DROP TABLE IF EXISTS devices_certificates;
-	`
-	fixtures.db.Exec(drop)
+	fixtures.migrator.RollbackAll()
 }
 
 func TestAcknowledgeDeviceInformation(t *testing.T) {
-	// create the faux command in the command service because connect will search for a match
 	cmd := mdm.CommandRequest{
 		UDID:        "00000000-1111-2222-3333-444455556666",
 		RequestType: "DeviceInformation",
@@ -164,7 +156,7 @@ func TestAcknowledgeDeviceInformation(t *testing.T) {
 	fixtures := setup(t, &cmd)
 	defer teardown(fixtures)
 
-	requestBody, err := ioutil.ReadFile("../testdata/responses/macos/10.11.x/certificate_list.plist")
+	requestBody, err := ioutil.ReadFile("../testdata/responses/macos/10.11.x/device_information.plist")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -187,11 +179,9 @@ func TestAcknowledgeDeviceInformation(t *testing.T) {
 		t.Logf("response body: %v", body)
 		t.Error(response.Status)
 	}
-
 }
 
 func TestAcknowledgeInstalledApplicationList(t *testing.T) {
-	// create the faux command in the command service because connect will search for a match
 	cmd := mdm.CommandRequest{
 		UDID:        "00000000-1111-2222-3333-444455556666",
 		RequestType: "InstalledApplicationList",
@@ -236,7 +226,6 @@ func TestAcknowledgeInstalledApplicationList(t *testing.T) {
 }
 
 func TestAcknowledgeCertificateList(t *testing.T) {
-	// create the faux command in the command service because connect will search for a match
 	cmd := mdm.CommandRequest{
 		UDID:        "00000000-1111-2222-3333-444455556666",
 		RequestType: "CertificateList",
