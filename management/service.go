@@ -121,6 +121,10 @@ func (svc service) DeleteProfile(uuid string) error {
 }
 
 func (svc service) FetchDEPDevices() error {
+	if svc.depClient == nil {
+		return errors.New("feature not available")
+	}
+
 	fetched, err := svc.depClient.FetchDevices(dep.Limit(100))
 	if err != nil {
 		return errors.Wrap(err, "management: dep fetch")

@@ -9,8 +9,9 @@ import (
 	"os"
 	"testing"
 
+	"database/sql"
+	"github.com/DavidHuie/gomigrate"
 	"github.com/go-kit/kit/log"
-	"github.com/jmoiron/sqlx"
 	"github.com/micromdm/dep"
 	"github.com/micromdm/micromdm/application"
 	"github.com/micromdm/micromdm/certificate"
@@ -468,6 +469,33 @@ func TestFetchDEPDevices(t *testing.T) {
 	}
 }
 
+func TestFetchDEPDevicesWithoutClient(t *testing.T) {
+	ctx := context.Background()
+	logger := log.NewLogfmtLogger(os.Stderr)
+	ds, err := device.NewDB("postgres", testConn, logger)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer teardown()
+
+	svc := NewService(ds, nil, nil, nil, nil, nil)
+	handler := ServiceHandler(ctx, svc, logger)
+	server := httptest.NewServer(handler)
+	defer server.Close()
+
+	client := http.DefaultClient
+	theURL := server.URL + "/management/v1/devices/fetch"
+	resp, err := client.Post(theURL, "application/json", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		io.Copy(os.Stdout, resp.Body)
+		t.Fatal("expected", http.StatusOK, "got", resp.StatusCode)
+	}
+}
+
 func fetchDEPDevices(t *testing.T, server *httptest.Server, svc Service) *http.Response {
 	client := http.DefaultClient
 	theURL := server.URL + "/management/v1/devices/fetch"
@@ -493,21 +521,15 @@ type nopCloser struct {
 func (nopCloser) Close() error { return nil }
 
 func teardown() {
-	db, err := sqlx.Open("postgres", testConn)
+	db, err := sql.Open("postgres", testConn)
 	if err != nil {
 		panic(err)
 	}
 
-	drop := `
-	DROP TABLE IF EXISTS device_workflow;
-	DROP TABLE IF EXISTS devices;
-	DROP INDEX IF EXISTS devices.serial_idx;
-	DROP INDEX IF EXISTS devices.udid_idx;
-	DROP TABLE IF EXISTS workflow_profile;
-	DROP TABLE IF EXISTS workflow_workflow;
-	DROP TABLE IF EXISTS workflows;
-	DROP TABLE IF EXISTS profiles;
-	`
-	db.MustExec(drop)
+	migrator, _ := gomigrate.NewMigrator(db, gomigrate.Postgres{}, "../migrations")
+	if err = migrator.RollbackAll(); err != nil {
+		panic(err)
+	}
+
 	defer db.Close()
 }
