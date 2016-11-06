@@ -57,6 +57,7 @@ func main() {
 		flPushCert      = flag.String("push-cert", envString("MICROMDM_PUSH_CERT", ""), "path to push certificate")
 		flPushPass      = flag.String("push-pass", envString("MICROMDM_PUSH_PASS", ""), "push certificate password")
 		flEnrollment    = flag.String("profile", envString("MICROMDM_ENROLL_PROFILE", ""), "path to enrollment profile")
+		flDEP           = flag.Bool("dep", envBool("MICROMDM_USE_DEP"), "use DEP")
 		flDEPCK         = flag.String("dep-consumer-key", envString("DEP_CONSUMER_KEY", ""), "dep consumer key")
 		flDEPCS         = flag.String("dep-consumer-secret", envString("DEP_CONSUMER_SECRET", ""), "dep consumer secret")
 		flDEPAT         = flag.String("dep-access-token", envString("DEP_ACCESS_TOKEN", ""), "dep access token")
@@ -211,13 +212,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	dc, err := depClient(logger, *flDEPCK, *flDEPCS, *flDEPAT, *flDEPAS, *flDEPServerURL, *flDEPsim)
 	var mgmtSvc management.Service
-	if err != nil {
-		logger.Log("warn", "proceeding without DEP support")
-		mgmtSvc = management.NewService(deviceDB, workflowDB, nil, pushSvc, appsDB, certsDB)
-	} else {
+	if *flDEP == true {
+		logger.Log("info", "DEP support enabled")
+		dc := depClient(logger, *flDEPCK, *flDEPCS, *flDEPAT, *flDEPAS, *flDEPServerURL, *flDEPsim)
 		mgmtSvc = management.NewService(deviceDB, workflowDB, dc, pushSvc, appsDB, certsDB)
+	} else {
+		logger.Log("info", "DEP support disabled")
+		mgmtSvc = management.NewService(deviceDB, workflowDB, nil, pushSvc, appsDB, certsDB)
+
 	}
 
 	commandSvc := command.NewService(commandDB)
@@ -276,7 +279,7 @@ func main() {
 	serve(logger, *flTLS, *flPort, *flTLSKey, *flTLSCert)
 }
 
-func depClient(logger log.Logger, consumerKey, consumerSecret, accessToken, accessSecret, serverURL string, depsim bool) (dep.Client, error) {
+func depClient(logger log.Logger, consumerKey, consumerSecret, accessToken, accessSecret, serverURL string, depsim bool) dep.Client {
 	var config *dep.Config
 	if depsim {
 		config = &dep.Config{
@@ -287,9 +290,9 @@ func depClient(logger log.Logger, consumerKey, consumerSecret, accessToken, acce
 		}
 	} else {
 		if checkEmptyArgs(consumerKey, consumerSecret, accessToken, accessSecret) {
-			logger.Log("warn", "invalid DEP credentials specified")
+			logger.Log("err", "must specify DEP server credentials")
 			logger.Log("ConsumerKey", consumerKey, "ConsumerSecret", consumerSecret, "AccessToken", accessToken, "AccessSecret", accessSecret)
-			return nil, errors.New("invalid DEP credentials specified")
+			os.Exit(1)
 		}
 		config = &dep.Config{
 			ConsumerKey:    consumerKey,
@@ -310,7 +313,7 @@ func depClient(logger log.Logger, consumerKey, consumerSecret, accessToken, acce
 		os.Exit(1)
 	}
 
-	return client, nil
+	return client
 }
 
 func pushService(certPath, password string) (*push.Service, error) {
