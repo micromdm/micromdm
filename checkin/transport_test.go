@@ -3,7 +3,6 @@ package checkin
 import (
 	"bytes"
 	"database/sql"
-	"fmt"
 	"github.com/DavidHuie/gomigrate"
 	"github.com/go-kit/kit/log"
 	"github.com/micromdm/micromdm/command"
@@ -17,19 +16,22 @@ import (
 	"testing"
 )
 
-var (
+var testConn string = "user=postgres password= dbname=travis_ci_test sslmode=disable"
+
+type fixtures struct {
 	db       *sql.DB
 	server   *httptest.Server
 	svc      Service
 	devices  device.Datastore
 	mgmt     management.Service
 	cmd      command.Service
-	profile  []byte = []byte{}
+	profile  []byte
 	logger   log.Logger
 	ctx      context.Context
-	testConn string = "user=postgres password= dbname=travis_ci_test sslmode=disable"
+	testConn string
 	migrator *gomigrate.Migrator
-)
+	handler  http.Handler
+}
 
 // mockMgmtService mocks the management.Service interface which is a dependency of checkin.Service
 type mockMgmtService struct{ management.Service }
@@ -38,48 +40,53 @@ func (s *mockMgmtService) Push(deviceUDID string) (string, error) {
 	return "", nil
 }
 
-func TestMain(m *testing.M) {
-	ctx = context.Background()
+func setup(t *testing.T) *fixtures {
+	var f *fixtures = new(fixtures)
+	f.ctx = context.Background()
 	l := log.NewLogfmtLogger(os.Stderr)
-	logger = log.NewContext(l).With("source", "testing")
+	f.logger = log.NewContext(l).With("source", "testing")
 
 	db, err := sql.Open("postgres", testConn)
 	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
-	migrator, _ = gomigrate.NewMigrator(db, gomigrate.Postgres{}, "../migrations")
-	if err = migrator.Migrate(); err != nil {
-		panic(fmt.Sprintf("migrating tables: %s", err))
+		t.Fatalf("opening database connection: %s", err)
 	}
 
-	devices, err = device.NewDB("postgres", testConn, logger)
+	f.migrator, _ = gomigrate.NewMigrator(db, gomigrate.Postgres{}, "../migrations")
+	if err = f.migrator.Migrate(); err != nil {
+		t.Fatalf("migrating tables: %s", err)
+	}
+
+	f.devices, err = device.NewDB("postgres", testConn, f.logger)
 	if err != nil {
-		panic(err)
+		t.Fatalf("constructing device datastore: %s", err)
 	}
 
-	mgmt = &mockMgmtService{}
+	f.mgmt = &mockMgmtService{}
+	f.profile = []byte{}
+	f.svc = NewService(f.devices, f.mgmt, f.cmd, f.profile)
+	f.handler = ServiceHandler(f.ctx, f.svc, f.logger)
+	f.server = httptest.NewServer(f.handler)
 
-	svc = NewService(devices, mgmt, cmd, profile)
-	handler := ServiceHandler(ctx, svc, logger)
-	server = httptest.NewServer(handler)
-	defer server.Close()
+	return f
+}
 
-	status := m.Run()
-	migrator.RollbackAll()
+func teardown(f *fixtures, t *testing.T) {
+	f.migrator.RollbackAll()
 
-	os.Exit(status)
+	//f.db.Close()
+	f.server.Close()
 }
 
 func TestAuthenticate(t *testing.T) {
+	f := setup(t)
+	defer teardown(f, t)
 	requestBody, err := ioutil.ReadFile("../testdata/responses/macos/10.11.x/authenticate.plist")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	client := http.DefaultClient
-	theURL := server.URL + "/mdm/checkin"
+	theURL := f.server.URL + "/mdm/checkin"
 	req, err := http.NewRequest("PUT", theURL, bytes.NewReader(requestBody))
 	if err != nil {
 		t.Fatal(err)
@@ -97,7 +104,7 @@ func TestAuthenticate(t *testing.T) {
 		t.Error(response.Status)
 	}
 
-	testDevices, err := devices.Devices()
+	testDevices, err := f.devices.Devices()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,13 +115,15 @@ func TestAuthenticate(t *testing.T) {
 }
 
 func TestTokenUpdate(t *testing.T) {
+	f := setup(t)
+	defer teardown(f, t)
 	requestBody, err := ioutil.ReadFile("../testdata/responses/macos/10.11.x/token_update.plist")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	client := http.DefaultClient
-	theURL := server.URL + "/mdm/checkin"
+	theURL := f.server.URL + "/mdm/checkin"
 	req, err := http.NewRequest("PUT", theURL, bytes.NewReader(requestBody))
 	if err != nil {
 		t.Fatal(err)
@@ -132,7 +141,7 @@ func TestTokenUpdate(t *testing.T) {
 		t.Error(response.Status)
 	}
 
-	dev, err := devices.GetDeviceByUDID("00000000-1111-2222-3333-444455556666", "mdm_enrolled",
+	dev, err := f.devices.GetDeviceByUDID("00000000-1111-2222-3333-444455556666", "mdm_enrolled",
 		"apple_mdm_token", "apple_mdm_topic", "apple_push_magic")
 	if err != nil {
 		t.Fatal(err)
@@ -152,13 +161,15 @@ func TestTokenUpdate(t *testing.T) {
 }
 
 func TestCheckout(t *testing.T) {
+	f := setup(t)
+	defer teardown(f, t)
 	requestBody, err := ioutil.ReadFile("../testdata/responses/macos/10.11.x/checkout.plist")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	client := http.DefaultClient
-	theURL := server.URL + "/mdm/checkin"
+	theURL := f.server.URL + "/mdm/checkin"
 	req, err := http.NewRequest("PUT", theURL, bytes.NewReader(requestBody))
 	if err != nil {
 		t.Fatal(err)
@@ -176,7 +187,7 @@ func TestCheckout(t *testing.T) {
 		t.Error(response.Status)
 	}
 
-	dev, err := devices.GetDeviceByUDID("00000000-1111-2222-3333-444455556666", "mdm_enrolled")
+	dev, err := f.devices.GetDeviceByUDID("00000000-1111-2222-3333-444455556666", "mdm_enrolled")
 	if err != nil {
 		t.Fatal(err)
 	}
