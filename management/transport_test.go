@@ -12,6 +12,8 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/jmoiron/sqlx"
 	"github.com/micromdm/dep"
+	"github.com/micromdm/micromdm/application"
+	"github.com/micromdm/micromdm/certificate"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/workflow"
 	"golang.org/x/net/context"
@@ -327,12 +329,17 @@ func newServer(t *testing.T) (*httptest.Server, Service) {
 		t.Fatal(err)
 	}
 
-	as, err := applications.NewDB("postgres", testConn, logger)
+	as, err := application.NewDB("postgres", testConn, logger)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	svc := NewService(ds, ps, dc, nil, as)
+	cs, err := certificate.NewDB("postgres", testConn, logger)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svc := NewService(ds, ps, dc, nil, as, cs)
 	handler := ServiceHandler(ctx, svc, logger)
 	server := httptest.NewServer(handler)
 	return server, svc
@@ -443,7 +450,7 @@ func TestFetchDEPDevices(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	svc := NewService(ds, nil, dc, nil, nil)
+	svc := NewService(ds, nil, dc, nil, nil, nil)
 	handler := ServiceHandler(ctx, svc, logger)
 	server := httptest.NewServer(handler)
 	defer server.Close()
