@@ -39,6 +39,10 @@ func (w *writer) Start(deviceChan <-chan dep.Device) {
 			w.logger.Log("level", "debug", "msg", fmt.Sprintf("wrote device with UUID: %s", deviceUUID))
 		case "modified":
 		case "deleted":
+			w.logger.Log("level", "debug", "msg", "removing dep device from database")
+			if err := w.Delete(&dev); err != nil {
+				w.logger.Log("level", "error", "msg", fmt.Sprintf("Failed to delete DEP device: %s", err))
+			}
 		default:
 			w.logger.Log("level", "debug", "msg", "writing fetched device to database")
 			deviceUUID, err := w.Write(&dev)
@@ -66,4 +70,8 @@ func (w *writer) Write(dev *dep.Device) (string, error) {
 	}
 
 	return deviceUUID, nil
+}
+
+func (w *writer) Delete(dev *dep.Device) error {
+
 }

@@ -38,6 +38,7 @@ func NewSyncer(client dep.Client, logger log.Logger, tickerChan <-chan time.Time
 		logger:     logger,
 		client:     client,
 		tickerChan: tickerChan,
+		doneChan:   done,
 	}
 }
 
