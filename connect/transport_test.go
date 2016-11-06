@@ -3,7 +3,6 @@ package connect
 import (
 	"bytes"
 	"database/sql"
-	"fmt"
 	"github.com/DavidHuie/gomigrate"
 	"github.com/go-kit/kit/log"
 	"github.com/micromdm/mdm"
