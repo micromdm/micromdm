@@ -3,13 +3,14 @@ package enroll
 import (
 	"golang.org/x/net/context"
 	"io/ioutil"
+	"strings"
 )
 
 type Service interface {
 	Enroll(ctx context.Context) (Profile, error)
 }
 
-func NewService(pushCertPath string, pushCertPass string, caCertPath string, scepURL string, scepChallenge string, url string, tlsCertPath string) (Service, error) {
+func NewService(pushCertPath, pushCertPass, caCertPath, scepURL, scepChallenge, url, tlsCertPath, scepSubject string) (Service, error) {
 	pushTopic, err := GetPushTopicFromPKCS12(pushCertPath, pushCertPass)
 	if err != nil {
 		return nil, err
@@ -33,19 +34,25 @@ func NewService(pushCertPath string, pushCertPass string, caCertPath string, sce
 		}
 	}
 
-	scepSubject := [][][]string{
-		[][]string{
-			[]string{"O", "MicroMDM"},
-		},
-		[][]string{
-			[]string{"CN", "MDM Identity Certificate UDID"},
-		},
+	if scepSubject == "" {
+		scepSubject = "/O=MicroMDM/CN=MicroMDM Identity (%ComputerName%)"
+	}
+
+	subjectElements := strings.Split(scepSubject, "/")
+	var subject [][][]string
+
+	for _, element := range subjectElements {
+		if element == "" {
+			continue
+		}
+		subjectKeyValue := strings.Split(element, "=")
+		subject = append(subject, [][]string{[]string{subjectKeyValue[0], subjectKeyValue[1]}})
 	}
 
 	return &service{
 		URL:           url,
 		SCEPURL:       scepURL,
-		SCEPSubject:   scepSubject,
+		SCEPSubject:   subject,
 		SCEPChallenge: scepChallenge,
 		Topic:         pushTopic,
 		CACert:        caCert,

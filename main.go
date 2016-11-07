@@ -51,6 +51,7 @@ func main() {
 		flTLSCACert     = flag.String("tls-ca-cert", envString("MICROMDM_TLS_CA_CERT", ""), "path to CA certificate")
 		flSCEPURL       = flag.String("scep-url", envString("MICROMDM_SCEP_URL", ""), "scep server url. If blank, enroll profile will not use a scep payload.")
 		flSCEPChallenge = flag.String("scep-challenge", envString("MICROMDM_SCEP_CHALLENGE", ""), "scep server challenge")
+		flSCEPSubject   = flag.String("scep-subject", envString("MICROMDM_SCEP_SUBJECT", ""), "scep request subject in microsoft string representation")
 		flPGconn        = flag.String("postgres", envString("MICROMDM_POSTGRES_CONN_URL", ""), "postgres connection url")
 		flRedisconn     = flag.String("redis", envString("MICROMDM_REDIS_CONN_URL", ""), "redis connection url")
 		flVersion       = flag.Bool("version", false, "print version information")
@@ -241,7 +242,7 @@ func main() {
 		if *flTLSCACert == "" {
 			logger.Log("warn", "You did not specify a CA Certificate to trust via --tls-ca-cert or MICROMDM_TLS_CA_CERT. If your certificates are self signed, devices may not be able to enroll.")
 		}
-		enrollSvc, _ := enroll.NewService(*flPushCert, *flPushPass, *flTLSCACert, *flSCEPURL, *flSCEPChallenge, *flURL, *flTLSCert)
+		enrollSvc, _ := enroll.NewService(*flPushCert, *flPushPass, *flTLSCACert, *flSCEPURL, *flSCEPChallenge, *flURL, *flTLSCert, *flSCEPSubject)
 		enrollHandler := enroll.MakeHTTPHandler(ctx, enrollSvc, httpLogger)
 		mux.Handle("/mdm/enroll", enrollHandler)
 	}
