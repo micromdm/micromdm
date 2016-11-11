@@ -1,0 +1,3 @@
+package: github.com/micromdm/mdm
+import:
+- package: github.com/satori/go.uuid

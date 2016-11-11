@@ -1,8 +1,9 @@
 .docker/data/root/
-micromdm
+./micromdm
 build/
 .k8/
 *.crt
 *.key
 *.p12
 run_demo.sh
+.DS_Store

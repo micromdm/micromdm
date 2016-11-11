@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CertificateList</key>
+	<array>
+		<dict>
+			<key>CommonName</key>
+			<string>client.local</string>
+			<key>Data</key>
+			<data>
+            AAAA==
+			</data>
+			<key>IsIdentity</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CommonName</key>
+			<string>MicroMDM CA</string>
+			<key>Data</key>
+			<data>
+            AAAA==
+			</data>
+			<key>IsIdentity</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>CommonName</key>
+			<string>MicroMDM Identity</string>
+			<key>Data</key>
+			<data>
+            AAAA==
+			</data>
+			<key>IsIdentity</key>
+			<true/>
+		</dict>
+	</array>
+	<key>CommandUUID</key>
+	<string>00000000-1111-2222-3333-444455556666</string>
+	<key>Status</key>
+	<string>Acknowledged</string>
+	<key>UDID</key>
+	<string>1111111111111111111111111111111111111111</string>
+</dict>
+</plist>
