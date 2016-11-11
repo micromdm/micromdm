@@ -1,5 +1,5 @@
 hash: 9065f050a8e87468098f6df070622f57a29d2de83efebb67363efa781f612080
-updated: 2016-10-11T23:26:43.205635472-04:00
+updated: 2016-11-10T21:20:31.679082589-05:00
 imports:
 - name: github.com/beorn7/perks
   version: 4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9
@@ -10,11 +10,11 @@ imports:
 - name: github.com/fullsailor/pkcs7
   version: 3befe47e6c80b97ab6863a5fe1b6a611003a5ab0
 - name: github.com/garyburd/go-oauth
-  version: 719b069913e1151a73ea30d2ea4f90deda3ce234
+  version: da8aea9e20eda8fcb5711f929539ba9a9ecf4fb9
   subpackages:
   - oauth
 - name: github.com/garyburd/redigo
-  version: ffa8d46ada782d81cfda81a0fbd9f45ceae448e8
+  version: 8873b2f1995f59d4bcdd2b0dc9858e2cb9bf0c13
   subpackages:
   - internal
   - redis
@@ -38,17 +38,17 @@ imports:
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
-  version: 0b13a922203ebdbfd236c818efcd5ed46097d690
+  version: 0eeaf8392f5b04950925b8a69fe70f110fa7cbfc
 - name: github.com/groob/plist
   version: e9ca5cd129407b401d850bc3248338865a7490ae
 - name: github.com/jmoiron/sqlx
-  version: 05b81a7d5d38058e42148dc01f17daf4acba4640
+  version: 5f97679e23f75f42b265fec8d3bdb1c8de90b79d
   subpackages:
   - reflectx
 - name: github.com/kr/logfmt
   version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
 - name: github.com/lib/pq
-  version: 068cb1c8e4be77b9bdef4d0d91f162160537779e
+  version: d8eeeb8bae8896dd8e1b7e514ab0d396c4f12a1b
   subpackages:
   - oid
 - name: github.com/matttproud/golang_protobuf_extensions
@@ -60,7 +60,7 @@ imports:
 - name: github.com/micromdm/mdm
   version: 6e0586cca72594720a1c7c48214661a87c73bd17
 - name: github.com/pkg/errors
-  version: 17b591df37844cde689f4d5813e5cea0927d8dd2
+  version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/prometheus/client_golang
   version: c5b7fccd204277076155f10851dad72b76a49317
   subpackages:
@@ -105,4 +105,4 @@ imports:
   - lex/httplex
 testImports:
 - name: gopkg.in/DATA-DOG/go-sqlmock.v1
-  version: 9958e5c69de03e97ec215b23f6fcae1f600c3fb6
+  version: d4cd2ca2ad1cc2130bba385aab072218f131f636

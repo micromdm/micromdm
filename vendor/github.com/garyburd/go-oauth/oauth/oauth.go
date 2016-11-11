@@ -557,6 +557,20 @@ func (c *Client) RequestToken(client *http.Client, temporaryCredentials *Credent
 	return credentials, vals, nil
 }
 
+// RequestTokenXAuth requests token credentials from the server using the xAuth protocol.
+// See https://dev.twitter.com/oauth/xauth for information on xAuth.
+func (c *Client) RequestTokenXAuth(client *http.Client, temporaryCredentials *Credentials, user, password string) (*Credentials, url.Values, error) {
+	params := make(url.Values)
+	params.Set("x_auth_mode", "client_auth")
+	params.Set("x_auth_username", user)
+	params.Set("x_auth_password", password)
+	credentials, vals, err := c.requestCredentials(client, temporaryCredentials, c.TokenRequestURI, params)
+	if err != nil {
+		return nil, nil, err
+	}
+	return credentials, vals, nil
+}
+
 // AuthorizationURL returns the URL for resource owner authorization. See
 // http://tools.ietf.org/html/rfc5849#section-2.2 for information about
 // resource owner authorization.

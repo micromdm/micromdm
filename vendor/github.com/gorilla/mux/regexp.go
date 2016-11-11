@@ -149,8 +149,8 @@ func (r *routeRegexp) Match(req *http.Request, match *RouteMatch) bool {
 		if r.matchQuery {
 			return r.matchQueryString(req)
 		}
-		path := getPath(req)
-		return r.regexp.MatchString(path)
+
+		return r.regexp.MatchString(req.URL.Path)
 	}
 
 	return r.regexp.MatchString(getHost(req))
@@ -253,15 +253,14 @@ func (v *routeRegexpGroup) setMatch(req *http.Request, m *RouteMatch, r *Route) 
 			extractVars(host, matches, v.host.varsN, m.Vars)
 		}
 	}
-	path := getPath(req)
 	// Store path variables.
 	if v.path != nil {
-		matches := v.path.regexp.FindStringSubmatchIndex(path)
+		matches := v.path.regexp.FindStringSubmatchIndex(req.URL.Path)
 		if len(matches) > 0 {
-			extractVars(path, matches, v.path.varsN, m.Vars)
+			extractVars(req.URL.Path, matches, v.path.varsN, m.Vars)
 			// Check if we should redirect.
 			if v.path.strictSlash {
-				p1 := strings.HasSuffix(path, "/")
+				p1 := strings.HasSuffix(req.URL.Path, "/")
 				p2 := strings.HasSuffix(v.path.template, "/")
 				if p1 != p2 {
 					u, _ := url.Parse(req.URL.String())
@@ -300,7 +299,14 @@ func getHost(r *http.Request) string {
 }
 
 func extractVars(input string, matches []int, names []string, output map[string]string) {
-	for i, name := range names {
-		output[name] = input[matches[2*i+2]:matches[2*i+3]]
+	matchesCount := 0
+	prevEnd := -1
+	for i := 2; i < len(matches) && matchesCount < len(names); i += 2 {
+		if prevEnd < matches[i+1] {
+			value := input[matches[i]:matches[i+1]]
+			output[names[matchesCount]] = value
+			prevEnd = matches[i+1]
+			matchesCount++
+		}
 	}
 }
