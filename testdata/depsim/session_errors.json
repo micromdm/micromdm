@@ -1,0 +1,24 @@
+{
+  "get_session_responses": [
+    {
+      "count": 1,
+      "response": "bad_request"
+    },
+    {
+      "count": 1,
+      "response": "forbidden_t_c_not_signed"
+    },
+    {
+      "count": 1,
+      "response": "forbidden_access_denied"
+    },
+    {
+      "count": 1,
+      "response": "invalid_method"
+    },
+    {
+      "count": 1,
+      "response": "unauthorized"
+    }
+  ]
+}

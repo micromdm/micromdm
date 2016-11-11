@@ -1,0 +1,10 @@
+{
+  "device_insertions": {
+    "devices_per_event": 200
+  },
+  "device_deletions": {
+    "devices_per_event": 5,
+    "interval_in_seconds": 5,
+    "max_event_count": 40
+  }
+}

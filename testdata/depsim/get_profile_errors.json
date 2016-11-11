@@ -1,0 +1,28 @@
+{
+  "get_profile_responses": [
+    {
+      "count": 1,
+      "response": "forbidden"
+    },
+    {
+      "count": 1,
+      "response": "bad_request_profile_uuid_required"
+    },
+    {
+      "count": 1,
+      "response": "bad_request_profile_not_found"
+    },
+    {
+      "count": 1,
+      "response": "unauthorized"
+    },
+    {
+      "count": 1,
+      "response": "invalid_method"
+    },
+    {
+      "count": 1,
+      "response": "expected_response"
+    }
+  ]
+}

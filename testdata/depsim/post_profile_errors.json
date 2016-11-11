@@ -1,0 +1,40 @@
+{
+  "post_profile_responses": [
+    {
+      "count": 1,
+      "response": "forbidden"
+    },
+    {
+      "count": 1,
+      "response": "bad_request_malformed_request_body"
+    },
+    {
+      "count": 1,
+      "response": "bad_request_config_url_required"
+    },
+    {
+      "count": 1,
+      "response": "bad_request_config_name_required"
+    },
+    {
+      "count": 1,
+      "response": "bad_request_department_required"
+    },
+    {
+      "count": 1,
+      "response": "bad_request_support_phone_required"
+    },
+    {
+      "count": 1,
+      "response": "unauthorized"
+    },
+    {
+      "count": 1,
+      "response": "invalid_method"
+    },
+    {
+      "count": 1,
+      "response": "expected_response"
+    }
+  ]
+}

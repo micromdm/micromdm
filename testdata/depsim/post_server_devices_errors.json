@@ -1,0 +1,28 @@
+{
+  "post_server_devices_responses": [
+    {
+      "count": 1,
+      "response": "bad_request_malformed_request_body"
+    },
+    {
+      "count": 1,
+      "response": "bad_request_invalid_cursor"
+    },
+    {
+      "count": 1,
+      "response": "bad_request_exhausted_cursor"
+    },
+    {
+      "count": 1,
+      "response": "forbidden"
+    },
+    {
+      "count": 1,
+      "response": "invalid_method"
+    },
+    {
+      "count": 1,
+      "response": "unauthorized"
+    }
+  ]
+}

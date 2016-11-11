@@ -1,0 +1,16 @@
+{
+  "get_account_responses": [
+    {
+      "count": 1,
+      "response": "forbidden"
+    },
+    {
+      "count": 1,
+      "response": "unauthorized"
+    },
+    {
+      "count": 1,
+      "response": "invalid_method"
+    }
+  ]
+}

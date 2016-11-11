@@ -1,0 +1,7 @@
+{
+  "device_insertions": {
+    "devices_per_event": 10,
+    "interval_in_seconds": 5,
+    "max_event_count": 20
+  }
+}
