@@ -1,0 +1,11 @@
+package: github.com/micromdm/scep
+import:
+- package: github.com/go-kit/kit
+  version: ^0.2.0
+  subpackages:
+  - endpoint
+  - log
+  - transport/http
+- package: golang.org/x/net
+  subpackages:
+  - context

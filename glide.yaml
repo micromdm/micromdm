@@ -33,3 +33,11 @@ import:
   - payload
   - payload/badge
 - package: github.com/DavidHuie/gomigrate
+- package: github.com/boltdb/bolt
+  version: 583e8937c61f1af6513608ccc75c97b6abdf4ff9
+- package: github.com/micromdm/scep
+  version: master
+  subpackages:
+  - server
+  - depot
+  - depot/bolt

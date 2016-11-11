@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -204,6 +205,9 @@ func TestUpdateReg(t *testing.T) {
 	if a.CurrentTerms != terms {
 		t.Errorf("a.CurrentTerms = %q; want %q", a.CurrentTerms, terms)
 	}
+	if a.URI != ts.URL {
+		t.Errorf("a.URI = %q; want %q", a.URI, ts.URL)
+	}
 }
 
 func TestGetReg(t *testing.T) {
@@ -264,6 +268,9 @@ func TestGetReg(t *testing.T) {
 	}
 	if a.CurrentTerms != newTerms {
 		t.Errorf("a.CurrentTerms = %q; want %q", a.CurrentTerms, newTerms)
+	}
+	if a.URI != ts.URL {
+		t.Errorf("a.URI = %q; want %q", a.URI, ts.URL)
 	}
 }
 
@@ -764,5 +771,66 @@ func TestErrorResponse(t *testing.T) {
 	}
 	if !reflect.DeepEqual(v.Header, res.Header) {
 		t.Errorf("v.Header = %+v; want %+v", v.Header, res.Header)
+	}
+}
+
+func TestTLSSNI01ChallengeCert(t *testing.T) {
+	const (
+		token = "evaGxfADs6pSRb2LAv9IZf17Dt3juxGJ-PCt92wr-oA"
+		// echo -n <token.testKeyThumbprint> | shasum -a 256
+		san = "b6ddc3df57802969e2e0b88eb548d4be.febc5bd6cf3690eb526081b5d10deda4.acme.invalid"
+	)
+
+	client := &Client{Key: testKey}
+	tlscert, name, err := client.TLSSNI01ChallengeCert(token)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if n := len(tlscert.Certificate); n != 1 {
+		t.Fatalf("len(tlscert.Certificate) = %d; want 1", n)
+	}
+	cert, err := x509.ParseCertificate(tlscert.Certificate[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(cert.DNSNames) != 1 || cert.DNSNames[0] != san {
+		t.Fatalf("cert.DNSNames = %v; want %q", cert.DNSNames, san)
+	}
+	if cert.DNSNames[0] != name {
+		t.Errorf("cert.DNSNames[0] != name: %q vs %q", cert.DNSNames[0], name)
+	}
+}
+
+func TestTLSSNI02ChallengeCert(t *testing.T) {
+	const (
+		token = "evaGxfADs6pSRb2LAv9IZf17Dt3juxGJ-PCt92wr-oA"
+		// echo -n evaGxfADs6pSRb2LAv9IZf17Dt3juxGJ-PCt92wr-oA | shasum -a 256
+		sanA = "7ea0aaa69214e71e02cebb18bb867736.09b730209baabf60e43d4999979ff139.token.acme.invalid"
+		// echo -n <token.testKeyThumbprint> | shasum -a 256
+		sanB = "b6ddc3df57802969e2e0b88eb548d4be.febc5bd6cf3690eb526081b5d10deda4.ka.acme.invalid"
+	)
+
+	client := &Client{Key: testKey}
+	tlscert, name, err := client.TLSSNI02ChallengeCert(token)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if n := len(tlscert.Certificate); n != 1 {
+		t.Fatalf("len(tlscert.Certificate) = %d; want 1", n)
+	}
+	cert, err := x509.ParseCertificate(tlscert.Certificate[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	names := []string{sanA, sanB}
+	if !reflect.DeepEqual(cert.DNSNames, names) {
+		t.Fatalf("cert.DNSNames = %v;\nwant %v", cert.DNSNames, names)
+	}
+	sort.Strings(cert.DNSNames)
+	i := sort.SearchStrings(cert.DNSNames, name)
+	if i >= len(cert.DNSNames) || cert.DNSNames[i] != name {
+		t.Errorf("%v doesn't have %q", cert.DNSNames, name)
 	}
 }
