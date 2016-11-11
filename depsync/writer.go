@@ -30,29 +30,31 @@ func NewWriter(datastore device.Datastore, logger log.Logger, done <-chan struct
 func (w *writer) Start(DEPDevices <-chan dep.Device) {
 	var dev dep.Device
 
-	select {
-	case dev = <-DEPDevices:
-		switch dev.OpType {
-		case "added":
-			w.logger.Log("level", "debug", "msg", "writing added device to database")
-			deviceUUID, err := w.Write(&dev)
-			if err != nil {
-				w.logger.Log("level", "error", "msg", fmt.Sprintf("Failed to write DEP device: %s", err))
+	for {
+		select {
+		case dev = <-DEPDevices:
+			switch dev.OpType {
+			case "added":
+				w.logger.Log("level", "debug", "msg", "writing added device to database")
+				deviceUUID, err := w.Write(&dev)
+				if err != nil {
+					w.logger.Log("level", "error", "msg", fmt.Sprintf("Failed to write DEP device: %s", err))
+				}
+				w.logger.Log("level", "debug", "msg", fmt.Sprintf("wrote device with UUID: %s", deviceUUID))
+			case "modified":
+			case "deleted":
+			default:
+				w.logger.Log("level", "debug", "msg", "writing fetched device to database")
+				deviceUUID, err := w.Write(&dev)
+				if err != nil {
+					w.logger.Log("level", "error", "msg", fmt.Sprintf("Failed to write DEP device: %s", err))
+				}
+				w.logger.Log("level", "debug", "msg", fmt.Sprintf("wrote device with UUID: %s", deviceUUID))
 			}
-			w.logger.Log("level", "debug", "msg", fmt.Sprintf("wrote device with UUID: %s", deviceUUID))
-		case "modified":
-		case "deleted":
-		default:
-			w.logger.Log("level", "debug", "msg", "writing fetched device to database")
-			deviceUUID, err := w.Write(&dev)
-			if err != nil {
-				w.logger.Log("level", "error", "msg", fmt.Sprintf("Failed to write DEP device: %s", err))
-			}
-			w.logger.Log("level", "debug", "msg", fmt.Sprintf("wrote device with UUID: %s", deviceUUID))
+		case <-w.done:
+			w.logger.Log("level", "info", "stopping DEP device writer")
+			return
 		}
-	case <-w.done:
-		w.logger.Log("level", "info", "stopping DEP device writer")
-		return
 	}
 }
 

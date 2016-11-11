@@ -65,7 +65,7 @@ func (s *syncer) Fetch(device chan<- dep.Device) (moreResults bool, err error) {
 		}
 	}
 
-	s.logger.Log("level", "debug", "msg", fmt.Sprintf("Fetching %d devices", len(deviceResponse.Devices)))
+	s.logger.Log("level", "debug", "msg", fmt.Sprintf("fetched %d devices", len(deviceResponse.Devices)))
 	for _, dev := range deviceResponse.Devices {
 		device <- dev
 	}
@@ -111,32 +111,34 @@ func (s *syncer) Start(device chan<- dep.Device) {
 	s.logger.Log("level", "debug", "msg", "DEP sync routine started")
 	s.ticker = time.NewTicker(s.fetchInterval)
 
-	select {
-	case <-s.ticker.C:
-		if !s.InitialFetchComplete {
-			more, err := s.Fetch(device)
-			if err != nil {
-				s.logger.Log("level", "error", "msg", fmt.Sprintf("Fetching initial snapshot of devices from DEP: %v", err))
-				s.errorCount++
+	for {
+		select {
+		case <-s.ticker.C:
+			if !s.InitialFetchComplete {
+				more, err := s.Fetch(device)
+				if err != nil {
+					s.logger.Log("level", "error", "msg", fmt.Sprintf("Fetching initial snapshot of devices from DEP: %v", err))
+					s.errorCount++
+				} else {
+					s.logger.Log("level", "debug", "msg", fmt.Sprintf("More devices after this batch: %t", more))
+					if !more {
+						s.InitialFetchComplete = true
+					}
+				}
 			} else {
-				s.logger.Log("level", "debug", "msg", fmt.Sprintf("More devices after this batch: %t", more))
-				if !more {
-					s.InitialFetchComplete = true
+				s.logger.Log("level", "debug", "msg", "Synchronizing devices from DEP service")
+
+				more, err := s.Sync(device)
+				if err != nil {
+					s.logger.Log("level", "warn", "msg", fmt.Sprintf("Unable to fetch devices: %s", err))
+				} else {
+					s.logger.Log("level", "debug", "msg", fmt.Sprintf("More devices after this sync: %t", more))
 				}
 			}
-		} else {
-			s.logger.Log("level", "debug", "msg", "Synchronizing devices from DEP service")
-
-			more, err := s.Sync(device)
-			if err != nil {
-				s.logger.Log("level", "warn", "msg", fmt.Sprintf("Unable to fetch devices: %s", err))
-			} else {
-				s.logger.Log("level", "debug", "msg", fmt.Sprintf("More devices after this sync: %t", more))
-			}
+		case <-s.done:
+			s.logger.Log("level", "info", "msg", "stopping DEP sync routine")
+			s.ticker.Stop()
+			return
 		}
-	case <-s.done:
-		s.logger.Log("level", "info", "msg", "stopping DEP sync routine")
-		s.ticker.Stop()
-		return
 	}
 }
