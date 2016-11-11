@@ -8,7 +8,7 @@ deps:
 	@echo ">> getting dependencies"
 	@$(glide) install
 
-build: deps
+build: 
 	@echo ">> building binaries"
 	@$(release)
 
