@@ -16,20 +16,22 @@ type Writer interface {
 type writer struct {
 	datastore device.Datastore
 	logger    log.Logger
+	done      <-chan struct{}
 }
 
-func NewWriter(datastore device.Datastore, logger log.Logger) Writer {
+func NewWriter(datastore device.Datastore, logger log.Logger, done <-chan struct{}) Writer {
 	return &writer{
 		datastore: datastore,
 		logger:    logger,
+		done:      done,
 	}
 }
 
-func (w *writer) Start(deviceChan <-chan dep.Device) {
-	for dev := range deviceChan {
-		//var opType string = dev.OpType
-		//var opDate time.Time = dev.OpDate
+func (w *writer) Start(DEPDevices <-chan dep.Device) {
+	var dev dep.Device
 
+	select {
+	case dev = <-DEPDevices:
 		switch dev.OpType {
 		case "added":
 			w.logger.Log("level", "debug", "msg", "writing added device to database")
@@ -48,7 +50,9 @@ func (w *writer) Start(deviceChan <-chan dep.Device) {
 			}
 			w.logger.Log("level", "debug", "msg", fmt.Sprintf("wrote device with UUID: %s", deviceUUID))
 		}
-
+	case <-w.done:
+		w.logger.Log("level", "info", "stopping DEP device writer")
+		return
 	}
 }
 

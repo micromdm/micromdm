@@ -29,7 +29,6 @@ import (
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"github.com/rs/cors"
 	"golang.org/x/net/context"
-	"strconv"
 	"time"
 )
 
@@ -67,7 +66,7 @@ func main() {
 		flDEPAS           = flag.String("dep-access-secret", envString("DEP_ACCESS_SECRET", ""), "dep access secret")
 		flDEPsim          = flag.Bool("depsim", envBool("DEP_USE_DEPSIM"), "use default depsim credentials")
 		flDEPServerURL    = flag.String("dep-server-url", envString("DEP_SERVER_URL", ""), "dep server url. for testing. Use blank if not running against depsim")
-		flDEPSyncInterval = flag.String("dep-sync-interval", envString("DEP_SYNC_INTERVAL", "60"), "dep synchronization interval in seconds.")
+		flDEPSyncInterval = flag.Duration("dep-sync-interval", envDuration("DEP_SYNC_INTERVAL", 60*time.Second), "dep synchronization interval.")
 		flPkgRepo         = flag.String("pkg-repo", envString("MICROMDM_PKG_REPO", ""), "path to pkg repo")
 		flCORSOrigin      = flag.String("cors-origin", envString("MICROMDM_CORS_ORIGIN", ""), "allowed domain for cross origin resource sharing")
 	)
@@ -219,27 +218,16 @@ func main() {
 	var mgmtSvc management.Service
 	if *flDEP == true {
 		logger.Log("info", "DEP support enabled")
+		done := make(chan struct{})
 		dc := depClient(logger, *flDEPCK, *flDEPCS, *flDEPAT, *flDEPAS, *flDEPServerURL, *flDEPsim)
 		mgmtSvc = management.NewService(deviceDB, workflowDB, dc, pushSvc, appsDB, certsDB)
 
-		var DEPSyncInterval int
-		if *flDEPSyncInterval != "" {
-			DEPSyncInterval, err = strconv.Atoi(*flDEPSyncInterval)
-			if err != nil {
-				logger.Log("err", "invalid value for DEP sync interval given")
-				os.Exit(1)
-			}
-		} else {
-			DEPSyncInterval = 3600
-		}
+		DEPDevices := make(chan dep.Device)
+		DEPSyncer := depsync.NewSyncer(dc, log.NewContext(logger).With("component", "depsync.Syncer"), *flDEPSyncInterval, done)
+		DEPWriter := depsync.NewWriter(deviceDB, log.NewContext(logger).With("component", "depsync.Writer"), done)
 
-		DEPTicker := time.NewTicker(time.Duration(DEPSyncInterval) * time.Second)
-		syncer := depsync.NewSyncer(dc, log.NewContext(logger).With("component", "depsync.Syncer"), DEPTicker.C)
-		depDeviceChan := make(chan dep.Device)
-		depWriter := depsync.NewWriter(deviceDB, log.NewContext(logger).With("component", "depsync.Writer"))
-
-		go syncer.Start(depDeviceChan)
-		go depWriter.Start(depDeviceChan)
+		go DEPSyncer.Start(DEPDevices)
+		go DEPWriter.Start(DEPDevices)
 	} else {
 		logger.Log("info", "DEP support disabled")
 		mgmtSvc = management.NewService(deviceDB, workflowDB, nil, pushSvc, appsDB, certsDB)
@@ -413,6 +401,19 @@ func envBool(key string) bool {
 		return true
 	}
 	return false
+}
+
+func envDuration(key string, def time.Duration) time.Duration {
+	if env := os.Getenv(key); env != "" {
+		duration, err := time.ParseDuration(env)
+		if err != nil {
+			// TODO: Warning or exit
+			return def
+		}
+
+		return duration
+	}
+	return def
 }
 
 func checkTLSFlags(key, cert string) error {
