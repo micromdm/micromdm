@@ -21,6 +21,7 @@ import (
 	"github.com/micromdm/micromdm/checkin"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/connect"
+	"github.com/micromdm/micromdm/depsync"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/enroll"
 	"github.com/micromdm/micromdm/management"
@@ -28,6 +29,7 @@ import (
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
 	"github.com/rs/cors"
 	"golang.org/x/net/context"
+	"strconv"
 	"time"
 )
 
@@ -43,30 +45,31 @@ func main() {
 
 	//flags
 	var (
-		flURL           = flag.String("url", envString("MICROMDM_URL", ""), "public facing url")
-		flPort          = flag.String("port", envString("MICROMDM_HTTP_LISTEN_PORT", ""), "port to listen on")
-		flTLS           = flag.Bool("tls", envBool("MICROMDM_USE_TLS"), "use https")
-		flTLSCert       = flag.String("tls-cert", envString("MICROMDM_TLS_CERT", ""), "path to TLS certificate")
-		flTLSKey        = flag.String("tls-key", envString("MICROMDM_TLS_KEY", ""), "path to TLS private key")
-		flTLSCACert     = flag.String("tls-ca-cert", envString("MICROMDM_TLS_CA_CERT", ""), "path to CA certificate")
-		flSCEPURL       = flag.String("scep-url", envString("MICROMDM_SCEP_URL", ""), "scep server url. If blank, enroll profile will not use a scep payload.")
-		flSCEPChallenge = flag.String("scep-challenge", envString("MICROMDM_SCEP_CHALLENGE", ""), "scep server challenge")
-		flSCEPSubject   = flag.String("scep-subject", envString("MICROMDM_SCEP_SUBJECT", ""), "scep request subject in microsoft string representation")
-		flPGconn        = flag.String("postgres", envString("MICROMDM_POSTGRES_CONN_URL", ""), "postgres connection url")
-		flRedisconn     = flag.String("redis", envString("MICROMDM_REDIS_CONN_URL", ""), "redis connection url")
-		flVersion       = flag.Bool("version", false, "print version information")
-		flPushCert      = flag.String("push-cert", envString("MICROMDM_PUSH_CERT", ""), "path to push certificate")
-		flPushPass      = flag.String("push-pass", envString("MICROMDM_PUSH_PASS", ""), "push certificate password")
-		flEnrollment    = flag.String("profile", envString("MICROMDM_ENROLL_PROFILE", ""), "path to enrollment profile")
-		flDEP           = flag.Bool("dep", envBool("MICROMDM_USE_DEP"), "use DEP")
-		flDEPCK         = flag.String("dep-consumer-key", envString("DEP_CONSUMER_KEY", ""), "dep consumer key")
-		flDEPCS         = flag.String("dep-consumer-secret", envString("DEP_CONSUMER_SECRET", ""), "dep consumer secret")
-		flDEPAT         = flag.String("dep-access-token", envString("DEP_ACCESS_TOKEN", ""), "dep access token")
-		flDEPAS         = flag.String("dep-access-secret", envString("DEP_ACCESS_SECRET", ""), "dep access secret")
-		flDEPsim        = flag.Bool("depsim", envBool("DEP_USE_DEPSIM"), "use default depsim credentials")
-		flDEPServerURL  = flag.String("dep-server-url", envString("DEP_SERVER_URL", ""), "dep server url. for testing. Use blank if not running against depsim")
-		flPkgRepo       = flag.String("pkg-repo", envString("MICROMDM_PKG_REPO", ""), "path to pkg repo")
-		flCORSOrigin    = flag.String("cors-origin", envString("MICROMDM_CORS_ORIGIN", ""), "allowed domain for cross origin resource sharing")
+		flURL             = flag.String("url", envString("MICROMDM_URL", ""), "public facing url")
+		flPort            = flag.String("port", envString("MICROMDM_HTTP_LISTEN_PORT", ""), "port to listen on")
+		flTLS             = flag.Bool("tls", envBool("MICROMDM_USE_TLS"), "use https")
+		flTLSCert         = flag.String("tls-cert", envString("MICROMDM_TLS_CERT", ""), "path to TLS certificate")
+		flTLSKey          = flag.String("tls-key", envString("MICROMDM_TLS_KEY", ""), "path to TLS private key")
+		flTLSCACert       = flag.String("tls-ca-cert", envString("MICROMDM_TLS_CA_CERT", ""), "path to CA certificate")
+		flSCEPURL         = flag.String("scep-url", envString("MICROMDM_SCEP_URL", ""), "scep server url. If blank, enroll profile will not use a scep payload.")
+		flSCEPChallenge   = flag.String("scep-challenge", envString("MICROMDM_SCEP_CHALLENGE", ""), "scep server challenge")
+		flSCEPSubject     = flag.String("scep-subject", envString("MICROMDM_SCEP_SUBJECT", ""), "scep request subject in microsoft string representation")
+		flPGconn          = flag.String("postgres", envString("MICROMDM_POSTGRES_CONN_URL", ""), "postgres connection url")
+		flRedisconn       = flag.String("redis", envString("MICROMDM_REDIS_CONN_URL", ""), "redis connection url")
+		flVersion         = flag.Bool("version", false, "print version information")
+		flPushCert        = flag.String("push-cert", envString("MICROMDM_PUSH_CERT", ""), "path to push certificate")
+		flPushPass        = flag.String("push-pass", envString("MICROMDM_PUSH_PASS", ""), "push certificate password")
+		flEnrollment      = flag.String("profile", envString("MICROMDM_ENROLL_PROFILE", ""), "path to enrollment profile")
+		flDEP             = flag.Bool("dep", envBool("MICROMDM_USE_DEP"), "use DEP")
+		flDEPCK           = flag.String("dep-consumer-key", envString("DEP_CONSUMER_KEY", ""), "dep consumer key")
+		flDEPCS           = flag.String("dep-consumer-secret", envString("DEP_CONSUMER_SECRET", ""), "dep consumer secret")
+		flDEPAT           = flag.String("dep-access-token", envString("DEP_ACCESS_TOKEN", ""), "dep access token")
+		flDEPAS           = flag.String("dep-access-secret", envString("DEP_ACCESS_SECRET", ""), "dep access secret")
+		flDEPsim          = flag.Bool("depsim", envBool("DEP_USE_DEPSIM"), "use default depsim credentials")
+		flDEPServerURL    = flag.String("dep-server-url", envString("DEP_SERVER_URL", ""), "dep server url. for testing. Use blank if not running against depsim")
+		flDEPSyncInterval = flag.String("dep-sync-interval", envString("DEP_SYNC_INTERVAL", "60"), "dep synchronization interval in seconds.")
+		flPkgRepo         = flag.String("pkg-repo", envString("MICROMDM_PKG_REPO", ""), "path to pkg repo")
+		flCORSOrigin      = flag.String("cors-origin", envString("MICROMDM_CORS_ORIGIN", ""), "allowed domain for cross origin resource sharing")
 	)
 
 	// set tls to true by default. let user set it to false
@@ -218,6 +221,25 @@ func main() {
 		logger.Log("info", "DEP support enabled")
 		dc := depClient(logger, *flDEPCK, *flDEPCS, *flDEPAT, *flDEPAS, *flDEPServerURL, *flDEPsim)
 		mgmtSvc = management.NewService(deviceDB, workflowDB, dc, pushSvc, appsDB, certsDB)
+
+		var DEPSyncInterval int
+		if *flDEPSyncInterval != "" {
+			DEPSyncInterval, err = strconv.Atoi(*flDEPSyncInterval)
+			if err != nil {
+				logger.Log("err", "invalid value for DEP sync interval given")
+				os.Exit(1)
+			}
+		} else {
+			DEPSyncInterval = 3600
+		}
+
+		DEPTicker := time.NewTicker(time.Duration(DEPSyncInterval) * time.Second)
+		syncer := depsync.NewSyncer(dc, log.NewContext(logger).With("component", "depsync.Syncer"), DEPTicker.C)
+		depDeviceChan := make(chan dep.Device)
+		depWriter := depsync.NewWriter(deviceDB, log.NewContext(logger).With("component", "depsync.Writer"))
+
+		go syncer.Start(depDeviceChan)
+		go depWriter.Start(depDeviceChan)
 	} else {
 		logger.Log("info", "DEP support disabled")
 		mgmtSvc = management.NewService(deviceDB, workflowDB, nil, pushSvc, appsDB, certsDB)

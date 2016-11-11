@@ -1,4 +1,4 @@
-package dep
+package depsync
 
 import (
 	"errors"
@@ -31,13 +31,15 @@ type syncer struct {
 	doneChan             <-chan struct{}
 	Cursor               *Cursor
 	InitialFetchComplete bool
+	errorCount           int
 }
 
-func NewSyncer(client dep.Client, logger log.Logger, tickerChan <-chan time.Time, done <-chan struct{}) Syncer {
+func NewSyncer(client dep.Client, logger log.Logger, tickerChan <-chan time.Time) Syncer {
 	return &syncer{
 		logger:     logger,
 		client:     client,
 		tickerChan: tickerChan,
+		errorCount: 0,
 	}
 }
 
@@ -107,11 +109,14 @@ func (s *syncer) Sync(deviceChan chan dep.Device) (bool, error) {
 // The first run will always download a complete list of devices. Deltas will be fetched if the process is still running
 // after the first sync interval
 func (s *syncer) Start(deviceChan chan dep.Device) {
+	s.logger.Log("level", "debug", "msg", "DEP sync routine started")
+
 	for range s.tickerChan {
 		if !s.InitialFetchComplete {
 			more, err := s.Fetch(deviceChan)
 			if err != nil {
 				s.logger.Log("level", "error", "msg", fmt.Sprintf("Fetching initial snapshot of devices from DEP: %v", err))
+				s.errorCount++
 			} else {
 				s.logger.Log("level", "debug", "msg", fmt.Sprintf("More devices after this batch: %t", more))
 				if !more {

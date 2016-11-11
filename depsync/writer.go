@@ -1,6 +1,7 @@
-package dep
+package depsync
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/go-kit/kit/log"
 	"github.com/micromdm/dep"
@@ -9,7 +10,7 @@ import (
 
 type Writer interface {
 	Start(deviceChan <-chan dep.Device)
-	Write(*dep.Device) error
+	Write(*dep.Device) (string, error)
 }
 
 type writer struct {
@@ -53,7 +54,7 @@ func (w *writer) Start(deviceChan <-chan dep.Device) {
 
 func (w *writer) Write(dev *dep.Device) (string, error) {
 	dvc := &device.Device{
-		SerialNumber: dev.SerialNumber,
+		SerialNumber: device.JsonNullString{sql.NullString{dev.SerialNumber, true}},
 		Model:        dev.Model,
 		Description:  dev.Description,
 		Color:        dev.Color,
