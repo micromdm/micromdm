@@ -3,19 +3,25 @@ package main
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"database/sql"
 	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"time"
 
-	"database/sql"
 	"github.com/DavidHuie/gomigrate"
 	"github.com/RobotsAndPencils/buford/certificate"
 	"github.com/RobotsAndPencils/buford/push"
 	"github.com/go-kit/kit/log"
+	stdprometheus "github.com/prometheus/client_golang/prometheus"
+	"github.com/rs/cors"
+	"golang.org/x/net/context"
+
 	"github.com/micromdm/dep"
+	"github.com/micromdm/micromdm/app"
 	"github.com/micromdm/micromdm/application"
 	mdmCert "github.com/micromdm/micromdm/certificate"
 	"github.com/micromdm/micromdm/checkin"
@@ -25,10 +31,6 @@ import (
 	"github.com/micromdm/micromdm/enroll"
 	"github.com/micromdm/micromdm/management"
 	"github.com/micromdm/micromdm/workflow"
-	stdprometheus "github.com/prometheus/client_golang/prometheus"
-	"github.com/rs/cors"
-	"golang.org/x/net/context"
-	"time"
 )
 
 var (
@@ -38,6 +40,10 @@ var (
 )
 
 func main() {
+	os.Exit(app.Main())
+}
+
+func mainDeprecated() {
 	ctx := context.Background()
 	logger := log.NewLogfmtLogger(os.Stderr)
 
