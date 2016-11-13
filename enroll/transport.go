@@ -12,7 +12,7 @@ import (
 )
 
 // ServiceHandler returns an HTTP Handler for the enroll service
-func MakeHTTPHandler(ctx context.Context, svc Service, logger log.Logger) http.Handler {
+func ServiceHandler(ctx context.Context, svc Service, logger log.Logger) http.Handler {
 	r := mux.NewRouter()
 	e := MakeServerEndpoints(svc)
 	opts := []httptransport.ServerOption{

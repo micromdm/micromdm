@@ -1,0 +1,230 @@
+package app
+
+import (
+	"io/ioutil"
+
+	pushcertificate "github.com/RobotsAndPencils/buford/certificate"
+	"github.com/RobotsAndPencils/buford/push"
+	"github.com/go-kit/kit/log"
+
+	"github.com/micromdm/dep"
+	"github.com/micromdm/micromdm/application"
+	"github.com/micromdm/micromdm/certificate"
+	"github.com/micromdm/micromdm/checkin"
+	"github.com/micromdm/micromdm/command"
+	"github.com/micromdm/micromdm/connect"
+	"github.com/micromdm/micromdm/device"
+	"github.com/micromdm/micromdm/enroll"
+	"github.com/micromdm/micromdm/management"
+	"github.com/micromdm/micromdm/workflow"
+)
+
+// setupServices uses the values from the config to set up the various components
+// which MicroMDM relies on.
+func setupServices(config *Config, logger log.Logger) (*serviceManager, error) {
+	sm := &serviceManager{Config: config, logger: logger}
+	sm.setupAppDatastore()
+	sm.setupDeviceDatastore()
+	sm.setupWorkflowDatastore()
+	sm.setupCertificateDatastore()
+
+	sm.setupPushService()
+
+	sm.setupCommandService()
+	sm.setupManagementService()
+	sm.setupCheckinService()
+	sm.setupConnectService()
+	sm.setupEnrollmentService()
+	if sm.err != nil {
+		return nil, sm.err
+	}
+	return sm, nil
+}
+
+// serviceManager knows how to setup the independent components which make up
+// MicroMDM, mainly Datastores and Services.
+type serviceManager struct {
+	CommandDatastore     command.Datastore
+	CertificateDatastore certificate.Datastore
+	DeviceDatastore      device.Datastore
+	WorkflowDatastore    workflow.Datastore
+	ApplicationDatastore application.Datastore
+
+	PushService *push.Service
+
+	CommandService    command.Service
+	ManagementService management.Service
+	CheckinService    checkin.Service
+	ConnectService    connect.Service
+	EnrollmentService enroll.Service
+
+	*Config
+	logger log.Logger
+	err    error
+}
+
+func (s *serviceManager) setupEnrollmentService() {
+	if s.err != nil {
+		return
+	}
+	// TODO: clean up order of inputs. Maybe pass *SCEPConfig as an arg?
+	// but if you do, the packages are coupled, better not.
+	s.EnrollmentService, s.err = enroll.NewService(
+		s.APNS.CertificatePath,
+		s.APNS.PrivateKeyPass,
+		s.Enrollment.CACertPath,
+		s.SCEP.RemoteURL,
+		s.SCEP.Challenge,
+		s.Server.PublicURL,
+		s.TLS.CertificatePath,
+		s.SCEP.CertificateSubject,
+	)
+}
+
+func (s *serviceManager) setupConnectService() {
+	if s.err != nil {
+		return
+	}
+	s.ConnectService = connect.NewService(
+		s.DeviceDatastore,
+		s.ApplicationDatastore,
+		s.CertificateDatastore,
+		s.CommandService,
+	)
+}
+
+func (s *serviceManager) setupCheckinService() {
+	if s.err != nil {
+		return
+	}
+	var enrollmentProfile []byte
+	// TODO make this optional - checkin.WithEnrollmentProfile([]byte)
+	if s.DEP.Enabled {
+		enrollmentProfile, s.err = ioutil.ReadFile(s.Enrollment.ProfilePath)
+		if s.err != nil {
+			return
+		}
+	}
+
+	s.CheckinService = checkin.NewService(
+		s.DeviceDatastore,
+		s.ManagementService,
+		s.CommandService,
+		enrollmentProfile,
+	)
+
+}
+
+func (s *serviceManager) setupManagementService() {
+	if s.err != nil {
+		return
+	}
+	var client dep.Client
+	if s.DEP.Enabled {
+		var opts []func(*dep.Config) error
+		config := &dep.Config{
+			ConsumerKey:    s.DEP.ConsumerKey,
+			ConsumerSecret: s.DEP.ConsumerSecret,
+			AccessToken:    s.DEP.AccessToken,
+			AccessSecret:   s.DEP.AccessSecret,
+		}
+		if s.DEP.UseSim {
+			opts = append(opts, dep.ServerURL(s.DEP.ServerURL))
+		}
+		client, s.err = dep.NewClient(config, opts...)
+		if s.err != nil {
+			return
+		}
+	}
+	s.ManagementService = management.NewService(
+		s.DeviceDatastore,
+		s.WorkflowDatastore,
+		client,
+		s.PushService,
+		s.ApplicationDatastore,
+		s.CertificateDatastore,
+	)
+}
+
+func (s *serviceManager) setupPushService() {
+	if s.err != nil {
+		return
+	}
+	cert, key, err := pushcertificate.Load(s.APNS.CertificatePath, s.APNS.PrivateKeyPass)
+	if err != nil {
+		s.err = err
+		return
+	}
+	client, err := push.NewClient(pushcertificate.TLS(cert, key))
+	if err != nil {
+		s.err = err
+		return
+	}
+	s.PushService = &push.Service{
+		Client: client,
+		Host:   push.Production,
+	}
+
+}
+
+func (s *serviceManager) setupCertificateDatastore() {
+	if s.err != nil {
+		return
+	}
+	db, err := certificate.NewDB("postgres", s.Postgres.Connection, s.logger)
+	if err != nil {
+		s.err = err
+		return
+	}
+	s.CertificateDatastore = db
+}
+
+func (s *serviceManager) setupAppDatastore() {
+	if s.err != nil {
+		return
+	}
+	db, err := application.NewDB("postgres", s.Postgres.Connection, s.logger)
+	if err != nil {
+		s.err = err
+		return
+	}
+	s.ApplicationDatastore = db
+}
+
+func (s *serviceManager) setupWorkflowDatastore() {
+	if s.err != nil {
+		return
+	}
+	db, err := workflow.NewDB("postgres", s.Postgres.Connection, s.logger)
+	if err != nil {
+		s.err = err
+		return
+	}
+	s.WorkflowDatastore = db
+}
+
+func (s *serviceManager) setupDeviceDatastore() {
+	if s.err != nil {
+		return
+	}
+	db, err := device.NewDB("postgres", s.Postgres.Connection, s.logger)
+	if err != nil {
+		s.err = err
+		return
+	}
+	s.DeviceDatastore = db
+}
+
+func (s *serviceManager) setupCommandService() {
+	if s.err != nil {
+		return
+	}
+	db, err := command.NewDB("redis", s.Redis.Connection, s.logger)
+	if err != nil {
+		s.err = err
+		return
+	}
+	s.CommandDatastore = db
+	s.CommandService = command.NewService(db)
+	return
+}

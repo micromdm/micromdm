@@ -2,6 +2,8 @@ GO    		:= GO15VENDOREXPERIMENT=1 go
 glide    	:= glide
 release    	:= ./release.sh
 
+.PHONY: all build deps docker
+
 all: build
 
 deps: 
