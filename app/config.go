@@ -286,6 +286,7 @@ func (c *PostgresConfig) fromDockerEnv() {
 type RedisConfig struct {
 	Enabled    bool
 	Connection string
+	Password   string // TODO no way to pass this option as a param.
 }
 
 func (c *Config) loadRedis(conn string) {

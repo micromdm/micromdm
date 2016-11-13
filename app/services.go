@@ -5,6 +5,7 @@ import (
 
 	pushcertificate "github.com/RobotsAndPencils/buford/certificate"
 	"github.com/RobotsAndPencils/buford/push"
+	"github.com/garyburd/redigo/redis"
 	"github.com/go-kit/kit/log"
 
 	"github.com/micromdm/dep"
@@ -12,8 +13,10 @@ import (
 	"github.com/micromdm/micromdm/certificate"
 	"github.com/micromdm/micromdm/checkin"
 	"github.com/micromdm/micromdm/command"
+	cmdredis "github.com/micromdm/micromdm/command/service/redis"
 	"github.com/micromdm/micromdm/connect"
 	"github.com/micromdm/micromdm/device"
+	"github.com/micromdm/micromdm/driver"
 	"github.com/micromdm/micromdm/enroll"
 	"github.com/micromdm/micromdm/management"
 	"github.com/micromdm/micromdm/workflow"
@@ -23,6 +26,8 @@ import (
 // which MicroMDM relies on.
 func setupServices(config *Config, logger log.Logger) (*serviceManager, error) {
 	sm := &serviceManager{Config: config, logger: logger}
+	sm.createRedisPool()
+
 	sm.setupAppDatastore()
 	sm.setupDeviceDatastore()
 	sm.setupWorkflowDatastore()
@@ -44,7 +49,6 @@ func setupServices(config *Config, logger log.Logger) (*serviceManager, error) {
 // serviceManager knows how to setup the independent components which make up
 // MicroMDM, mainly Datastores and Services.
 type serviceManager struct {
-	CommandDatastore     command.Datastore
 	CertificateDatastore certificate.Datastore
 	DeviceDatastore      device.Datastore
 	WorkflowDatastore    workflow.Datastore
@@ -59,6 +63,7 @@ type serviceManager struct {
 	EnrollmentService enroll.Service
 
 	*Config
+	pool   *redis.Pool
 	logger log.Logger
 	err    error
 }
@@ -150,7 +155,10 @@ func (s *serviceManager) setupPushService() {
 	if s.err != nil {
 		return
 	}
-	cert, key, err := pushcertificate.Load(s.APNS.CertificatePath, s.APNS.PrivateKeyPass)
+	cert, key, err := pushcertificate.Load(
+		s.APNS.CertificatePath,
+		s.APNS.PrivateKeyPass,
+	)
 	if err != nil {
 		s.err = err
 		return
@@ -215,16 +223,20 @@ func (s *serviceManager) setupDeviceDatastore() {
 	s.DeviceDatastore = db
 }
 
+func (s *serviceManager) createRedisPool() {
+	if s.err != nil {
+		return
+	}
+	opts := []driver.ConnOption{driver.Logger(s.logger)}
+	if s.Redis.Password != "" {
+		opts = append(opts, driver.WithPassword(s.Redis.Password))
+	}
+	s.pool, s.err = driver.NewRedisPool(s.Redis.Connection, opts...)
+}
+
 func (s *serviceManager) setupCommandService() {
 	if s.err != nil {
 		return
 	}
-	db, err := command.NewDB("redis", s.Redis.Connection, s.logger)
-	if err != nil {
-		s.err = err
-		return
-	}
-	s.CommandDatastore = db
-	s.CommandService = command.NewService(db)
-	return
+	s.CommandService, s.err = cmdredis.NewCommandService(s.pool, s.logger)
 }
