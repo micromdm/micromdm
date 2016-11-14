@@ -1,6 +1,7 @@
 package app
 
 import (
+	"crypto/tls"
 	"io/ioutil"
 
 	pushcertificate "github.com/RobotsAndPencils/buford/certificate"
@@ -77,6 +78,7 @@ func (s *serviceManager) setupEnrollmentService() {
 	s.EnrollmentService, s.err = enroll.NewService(
 		s.APNS.CertificatePath,
 		s.APNS.PrivateKeyPass,
+		s.APNS.PrivateKeyPath,
 		s.Enrollment.CACertPath,
 		s.SCEP.RemoteURL,
 		s.SCEP.Challenge,
@@ -155,15 +157,31 @@ func (s *serviceManager) setupPushService() {
 	if s.err != nil {
 		return
 	}
-	cert, key, err := pushcertificate.Load(
-		s.APNS.CertificatePath,
-		s.APNS.PrivateKeyPass,
-	)
-	if err != nil {
-		s.err = err
-		return
+	var tlscert tls.Certificate
+	var err error
+	if s.APNS.PrivateKeyPath == "" {
+		// note that buford does validity checks where
+		// our direct certificate parsing does not
+		cert, key, err := pushcertificate.Load(
+			s.APNS.CertificatePath,
+			s.APNS.PrivateKeyPass,
+		)
+		if err != nil {
+			s.err = err
+			return
+		}
+		tlscert = pushcertificate.TLS(cert, key)
+	} else {
+		tlscert, err = tls.LoadX509KeyPair(
+			s.APNS.CertificatePath,
+			s.APNS.PrivateKeyPath,
+		)
+		if err != nil {
+			s.err = err
+			return
+		}
 	}
-	client, err := push.NewClient(pushcertificate.TLS(cert, key))
+	client, err := push.NewClient(tlscert)
 	if err != nil {
 		s.err = err
 		return

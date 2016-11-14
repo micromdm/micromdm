@@ -53,7 +53,7 @@ func loadConfig() (*Config, error) {
 		// APNS config. Can be either two files or a combined .p12 (like the one exported from keychain access")
 		flPushCert = flag.String("push-cert", envString("MICROMDM_PUSH_CERT", ""), "path to push certificate")
 		flPushPass = flag.String("push-password", envString("MICROMDM_PUSH_PASSWORD", ""), "push certificate password")
-		flPushKey  = flag.String("push-key", envString("MICROMDM_PUSH_KEY", ""), "path to push certificate private key(if not using a single .p12 file)")
+		flPushKey  = flag.String("push-key", envString("MICROMDM_PUSH_KEY", ""), "path to push certificate private key (if not using a single .p12 file)")
 	)
 	flag.Parse()
 

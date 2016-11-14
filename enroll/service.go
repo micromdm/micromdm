@@ -10,8 +10,8 @@ type Service interface {
 	Enroll(ctx context.Context) (Profile, error)
 }
 
-func NewService(pushCertPath, pushCertPass, caCertPath, scepURL, scepChallenge, url, tlsCertPath, scepSubject string) (Service, error) {
-	pushTopic, err := GetPushTopicFromPKCS12(pushCertPath, pushCertPass)
+func NewService(pushCertPath, pushCertPass, pushCertPKPath, caCertPath, scepURL, scepChallenge, url, tlsCertPath, scepSubject string) (Service, error) {
+	pushTopic, err := GetPushTopicFromCert(pushCertPath, pushCertPass, pushCertPKPath)
 	if err != nil {
 		return nil, err
 	}

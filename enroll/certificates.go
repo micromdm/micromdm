@@ -1,22 +1,39 @@
 package enroll
 
 import (
+	"crypto/x509"
+	"encoding/pem"
 	"errors"
 	"golang.org/x/crypto/pkcs12"
 	"io/ioutil"
 )
 
-const PushTopicASN1 string = "0.9.2342.19200300.100.1.1"
+const (
+	certificatePEMBlockType string = "CERTIFICATE"
+	PushTopicASN1                  = "0.9.2342.19200300.100.1.1"
+)
 
-func GetPushTopicFromPKCS12(certPath string, certPass string) (string, error) {
+func GetPushTopicFromCert(certPath, certPass, keyPath string) (string, error) {
 	certData, err := ioutil.ReadFile(certPath)
 	if err != nil {
 		return "", err
 	}
 
-	_, cert, err := pkcs12.Decode(certData, certPass)
-	if err != nil {
-		return "", err
+	var cert *x509.Certificate
+	if keyPath == "" {
+		// if keyPath is empty, treat as PKCS12
+		// note that buford does validity checks where
+		// our direct certificate parsing does not
+		_, cert, err = pkcs12.Decode(certData, certPass)
+		if err != nil {
+			return "", err
+		}
+	} else {
+		pemBlock, _ := pem.Decode(certData)
+		cert, err = x509.ParseCertificate(pemBlock.Bytes)
+		if err != nil {
+			return "", err
+		}
 	}
 
 	for _, v := range cert.Subject.Names {
