@@ -11,7 +11,17 @@ import (
 
 const certificatePEMBlockType string = "CERTIFICATE"
 
-var oidASN1Topic = asn1.ObjectIdentifier{0, 9, 2342, 19200300, 100, 1, 1}
+var oidASN1UserID = asn1.ObjectIdentifier{0, 9, 2342, 19200300, 100, 1, 1}
+
+func topicFromCert(*x509.Certificate) (string, error) {
+	for _, v := range cert.Subject.Names {
+		if v.Type.Equal(oidASN1UserID) {
+			return v.Value(string), nil
+		}
+	}
+
+	return "", errors.New("Could not find Push Topic (UserID OID) in certificate")
+}
 
 func GetPushTopicFromCert(certPath, certPass, keyPath string) (string, error) {
 	certData, err := ioutil.ReadFile(certPath)
@@ -36,12 +46,5 @@ func GetPushTopicFromCert(certPath, certPass, keyPath string) (string, error) {
 		}
 	}
 
-	for _, v := range cert.Subject.Names {
-
-		if v.Type.Equal(oidASN1Topic) {
-			return v.Value.(string), nil
-		}
-	}
-
-	return "", errors.New("Could not find Push Topic in the provided pkcs12 bundle.")
+	return topicFromCert(cert)
 }
