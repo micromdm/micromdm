@@ -86,46 +86,44 @@ func (s *serviceManager) loadPushCerts() {
 	if s.err != nil {
 		return
 	}
+
 	if s.APNS.PrivateKeyPath == "" {
-		pkcs12Data, err := ioutil.ReadFile(s.APNS.CertificatePath)
-		if err != nil {
-			s.err = err
+		var pkcs12Data []byte
+		pkcs12Data, s.err = ioutil.ReadFile(s.APNS.CertificatePath)
+		if s.err != nil {
 			return
 		}
-		s.PushServiceCert.PrivateKey, s.PushServiceCert.Certificate, err =
-			pkcs12.Decode(pkcs12Data, s.APNS.PrivateKeyPass)
-		if err != nil {
-			s.err = err
-			return
-		}
-	} else {
-		pemData, err := ioutil.ReadFile(s.APNS.CertificatePath)
-		if err != nil {
-			s.err = err
-			return
-		}
-
-		pemBlock, _ := pem.Decode(pemData)
-
-		s.PushServiceCert.Certificate, err = x509.ParseCertificate(pemBlock.Bytes)
-		if err != nil {
-			s.err = err
-			return
-		}
-
-		pemData, err = ioutil.ReadFile(s.APNS.PrivateKeyPath)
-		if err != nil {
-			s.err = err
-			return
-		}
-
-		pemBlock, _ = pem.Decode(pemData)
-		s.PushServiceCert.PrivateKey, err = x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
-		if err != nil {
-			s.err = err
-			return
-		}
+		s.PushServiceCert.PrivateKey, s.PushServiceCert.Certificate, s.err = pkcs12.Decode(pkcs12Data, s.APNS.PrivateKeyPass)
+		return
 	}
+
+	var pemData []byte
+	pemData, s.err = ioutil.ReadFile(s.APNS.CertificatePath)
+	if s.err != nil {
+		return
+	}
+
+	pemBlock, _ := pem.Decode(pemData)
+	if pemBlock == nil {
+		s.err = errors.New("invalid PEM data for cert")
+		return
+	}
+	s.PushServiceCert.Certificate, s.err = x509.ParseCertificate(pemBlock.Bytes)
+	if s.err != nil {
+		return
+	}
+
+	pemData, s.err = ioutil.ReadFile(s.APNS.PrivateKeyPath)
+	if s.err != nil {
+		return
+	}
+
+	pemBlock, _ = pem.Decode(pemData)
+	if pemBlock == nil {
+		s.err = errors.New("invalid PEM data for privkey")
+		return
+	}
+	s.PushServiceCert.PrivateKey, s.err = x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
 }
 
 var oidASN1UserID = asn1.ObjectIdentifier{0, 9, 2342, 19200300, 100, 1, 1}
