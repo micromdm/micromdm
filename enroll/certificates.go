@@ -2,16 +2,16 @@ package enroll
 
 import (
 	"crypto/x509"
+	"encoding/asn1"
 	"encoding/pem"
 	"errors"
 	"golang.org/x/crypto/pkcs12"
 	"io/ioutil"
 )
 
-const (
-	certificatePEMBlockType string = "CERTIFICATE"
-	PushTopicASN1                  = "0.9.2342.19200300.100.1.1"
-)
+const certificatePEMBlockType string = "CERTIFICATE"
+
+var oidASN1Topic = asn1.ObjectIdentifier{0, 9, 2342, 19200300, 100, 1, 1}
 
 func GetPushTopicFromCert(certPath, certPass, keyPath string) (string, error) {
 	certData, err := ioutil.ReadFile(certPath)
@@ -37,7 +37,8 @@ func GetPushTopicFromCert(certPath, certPass, keyPath string) (string, error) {
 	}
 
 	for _, v := range cert.Subject.Names {
-		if v.Type.String() == PushTopicASN1 {
+
+		if v.Type.Equal(oidASN1Topic) {
 			return v.Value.(string), nil
 		}
 	}
