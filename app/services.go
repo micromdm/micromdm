@@ -63,7 +63,7 @@ type serviceManager struct {
 	ApplicationDatastore application.Datastore
 
 	PushService *push.Service
-	PushServiceCert
+	pushServiceCert
 
 	CommandService    command.Service
 	ManagementService management.Service
@@ -77,7 +77,7 @@ type serviceManager struct {
 	err    error
 }
 
-type PushServiceCert struct {
+type pushServiceCert struct {
 	*x509.Certificate
 	PrivateKey interface{}
 }
@@ -93,7 +93,7 @@ func (s *serviceManager) loadPushCerts() {
 		if s.err != nil {
 			return
 		}
-		s.PushServiceCert.PrivateKey, s.PushServiceCert.Certificate, s.err = pkcs12.Decode(pkcs12Data, s.APNS.PrivateKeyPass)
+		s.pushServiceCert.PrivateKey, s.pushServiceCert.Certificate, s.err = pkcs12.Decode(pkcs12Data, s.APNS.PrivateKeyPass)
 		return
 	}
 
@@ -108,7 +108,7 @@ func (s *serviceManager) loadPushCerts() {
 		s.err = errors.New("invalid PEM data for cert")
 		return
 	}
-	s.PushServiceCert.Certificate, s.err = x509.ParseCertificate(pemBlock.Bytes)
+	s.pushServiceCert.Certificate, s.err = x509.ParseCertificate(pemBlock.Bytes)
 	if s.err != nil {
 		return
 	}
@@ -123,7 +123,7 @@ func (s *serviceManager) loadPushCerts() {
 		s.err = errors.New("invalid PEM data for privkey")
 		return
 	}
-	s.PushServiceCert.PrivateKey, s.err = x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
+	s.pushServiceCert.PrivateKey, s.err = x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
 }
 
 var oidASN1UserID = asn1.ObjectIdentifier{0, 9, 2342, 19200300, 100, 1, 1}
@@ -142,7 +142,7 @@ func (s *serviceManager) setupEnrollmentService() {
 	if s.err != nil {
 		return
 	}
-	pushTopic, err := topicFromCert(s.PushServiceCert.Certificate)
+	pushTopic, err := topicFromCert(s.pushServiceCert.Certificate)
 	if err != nil {
 		s.err = err
 		return
@@ -230,8 +230,8 @@ func (s *serviceManager) setupPushService() {
 		return
 	}
 	client, err := push.NewClient(pushcertificate.TLS(
-		s.PushServiceCert.Certificate,
-		s.PushServiceCert.PrivateKey.(*rsa.PrivateKey),
+		s.pushServiceCert.Certificate,
+		s.pushServiceCert.PrivateKey.(*rsa.PrivateKey),
 	))
 	if err != nil {
 		s.err = err
