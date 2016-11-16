@@ -13,10 +13,10 @@ const certificatePEMBlockType string = "CERTIFICATE"
 
 var oidASN1UserID = asn1.ObjectIdentifier{0, 9, 2342, 19200300, 100, 1, 1}
 
-func topicFromCert(*x509.Certificate) (string, error) {
+func topicFromCert(cert *x509.Certificate) (string, error) {
 	for _, v := range cert.Subject.Names {
 		if v.Type.Equal(oidASN1UserID) {
-			return v.Value(string), nil
+			return v.Value.(string), nil
 		}
 	}
 
