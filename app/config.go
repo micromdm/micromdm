@@ -142,6 +142,9 @@ func (c *Config) loadDEPConfig(enabled, sim bool, ck, cs, at, as, serverURL stri
 		AccessSecret:   as,
 		ServerURL:      serverURL,
 	}
+	if !sim && (ck == "" || cs == "" || at == "" || as == "") {
+		config.Enabled = false
+	}
 	if sim {
 		config.ConsumerKey = "CK_48dd68d198350f51258e885ce9a5c37ab7f98543c4a697323d75682a6c10a32501cb247e3db08105db868f73f2c972bdb6ae77112aea803b9219eb52689d42e6"
 		config.ConsumerSecret = "CS_34c7b2b531a600d99a0e4edcf4a78ded79b86ef318118c2f5bcfee1b011108c32d5302df801adbe29d446eb78f02b13144e323eb9aad51c79f01e50cb45c3a68"
@@ -294,15 +297,13 @@ func (c *Config) loadRedis(conn string) {
 		return
 	}
 	config := &RedisConfig{
-		Enabled:    true, // currently required.
 		Connection: conn,
 	}
 	if conn == "" {
 		config.fromDockerEnv()
 	}
-	if conn == "" {
-		c.err = errors.New("must provide redis connection string")
-		return
+	if conn != "" {
+		config.Enabled = true
 	}
 	c.Redis = config
 }
