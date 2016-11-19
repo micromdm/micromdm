@@ -10,20 +10,27 @@ import (
 
 	pushcertificate "github.com/RobotsAndPencils/buford/certificate"
 	"github.com/RobotsAndPencils/buford/push"
+	"github.com/boltdb/bolt"
 	"github.com/garyburd/redigo/redis"
 	"github.com/go-kit/kit/log"
-
 	"github.com/micromdm/dep"
+	nsq "github.com/nsqio/go-nsq"
+	"github.com/nsqio/nsq/nsqd"
+
 	"github.com/micromdm/micromdm/application"
 	"github.com/micromdm/micromdm/certificate"
 	"github.com/micromdm/micromdm/checkin"
+	"github.com/micromdm/micromdm/checkin/archive"
+	eventcheckin "github.com/micromdm/micromdm/checkin/service/event"
 	"github.com/micromdm/micromdm/command"
+	cmdbolt "github.com/micromdm/micromdm/command/service/bolt"
 	cmdredis "github.com/micromdm/micromdm/command/service/redis"
 	"github.com/micromdm/micromdm/connect"
 	"github.com/micromdm/micromdm/depenroll"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/driver"
 	"github.com/micromdm/micromdm/enroll"
+	"github.com/micromdm/micromdm/event"
 	"github.com/micromdm/micromdm/management"
 	"github.com/micromdm/micromdm/workflow"
 
@@ -35,6 +42,16 @@ import (
 func setupServices(config *Config, logger log.Logger) (*serviceManager, error) {
 	sm := &serviceManager{Config: config, logger: logger}
 	sm.createRedisPool()
+	sm.setupEventPublisher()
+	sm.setupBoltStores()
+
+	stop := make(chan bool)
+	go func() {
+		err := archive.Persist(stop, sm.commandStore)
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	sm.setupAppDatastore()
 	sm.setupDeviceDatastore()
@@ -66,6 +83,7 @@ type serviceManager struct {
 
 	PushService *push.Service
 	pushServiceCert
+	Publisher *event.Publisher
 
 	CommandService       command.Service
 	ManagementService    management.Service
@@ -75,14 +93,22 @@ type serviceManager struct {
 	DEPEnrollmentService depenroll.Service
 
 	*Config
-	pool   *redis.Pool
-	logger log.Logger
-	err    error
+	pool         *redis.Pool
+	commandStore *bolt.DB
+	logger       log.Logger
+	err          error
 }
 
 type pushServiceCert struct {
 	*x509.Certificate
 	PrivateKey interface{}
+}
+
+func (s *serviceManager) setupBoltStores() {
+	if s.err != nil {
+		return
+	}
+	s.commandStore, s.err = bolt.Open("db.bolt", 0777, nil)
 }
 
 func (s *serviceManager) loadPushCerts() {
@@ -96,7 +122,8 @@ func (s *serviceManager) loadPushCerts() {
 		if s.err != nil {
 			return
 		}
-		s.pushServiceCert.PrivateKey, s.pushServiceCert.Certificate, s.err = pkcs12.Decode(pkcs12Data, s.APNS.PrivateKeyPass)
+		s.pushServiceCert.PrivateKey, s.pushServiceCert.Certificate, s.err =
+			pkcs12.Decode(pkcs12Data, s.APNS.PrivateKeyPass)
 		return
 	}
 
@@ -126,7 +153,8 @@ func (s *serviceManager) loadPushCerts() {
 		s.err = errors.New("invalid PEM data for privkey")
 		return
 	}
-	s.pushServiceCert.PrivateKey, s.err = x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
+	s.pushServiceCert.PrivateKey, s.err =
+		x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
 }
 
 var oidASN1UserID = asn1.ObjectIdentifier{0, 9, 2342, 19200300, 100, 1, 1}
@@ -180,20 +208,46 @@ func (s *serviceManager) setupCheckinService() {
 		return
 	}
 
-	s.CheckinService = checkin.NewService(
-		s.DeviceDatastore,
-		s.ManagementService,
-	)
+	/*
+		s.CheckinService = direct.NewService(
+			s.DeviceDatastore,
+			s.ManagementService,
+		)
+	*/
+	s.CheckinService = eventcheckin.NewCheckinService(s.Publisher)
 
 }
 
-func (s *serviceManager) setupDEPEnrollmentService() {
+func (s *serviceManager) setupEventPublisher() {
 	if s.err != nil {
 		return
 	}
-	// TODO make this optional - checkin.WithEnrollmentProfile([]byte)
+	done := make(chan bool)
+	go func() {
+		opts := nsqd.NewOptions()
+		nsqd := nsqd.New(opts)
+		nsqd.Main()
+
+		// wait until we are told to continue and exit
+		<-done
+		nsqd.Exit()
+	}()
+
+	cfg := nsq.NewConfig()
+	producer, err := nsq.NewProducer("localhost:4150", cfg)
+	if err != nil {
+		s.err = err
+	}
+	s.Publisher = &event.Publisher{Producer: producer}
+}
+
+func (s *serviceManager) setupDEPEnrollmentService() {
+	if s.err != nil || !s.DEP.Enabled {
+		return
+	}
+	// TODO make this optional - depenroll.WithEnrollmentProfile([]byte)
 	var enrollmentProfile []byte
-	if s.DEP.Enabled {
+	if s.Enrollment.ProfilePath != "" {
 		enrollmentProfile, s.err = ioutil.ReadFile(s.Enrollment.ProfilePath)
 		if s.err != nil {
 			return
@@ -305,7 +359,7 @@ func (s *serviceManager) setupDeviceDatastore() {
 }
 
 func (s *serviceManager) createRedisPool() {
-	if s.err != nil {
+	if s.err != nil || !s.Redis.Enabled {
 		return
 	}
 	opts := []driver.ConnOption{driver.Logger(s.logger)}
@@ -319,5 +373,9 @@ func (s *serviceManager) setupCommandService() {
 	if s.err != nil {
 		return
 	}
-	s.CommandService, s.err = cmdredis.NewCommandService(s.pool, s.logger)
+	if s.Redis.Enabled {
+		s.CommandService, s.err = cmdredis.NewCommandService(s.pool, s.logger)
+		return
+	}
+	s.CommandService = cmdbolt.NewCommandService(s.commandStore)
 }
