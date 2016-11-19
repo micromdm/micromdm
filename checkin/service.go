@@ -1,14 +1,11 @@
 package checkin
 
 import (
-	"errors"
-	"fmt"
+	"time"
 
 	"github.com/micromdm/mdm"
-	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/management"
-	"time"
 )
 
 // Service defines methods for and MDM Checkin service
@@ -16,27 +13,19 @@ type Service interface {
 	Authenticate(mdm.CheckinCommand) error
 	TokenUpdate(mdm.CheckinCommand) error
 	Checkout(mdm.CheckinCommand) error
-	// EnrollDEP returns an enrollment profile
-	// during DEP Enrollment
-	EnrollDEP(udid, serial string) ([]byte, error)
 }
 
-// NewService creates a checkin service
-// profile holds an enrollment profile
-func NewService(devices device.Datastore, ms management.Service, cs command.Service, profile []byte) Service {
+// NewService creates a checkin service.
+func NewService(devices device.Datastore, ms management.Service) Service {
 	return &service{
-		devices:  devices,
-		mgmt:     ms,
-		commands: cs,
-		profile:  profile,
+		devices: devices,
+		mgmt:    ms,
 	}
 }
 
 type service struct {
-	devices  device.Datastore
-	mgmt     management.Service
-	commands command.Service
-	profile  []byte
+	devices device.Datastore
+	mgmt    management.Service
 }
 
 func (svc service) Authenticate(cmd mdm.CheckinCommand) error {
@@ -103,43 +92,6 @@ func (svc service) Checkout(cmd mdm.CheckinCommand) error {
 	}
 	existing.Enrolled = false
 	err = svc.devices.Save("checkout", existing)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (svc service) EnrollDEP(udid, serial string) ([]byte, error) {
-	err := svc.initialSetup(udid, serial)
-	if err != nil {
-		// TODO: stop ignoring the error there
-		fmt.Println(err)
-	}
-	return svc.profile, nil
-}
-
-func (svc service) initialSetup(deviceUDID, serial string) error {
-	devs, err := svc.devices.Devices(device.SerialNumber{SerialNumber: serial})
-	if err != nil {
-		return err
-	}
-	if len(devs) == 0 {
-		return errors.New("device not found")
-	}
-	dev := devs[0]
-	if dev.Workflow == "" {
-		// no workflow, send DeviceConfigured
-		return svc.sendConfigured(deviceUDID)
-	}
-	return nil
-}
-
-func (svc service) sendConfigured(deviceUDID string) error {
-	cmdRequest := &mdm.CommandRequest{
-		UDID:        deviceUDID,
-		RequestType: "DeviceConfigured",
-	}
-	_, err := svc.commands.NewCommand(cmdRequest)
 	if err != nil {
 		return err
 	}

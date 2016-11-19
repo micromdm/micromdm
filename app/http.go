@@ -14,6 +14,7 @@ import (
 	"github.com/micromdm/micromdm/checkin"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/connect"
+	"github.com/micromdm/micromdm/depenroll"
 	"github.com/micromdm/micromdm/enroll"
 	"github.com/micromdm/micromdm/management"
 	"github.com/micromdm/micromdm/version"
@@ -28,6 +29,7 @@ func makeHTTPHandler(logger log.Logger, sm *serviceManager) http.Handler {
 	checkinHandler := checkin.ServiceHandler(ctx, sm.CheckinService, httpLogger)
 	connectHandler := connect.ServiceHandler(ctx, sm.ConnectService, httpLogger)
 	enrollHandler := enroll.ServiceHandler(ctx, sm.EnrollmentService, httpLogger)
+	depenrollHandler := depenroll.ServiceHandler(ctx, sm.DEPEnrollmentService, httpLogger)
 
 	var handler http.Handler
 	mux := http.NewServeMux()
@@ -37,6 +39,7 @@ func makeHTTPHandler(logger log.Logger, sm *serviceManager) http.Handler {
 	mux.Handle("/mdm/checkin", checkinHandler)
 	mux.Handle("/mdm/connect", connectHandler)
 	mux.Handle("/mdm/enroll", enrollHandler)
+	mux.Handle("/mdm/enroll/dep", depenrollHandler)
 	mux.Handle("/_metrics", prometheus.Handler())
 	mux.Handle("/_version", version.Handler())
 	if sm.Server.PackageRepoPath != "" {

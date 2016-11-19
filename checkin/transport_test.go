@@ -3,17 +3,18 @@ package checkin
 import (
 	"bytes"
 	"database/sql"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"testing"
+
 	"github.com/DavidHuie/gomigrate"
 	"github.com/go-kit/kit/log"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/management"
 	"golang.org/x/net/context"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
-	"os"
-	"testing"
 )
 
 var testConn string = "user=postgres password= dbname=travis_ci_test sslmode=disable"
@@ -62,8 +63,7 @@ func setup(t *testing.T) *fixtures {
 	}
 
 	f.mgmt = &mockMgmtService{}
-	f.profile = []byte{}
-	f.svc = NewService(f.devices, f.mgmt, f.cmd, f.profile)
+	f.svc = NewService(f.devices, f.mgmt)
 	f.handler = ServiceHandler(f.ctx, f.svc, f.logger)
 	f.server = httptest.NewServer(f.handler)
 

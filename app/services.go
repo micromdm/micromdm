@@ -20,6 +20,7 @@ import (
 	"github.com/micromdm/micromdm/command"
 	cmdredis "github.com/micromdm/micromdm/command/service/redis"
 	"github.com/micromdm/micromdm/connect"
+	"github.com/micromdm/micromdm/depenroll"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/driver"
 	"github.com/micromdm/micromdm/enroll"
@@ -46,6 +47,7 @@ func setupServices(config *Config, logger log.Logger) (*serviceManager, error) {
 	sm.setupCommandService()
 	sm.setupManagementService()
 	sm.setupCheckinService()
+	sm.setupDEPEnrollmentService()
 	sm.setupConnectService()
 	sm.setupEnrollmentService()
 	if sm.err != nil {
@@ -65,11 +67,12 @@ type serviceManager struct {
 	PushService *push.Service
 	pushServiceCert
 
-	CommandService    command.Service
-	ManagementService management.Service
-	CheckinService    checkin.Service
-	ConnectService    connect.Service
-	EnrollmentService enroll.Service
+	CommandService       command.Service
+	ManagementService    management.Service
+	CheckinService       checkin.Service
+	ConnectService       connect.Service
+	EnrollmentService    enroll.Service
+	DEPEnrollmentService depenroll.Service
 
 	*Config
 	pool   *redis.Pool
@@ -176,22 +179,31 @@ func (s *serviceManager) setupCheckinService() {
 	if s.err != nil {
 		return
 	}
-	var enrollmentProfile []byte
+
+	s.CheckinService = checkin.NewService(
+		s.DeviceDatastore,
+		s.ManagementService,
+	)
+
+}
+
+func (s *serviceManager) setupDEPEnrollmentService() {
+	if s.err != nil {
+		return
+	}
 	// TODO make this optional - checkin.WithEnrollmentProfile([]byte)
+	var enrollmentProfile []byte
 	if s.DEP.Enabled {
 		enrollmentProfile, s.err = ioutil.ReadFile(s.Enrollment.ProfilePath)
 		if s.err != nil {
 			return
 		}
 	}
-
-	s.CheckinService = checkin.NewService(
+	s.DEPEnrollmentService = depenroll.NewService(
 		s.DeviceDatastore,
-		s.ManagementService,
 		s.CommandService,
 		enrollmentProfile,
 	)
-
 }
 
 func (s *serviceManager) setupManagementService() {

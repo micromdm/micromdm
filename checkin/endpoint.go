@@ -4,8 +4,9 @@ import (
 	"errors"
 
 	"github.com/go-kit/kit/endpoint"
-	"github.com/micromdm/mdm"
 	"golang.org/x/net/context"
+
+	"github.com/micromdm/mdm"
 )
 
 // ErrInvalidMessageType is an invalid checking command
@@ -39,27 +40,5 @@ func makeCheckinEndpoint(svc Service) endpoint.Endpoint {
 			return mdmCheckinResponse{err}, nil
 		}
 		return mdmCheckinResponse{}, nil
-	}
-}
-
-type depEnrollmentRequest struct {
-	mdm.DEPEnrollmentRequest
-}
-
-type depEnrollmentResponse struct {
-	Profile []byte // MDM Enrollment Profile
-	Err     error  `plist:"error,omitempty"`
-}
-
-func (r depEnrollmentResponse) error() error { return r.Err }
-
-func makeDEPEnrollmentEndpoint(svc Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(depEnrollmentRequest)
-		profile, err := svc.EnrollDEP(req.DEPEnrollmentRequest.UDID, req.DEPEnrollmentRequest.Serial)
-		if err != nil {
-			return depEnrollmentResponse{Err: err}, nil
-		}
-		return depEnrollmentResponse{Profile: profile}, nil
 	}
 }
