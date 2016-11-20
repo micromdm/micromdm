@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/go-kit/kit/log"
+	"github.com/micromdm/scep/server"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/rs/cors"
 	"golang.org/x/net/context"
@@ -73,6 +74,18 @@ func serveHTTP(logger log.Logger, h http.Handler, tlsEnabled bool, httpAddr, key
 		logger.Log("msg", "serving http", "addr", httpAddr)
 		return http.ListenAndServe(httpAddr, h)
 	}
+}
+
+func serveSCEP(logger log.Logger, sm *serviceManager) error {
+	httpLogger := log.NewContext(logger).With("component", "scep-http")
+	if sm.SCEPService == nil {
+		return nil
+	}
+	ctx := context.TODO()
+	scepHandler := scepserver.ServiceHandler(ctx, sm.SCEPService, httpLogger)
+	// FIXME allow specifying port.
+	logger.Log("msg", "serving SCEP http", "addr", "0.0.0.0:2016")
+	return http.ListenAndServe(":2016", scepHandler)
 }
 
 func verifyTLSCerts(certPath, keyPath string) error {

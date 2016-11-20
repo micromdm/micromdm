@@ -7,6 +7,8 @@ import (
 	"encoding/pem"
 	"errors"
 	"io/ioutil"
+	"net/url"
+	"strings"
 
 	pushcertificate "github.com/RobotsAndPencils/buford/certificate"
 	"github.com/RobotsAndPencils/buford/push"
@@ -14,8 +16,11 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/go-kit/kit/log"
 	"github.com/micromdm/dep"
+	boltdepot "github.com/micromdm/scep/depot/bolt"
+	"github.com/micromdm/scep/server"
 	nsq "github.com/nsqio/go-nsq"
 	"github.com/nsqio/nsq/nsqd"
+	"golang.org/x/crypto/pkcs12"
 
 	"github.com/micromdm/micromdm/application"
 	"github.com/micromdm/micromdm/certificate"
@@ -33,8 +38,6 @@ import (
 	"github.com/micromdm/micromdm/event"
 	"github.com/micromdm/micromdm/management"
 	"github.com/micromdm/micromdm/workflow"
-
-	"golang.org/x/crypto/pkcs12"
 )
 
 // setupServices uses the values from the config to set up the various components
@@ -61,6 +64,7 @@ func setupServices(config *Config, logger log.Logger) (*serviceManager, error) {
 	sm.loadPushCerts()
 	sm.setupPushService()
 
+	sm.setupEmbeddedSCEP()
 	sm.setupCommandService()
 	sm.setupManagementService()
 	sm.setupCheckinService()
@@ -80,6 +84,7 @@ type serviceManager struct {
 	DeviceDatastore      device.Datastore
 	WorkflowDatastore    workflow.Datastore
 	ApplicationDatastore application.Datastore
+	SCEPService          scepserver.Service
 
 	PushService *push.Service
 	pushServiceCert
@@ -166,11 +171,55 @@ func topicFromCert(cert *x509.Certificate) (string, error) {
 		}
 	}
 
-	return "", errors.New("Could not find Push Topic (UserID OID) in certificate")
+	return "", errors.New("could not find Push Topic (UserID OID) in certificate")
+}
+func (s *serviceManager) setupEmbeddedSCEP() {
+	if s.err != nil || s.SCEP.Enabled {
+		return
+	}
+
+	db, err := bolt.Open("cert_depot.bolt", 0777, nil)
+	if err != nil {
+		s.err = err
+		return
+	}
+
+	depot, err := boltdepot.NewBoltDepot(db)
+	if err != nil {
+		s.err = err
+		return
+	}
+	key, err := depot.CreateOrLoadKey(2048)
+	if err != nil {
+		s.err = err
+		return
+	}
+	_, err = depot.CreateOrLoadCA(key, 5, "MicroMDM", "US")
+	if err != nil {
+		s.err = err
+		return
+	}
+
+	// TODO: add password and other opts
+	opts := []scepserver.ServiceOption{
+		scepserver.ClientValidity(365),
+	}
+	s.SCEPService, s.err = scepserver.NewService(depot, opts...)
+	if s.err != nil {
+		return
+	}
+	s.SCEP.Enabled = true
+	s.SCEP.Embedded = true
+	pub, err := url.Parse(s.Server.PublicURL)
+	if err != nil {
+		s.err = err
+		return
+	}
+	s.SCEP.RemoteURL = "http://" + strings.Split(pub.Host, ":")[0] + ":2016/scep"
 }
 
 func (s *serviceManager) setupEnrollmentService() {
-	if s.err != nil {
+	if s.err != nil || !s.SCEP.Enabled {
 		return
 	}
 	pushTopic, err := topicFromCert(s.pushServiceCert.Certificate)

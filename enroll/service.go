@@ -1,9 +1,10 @@
 package enroll
 
 import (
-	"golang.org/x/net/context"
 	"io/ioutil"
 	"strings"
+
+	"golang.org/x/net/context"
 )
 
 type Service interface {

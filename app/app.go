@@ -24,6 +24,12 @@ func Main(logger log.Logger) (status int, err error) {
 	if err != nil {
 		return badReturn, err
 	}
+	go func() {
+		err := serveSCEP(logger, sm)
+		if err != nil {
+			panic(err)
+		}
+	}()
 	err = serveHTTP(
 		logger,
 		makeHTTPHandler(logger, sm),

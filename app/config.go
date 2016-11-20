@@ -207,13 +207,11 @@ func (c *Config) loadSCEPConfig(remoteURL, challenge, certSubject string) {
 	}
 	config := &SCEPConfig{
 		Enabled:            remoteURL != "",
-		Embedded:           false, // TODO
 		RemoteURL:          remoteURL,
 		Challenge:          challenge,
 		CertificateSubject: certSubject,
 	}
 	c.SCEP = config
-	// FIXME add validation
 }
 
 // EnrollmentConfig holds configuration for enrollment without SCEP.
