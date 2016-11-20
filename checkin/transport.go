@@ -1,8 +1,6 @@
 package checkin
 
 import (
-	"fmt"
-	"io/ioutil"
 	"net/http"
 
 	"golang.org/x/net/context"
@@ -34,13 +32,8 @@ func ServiceHandler(ctx context.Context, svc Service, logger kitlog.Logger) http
 }
 
 func decodeMDMCheckinRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	data, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println(string(data))
 	var request mdmCheckinRequest
-	if err := plist.Unmarshal(data, &request); err != nil {
+	if err := plist.NewDecoder(r.Body).Decode(&request); err != nil {
 		return nil, err
 	}
 	return request, nil
