@@ -14,22 +14,22 @@ func loadConfig() (*Config, error) {
 	// cli flags, using environment variables as a possible default.
 	var (
 		// tls config
-		flTLS     = flag.Bool("tls", envBool("MICROMDM_USE_TLS"), "use https")
+		flTLS     = flag.Bool("tls", envBool("MICROMDM_USE_TLS", true), "use https")
 		flTLSCert = flag.String("tls-cert", envString("MICROMDM_TLS_CERT", ""), "path to TLS certificate")
 		flTLSKey  = flag.String("tls-key", envString("MICROMDM_TLS_KEY", ""), "path to TLS private key")
 
 		// dep config
-		flDEP          = flag.Bool("dep", envBool("MICROMDM_USE_DEP"), "use DEP")
+		flDEP          = flag.Bool("dep", envBool("MICROMDM_USE_DEP", false), "use DEP")
 		flDEPCK        = flag.String("dep-consumer-key", envString("DEP_CONSUMER_KEY", ""), "dep consumer key")
 		flDEPCS        = flag.String("dep-consumer-secret", envString("DEP_CONSUMER_SECRET", ""), "dep consumer secret")
 		flDEPAT        = flag.String("dep-access-token", envString("DEP_ACCESS_TOKEN", ""), "dep access token")
 		flDEPAS        = flag.String("dep-access-secret", envString("DEP_ACCESS_SECRET", ""), "dep access secret")
-		flDEPSim       = flag.Bool("depsim", envBool("DEP_USE_DEPSIM"), "use default depsim credentials")
+		flDEPSim       = flag.Bool("depsim", envBool("DEP_USE_DEPSIM", false), "use default depsim credentials")
 		flDEPServerURL = flag.String("dep-server-url", envString("DEP_SERVER_URL", ""), "dep server url. for testing. Use blank if not running against depsim")
 
 		// server settings
 		flURL         = flag.String("url", envString("MICROMDM_URL", ""), "public url of the server")
-		flAddress     = flag.String("http-address", envString("MICROMDM_HTTP_LISTEN_ADDRESS", "0.0.0.0"), "address to listen on.")
+		flAddress     = flag.String("http-address", envString("MICROMDM_HTTP_LISTEN_ADDRESS", ":2017"), "address to listen on.")
 		flCORSOrigins = flag.String("cors-origin", envString("MICROMDM_CORS_ORIGINS", ""), "allowed domain for cross origin resource sharing. comma separated")
 		flPkgRepo     = flag.String("pkg-repo", envString("MICROMDM_PKG_REPO", ""), "path to a folder with packages for use with InstallApplication")
 
@@ -108,10 +108,6 @@ func (c *Config) loadTLS(enabled bool, cert, key string) {
 		Enabled:         enabled,
 		CertificatePath: cert,
 		PrivateKeyPath:  key,
-	}
-	if enabled && (cert == "" || key == "") {
-		c.err = errors.New("certificate or key path missing in TLS config")
-		return
 	}
 	c.TLS = config
 }

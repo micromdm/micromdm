@@ -8,6 +8,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/url"
+	"os"
 	"strings"
 
 	pushcertificate "github.com/RobotsAndPencils/buford/certificate"
@@ -61,6 +62,7 @@ func setupServices(config *Config, logger log.Logger) (*serviceManager, error) {
 	sm.setupWorkflowDatastore()
 	sm.setupCertificateDatastore()
 
+	sm.setupTLSCertificates()
 	sm.loadPushCerts()
 	sm.setupPushService()
 
@@ -114,6 +116,51 @@ func (s *serviceManager) setupBoltStores() {
 		return
 	}
 	s.commandStore, s.err = bolt.Open("db.bolt", 0777, nil)
+}
+
+func (s *serviceManager) setupTLSCertificates() {
+	if s.err != nil ||
+		!s.TLS.Enabled ||
+		(s.TLS.Enabled && s.TLS.CertificatePath != "") {
+		return
+	}
+	pub, err := url.Parse(s.Server.PublicURL)
+	if err != nil {
+		s.err = err
+		return
+	}
+	host := strings.Split(pub.Host, ":")[0]
+
+	certPath := "certificate.pem"
+	keyPath := "key.pem"
+	if _, err := os.Stat(certPath); err == nil {
+		s.TLS.CertificatePath = certPath
+		s.Enrollment.CACertPath = certPath
+	}
+	if _, err := os.Stat(keyPath); err == nil {
+		s.TLS.PrivateKeyPath = keyPath
+		return // stop here
+	}
+
+	key, cert, err := genTLSCertificate(host)
+	if err != nil {
+		s.err = err
+		return
+	}
+
+	s.err = savePEMCert(certPath, cert)
+	if s.err != nil {
+		return
+	}
+
+	s.err = savePEMKey(keyPath, key)
+	if s.err != nil {
+		return
+	}
+	s.TLS.CertificatePath = certPath
+	s.TLS.PrivateKeyPath = keyPath
+	s.Enrollment.CACertPath = certPath
+
 }
 
 func (s *serviceManager) loadPushCerts() {

@@ -58,7 +58,6 @@ func makeHTTPHandler(logger log.Logger, sm *serviceManager) http.Handler {
 			AllowedMethods:   []string{"GET", "POST", "PATCH", "DELETE"},
 		}).Handler(mux)
 	}
-
 	return handler
 }
 
