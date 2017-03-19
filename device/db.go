@@ -11,7 +11,13 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-const DeviceBucket = "mdm.Devices"
+const (
+	DeviceBucket = "mdm.Devices"
+
+	// The deviceIndexBucket index bucket stores serial number and UDID references
+	// to the device uuid.
+	deviceIndexBucket = "mdm.DeviceIdx"
+)
 
 type DB struct {
 	*bolt.DB
@@ -19,7 +25,11 @@ type DB struct {
 
 func NewDB(db *bolt.DB, sub pubsub.Subscriber) (*DB, error) {
 	err := db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte(DeviceBucket))
+		_, err := tx.CreateBucketIfNotExists([]byte(deviceIndexBucket))
+		if err != nil {
+			return err
+		}
+		_, err = tx.CreateBucketIfNotExists([]byte(DeviceBucket))
 		return err
 	})
 	if err != nil {
@@ -50,18 +60,24 @@ func (db *DB) Save(dev *Device) error {
 	if err != nil {
 		return errors.Wrap(err, "marshalling device")
 	}
+
 	// store an array of indices to reference the UUID, which will be the
 	// key used to store the actual device.
 	indexes := []string{dev.UDID, dev.SerialNumber}
+	idxBucket := tx.Bucket([]byte(deviceIndexBucket))
+	if idxBucket == nil {
+		return fmt.Errorf("bucket %q not found!", deviceIndexBucket)
+	}
 	for _, idx := range indexes {
 		if idx == "" {
 			continue
 		}
 		key := []byte(idx)
-		if err := bkt.Put(key, []byte(dev.UUID)); err != nil {
+		if err := idxBucket.Put(key, []byte(dev.UUID)); err != nil {
 			return errors.Wrap(err, "put device to boltdb")
 		}
 	}
+
 	key := []byte(dev.UUID)
 	if err := bkt.Put(key, devproto); err != nil {
 		return errors.Wrap(err, "put device to boltdb")
@@ -82,7 +98,8 @@ func (db *DB) DeviceByUDID(udid string) (*Device, error) {
 	var dev Device
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(DeviceBucket))
-		idx := b.Get([]byte(udid))
+		ib := tx.Bucket([]byte(deviceIndexBucket))
+		idx := ib.Get([]byte(udid))
 		if idx == nil {
 			return &notFound{"Device", fmt.Sprintf("udid %s", udid)}
 		}
@@ -102,7 +119,8 @@ func (db *DB) DeviceBySerial(serial string) (*Device, error) {
 	var dev Device
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(DeviceBucket))
-		idx := b.Get([]byte(serial))
+		ib := tx.Bucket([]byte(deviceIndexBucket))
+		idx := ib.Get([]byte(serial))
 		if idx == nil {
 			return &notFound{"Device", fmt.Sprintf("serial %s", serial)}
 		}
