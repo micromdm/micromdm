@@ -71,6 +71,10 @@ func serve(args []string) error {
 		return err
 	}
 
+	if *flServerURL == "" {
+		return errors.New("must supply -server-url")
+	}
+
 	logger := log.NewLogfmtLogger(os.Stderr)
 	stdlog.SetOutput(log.NewStdlibAdapter(logger)) // force structured logs
 	mainLogger := log.With(logger, "component", "main")
