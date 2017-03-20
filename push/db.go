@@ -92,6 +92,9 @@ func (db *DB) pollCheckin(sub pubsub.Subscriber) error {
 					fmt.Println(err)
 					continue
 				}
+				if ev.Command.UserID != "" {
+					continue
+				}
 				info := PushInfo{
 					UDID:      ev.Command.UDID,
 					Token:     ev.Command.Token.String(),
