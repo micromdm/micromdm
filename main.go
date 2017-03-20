@@ -8,6 +8,8 @@ import (
 	"strings"
 	"text/tabwriter"
 	"time"
+
+	"github.com/micromdm/micromdm/version"
 )
 
 func init() {
@@ -21,6 +23,9 @@ func main() {
 	}
 	var run func([]string) error
 	switch strings.ToLower(os.Args[1]) {
+	case "version", "-version":
+		version.Print()
+		return
 	case "serve":
 		run = serve
 	case "deptoken":
