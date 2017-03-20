@@ -7,6 +7,7 @@
             "revision": "d6d71aff1447ced56016d09a5d74f4ea488a2d75",
             "packages": [
                 "payload",
+                "payload/badge",
                 "push"
             ]
         },
@@ -130,7 +131,10 @@
             "branch": "master",
             "revision": "a202afd5e358b857c95d048fc47432759db0d9bd",
             "packages": [
+                "depot",
                 "depot/bolt",
+                "scep",
+                "scep/internal/pkcs7",
                 "server"
             ]
         },
@@ -155,8 +159,10 @@
             "branch": "master",
             "revision": "459e26527287adbc2adcc5d0d49abff9a5f315a7",
             "packages": [
+                "acme",
                 "acme/autocert",
-                "pkcs12"
+                "pkcs12",
+                "pkcs12/internal/rc2"
             ]
         },
         {
@@ -166,7 +172,10 @@
             "packages": [
                 "context",
                 "context/ctxhttp",
-                "http2"
+                "http2",
+                "http2/hpack",
+                "idna",
+                "lex/httplex"
             ]
         },
         {
