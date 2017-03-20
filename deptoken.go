@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -25,6 +24,7 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/fullsailor/pkcs7"
 	"github.com/micromdm/dep"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -42,12 +42,13 @@ type DEPTokenJSON struct {
 }
 
 func depToken(args []string) error {
-	flagset := flag.NewFlagSet("deptoken", flag.ExitOnError)
+	flagset := flag.NewFlagSet("dep-token", flag.ExitOnError)
 	var (
-		flPublicKey = flagset.String("public-key", "", "filename of public key to write (to be uploaded to deploy.apple.com)")
-		flTokenFile = flagset.String("token", "", "filename of p7 encrypted token file")
+		flPublicKey   = flagset.String("export-public-key", "", "filename of public key to write (to be uploaded to deploy.apple.com)")
+		flImportToken = flagset.String("import-token", "", "filename of p7m encrypted token file (downloaded from DEP portal)")
+		flExportToken = flagset.String("export-token", "", "filename to save decrypted oauth token JSON")
 	)
-	flagset.Usage = usageFor(flagset, "micromdm deptoken [flags]")
+	flagset.Usage = usageFor(flagset, "micromdm dep-token [flags]")
 	if err := flagset.Parse(args); err != nil {
 		return err
 	}
@@ -70,7 +71,6 @@ func depToken(args []string) error {
 
 		pem.Encode(certOut, &pemBlock)
 
-		// fmt.Println("generated and saved key", keyPath)
 	} else {
 		// key exists, load it
 		pemKey, err := ioutil.ReadFile(keyPath)
@@ -139,7 +139,7 @@ func depToken(args []string) error {
 
 	}
 
-	if *flPublicKey == "" && *flTokenFile == "" {
+	if *flPublicKey == "" && *flImportToken == "" && *flExportToken == "" {
 		flagset.Usage()
 		return nil
 	}
@@ -159,8 +159,8 @@ func depToken(args []string) error {
 		fmt.Println("wrote", *flPublicKey)
 	}
 
-	if *flTokenFile != "" {
-		f, err := os.Open(*flTokenFile)
+	if *flImportToken != "" {
+		f, err := os.Open(*flImportToken)
 		if err != nil {
 			return err
 		}
@@ -226,7 +226,7 @@ func depToken(args []string) error {
 		sm := &config{}
 		sm.setupBolt()
 		if sm.err != nil {
-			return err
+			return sm.err
 		}
 
 		err = sm.db.Update(func(tx *bolt.Tx) error {
@@ -240,6 +240,40 @@ func depToken(args []string) error {
 			return err
 		}
 		fmt.Println("saved token", depConfig.ConsumerKey)
+	}
+
+	if *flExportToken != "" {
+		sm := &config{}
+		sm.setupBolt()
+		if sm.err != nil {
+			return sm.err
+		}
+
+		err := sm.db.View(func(tx *bolt.Tx) error {
+			b := tx.Bucket([]byte(depTokenBucket))
+			if b == nil {
+				fmt.Println("no DEP server token found. using depsim")
+				return nil
+			}
+			_, v := b.Cursor().First()
+			if v == nil {
+				return errors.New("no dep token found. did you import it?")
+			}
+			f, err := os.Create(*flExportToken)
+			if err != nil {
+				return errors.Wrap(err, "create file to save DEP token")
+			}
+			defer f.Close()
+			if _, err := f.Write(v); err != nil {
+				return errors.Wrap(err, "saving DEP token JSON")
+			}
+			return nil
+		})
+		if err != nil {
+			return err
+
+		}
+		fmt.Println("saved oauth token file")
 	}
 
 	return nil

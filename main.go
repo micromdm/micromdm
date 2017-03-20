@@ -28,7 +28,7 @@ func main() {
 		return
 	case "serve":
 		run = serve
-	case "deptoken":
+	case "dep-token":
 		run = depToken
 	case "get":
 		run = getResource
@@ -54,7 +54,7 @@ Available Commands:
 	serve
 	get
 	apply
-	deptoken
+	dep-token
 	version
 
 Use micromdm <command> -h for additional usage of each command.
