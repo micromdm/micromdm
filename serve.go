@@ -479,7 +479,7 @@ func (c *config) depClient() (dep.Client, error) {
 	}
 	// depsim config
 	depsim := c.depsim
-	var conf, boltConf *dep.Config
+	var conf *dep.Config
 	if depsim {
 		conf = &dep.Config{
 			ConsumerKey:    "CK_48dd68d198350f51258e885ce9a5c37ab7f98543c4a697323d75682a6c10a32501cb247e3db08105db868f73f2c972bdb6ae77112aea803b9219eb52689d42e6",
@@ -487,8 +487,6 @@ func (c *config) depClient() (dep.Client, error) {
 			AccessToken:    "AT_927696831c59ba510cfe4ec1a69e5267c19881257d4bca2906a99d0785b785a6f6fdeb09774954fdd5e2d0ad952e3af52c6d8d2f21c924ba0caf4a031c158b89",
 			AccessSecret:   "AS_c31afd7a09691d83548489336e8ff1cb11b82b6bca13f793344496a556b1f4972eaff4dde6deb5ac9cf076fdfa97ec97699c34d515947b9cf9ed31c99dded6ba",
 		}
-	} else {
-		boltConf = new(dep.Config)
 	}
 
 	// try getting the oauth config from bolt
@@ -507,9 +505,7 @@ func (c *config) depClient() (dep.Client, error) {
 		if err != nil {
 			return err
 		}
-		if !depsim {
-			conf = boltConf
-		}
+		conf = new(dep.Config)
 		conf.ConsumerSecret = token.ConsumerSecret
 		conf.ConsumerKey = token.ConsumerKey
 		conf.AccessSecret = token.AccessSecret
