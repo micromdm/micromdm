@@ -22,9 +22,11 @@ func (p *Inmem) dispatch() {
 	for {
 		select {
 		case ev := <-p.publish:
+			p.mtx.Lock()
 			for _, sub := range p.subscriptions[ev.Topic] {
 				go func(s subscription) { s.eventChan <- ev }(sub)
 			}
+			p.mtx.Unlock()
 		}
 	}
 }
