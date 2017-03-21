@@ -46,6 +46,7 @@ import (
 	"github.com/micromdm/micromdm/enroll"
 	"github.com/micromdm/micromdm/pubsub"
 	nanopush "github.com/micromdm/micromdm/push"
+	"github.com/micromdm/micromdm/queue"
 )
 
 const configDBPath = "/var/db/micromdm"
@@ -325,7 +326,7 @@ func (c *config) setupCommandQueue() {
 	if c.err != nil {
 		return
 	}
-	q, err := connect.NewQueue(c.db, c.pubclient)
+	q, err := queue.NewQueue(c.db, c.pubclient)
 	if err != nil {
 		c.err = err
 		return

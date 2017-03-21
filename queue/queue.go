@@ -1,24 +1,115 @@
-package connect
+// Package queue implements a boldDB backed queue for MDM Commands.
+package queue
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/boltdb/bolt"
 	"github.com/groob/plist"
+	"github.com/pkg/errors"
+
+	"github.com/micromdm/mdm"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/pubsub"
-	"github.com/pkg/errors"
 )
 
 const (
 	DeviceCommandBucket = "mdm.DeviceCommands"
 )
 
-type Queue struct {
+type Store struct {
 	*bolt.DB
 }
 
-func NewQueue(db *bolt.DB, sub pubsub.Subscriber) (*Queue, error) {
+func (db *Store) Next(ctx context.Context, resp mdm.Response) (*Command, error) {
+	dc, err := db.DeviceCommand(resp.UDID)
+	if err != nil {
+		return nil, errors.Wrapf(err, "get device command from queue, udid: %s", resp.UDID)
+	}
+
+	var cmd *Command
+	switch resp.Status {
+	case "NotNow":
+		// move down, send next
+		x, a := cut(dc.Commands, resp.CommandUUID)
+		dc.Commands = a
+		if x == nil {
+			break
+		}
+		dc.Commands = append(dc.Commands, *x)
+
+	case "Acknowledged":
+		// move to completed, send next
+		x, a := cut(dc.Commands, resp.CommandUUID)
+		dc.Commands = a
+		if x == nil {
+			break
+		}
+		dc.Completed = append(dc.Completed, *x)
+	case "Error":
+		// move to failed, send next
+		x, a := cut(dc.Commands, resp.CommandUUID)
+		dc.Commands = a
+		if x == nil { // must've already bin ackd
+			break
+		}
+		dc.Failed = append(dc.Failed, *x)
+
+	case "CommandFormatError":
+		// move to failed
+		x, a := cut(dc.Commands, resp.CommandUUID)
+		dc.Commands = a
+		if x == nil {
+			break
+		}
+		dc.Failed = append(dc.Failed, *x)
+
+	case "Idle":
+		// will send next command below
+
+	default:
+		return nil, fmt.Errorf("unknown response status: %s", resp.Status)
+	}
+
+	// pop the first command from the queue and add it to the end.
+	cmd, dc.Commands = popFirst(dc.Commands)
+	if cmd != nil {
+		dc.Commands = append(dc.Commands, *cmd)
+	}
+
+	if cmd.UUID == resp.CommandUUID && resp.Status == "NotNow" {
+		// This command was just handled by NotNow, ignore.
+		cmd = nil
+	}
+
+	if err := db.Save(dc); err != nil {
+		return nil, err
+	}
+
+	return cmd, nil
+}
+
+func popFirst(all []Command) (*Command, []Command) {
+	if len(all) == 0 {
+		return nil, all
+	}
+	first := all[0]
+	all = append(all[:0], all[1:]...)
+	return &first, all
+}
+
+func cut(all []Command, uuid string) (*Command, []Command) {
+	for i, cmd := range all {
+		if cmd.UUID == uuid {
+			all = append(all[:i], all[i+1:]...)
+			return &cmd, all
+		}
+	}
+	return nil, all
+}
+
+func NewQueue(db *bolt.DB, sub pubsub.Subscriber) (*Store, error) {
 	err := db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(DeviceCommandBucket))
 		return err
@@ -26,16 +117,14 @@ func NewQueue(db *bolt.DB, sub pubsub.Subscriber) (*Queue, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "creating %s bucket", DeviceCommandBucket)
 	}
-	datastore := &Queue{
-		DB: db,
-	}
+	datastore := &Store{DB: db}
 	if err := datastore.pollCommands(sub); err != nil {
 		return nil, err
 	}
 	return datastore, nil
 }
 
-func (db *Queue) Save(cmd *DeviceCommand) error {
+func (db *Store) Save(cmd *DeviceCommand) error {
 	tx, err := db.DB.Begin(true)
 	if err != nil {
 		return errors.Wrap(err, "begin transaction")
@@ -55,7 +144,7 @@ func (db *Queue) Save(cmd *DeviceCommand) error {
 	return tx.Commit()
 }
 
-func (db *Queue) DeviceCommand(udid string) (*DeviceCommand, error) {
+func (db *Store) DeviceCommand(udid string) (*DeviceCommand, error) {
 	var dev DeviceCommand
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(DeviceCommandBucket))
@@ -80,7 +169,7 @@ func (e *notFound) Error() string {
 	return fmt.Sprintf("not found: %s %s", e.ResourceType, e.Message)
 }
 
-func (db *Queue) pollCommands(sub pubsub.Subscriber) error {
+func (db *Store) pollCommands(sub pubsub.Subscriber) error {
 	commandEvents, err := sub.Subscribe("command-queue", command.CommandTopic)
 	if err != nil {
 		return errors.Wrapf(err,

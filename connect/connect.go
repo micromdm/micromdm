@@ -1,12 +1,11 @@
 package connect
 
 import (
+	"context"
 	"fmt"
-	"log"
-
-	"golang.org/x/net/context"
 
 	"github.com/micromdm/mdm"
+	"github.com/micromdm/micromdm/queue"
 )
 
 // The ConnectService accepts responses sent to an MDM server by an enrolled
@@ -19,10 +18,14 @@ type ConnectService interface {
 }
 
 type connectSvc struct {
-	queue *Queue
+	queue Queue
 }
 
-func New(queue *Queue) (ConnectService, error) {
+type Queue interface {
+	Next(context.Context, mdm.Response) (*queue.Command, error)
+}
+
+func New(queue Queue) (ConnectService, error) {
 	return &connectSvc{
 		queue: queue,
 	}, nil
@@ -30,23 +33,13 @@ func New(queue *Queue) (ConnectService, error) {
 
 func (svc *connectSvc) Acknowledge(ctx context.Context, req mdm.Response) (payload []byte, err error) {
 	fmt.Printf("connected udid=%s type=%s, status=%s\n", req.UDID, req.RequestType, req.Status)
-	dc, err := svc.queue.DeviceCommand(req.UDID)
+	cmd, err := svc.queue.Next(ctx, req)
 	if err != nil {
-		log.Println(err)
-		return nil, nil
-	}
-
-	if len(dc.Commands) == 0 {
-		return nil, nil
-	}
-	payload = dc.Commands[0].Payload
-
-	// delete first element
-	dc.Commands = append(dc.Commands[:0], dc.Commands[0+1:]...)
-
-	if err := svc.queue.Save(dc); err != nil {
 		return nil, err
 	}
-
-	return payload, nil
+	// next can return no errors and no payload.
+	if cmd == nil {
+		return nil, nil
+	}
+	return cmd.Payload, nil
 }
