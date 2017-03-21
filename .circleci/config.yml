@@ -9,4 +9,4 @@ jobs:
       - run: go get -u github.com/golang/dep/...
       - run: dep ensure
       - run: go install
-      - run: go test -cover $(go list ./... | grep -v /vendor/)
+      - run: go test -race -cover $(go list ./... | grep -v /vendor/)
