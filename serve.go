@@ -50,6 +50,24 @@ import (
 	"github.com/micromdm/micromdm/queue"
 )
 
+const homePage = `<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>MicroMDM</title>
+	<style>
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+		}
+	</style>
+</head>
+<body>
+	<h3>Welcome to MicroMDM!</h3>
+	<p><a href="mdm/enroll">Enroll a device</a></p>
+</body>
+</html>
+`
+
 const configDBPath = "/var/db/micromdm"
 
 func serve(args []string) error {
@@ -166,6 +184,9 @@ func serve(args []string) error {
 	r.Handle("/scep", scepHandler)
 	r.Handle("/push/{udid}", pushHandlers.PushHandler)
 	r.Handle("/v1/commands", commandHandlers.NewCommandHandler).Methods("POST")
+	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		io.WriteString(w, homePage)
+	})
 
 	if *flRepoPath != "" {
 		r.PathPrefix("/repo/").Handler(http.StripPrefix("/repo/", http.FileServer(http.Dir(*flRepoPath))))
