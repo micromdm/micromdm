@@ -43,6 +43,7 @@ import (
 	"github.com/micromdm/micromdm/checkin"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/connect"
+	"github.com/micromdm/micromdm/core/list"
 	"github.com/micromdm/micromdm/depsync"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/enroll"
@@ -136,7 +137,7 @@ func serve(args []string) error {
 		stdlog.Fatal(err)
 	}
 
-	_, err := device.NewDB(sm.db, sm.pubclient)
+	devDB, err := device.NewDB(sm.db, sm.pubclient)
 	if err != nil {
 		stdlog.Fatal(err)
 	}
@@ -180,6 +181,21 @@ func serve(args []string) error {
 		ConnectEndpoint: connectEndpoint,
 	}
 
+	var listsvc list.Service
+	{
+		listsvc = &list.ListService{Devices: devDB}
+	}
+	var listDevicesEndpoint endpoint.Endpoint
+	{
+		listDevicesEndpoint = list.MakeListDevicesEndpoint(listsvc)
+
+	}
+	listEndpoints := list.Endpoints{
+		ListDevicesEndpoint: listDevicesEndpoint,
+	}
+
+	listAPIHandlers := list.MakeHTTPHandlers(ctx, listEndpoints, connectOpts...)
+
 	connectHandlers := connect.MakeHTTPHandlers(ctx, connectEndpoints, connectOpts...)
 
 	pushHandlers := nanopush.MakeHTTPHandlers(ctx, pushEndpoints, checkinOpts...)
@@ -192,6 +208,7 @@ func serve(args []string) error {
 	r.Handle("/scep", scepHandler)
 	r.Handle("/push/{udid}", pushHandlers.PushHandler)
 	r.Handle("/v1/commands", commandHandlers.NewCommandHandler).Methods("POST")
+	r.Handle("/v1/devices", listAPIHandlers).Methods("GET")
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, homePage)
 	})

@@ -47,6 +47,24 @@ func NewDB(db *bolt.DB, sub pubsub.Subscriber) (*DB, error) {
 	return datastore, nil
 }
 
+func (db *DB) List() ([]Device, error) {
+	// TODO add filter/limit with ForEach
+	var devices []Device
+	err := db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(DeviceBucket))
+		c := b.Cursor()
+		for k, v := c.First(); k != nil; k, v = c.Next() {
+			var dev Device
+			if err := UnmarshalDevice(v, &dev); err != nil {
+				return err
+			}
+			devices = append(devices, dev)
+		}
+		return nil
+	})
+	return devices, err
+}
+
 func (db *DB) Save(dev *Device) error {
 	tx, err := db.DB.Begin(true)
 	if err != nil {
