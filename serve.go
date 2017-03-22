@@ -32,6 +32,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 
@@ -177,6 +178,7 @@ func serve(args []string) error {
 	} else {
 		handler = r
 	}
+	handler = handlers.CombinedLoggingHandler(os.Stdout, handler)
 	srv := &http.Server{
 		Addr:              *flHTTPAddr,
 		Handler:           handler,
