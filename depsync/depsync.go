@@ -3,14 +3,17 @@ package depsync
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
+	"github.com/boltdb/bolt"
 	"github.com/micromdm/dep"
 	"github.com/micromdm/micromdm/pubsub"
 )
 
 const (
-	SyncTopic = "mdm.DepSync"
+	SyncTopic    = "mdm.DepSync"
+	ConfigBucket = "mdm.DEPConfig"
 )
 
 type Syncer interface {
@@ -18,15 +21,14 @@ type Syncer interface {
 }
 
 type watcher struct {
-	initial   bool
-	config    *dep.Config
 	client    dep.Client
 	publisher pubsub.Publisher
+	conf      *config
 }
 
 type cursor struct {
-	Value     string
-	CreatedAt time.Time
+	Value     string    `json:"value"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // A cursor is valid for a week.
@@ -38,13 +40,32 @@ func (c cursor) Valid() bool {
 	return true
 }
 
-func New(client dep.Client, pub pubsub.Publisher) (Syncer, error) {
+func New(client dep.Client, pub pubsub.Publisher, db *bolt.DB) (Syncer, error) {
+	conf, err := LoadConfig(db)
+	if err != nil {
+		return nil, err
+	}
+	if conf.Cursor.Valid() {
+		fmt.Printf("loaded dep config with cursor: %s\n", conf.Cursor.Value)
+	} else {
+		conf.Cursor.Value = ""
+	}
 	sync := &watcher{
 		publisher: pub,
 		client:    client,
+		conf:      conf,
+	}
+
+	saveCursor := func() {
+		if err := conf.Save(); err != nil {
+			log.Printf("saving cursor %s\n", err)
+			return
+		}
+		log.Printf("saved DEP cursor at value %s\n", conf.Cursor.Value)
 	}
 
 	go func() {
+		defer saveCursor()
 		if err := sync.Run(); err != nil {
 			log.Println("DEP watcher failed: ", err)
 		}
@@ -57,16 +78,23 @@ func (w *watcher) privateDEPSyncer() bool {
 	return true
 }
 
+// TODO this needs to be a proper error in the micromdm/dep package.
+func isCursorExhausted(err error) bool {
+	return strings.Contains(err.Error(), "EXHAUSTED_CURSOR")
+}
+
 func (w *watcher) Run() error {
 	ticker := time.NewTicker(10 * time.Second).C
-	cursor := ""
+FETCH:
 	for {
-		resp, err := w.client.FetchDevices(dep.Limit(100), dep.Cursor(cursor))
-		if err != nil {
+		resp, err := w.client.FetchDevices(dep.Limit(100), dep.Cursor(w.conf.Cursor.Value))
+		if err != nil && isCursorExhausted(err) {
+			goto SYNC
+		} else if err != nil {
 			return err
 		}
 		fmt.Printf("more=%v, cursor=%s, fetched=%v\n", resp.MoreToFollow, resp.Cursor, resp.FetchedUntil)
-		cursor = resp.Cursor
+		w.conf.Cursor.Value = resp.Cursor
 		e := NewEvent(resp.Devices)
 		data, err := MarshalEvent(e)
 		if err != nil {
@@ -75,9 +103,21 @@ func (w *watcher) Run() error {
 		if err := w.publisher.Publish(SyncTopic, data); err != nil {
 			return err
 		}
-		if !resp.MoreToFollow {
-			break
+		if resp.MoreToFollow {
+			break FETCH
 		}
+	}
+
+SYNC:
+	for {
+		resp, err := w.client.SyncDevices(w.conf.Cursor.Value, dep.Cursor(w.conf.Cursor.Value))
+		if err != nil {
+			return err
+		}
+		if len(resp.Devices) != 0 {
+			fmt.Printf("more=%v, cursor=%s, synced=%v\n", resp.MoreToFollow, resp.Cursor, resp.FetchedUntil)
+		}
+		// TODO handle sync response here.
 		<-ticker
 	}
 	return nil

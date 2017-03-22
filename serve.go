@@ -571,7 +571,7 @@ func (c *config) setupDEPSync() {
 		return
 	}
 
-	_, c.err = depsync.New(client, c.pubclient)
+	_, c.err = depsync.New(client, c.pubclient, c.db)
 	if err != nil {
 		return
 	}
