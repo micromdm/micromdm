@@ -52,6 +52,7 @@ func usage() error {
 
 Available Commands:
 	serve
+	dev
 	get
 	apply
 	dep-token
