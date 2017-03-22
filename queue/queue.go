@@ -76,11 +76,11 @@ func (db *Store) Next(ctx context.Context, resp mdm.Response) (*Command, error) 
 	cmd, dc.Commands = popFirst(dc.Commands)
 	if cmd != nil {
 		dc.Commands = append(dc.Commands, *cmd)
-	}
 
-	if cmd.UUID == resp.CommandUUID && resp.Status == "NotNow" {
-		// This command was just handled by NotNow, ignore.
-		cmd = nil
+		if cmd.UUID == resp.CommandUUID && resp.Status == "NotNow" {
+			// This command was just handled by NotNow, ignore.
+			cmd = nil
+		}
 	}
 
 	if err := db.Save(dc); err != nil {
