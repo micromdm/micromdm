@@ -131,7 +131,7 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 
 	// Client needs to trust us at this point if we are using a self signed certificate.
 	if len(svc.TLSCert) > 0 {
-		tlsPayload := NewPayload("com.apple.security.pkcs1")
+		tlsPayload := NewPayload("com.apple.security.pem")
 		tlsPayload.PayloadDisplayName = "Self-signed TLS certificate for MicroMDM"
 		tlsPayload.PayloadDescription = "Installs the TLS certificate for MicroMDM"
 		tlsPayload.PayloadIdentifier = "com.github.micromdm.tls"

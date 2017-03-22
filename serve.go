@@ -107,6 +107,7 @@ func serve(args []string) error {
 		APNSPrivateKeyPass:  *flAPNSKeyPass,
 		APNSPrivateKeyPath:  *flAPNSKeyPath,
 		depsim:              *flDepSim,
+		tlsCertPath:         *flTLSCert,
 	}
 	if err := os.MkdirAll(configDBPath, 0755); err != nil {
 		return errors.Wrapf(err, "creating config directory %s", configDBPath)
@@ -320,6 +321,7 @@ type config struct {
 	APNSPrivateKeyPath  string
 	APNSCertificatePath string
 	APNSPrivateKeyPass  string
+	tlsCertPath         string
 
 	PushService    *push.Service // bufford push
 	pushService    *nanopush.Push
@@ -488,7 +490,6 @@ func (c *config) setupEnrollmentService() {
 	}
 	SCEPRemoteURL := strings.TrimRight(c.ServerPublicURL, "/") + "/scep"
 
-	var tlsCert string
 	var SCEPCertificateSubject string
 	// TODO: clean up order of inputs. Maybe pass *SCEPConfig as an arg?
 	// but if you do, the packages are coupled, better not.
@@ -498,7 +499,7 @@ func (c *config) setupEnrollmentService() {
 		SCEPRemoteURL,
 		c.SCEPChallenge,
 		c.ServerPublicURL,
-		tlsCert,
+		c.tlsCertPath,
 		SCEPCertificateSubject,
 	)
 }
