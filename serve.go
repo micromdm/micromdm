@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"crypto/rsa"
 	"crypto/tls"
@@ -55,8 +56,8 @@ func serve(args []string) error {
 	flagset := flag.NewFlagSet("serve", flag.ExitOnError)
 	var (
 		flServerURL    = flagset.String("server-url", "", "public HTTPS url of your server")
-		flAPNSCertPath = flagset.String("apns-cert", "mdm.p12", "path to APNS certificate")
-		flAPNSKeyPass  = flagset.String("apns-password", "secret", "password for your p12 APNS cert file (if using)")
+		flAPNSCertPath = flagset.String("apns-cert", "", "path to APNS certificate")
+		flAPNSKeyPass  = flagset.String("apns-password", "", "password for your p12 APNS cert file (if using)")
 		flAPNSKeyPath  = flagset.String("apns-key", "", "path to key file if using .pem push cert")
 		flTLS          = flagset.Bool("tls", true, "use https")
 		flTLSCert      = flagset.String("tls-cert", "", "path to TLS certificate")
@@ -395,13 +396,30 @@ func (c *config) loadPushCerts() {
 		return
 	}
 
+	pkeyBlock := new(bytes.Buffer)
 	pemBlock, _ = pem.Decode(pemData)
 	if pemBlock == nil {
 		c.err = errors.New("invalid PEM data for privkey")
 		return
 	}
-	c.pushCert.PrivateKey, c.err =
-		x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
+
+	if x509.IsEncryptedPEMBlock(pemBlock) {
+		b, err := x509.DecryptPEMBlock(pemBlock, []byte(c.APNSPrivateKeyPass))
+		if err != nil {
+			c.err = fmt.Errorf("decrypting DES private key %s", err)
+			return
+		}
+		pkeyBlock.Write(b)
+	} else {
+		pkeyBlock.Write(pemBlock.Bytes)
+	}
+
+	priv, err := x509.ParsePKCS1PrivateKey(pkeyBlock.Bytes())
+	if err != nil {
+		c.err = fmt.Errorf("parsing pkcs1 private key: %s", err)
+		return
+	}
+	c.pushCert.PrivateKey = priv
 }
 
 type pushServiceCert struct {
