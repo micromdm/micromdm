@@ -265,14 +265,16 @@ func serve(args []string) error {
 }
 
 func printExamples() {
-		fmt.Println("")
-		fmt.Println("Quickstart:")
-		fmt.Println("sudo micromdm serve -apns-cert /path/to/mdm_push_cert.p12 -apns-password=password_for_p12 -server-url=https://my-server-url")
-		fmt.Println("")
-		fmt.Println("Using self-signed certs:") 
-		fmt.Println("*Note, -apns flags are still required!*")
-		fmt.Println("sudo micromdm serve -tls-cert=/path/to/server.crt -tls-key=/path/to/server.key")
-		fmt.Println("")
+	const exampleText = `
+		Quickstart:
+		sudo micromdm serve -apns-cert /path/to/mdm_push_cert.p12 -apns-password=password_for_p12 -server-url=https://my-server-url
+		
+		Using self-signed certs:
+		*Note, -apns flags are still required!*
+		sudo micromdm serve -tls-cert=/path/to/server.crt -tls-key=/path/to/server.key
+
+		`
+	fmt.Println(exampleText)
 }
 
 func serveTLS(server *http.Server, certPath, keyPath string) error {
