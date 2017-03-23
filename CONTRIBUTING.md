@@ -13,7 +13,13 @@ If you're looking to help, this is a great place to start.
 
 # Building the project
 
+To build MicroMDM from source, you will need [Go 1.8](https://golang.org/dl/) or later installed. 
+
 ## If you have Go
+
+MicroMDM uses the go lang `dep` tool for vendor management. 
+Use `which dep` to verify you have it installed and in your PATH.
+If `dep` is not installed please review the [If you're new to Go](#if-youre-new-to-go) section for install steps.
 
 1. `go get github.com/micromdm/micromdm`
 2. `cd $GOPATH/src/github.com/micromdm/micromdm`
@@ -26,6 +32,8 @@ Go is a bit different from other languages in its requirements for how it expect
 First, Go expects you to choose a folder, called a workspace (you can name it anything you'd like). The path to this folder must always be set in an environment variable - `GOPATH` (example: `GOPATH=/Users/groob/code/go`)  
 Your `GOPATH` must have thee subfolders - `bin`, `pkg` and `src`, and any code you create must live inside the `src` folder. It's also helpful to add `$GOPATH/bin` to your environment's `PATH` as that is where `go install` will place go binaries that you build.
 
+Note: As of Go 1.8 the default `GOPATH` is set to `$HOME/go`.
+
 A few helpful resources for getting started with Go.
 
 * [Writing, building, installing, and testing Go code](https://www.youtube.com/watch?v=XCsL89YtqCs)
@@ -37,7 +45,8 @@ A few helpful resources for getting started with Go.
 To build MicroMDM you will need to:  
 
 1. Download and install [`Go`](https://golang.org/dl/)  
-2. Install [`dep`](https://github.com/golang/dep)
+2. Install [`dep`](https://github.com/golang/dep) via `go get -u github.com/golang/dep/...`
+Note that `dep` is a very new project itself. If you're running trouble with the `dep ensure` command, ping @groob in the #micromdm channel on Slack.
 3. Set the `GOPATH` as explained above.
 4. `mkdir -p $GOPATH/src/github.com/micromdm`
 5. `git clone` the project into the above folder.  
@@ -45,3 +54,12 @@ The repo must always be in the folder `$GOPATH/src/github.com/micromdm/micromdm`
 6. `dep ensure` The `dep` command will download and install all necessary dependencies for the project to compile.
 7. `go build` or `go install`
 8. File an issue or a pull request if the instructions were unclear.
+
+
+# Important libraries and frameworks
+
+MicroMDM is built using a few popular Go packages outside the standard libraries. It might be worth checking them out. 
+
+- [Go Kit](https://github.com/go-kit/kit#go-kit------) is a set of Go libraries used by MicroMDM to provide [logging](https://github.com/go-kit/kit/tree/master/log), and abstractions for building HTTP services. Its [examples](https://gokit.io/examples/) page is a good place to start.  
+- [BoltDB](https://github.com/boltdb/bolt#getting-started) is a key/value database used to provide persistant storage for many components of MicroMDM.
+- [gorilla/mux](http://www.gorillatoolkit.org/pkg/mux) is used to provide routing for http handlers. 
