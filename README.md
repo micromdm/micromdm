@@ -40,6 +40,8 @@ The wiki page is open to anyone and you can make a lot of impact on the project 
 - Were you able to set up MicroMDM and enroll a few devices? Try blogging about your experience. 
 It can help others get started, or can help us figure out what we need to do better.
 
+See the [CONTRIBUTING](CONTRIBUTING.md) page for additional info. 
+
 # Design Goals
 
 As mentioned in the introduction, we are working on trying to solve the use case of bootstraping Macs. That's the short term (from now until WWDC). 
