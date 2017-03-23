@@ -86,7 +86,7 @@ func serve(args []string) error {
 		flHTTPDebug    = flagset.Bool("http-debug", false, "enable debug for http(dumps full request)")
 		flRepoPath     = flagset.String("filerepo", "", "path to http file repo")
 		flDepSim       = flagset.Bool("depsim", false, "use depsim config")
-		flExamples     = flagset.Bool("examples", true, "prints some example usage")
+		flExamples     = flagset.Bool("examples", false, "prints some example usage")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
