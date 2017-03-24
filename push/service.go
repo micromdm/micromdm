@@ -36,11 +36,11 @@ func (svc *Push) startQueuedSubscriber(push *push.Service, sub pubsub.Subscriber
 		for {
 			select {
 			case event := <-commandQueuedEvents:
-				udid, _, err := queue.UnmarshalQueuedCommand(event.Message)
+				cq, err := queue.UnmarshalQueuedCommand(event.Message)
 				if err != nil {
 					fmt.Println(err)
 				}
-				_, err = svc.Push(nil, udid)
+				_, err = svc.Push(nil, cq.DeviceUDID)
 				if err != nil {
 					fmt.Println(err)
 				}

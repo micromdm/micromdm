@@ -209,7 +209,11 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 				}
 				fmt.Printf("queued event for device: %s\n", ev.DeviceUDID)
 
-				msgBytes, err := MarshalQueuedCommand(ev.DeviceUDID, ev.Payload.CommandUUID)
+				cq := new(QueueCommandQueued)
+				cq.DeviceUDID = ev.DeviceUDID
+				cq.CommandUUID = ev.Payload.CommandUUID
+
+				msgBytes, err := MarshalQueuedCommand(cq)
 				if err != nil {
 					fmt.Println(err)
 					continue

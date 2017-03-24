@@ -5,17 +5,28 @@ import (
 	"github.com/micromdm/micromdm/queue/internal/commandqueuedproto"
 )
 
-func MarshalQueuedCommand(udid, uuid string) ([]byte, error) {
+type QueueCommandQueued struct {
+	DeviceUDID  string
+	CommandUUID string
+}
+
+func MarshalQueuedCommand(cq *QueueCommandQueued) ([]byte, error) {
+	if cq == nil {
+		return nil, nil
+	}
 	return proto.Marshal(&commandqueued.CommandQueued{
-		DeviceUdid:  udid,
-		CommandUuid: uuid,
+		DeviceUdid:  cq.DeviceUDID,
+		CommandUuid: cq.DeviceUDID,
 	})
 }
 
-func UnmarshalQueuedCommand(data []byte) (string, string, error) {
+func UnmarshalQueuedCommand(data []byte) (*QueueCommandQueued, error) {
 	cmdQueued := commandqueued.CommandQueued{}
 	if err := proto.Unmarshal(data, &cmdQueued); err != nil {
-		return cmdQueued.DeviceUdid, cmdQueued.CommandUuid, err
+		return nil, err
 	}
-	return cmdQueued.DeviceUdid, cmdQueued.CommandUuid, nil
+	queueCmdQueued := new(QueueCommandQueued)
+	queueCmdQueued.DeviceUDID = cmdQueued.DeviceUdid
+	queueCmdQueued.CommandUUID = cmdQueued.CommandUuid
+	return queueCmdQueued, nil
 }
