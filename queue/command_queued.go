@@ -1,6 +1,8 @@
 package queue
 
 import (
+	"errors"
+
 	"github.com/gogo/protobuf/proto"
 	"github.com/micromdm/micromdm/queue/internal/commandqueuedproto"
 )
@@ -12,7 +14,7 @@ type QueueCommandQueued struct {
 
 func MarshalQueuedCommand(cq *QueueCommandQueued) ([]byte, error) {
 	if cq == nil {
-		return nil, nil
+		return nil, errors.New("marshalling nil QueueCommandQueued")
 	}
 	return proto.Marshal(&commandqueued.CommandQueued{
 		DeviceUdid:  cq.DeviceUDID,
