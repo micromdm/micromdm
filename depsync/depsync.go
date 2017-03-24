@@ -84,7 +84,7 @@ func isCursorExhausted(err error) bool {
 }
 
 func (w *watcher) Run() error {
-	ticker := time.NewTicker(10 * time.Second).C
+	ticker := time.NewTicker(30 * time.Minute).C
 FETCH:
 	for {
 		resp, err := w.client.FetchDevices(dep.Limit(100), dep.Cursor(w.conf.Cursor.Value))
