@@ -16,6 +16,8 @@ import (
 
 const (
 	DeviceCommandBucket = "mdm.DeviceCommands"
+
+	CommandQueuedTopic = "mdm.CommandQueued"
 )
 
 type Store struct {
@@ -109,7 +111,7 @@ func cut(all []Command, uuid string) (*Command, []Command) {
 	return nil, all
 }
 
-func NewQueue(db *bolt.DB, sub pubsub.Subscriber) (*Store, error) {
+func NewQueue(db *bolt.DB, pubsub pubsub.PublishSubscriber) (*Store, error) {
 	err := db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(DeviceCommandBucket))
 		return err
@@ -118,7 +120,7 @@ func NewQueue(db *bolt.DB, sub pubsub.Subscriber) (*Store, error) {
 		return nil, errors.Wrapf(err, "creating %s bucket", DeviceCommandBucket)
 	}
 	datastore := &Store{DB: db}
-	if err := datastore.pollCommands(sub); err != nil {
+	if err := datastore.pollCommands(pubsub); err != nil {
 		return nil, err
 	}
 	return datastore, nil
@@ -169,8 +171,8 @@ func (e *notFound) Error() string {
 	return fmt.Sprintf("not found: %s %s", e.ResourceType, e.Message)
 }
 
-func (db *Store) pollCommands(sub pubsub.Subscriber) error {
-	commandEvents, err := sub.Subscribe("command-queue", command.CommandTopic)
+func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
+	commandEvents, err := pubsub.Subscribe("command-queue", command.CommandTopic)
 	if err != nil {
 		return errors.Wrapf(err,
 			"subscribing push to %s topic", command.CommandTopic)
@@ -206,6 +208,14 @@ func (db *Store) pollCommands(sub pubsub.Subscriber) error {
 					continue
 				}
 				fmt.Printf("queued event for device: %s\n", ev.DeviceUDID)
+
+				msgBytes, err := MarshalQueuedCommand(ev.DeviceUDID, ev.Payload.CommandUUID)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+
+				pubsub.Publish(CommandQueuedTopic, msgBytes)
 			}
 		}
 	}()

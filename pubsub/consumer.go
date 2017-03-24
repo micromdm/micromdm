@@ -4,6 +4,11 @@ type Subscriber interface {
 	Subscribe(name, topic string) (<-chan Event, error)
 }
 
+type PublishSubscriber interface {
+	Publisher
+	Subscriber
+}
+
 func (p *Inmem) Subscribe(name, topic string) (<-chan Event, error) {
 	events := make(chan Event)
 	sub := subscription{

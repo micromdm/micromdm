@@ -493,7 +493,11 @@ func (c *config) setupPushService() {
 		c.err = err
 		return
 	}
-	c.pushService = nanopush.New(db, c.PushService)
+	c.pushService, err = nanopush.New(db, c.PushService, c.pubclient)
+	if err != nil {
+		c.err = err
+		return
+	}
 }
 
 func (c *config) setupEnrollmentService() {
