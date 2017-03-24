@@ -108,7 +108,7 @@ func serve(args []string) error {
 	mainLogger.Log("msg", "started")
 
 	sm := &config{
-		ServerPublicURL:     *flServerURL,
+		ServerPublicURL:     strings.TrimRight(*flServerURL, "/"),
 		APNSCertificatePath: *flAPNSCertPath,
 		APNSPrivateKeyPass:  *flAPNSKeyPass,
 		APNSPrivateKeyPath:  *flAPNSKeyPath,
@@ -295,15 +295,13 @@ func serveACME(server *http.Server, domain string) error {
 
 // redirects port 80 to port 443
 func redirectTLS(addr, serverUrl string) {
-	// trim trailing slash to avoid double slashes
-	trimmedServer := strings.TrimRight(serverUrl, "/")
 	srv := &http.Server{
 		Addr:         addr,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 		Handler: http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 			w.Header().Set("Connection", "close")
-			url := trimmedServer + req.URL.String()
+			url := serverUrl + req.URL.String()
 			http.Redirect(w, req, url, http.StatusMovedPermanently)
 		}),
 	}
@@ -507,7 +505,6 @@ func (c *config) setupEnrollmentService() {
 		c.err = err
 		return
 	}
-	SCEPRemoteURL := strings.TrimRight(c.ServerPublicURL, "/") + "/scep"
 
 	var SCEPCertificateSubject string
 	// TODO: clean up order of inputs. Maybe pass *SCEPConfig as an arg?
@@ -515,7 +512,7 @@ func (c *config) setupEnrollmentService() {
 	c.enrollService, c.err = enroll.NewService(
 		pushTopic,
 		scepCACertName,
-		SCEPRemoteURL,
+		c.ServerPublicURL+"/scep",
 		c.SCEPChallenge,
 		c.ServerPublicURL,
 		c.tlsCertPath,
