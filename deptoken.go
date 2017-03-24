@@ -61,16 +61,10 @@ func depToken(args []string) error {
 		if err != nil {
 			return err
 		}
-		pemBlock := pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(pk)}
-
-		certOut, err := os.Create(keyPath)
+		err = savePEMKey(keyPath, pk)
 		if err != nil {
 			return err
 		}
-		defer certOut.Close()
-
-		pem.Encode(certOut, &pemBlock)
-
 	} else {
 		// key exists, load it
 		pemKey, err := ioutil.ReadFile(keyPath)
