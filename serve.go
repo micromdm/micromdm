@@ -86,10 +86,16 @@ func serve(args []string) error {
 		flHTTPDebug    = flagset.Bool("http-debug", false, "enable debug for http(dumps full request)")
 		flRepoPath     = flagset.String("filerepo", "", "path to http file repo")
 		flDepSim       = flagset.Bool("depsim", false, "use depsim config")
+		flExamples     = flagset.Bool("examples", false, "prints some example usage")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
 		return err
+	}
+
+	if *flExamples {
+		printExamples()
+		return nil
 	}
 
 	if *flServerURL == "" {
@@ -256,6 +262,19 @@ func serve(args []string) error {
 
 	mainLogger.Log("terminated", <-errs)
 	return nil
+}
+
+func printExamples() {
+	const exampleText = `
+		Quickstart:
+		sudo micromdm serve -apns-cert /path/to/mdm_push_cert.p12 -apns-password=password_for_p12 -server-url=https://my-server-url
+		
+		Using self-signed certs:
+		*Note, -apns flags are still required!*
+		sudo micromdm serve -tls-cert=/path/to/server.crt -tls-key=/path/to/server.key
+
+		`
+	fmt.Println(exampleText)
 }
 
 func serveTLS(server *http.Server, certPath, keyPath string) error {
