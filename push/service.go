@@ -20,10 +20,16 @@ type Push struct {
 
 func New(db *DB, push *push.Service, sub pubsub.Subscriber) (*Push, error) {
 	pushSvc := Push{db, push}
+	if err := pushSvc.startQueuedSubscriber(push, sub); err != nil {
+		return &pushSvc, err
+	}
+	return &pushSvc, nil
+}
 
+func (svc *Push) startQueuedSubscriber(push *push.Service, sub pubsub.Subscriber) error {
 	commandQueuedEvents, err := sub.Subscribe("push-info", queue.CommandQueuedTopic)
 	if err != nil {
-		return nil, errors.Wrapf(err,
+		return errors.Wrapf(err,
 			"subscribing push to %s topic", queue.CommandQueuedTopic)
 	}
 	go func() {
@@ -34,7 +40,7 @@ func New(db *DB, push *push.Service, sub pubsub.Subscriber) (*Push, error) {
 				if err != nil {
 					fmt.Println(err)
 				}
-				_, err = pushSvc.Push(nil, udid)
+				_, err = svc.Push(nil, udid)
 				if err != nil {
 					fmt.Println(err)
 				}
@@ -42,7 +48,7 @@ func New(db *DB, push *push.Service, sub pubsub.Subscriber) (*Push, error) {
 		}
 	}()
 
-	return &pushSvc, nil
+	return nil
 }
 
 func (svc *Push) Push(ctx context.Context, deviceUDID string) (string, error) {
