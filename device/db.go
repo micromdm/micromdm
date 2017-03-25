@@ -2,6 +2,7 @@ package device
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/boltdb/bolt"
 	"github.com/micromdm/micromdm/checkin"
@@ -198,16 +199,22 @@ func (db *DB) pollCheckin(sub pubsub.Subscriber) error {
 				}
 				if err != nil && !isNotFound(err) {
 					fmt.Println(err) // some other issue is going on
+					continue
 				}
 				_, err = db.DeviceByUDID(ev.Command.UDID)
 				if err != nil && isNotFound(err) { // never checked in
 					fmt.Printf("checking in new device %s\n", ev.Command.SerialNumber)
 				} else if err != nil {
 					fmt.Println(err)
+					continue
 				} else if err == nil {
 					fmt.Printf("re-enrolling device %s\n", ev.Command.SerialNumber)
 				}
-				newDevice.UUID = uuid.NewV4().String()
+
+				// only create new UUID on initial enrollment.
+				if newDevice.UUID == "" {
+					newDevice.UUID = uuid.NewV4().String()
+				}
 				newDevice.UDID = ev.Command.UDID
 				newDevice.OSVersion = ev.Command.OSVersion
 				newDevice.BuildVersion = ev.Command.BuildVersion
@@ -218,6 +225,7 @@ func (db *DB) pollCheckin(sub pubsub.Subscriber) error {
 				newDevice.DeviceName = ev.Command.DeviceName
 				newDevice.Model = ev.Command.Model
 				newDevice.ModelName = ev.Command.ModelName
+				newDevice.LastCheckin = time.Now()
 				// Challenge:    ev.Command.Challenge, // FIXME: @groob why is this commented out?
 
 				if err := db.Save(newDevice); err != nil {
@@ -278,6 +286,7 @@ func (db *DB) pollCheckin(sub pubsub.Subscriber) error {
 					newDevice.DEPProfileAssignTime = d.ProfileAssignTime
 					newDevice.DEPProfileAssignedDate = d.DeviceAssignedDate
 					newDevice.DEPProfileAssignedBy = d.DeviceAssignedBy
+					newDevice.LastCheckin = time.Now()
 					// TODO: deal with sync fields OpType, OpDate
 					if err := db.Save(newDevice); err != nil {
 						fmt.Println(err)
@@ -288,6 +297,7 @@ func (db *DB) pollCheckin(sub pubsub.Subscriber) error {
 				var ev checkin.Event
 				if err := checkin.UnmarshalEvent(event.Message, &ev); err != nil {
 					fmt.Println(err)
+					continue
 				}
 				dev, err := db.DeviceByUDID(ev.Command.UDID)
 				if err != nil {
@@ -295,6 +305,7 @@ func (db *DB) pollCheckin(sub pubsub.Subscriber) error {
 					continue
 				}
 				dev.Enrolled = false
+				dev.LastCheckin = time.Now()
 				if err := db.Save(dev); err != nil {
 					fmt.Println(err)
 					continue
