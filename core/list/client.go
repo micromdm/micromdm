@@ -1,6 +1,8 @@
 package list
 
 import (
+	"context"
+	"net/http"
 	"net/url"
 
 	"github.com/go-kit/kit/endpoint"
@@ -8,7 +10,7 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
-func NewClient(instance string, logger log.Logger) (Service, error) {
+func NewClient(instance string, logger log.Logger, token string) (Service, error) {
 	u, err := url.Parse(instance)
 	if err != nil {
 		return nil, err
@@ -19,7 +21,7 @@ func NewClient(instance string, logger log.Logger) (Service, error) {
 		listDevicesEndpoint = httptransport.NewClient(
 			"GET",
 			copyURL(u, "/v1/devices"),
-			EncodeHTTPGenericRequest,
+			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
 			DecodeDevicesResponse,
 		).Endpoint()
 	}
@@ -29,6 +31,12 @@ func NewClient(instance string, logger log.Logger) (Service, error) {
 	}, nil
 }
 
+func encodeRequestWithToken(token string, next httptransport.EncodeRequestFunc) httptransport.EncodeRequestFunc {
+	return func(ctx context.Context, r *http.Request, request interface{}) error {
+		r.SetBasicAuth("micromdm", token)
+		return next(ctx, r, request)
+	}
+}
 func copyURL(base *url.URL, path string) *url.URL {
 	next := *base
 	next.Path = path

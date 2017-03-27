@@ -7,6 +7,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/asn1"
+	"encoding/base64"
 	"encoding/json"
 	"encoding/pem"
 	"flag"
@@ -76,6 +77,7 @@ func serve(args []string) error {
 	flagset := flag.NewFlagSet("serve", flag.ExitOnError)
 	var (
 		flServerURL    = flagset.String("server-url", "", "public HTTPS url of your server")
+		flAPIKey       = flagset.String("api-key", "", "API Token for mdmctl command")
 		flAPNSCertPath = flagset.String("apns-cert", "", "path to APNS certificate")
 		flAPNSKeyPass  = flagset.String("apns-password", "", "password for your p12 APNS cert file (if using)")
 		flAPNSKeyPath  = flagset.String("apns-key", "", "path to key file if using .pem push cert")
@@ -208,10 +210,14 @@ func serve(args []string) error {
 	r.Handle("/scep", scepHandler)
 	r.Handle("/push/{udid}", pushHandlers.PushHandler)
 	r.Handle("/v1/commands", commandHandlers.NewCommandHandler).Methods("POST")
-	r.Handle("/v1/devices", listAPIHandlers).Methods("GET")
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, homePage)
 	})
+
+	// API commands. Only handled if the user provides an api key.
+	if *flAPIKey != "" {
+		r.Handle("/v1/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers)).Methods("GET")
+	}
 
 	if *flRepoPath != "" {
 		r.PathPrefix("/repo/").Handler(http.StripPrefix("/repo/", http.FileServer(http.Dir(*flRepoPath))))
@@ -720,4 +726,23 @@ func debugHTTPmiddleware(next http.Handler) http.Handler {
 		fmt.Println("")
 		next.ServeHTTP(w, r)
 	})
+}
+
+func basicAuth(password string) string {
+	const authUsername = "micromdm"
+	auth := authUsername + ":" + password
+	return base64.StdEncoding.EncodeToString([]byte(auth))
+}
+
+func apiAuthMiddleware(token string, next http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		_, password, ok := r.BasicAuth()
+		if !ok || password != token {
+			w.Header().Set("WWW-Authenticate", `Basic realm="micromdm"`)
+			http.Error(w, `{"error": "you need to log in"}`, http.StatusUnauthorized)
+			return
+		}
+		next.ServeHTTP(w, r)
+
+	}
 }

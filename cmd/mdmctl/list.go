@@ -21,13 +21,6 @@ func (out *tableOutput) BasicFooter() {
 	out.w.Flush()
 }
 
-func (out *tableOutput) BasicLine(line ...string) {
-	for _, l := range line {
-		fmt.Fprintf(out.w, l+"\t")
-	}
-	fmt.Fprintf(out.w, "\n")
-}
-
 func listDevices(args []string) error {
 	if len(args) == 0 || args[0] != "devices" {
 		return errors.New("must specify resource name as an argument (ex: devices)")
@@ -42,7 +35,12 @@ func listDevices(args []string) error {
 	if instance == "" {
 		return errors.New("MICROMDM_SERVER_URL not set")
 	}
-	svc, err := list.NewClient(instance, logger)
+
+	token := os.Getenv("MICROMDM_API_TOKEN")
+	if token == "" {
+		return errors.New("MICROMDM_API_TOKEN not set")
+	}
+	svc, err := list.NewClient(instance, logger, token)
 	if err != nil {
 		return err
 	}
