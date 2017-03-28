@@ -18,7 +18,7 @@ type getCommand struct {
 }
 
 func (cmd *getCommand) setup() error {
-	cfg, err := NewClientConfig()
+	cfg, err := LoadClientConfig()
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func (out *devicesTableOutput) BasicFooter() {
 
 func (cmd *getCommand) getDevices(args []string) error {
 	flagset := flag.NewFlagSet("devices", flag.ExitOnError)
-	flagset.Usage = usageFor(flagset, "micromdm get devices [flags]")
+	flagset.Usage = usageFor(flagset, "mdmctl get devices [flags]")
 	if err := flagset.Parse(args); err != nil {
 		return err
 	}

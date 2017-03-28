@@ -20,6 +20,9 @@ func main() {
 	case "version", "-version":
 		version.Print()
 		return
+	case "config":
+		cmd := &configCommand{}
+		run = cmd.Run
 	case "get":
 		cmd := &getCommand{}
 		run = cmd.Run
@@ -39,6 +42,7 @@ func usage() error {
 
 Available Commands:
 	get
+	config
 	version
 
 Use micromdm <command> -h for additional usage of each command.
