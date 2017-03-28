@@ -20,8 +20,9 @@ func main() {
 	case "version", "-version":
 		version.Print()
 		return
-	case "list":
-		run = listDevices
+	case "get":
+		cmd := &getCommand{}
+		run = cmd.Run
 	default:
 		usage()
 		os.Exit(1)
@@ -37,11 +38,11 @@ func usage() error {
 	helpText := `USAGE: mdmctl <COMMAND>
 
 Available Commands:
-	list
+	get
 	version
 
 Use micromdm <command> -h for additional usage of each command.
-Example: micromdm serve -h
+Example: mdmctl get devices
 `
 	fmt.Println(helpText)
 	return nil
