@@ -21,5 +21,19 @@ message Device {
     string device_name = 15;
     string model = 16;
     string model_name =17;
+    string description =18;
+    string color =19;
+    string asset_tag =20;
+    bool dep_device =21;
+    string dep_profile_status =22;
+    string dep_profile_uuid =23;
+    int64 dep_assign_time =24;
+    int64 dep_push_time =25;
+    int64 dep_profile_assigned_date =26;
+    string dep_profile_assigned_by =27;
+    string last_check_in =28;
+    bytes last_query_response =29;
+
+
 
 }
