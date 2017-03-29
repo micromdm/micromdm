@@ -825,7 +825,10 @@ func HasCN(db *boltdepot.Depot, cn string, allowTime int, cert *x509.Certificate
 		// TODO: "scep_certificates" is internal const in micromdm/scep
 		bucket := tx.Bucket([]byte("scep_certificates"))
 		certKey := []byte(cert.Subject.CommonName + "." + cert.SerialNumber.String())
-		hasCN = bucket.Get(certKey) != nil
+		certCandidate := bucket.Get(certKey)
+		if certCandidate != nil {
+			hasCN = bytes.Compare(certCandidate, cert.Raw) == 0
+		}
 		return nil
 	})
 	return hasCN, err
