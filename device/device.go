@@ -54,23 +54,35 @@ const (
 
 func MarshalDevice(dev *Device) ([]byte, error) {
 	protodev := deviceproto.Device{
-		Uuid:                  dev.UUID,
-		Udid:                  dev.UDID,
-		SerialNumber:          dev.SerialNumber,
-		OsVersion:             dev.OSVersion,
-		BuildVersion:          dev.BuildVersion,
-		ProductName:           dev.ProductName,
-		Imei:                  dev.IMEI,
-		Meid:                  dev.MEID,
-		Token:                 dev.Token,
-		PushMagic:             dev.PushMagic,
-		MdmTopic:              dev.MDMTopic,
-		UnlockToken:           dev.UnlockToken,
-		Enrolled:              dev.Enrolled,
-		AwaitingConfiguration: dev.AwaitingConfiguration,
-		DeviceName:            dev.DeviceName,
-		Model:                 dev.Model,
-		ModelName:             dev.ModelName,
+		Uuid:                   dev.UUID,
+		Udid:                   dev.UDID,
+		SerialNumber:           dev.SerialNumber,
+		OsVersion:              dev.OSVersion,
+		BuildVersion:           dev.BuildVersion,
+		ProductName:            dev.ProductName,
+		Imei:                   dev.IMEI,
+		Meid:                   dev.MEID,
+		Token:                  dev.Token,
+		PushMagic:              dev.PushMagic,
+		MdmTopic:               dev.MDMTopic,
+		UnlockToken:            dev.UnlockToken,
+		Enrolled:               dev.Enrolled,
+		AwaitingConfiguration:  dev.AwaitingConfiguration,
+		DeviceName:             dev.DeviceName,
+		Model:                  dev.Model,
+		ModelName:              dev.ModelName,
+		Description:            dev.Description,
+		Color:                  dev.Color,
+		AssetTag:               dev.AssetTag,
+		DepDevice:              dev.DEPDevice,
+		DepProfileStatus:       dev.DEPProfileStatus,
+		DepProfileUuid:         dev.DEPProfileUUID,
+		DepAssignTime:          dev.DEPAssignTime,
+		DepPushTime:            dev.DEPPushTime,
+		DepProfileAssignedDate: dev.DEPProfileAssignedDate,
+		DEPProfileAssignedBy:   dev.DEPProfileAssignedBy,
+		LastCheckin:            dev.LastCheckin,
+		LastQueryResponse:      dev.LastQueryResponse,
 	}
 	return proto.Marshal(&protodev)
 }
@@ -97,5 +109,17 @@ func UnmarshalDevice(data []byte, dev *Device) error {
 	dev.DeviceName = pb.GetDeviceName()
 	dev.Model = pb.GetModel()
 	dev.ModelName = pb.GetModelName()
+	dev.Description = pb.GetDescription()
+	dev.Color = pb.GetColor()
+	dev.AssetTag = pb.GetAssetTag()
+	dev.DEPDevice = pb.GetDepDevice()
+	dev.DEPProfileStatus = pb.GetDepProfileStatus()
+	dev.DEPProfileUUID = pb.GetDepProfileUuid()
+	dev.DEPAssignTime = pb.GetDepAssignTime()
+	dev.DEPPushTime = pb.GetDepPushTime()
+	dev.DEPProfileAssignedDate = pb.GetDepProfileAssignedDate()
+	dev.DEPProfileAssignedBy = pb.GetDepProfileAssignedBy()
+	dev.LastCheckin = pb.GetLastCheckin()
+	dev.LastQueryResponse = pb.GetLastQueryResponse()
 	return nil
 }

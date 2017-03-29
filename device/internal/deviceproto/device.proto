@@ -34,6 +34,4 @@ message Device {
     string last_check_in =28;
     bytes last_query_response =29;
 
-
-
 }
