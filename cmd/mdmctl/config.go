@@ -81,35 +81,25 @@ func setCmd(cfg *ClientConfig, args []string) error {
 	return SaveClientConfig(cfg)
 }
 
-func clientConfigDirPath() (string, error) {
+func clientConfigPath() (string, error) {
 	usr, err := user.Current()
 	if err != nil {
 		return "", err
 	}
-	return path.Join(usr.HomeDir, ".micromdm"), nil
-}
-
-func clientConfigPath() (string, error) {
-	dir, err := clientConfigDirPath()
-	return path.Join(dir, "default.json"), err
+	return path.Join(usr.HomeDir, ".micromdm", "default.json"), err
 }
 
 func SaveClientConfig(cfg *ClientConfig) error {
-	path, err := clientConfigDirPath()
+	configPath, err := clientConfigPath()
 	if err != nil {
 		return err
 	}
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		err = os.MkdirAll(path, 0777)
-		if err != nil {
+	if _, err := os.Stat(path.Dir(configPath)); os.IsNotExist(err) {
+		if err := os.MkdirAll(path.Dir(configPath), 0777); err != nil {
 			return err
 		}
 	}
-	path, _ = clientConfigPath()
-	if err != nil {
-		return err
-	}
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	f, err := os.OpenFile(configPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		return err
 	}
