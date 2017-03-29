@@ -731,6 +731,7 @@ func debugHTTPmiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// TODO: move to separate package/library
 func mdmAuthSignMessageMiddleware(db *boltdepot.Depot, next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		b64sig := r.Header.Get("Mdm-Signature")
@@ -774,10 +775,13 @@ func mdmAuthSignMessageMiddleware(db *boltdepot.Depot, next http.Handler) http.H
 			return
 		}
 
-		if hasCN, err := HasCN(db, cert.Subject.CommonName, 0, cert, false); err != nil {
+		hasCN, err := HasCN(db, cert.Subject.CommonName, 0, cert, false)
+		if err != nil {
 			fmt.Println(err)
 			http.Error(w, "Unable to validate signature", http.StatusInternalServerError)
-		} else if hasCN != true {
+			return
+		}
+		if !hasCN {
 			fmt.Println("Unauthorized client signature from:", cert.Subject.CommonName)
 			// NOTE: We're not returning 401 Unauthorized to avoid unenrolling a device
 			// this may change in the future
