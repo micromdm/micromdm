@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"os"
 	"os/user"
-	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -86,7 +86,7 @@ func clientConfigPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return path.Join(usr.HomeDir, ".micromdm", "default.json"), err
+	return filepath.Join(usr.HomeDir, ".micromdm", "default.json"), err
 }
 
 func SaveClientConfig(cfg *ClientConfig) error {
@@ -94,8 +94,8 @@ func SaveClientConfig(cfg *ClientConfig) error {
 	if err != nil {
 		return err
 	}
-	if _, err := os.Stat(path.Dir(configPath)); os.IsNotExist(err) {
-		if err := os.MkdirAll(path.Dir(configPath), 0777); err != nil {
+	if _, err := os.Stat(filepath.Dir(configPath)); os.IsNotExist(err) {
+		if err := os.MkdirAll(filepath.Dir(configPath), 0777); err != nil {
 			return err
 		}
 	}
