@@ -25,6 +25,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/fullsailor/pkcs7"
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/crypto/pkcs12"
 
@@ -204,8 +205,8 @@ func serve(args []string) error {
 	scepHandler := scep.ServiceHandler(ctx, sm.scepService, httpLogger)
 	enrollHandler := enroll.ServiceHandler(ctx, sm.enrollService, httpLogger)
 	r := mux.NewRouter()
-	r.Handle("/mdm/checkin", checkinHandlers.CheckinHandler).Methods("PUT")
-	r.Handle("/mdm/connect", connectHandlers.ConnectHandler).Methods("PUT")
+	r.Handle("/mdm/checkin", mdmAuthSignMessageMiddleware(sm.scepDepot, checkinHandlers.CheckinHandler)).Methods("PUT")
+	r.Handle("/mdm/connect", mdmAuthSignMessageMiddleware(sm.scepDepot, connectHandlers.ConnectHandler)).Methods("PUT")
 	r.Handle("/mdm/enroll", enrollHandler).Methods("GET", "POST")
 	r.Handle("/scep", scepHandler)
 	r.Handle("/push/{udid}", pushHandlers.PushHandler)
@@ -362,6 +363,7 @@ type config struct {
 	APNSCertificatePath string
 	APNSPrivateKeyPass  string
 	tlsCertPath         string
+	scepDepot           *boltdepot.Depot
 
 	PushService    *push.Service // bufford push
 	pushService    *nanopush.Push
@@ -675,6 +677,7 @@ func (c *config) setupSCEP(logger log.Logger) {
 	opts := []scep.ServiceOption{
 		scep.ClientValidity(365),
 	}
+	c.scepDepot = depot
 	c.scepService, c.err = scep.NewService(depot, opts...)
 	if c.err == nil {
 		c.scepService = scep.NewLoggingService(logger, c.scepService)
@@ -728,6 +731,64 @@ func debugHTTPmiddleware(next http.Handler) http.Handler {
 	})
 }
 
+func mdmAuthSignMessageMiddleware(db *boltdepot.Depot, next http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		b64sig := r.Header.Get("Mdm-Signature")
+		if b64sig == "" {
+			http.Error(w, "Signature missing", http.StatusBadRequest)
+			return
+		}
+		sig, err := base64.StdEncoding.DecodeString(b64sig)
+		if err != nil {
+			http.Error(w, "Signature decoding error", http.StatusBadRequest)
+			return
+		}
+		p7, err := pkcs7.Parse(sig)
+		if err != nil {
+			http.Error(w, "Signature parsing error", http.StatusBadRequest)
+			return
+		}
+		bodyBuf, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			fmt.Println(err)
+			http.Error(w, "Problem reading request", http.StatusInternalServerError)
+			return
+		}
+
+		// the signed data is the HTTP body message
+		p7.Content = bodyBuf
+
+		// reassign body to our already-read buffer
+		r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBuf))
+		// TODO: r.Body.Close() as we've ReadAll()'d it?
+
+		err = p7.Verify()
+		if err != nil {
+			http.Error(w, "Signature verification error", http.StatusBadRequest)
+			return
+		}
+
+		cert := p7.GetOnlySigner()
+		if cert == nil {
+			http.Error(w, "Invalid signer", http.StatusBadRequest)
+			return
+		}
+
+		if hasCN, err := HasCN(db, cert.Subject.CommonName, 0, cert, false); err != nil {
+			fmt.Println(err)
+			http.Error(w, "Unable to validate signature", http.StatusInternalServerError)
+		} else if hasCN != true {
+			fmt.Println("Unauthorized client signature from:", cert.Subject.CommonName)
+			// NOTE: We're not returning 401 Unauthorized to avoid unenrolling a device
+			// this may change in the future
+			http.Error(w, "Unauthorized", http.StatusBadRequest)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+	}
+}
+
 func basicAuth(password string) string {
 	const authUsername = "micromdm"
 	auth := authUsername + ":" + password
@@ -745,4 +806,29 @@ func apiAuthMiddleware(token string, next http.Handler) http.HandlerFunc {
 		next.ServeHTTP(w, r)
 
 	}
+}
+
+// implement HasCN function that belongs in micromdm/scep/depot/bolt
+//   note: added bool return, different from micromdm/scep interface
+func HasCN(db *boltdepot.Depot, cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool) (bool, error) {
+	// TODO: implement allowTime
+	// TODO: implement revocation
+	if cert == nil {
+		return false, errors.New("nil certificate provided")
+	}
+	var hasCN bool
+	err := db.View(func(tx *bolt.Tx) error {
+		// TODO: "scep_certificates" is internal const in micromdm/scep
+		curs := tx.Bucket([]byte("scep_certificates")).Cursor()
+		prefix := []byte(cert.Subject.CommonName)
+		for k, v := curs.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = curs.Next() {
+			if bytes.Compare(v, cert.Raw) == 0 {
+				hasCN = true
+				return nil
+			}
+		}
+
+		return nil
+	})
+	return hasCN, err
 }

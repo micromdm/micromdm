@@ -73,6 +73,7 @@ type MDMPayloadContent struct {
 	CheckOutWhenRemoved     bool
 	IdentityCertificateUUID string
 	ServerCapabilities      []string `plist:"ServerCapabilities,omitempty"`
+	SignMessage             bool     `plist:"SignMessage,omitempty"`
 	ServerURL               string
 	Topic                   string
 }

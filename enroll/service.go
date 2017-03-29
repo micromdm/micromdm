@@ -87,6 +87,7 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 		CheckOutWhenRemoved: true,
 		ServerURL:           svc.URL + "/mdm/connect",
 		Topic:               svc.Topic,
+		SignMessage:         true,
 	}
 
 	payloadContent := []interface{}{}
