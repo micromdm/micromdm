@@ -27,8 +27,8 @@ message Device {
     bool dep_device =21;
     string dep_profile_status =22;
     string dep_profile_uuid =23;
-    int64 dep_assign_time =24;
-    int64 dep_push_time =25;
+    int64 dep_profile_assign_time =24;
+    int64 dep_profile_push_time =25;
     int64 dep_profile_assigned_date =26;
     string dep_profile_assigned_by =27;
     string last_check_in =28;
