@@ -77,11 +77,11 @@ func MarshalDevice(dev *Device) ([]byte, error) {
 		DepDevice:              dev.DEPDevice,
 		DepProfileStatus:       string(dev.DEPProfileStatus),
 		DepProfileUuid:         dev.DEPProfileUUID,
-		DepProfileAssignTime:   dev.DEPProfileAssignTime,
-		DepProfilePushTime:     dev.DEPProfilePushTime,
-		DepProfileAssignedDate: dev.DEPProfileAssignedDate,
+		DepProfileAssignTime:   dev.DEPProfileAssignTime.UnixNano(),
+		DepProfilePushTime:     dev.DEPProfilePushTime.UnixNano(),
+		DepProfileAssignedDate: dev.DEPProfileAssignedDate.UnixNano(),
 		DepProfileAssignedBy:   dev.DEPProfileAssignedBy,
-		LastCheckIn:            dev.LastCheckin,
+		LastCheckIn:            dev.LastCheckin.UnixNano(),
 		LastQueryResponse:      dev.LastQueryResponse,
 	}
 	return proto.Marshal(&protodev)
@@ -113,13 +113,13 @@ func UnmarshalDevice(data []byte, dev *Device) error {
 	dev.Color = pb.GetColor()
 	dev.AssetTag = pb.GetAssetTag()
 	dev.DEPDevice = pb.GetDepDevice()
-	dev.DEPProfileStatus = pb.GetDepProfileStatus()
+	dev.DEPProfileStatus = DEPProfileStatus(pb.GetDepProfileStatus())
 	dev.DEPProfileUUID = pb.GetDepProfileUuid()
-	dev.DEPProfileAssignTime = pb.GetDepProfileAssignTime()
-	dev.DEPProfilePushTime = pb.GetDepProfilePushTime()
-	dev.DEPProfileAssignedDate = pb.GetDepProfileAssignedDate()
+	dev.DEPProfileAssignTime = time.Unix(0, pb.GetDepProfileAssignTime()).UTC()
+	dev.DEPProfilePushTime = time.Unix(0, pb.GetDepProfilePushTime()).UTC()
+	dev.DEPProfileAssignedDate = time.Unix(0, pb.GetDepProfileAssignedDate()).UTC()
 	dev.DEPProfileAssignedBy = pb.GetDepProfileAssignedBy()
-	dev.LastCheckin = pb.GetLastCheckIn()
+	dev.LastCheckin = time.Unix(0, pb.GetLastCheckIn()).UTC()
 	dev.LastQueryResponse = pb.GetLastQueryResponse()
 	return nil
 }
