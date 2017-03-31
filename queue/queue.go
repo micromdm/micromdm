@@ -27,6 +27,9 @@ type Store struct {
 func (db *Store) Next(ctx context.Context, resp mdm.Response) (*Command, error) {
 	dc, err := db.DeviceCommand(resp.UDID)
 	if err != nil {
+		if isNotFound(err) {
+			return nil, nil
+		}
 		return nil, errors.Wrapf(err, "get device command from queue, udid: %s", resp.UDID)
 	}
 
