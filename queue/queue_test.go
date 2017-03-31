@@ -136,8 +136,8 @@ func TestNext_zeroCommands(t *testing.T) {
 		t.Run(s, func(t *testing.T) {
 			resp := mdm.Response{CommandUUID: s, Status: s}
 			cmd, err := store.Next(ctx, resp)
-			if err == nil {
-				t.Error("expected err but got nil")
+			if err != nil {
+				t.Error("expected nil but got err")
 			}
 			if cmd != nil {
 				t.Errorf("expected nil cmd but got %s", cmd.UUID)
