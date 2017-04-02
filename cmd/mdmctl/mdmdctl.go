@@ -26,6 +26,7 @@ func main() {
 	case "get":
 		cmd := &getCommand{}
 		run = cmd.Run
+	case "apply":
 	default:
 		usage()
 		os.Exit(1)

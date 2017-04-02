@@ -42,9 +42,11 @@ import (
 	boltdepot "github.com/micromdm/scep/depot/bolt"
 	scep "github.com/micromdm/scep/server"
 
+	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/checkin"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/connect"
+	"github.com/micromdm/micromdm/core/apply"
 	"github.com/micromdm/micromdm/core/list"
 	"github.com/micromdm/micromdm/depsync"
 	"github.com/micromdm/micromdm/device"
@@ -145,6 +147,11 @@ func serve(args []string) error {
 		stdlog.Fatal(err)
 	}
 
+	bpDB, err := blueprint.NewDB(sm.db)
+	if err != nil {
+		stdlog.Fatal(err)
+	}
+
 	ctx := context.Background()
 	httpLogger := log.With(logger, "transport", "http")
 	var checkinEndpoint endpoint.Endpoint
@@ -197,6 +204,22 @@ func serve(args []string) error {
 		ListDevicesEndpoint: listDevicesEndpoint,
 	}
 
+	var applysvc apply.Service
+	{
+		applysvc = &apply.ApplyService{Blueprints: bpDB}
+	}
+
+	var applyBlueprintEndpoint endpoint.Endpoint
+	{
+		applyBlueprintEndpoint = apply.MakeApplyBlueprintEndpoint(applysvc)
+	}
+
+	applyEndpoints := apply.Endpoints{
+		ApplyBlueprintEndpoint: applyBlueprintEndpoint,
+	}
+
+	applyAPIHandlers := apply.MakeHTTPHandlers(ctx, applyEndpoints, connectOpts...)
+
 	listAPIHandlers := list.MakeHTTPHandlers(ctx, listEndpoints, connectOpts...)
 
 	connectHandlers := connect.MakeHTTPHandlers(ctx, connectEndpoints, connectOpts...)
@@ -218,6 +241,7 @@ func serve(args []string) error {
 	// API commands. Only handled if the user provides an api key.
 	if *flAPIKey != "" {
 		r.Handle("/v1/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers)).Methods("GET")
+		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, applyAPIHandlers)).Methods("PUT")
 	}
 
 	if *flRepoPath != "" {
