@@ -203,11 +203,11 @@ func serve(args []string) error {
 
 	pushHandlers := nanopush.MakeHTTPHandlers(ctx, pushEndpoints, checkinOpts...)
 	scepHandler := scep.ServiceHandler(ctx, sm.scepService, httpLogger)
-	enrollHandler := enroll.ServiceHandler(ctx, sm.enrollService, httpLogger)
+	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.enrollService), httptransport.ServerErrorLogger(httpLogger))
 	r := mux.NewRouter()
 	r.Handle("/mdm/checkin", mdmAuthSignMessageMiddleware(sm.scepDepot, checkinHandlers.CheckinHandler)).Methods("PUT")
 	r.Handle("/mdm/connect", mdmAuthSignMessageMiddleware(sm.scepDepot, connectHandlers.ConnectHandler)).Methods("PUT")
-	r.Handle("/mdm/enroll", enrollHandler).Methods("GET", "POST")
+	r.Handle("/mdm/enroll", enrollHandlers.EnrollHandler).Methods("GET", "POST")
 	r.Handle("/scep", scepHandler)
 	r.Handle("/push/{udid}", pushHandlers.PushHandler)
 	r.Handle("/v1/commands", commandHandlers.NewCommandHandler).Methods("POST")

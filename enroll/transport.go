@@ -7,27 +7,24 @@ import (
 	"net/http"
 
 	"github.com/fullsailor/pkcs7"
-	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/gorilla/mux"
 	"github.com/groob/plist"
 )
 
-// ServiceHandler returns an HTTP Handler for the enroll service
-func ServiceHandler(ctx context.Context, svc Service, logger log.Logger) http.Handler {
-	r := mux.NewRouter()
-	e := MakeServerEndpoints(svc)
-	opts := []httptransport.ServerOption{
-		httptransport.ServerErrorLogger(logger),
-	}
-	r.Methods("GET", "POST").Path("/mdm/enroll").Handler(httptransport.NewServer(
-		e.GetEnrollEndpoint,
-		decodeMDMEnrollRequest,
-		encodeResponse,
-		opts...,
-	))
+type HTTPHandlers struct {
+	EnrollHandler http.Handler
+}
 
-	return r
+func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
+	h := HTTPHandlers{
+		EnrollHandler: httptransport.NewServer(
+			endpoints.GetEnrollEndpoint,
+			decodeMDMEnrollRequest,
+			encodeResponse,
+			opts...,
+		),
+	}
+	return h
 }
 
 func decodeMDMEnrollRequest(_ context.Context, r *http.Request) (interface{}, error) {
