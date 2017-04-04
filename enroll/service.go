@@ -9,6 +9,8 @@ import (
 type Service interface {
 	Enroll(ctx context.Context) (Profile, error)
 	OTAEnroll(ctx context.Context) (Payload, error)
+	OTAPhase2(ctx context.Context) (Profile, error)
+	OTAPhase3(ctx context.Context) (Profile, error)
 }
 
 func NewService(pushTopic, caCertPath, scepURL, scepChallenge, url, tlsCertPath, scepSubject string) (Service, error) {
@@ -161,4 +163,42 @@ func (svc service) OTAEnroll(ctx context.Context) (Payload, error) {
 
 	// yes, this is a bare Payload, not a Profile
 	return *payload, nil
+}
+
+func (svc service) OTAPhase2(ctx context.Context) (Profile, error) {
+	profile := NewProfile()
+	profile.PayloadIdentifier = "com.github.micromdm.micromdm.ota-scep"
+	profile.PayloadOrganization = "MicroMDM"
+	profile.PayloadDisplayName = "Enrollment Profile"
+	profile.PayloadDescription = "The server may alter your settings"
+	profile.PayloadScope = "System"
+
+	scepContent := SCEPPayloadContent{
+		URL:      svc.SCEPURL,
+		Keysize:  1024,
+		KeyType:  "RSA",
+		KeyUsage: 0,
+		Name:     "Device Management Identity Certificate",
+		Subject:  svc.SCEPSubject,
+	}
+
+	if svc.SCEPChallenge != "" {
+		scepContent.Challenge = svc.SCEPChallenge
+	}
+
+	scepPayload := NewPayload("com.apple.security.scep")
+	scepPayload.PayloadDescription = "Configures SCEP"
+	scepPayload.PayloadDisplayName = "SCEP"
+	scepPayload.PayloadIdentifier = "com.github.micromdm.scep"
+	scepPayload.PayloadOrganization = "MicroMDM"
+	scepPayload.PayloadContent = scepContent
+	scepPayload.PayloadScope = "System"
+
+	profile.PayloadContent = append(profile.PayloadContent, *scepPayload)
+
+	return *profile, nil
+}
+
+func (svc service) OTAPhase3(ctx context.Context) (Profile, error) {
+	return Profile{}, nil
 }

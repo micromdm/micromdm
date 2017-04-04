@@ -12,8 +12,9 @@ import (
 )
 
 type HTTPHandlers struct {
-	EnrollHandler    http.Handler
-	OTAEnrollHandler http.Handler
+	EnrollHandler          http.Handler
+	OTAEnrollHandler       http.Handler
+	OTAPhase2Phase3Handler http.Handler
 }
 
 func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
@@ -27,6 +28,12 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 		OTAEnrollHandler: httptransport.NewServer(
 			endpoints.OTAEnrollEndpoint,
 			nilRequest,
+			encodeResponse,
+			opts...,
+		),
+		OTAPhase2Phase3Handler: httptransport.NewServer(
+			endpoints.OTAPhase2Phase3Endpoint,
+			decodeOTAPhase2Phase3Request,
 			encodeResponse,
 			opts...,
 		),
@@ -78,4 +85,27 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, response interfa
 	}
 
 	return nil
+}
+
+func decodeOTAPhase2Phase3Request(_ context.Context, r *http.Request) (interface{}, error) {
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+	p7, err := pkcs7.Parse(data)
+	if err != nil {
+		return nil, err
+	}
+	err = p7.Verify()
+	if err != nil {
+		return nil, err
+	}
+	// TODO: verify certificates against Apple chain -OR- our own SCEP chain
+	// to determine whether we're in Phase 2 or 3
+	var request otaEnrollmentRequest
+	err = plist.Unmarshal(p7.Content, &request)
+	if err != nil {
+		return nil, err
+	}
+	return request, nil
 }
