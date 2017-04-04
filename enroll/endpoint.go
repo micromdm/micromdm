@@ -11,6 +11,7 @@ import (
 
 type Endpoints struct {
 	GetEnrollEndpoint endpoint.Endpoint
+	OTAEnrollEndpoint endpoint.Endpoint
 }
 
 type depEnrollmentRequest struct {
@@ -24,9 +25,15 @@ type mdmEnrollResponse struct {
 	Err error `plist:"error,omitempty"`
 }
 
+type mdmOTAEnrollResponse struct {
+	Payload
+	Err error `plist:"error,omitempty"`
+}
+
 func MakeServerEndpoints(s Service) Endpoints {
 	return Endpoints{
 		GetEnrollEndpoint: MakeGetEnrollEndpoint(s),
+		OTAEnrollEndpoint: MakeOTAEnrollEndpoint(s),
 	}
 }
 
@@ -43,5 +50,12 @@ func MakeGetEnrollEndpoint(s Service) endpoint.Endpoint {
 		default:
 			return nil, errors.New("unknown enrollment type")
 		}
+	}
+}
+
+func MakeOTAEnrollEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		payload, err := s.OTAEnroll(ctx)
+		return mdmOTAEnrollResponse{payload, err}, nil
 	}
 }

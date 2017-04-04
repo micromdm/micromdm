@@ -208,6 +208,7 @@ func serve(args []string) error {
 	r.Handle("/mdm/checkin", mdmAuthSignMessageMiddleware(sm.scepDepot, checkinHandlers.CheckinHandler)).Methods("PUT")
 	r.Handle("/mdm/connect", mdmAuthSignMessageMiddleware(sm.scepDepot, connectHandlers.ConnectHandler)).Methods("PUT")
 	r.Handle("/mdm/enroll", enrollHandlers.EnrollHandler).Methods("GET", "POST")
+	r.Handle("/ota/enroll", enrollHandlers.OTAEnrollHandler)
 	r.Handle("/scep", scepHandler)
 	r.Handle("/push/{udid}", pushHandlers.PushHandler)
 	r.Handle("/v1/commands", commandHandlers.NewCommandHandler).Methods("POST")

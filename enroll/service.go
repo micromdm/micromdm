@@ -8,6 +8,7 @@ import (
 
 type Service interface {
 	Enroll(ctx context.Context) (Profile, error)
+	OTAEnroll(ctx context.Context) (Payload, error)
 }
 
 func NewService(pushTopic, caCertPath, scepURL, scepChallenge, url, tlsCertPath, scepSubject string) (Service, error) {
@@ -144,4 +145,20 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 	profile.PayloadContent = payloadContent
 
 	return *profile, nil
+}
+
+func (svc service) OTAEnroll(ctx context.Context) (Payload, error) {
+	payload := NewPayload("Profile Service")
+	payload.PayloadIdentifier = "com.github.micromdm.ota.profile-service"
+	payload.PayloadDisplayName = "MicroMDM Profile Service"
+	payload.PayloadDescription = "Profile Service enrollment"
+	payload.PayloadOrganization = "MicroMDM"
+	payload.PayloadContent = ProfileServicePayload{
+		URL:              svc.URL + "/ota/phase23",
+		Challenge:        "",
+		DeviceAttributes: DefaultProfileServiceDeviceAttributes,
+	}
+
+	// yes, this is a bare Payload, not a Profile
+	return *payload, nil
 }

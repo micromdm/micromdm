@@ -12,7 +12,8 @@ import (
 )
 
 type HTTPHandlers struct {
-	EnrollHandler http.Handler
+	EnrollHandler    http.Handler
+	OTAEnrollHandler http.Handler
 }
 
 func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
@@ -23,8 +24,18 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 			encodeResponse,
 			opts...,
 		),
+		OTAEnrollHandler: httptransport.NewServer(
+			endpoints.OTAEnrollEndpoint,
+			nilRequest,
+			encodeResponse,
+			opts...,
+		),
 	}
 	return h
+}
+
+func nilRequest(_ context.Context, _ *http.Request) (interface{}, error) {
+	return nil, nil
 }
 
 func decodeMDMEnrollRequest(_ context.Context, r *http.Request) (interface{}, error) {
@@ -53,11 +64,16 @@ func decodeMDMEnrollRequest(_ context.Context, r *http.Request) (interface{}, er
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	resp := response.(mdmEnrollResponse)
+	switch resp := response.(type) {
+	case mdmEnrollRequest, mdmOTAEnrollResponse:
+		_ = resp
+	default:
+		errors.New("unknown response type")
+	}
 
 	w.Header().Set("Content-Type", "application/x-apple-aspen-config")
 
-	if err := plist.NewEncoder(w).Encode(resp); err != nil {
+	if err := plist.NewEncoder(w).Encode(response); err != nil {
 		return err
 	}
 
