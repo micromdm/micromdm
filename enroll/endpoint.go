@@ -5,6 +5,10 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/micromdm/micromdm/crypto"
+	boltdepot "github.com/micromdm/scep/depot/bolt"
+
+	"github.com/fullsailor/pkcs7"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/mdm"
 )
@@ -45,16 +49,21 @@ type mdmEnrollResponse struct {
 	Err error `plist:"error,omitempty"`
 }
 
+type mdmOTAPhase2Phase3Request struct {
+	otaEnrollmentRequest otaEnrollmentRequest
+	p7                   *pkcs7.PKCS7
+}
+
 type mdmOTAEnrollResponse struct {
 	Payload
 	Err error `plist:"error,omitempty"`
 }
 
-func MakeServerEndpoints(s Service) Endpoints {
+func MakeServerEndpoints(s Service, scepDepot *boltdepot.Depot) Endpoints {
 	return Endpoints{
 		GetEnrollEndpoint:       MakeGetEnrollEndpoint(s),
 		OTAEnrollEndpoint:       MakeOTAEnrollEndpoint(s),
-		OTAPhase2Phase3Endpoint: MakeOTAPhase2Phase3Endpoint(s),
+		OTAPhase2Phase3Endpoint: MakeOTAPhase2Phase3Endpoint(s, scepDepot),
 	}
 }
 
@@ -81,11 +90,36 @@ func MakeOTAEnrollEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func MakeOTAPhase2Phase3Endpoint(s Service) endpoint.Endpoint {
+func MakeOTAPhase2Phase3Endpoint(s Service, scepDepot *boltdepot.Depot) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		profile, err := s.OTAPhase2(ctx)
-		// TODO: if Phase 3
-		// s.OTAPhase3(ctx)
-		return mdmEnrollResponse{profile, err}, nil
+		req := request.(mdmOTAPhase2Phase3Request)
+
+		// TODO: currently only verifying the signing certificate but ought to
+		// verify the whole provided chain. Note this will be difficult to do
+		// given the inconsist certificate chain returned by macOS in OTA mode,
+		// macOS in DEP mode, and iOS in either mode. See:
+		// https://openradar.appspot.com/radar?id=4957320861712384
+		if err := crypto.VerifyFromAppleDeviceCA(req.p7.GetOnlySigner()); err == nil {
+			// signing certificate is signed by the Apple Device CA. this means
+			// we don't yet have a SCEP identity and thus are in Phase 2 of the
+			// OTA enrollment
+			profile, err := s.OTAPhase2(ctx)
+			return mdmEnrollResponse{profile, err}, nil
+		} else if caChain, _, err := scepDepot.CA(nil); err == nil && len(caChain) > 0 && req.p7.GetOnlySigner().CheckSignatureFrom(caChain[0]) == nil {
+			// signing certificate is signed by our SCEP CA. this means we
+			// we are in Phase 3 of OTA enrollment (as we already have a
+			// identified certificate)
+
+			// TODO: possibly deliver a different enrollment profile based
+			// on device certificates
+			// TODO: we can encrypt the enrollment (or any profile) at this
+			// point: we have a device identity that we can encrypt to that
+			// device's private key that it can decrypt
+
+			profile, err := s.Enroll(ctx)
+			// profile, err := s.OTAPhase3(ctx)
+			return mdmEnrollResponse{profile, err}, nil
+		}
+		return mdmEnrollResponse{Profile{}, errors.New("unauthorized client")}, nil
 	}
 }

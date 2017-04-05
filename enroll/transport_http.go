@@ -100,12 +100,10 @@ func decodeOTAPhase2Phase3Request(_ context.Context, r *http.Request) (interface
 	if err != nil {
 		return nil, err
 	}
-	// TODO: verify certificates against Apple chain -OR- our own SCEP chain
-	// to determine whether we're in Phase 2 or 3
 	var request otaEnrollmentRequest
 	err = plist.Unmarshal(p7.Content, &request)
 	if err != nil {
 		return nil, err
 	}
-	return request, nil
+	return mdmOTAPhase2Phase3Request{request, p7}, nil
 }
