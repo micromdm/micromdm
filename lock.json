@@ -129,7 +129,7 @@
         {
             "name": "github.com/micromdm/mdm",
             "branch": "master",
-            "revision": "a4bd2f729ac6b8ea2acb8940ab1ca783e173b348",
+            "revision": "255824c8b22417622b1fee883b5508dec9587b34",
             "packages": [
                 "."
             ]

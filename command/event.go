@@ -39,6 +39,36 @@ func MarshalEvent(e *Event) ([]byte, error) {
 		}
 	}
 	switch e.Payload.Command.RequestType {
+	case "ScheduleOSUpdateScan":
+		payload.Command.ScheduleOsUpdateScan = &commandproto.ScheduleOSUpdateScan{
+			Force: e.Payload.Command.ScheduleOSUpdateScan.Force,
+		}
+	case "ScheduleOSUpdate":
+		p := e.Payload.Command.ScheduleOSUpdate
+		var updates []*commandproto.OSUpdate
+		for _, update := range p.Updates {
+			updates = append(updates, &commandproto.OSUpdate{
+				ProductKey: update.ProductKey,
+			})
+		}
+		payload.Command.ScheduleOsUpdate = &commandproto.ScheduleOSUpdate{
+			Updates: updates,
+		}
+	case "AccountConfiguration":
+		p := e.Payload.Command.AccountConfiguration
+		payload.Command.AccountConfiguration = &commandproto.AccountConfiguration{
+			SkipPrimarySetupAccountCreation:     p.SkipPrimarySetupAccountCreation,
+			SetPrimarySetupAccountAsRegularUser: p.SetPrimarySetupAccountAsRegularUser,
+		}
+		for _, account := range p.AutoSetupAdminAccounts {
+			payload.Command.AccountConfiguration.AutoSetupAdminAccounts = append(
+				payload.Command.AccountConfiguration.AutoSetupAdminAccounts, &commandproto.AutoSetupAdminAccounts{
+					ShortName:    account.ShortName,
+					FullName:     account.FullName,
+					PasswordHash: account.PasswordHash,
+					Hidden:       account.Hidden,
+				})
+		}
 	case "DeviceInformation":
 		payload.Command.DeviceInformation = &commandproto.DeviceInformation{
 			Queries: e.Payload.Command.DeviceInformation.Queries,
@@ -90,6 +120,37 @@ func UnmarshalEvent(data []byte, e *Event) error {
 		RequestType: pb.Payload.Command.RequestType,
 	}
 	switch pb.Payload.Command.RequestType {
+	case "ScheduleOSUpdateScan":
+		cmd := pb.Payload.Command.GetScheduleOsUpdateScan()
+		e.Payload.Command.ScheduleOSUpdateScan = mdm.ScheduleOSUpdateScan{
+			Force: cmd.GetForce(),
+		}
+	case "ScheduleOSUpdate":
+		cmd := pb.Payload.Command.GetScheduleOsUpdate()
+		var updates []mdm.OSUpdate
+		for _, update := range cmd.GetUpdates() {
+			updates = append(updates, mdm.OSUpdate{
+				ProductKey:    update.GetProductKey(),
+				InstallAction: update.GetInstallAction(),
+			})
+		}
+		e.Payload.Command.ScheduleOSUpdate = mdm.ScheduleOSUpdate{
+			Updates: updates,
+		}
+	case "AccountConfiguration":
+		cmd := pb.Payload.Command.GetAccountConfiguration()
+		e.Payload.Command.AccountConfiguration = mdm.AccountConfiguration{
+			SkipPrimarySetupAccountCreation:     cmd.GetSkipPrimarySetupAccountCreation(),
+			SetPrimarySetupAccountAsRegularUser: cmd.GetSetPrimarySetupAccountAsRegularUser(),
+		}
+		for _, account := range cmd.GetAutoSetupAdminAccounts() {
+			e.Payload.Command.AccountConfiguration.AutoSetupAdminAccounts = append(e.Payload.Command.AutoSetupAdminAccounts, mdm.AdminAccount{
+				ShortName:    account.GetShortName(),
+				FullName:     account.GetFullName(),
+				PasswordHash: account.GetPasswordHash(),
+				Hidden:       account.GetHidden(),
+			})
+		}
 	case "DeviceInformation":
 		e.Payload.Command.DeviceInformation = mdm.DeviceInformation{
 			Queries: pb.Payload.Command.DeviceInformation.Queries,

@@ -19,6 +19,35 @@ message Command {
     DeviceInformation device_information = 2;
     InstallProfile install_profile = 3;
     InstallApplication install_application = 4;
+    AccountConfiguration account_configuration = 5;
+    ScheduleOSUpdate schedule_os_update = 6;
+    ScheduleOSUpdateScan schedule_os_update_scan = 7;
+}
+
+message ScheduleOSUpdate {
+    repeated OSUpdate updates = 1;
+}
+
+message OSUpdate {
+    string product_key = 1;
+    string install_action = 2;
+}
+
+message ScheduleOSUpdateScan {
+    bool force = 1;
+}
+
+message AccountConfiguration {
+    bool skip_primary_setup_account_creation = 1;
+    bool set_primary_setup_account_as_regular_user = 2;
+    repeated AutoSetupAdminAccounts auto_setup_admin_accounts = 3;
+}
+
+message AutoSetupAdminAccounts {
+    string short_name = 1;
+    string full_name = 2;
+    bytes password_hash = 3;
+    bool hidden = 4;
 }
 
 message DeviceInformation {
