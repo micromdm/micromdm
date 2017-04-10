@@ -2,11 +2,15 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
 	"strings"
 	"text/tabwriter"
+
+	"crypto/x509"
+	"encoding/pem"
 
 	"github.com/go-kit/kit/log"
 	"github.com/micromdm/micromdm/core/list"
@@ -46,6 +50,8 @@ func (cmd *getCommand) Run(args []string) error {
 	switch strings.ToLower(args[0]) {
 	case "devices":
 		run = cmd.getDevices
+	case "dep-tokens":
+		run = cmd.getDepTokens
 	default:
 		cmd.Usage()
 		os.Exit(1)
@@ -62,6 +68,7 @@ Valid resource types:
 
   * devices
   * blueprints
+  * dep-tokens
 
 Examples:
   # Get a list of devices
@@ -103,4 +110,85 @@ func (cmd *getCommand) getDevices(args []string) error {
 		fmt.Fprintf(out.w, "%s\t%s\t%v\t%s\n", d.UDID, d.SerialNumber, d.EnrollmentStatus, d.LastSeen)
 	}
 	return nil
+}
+
+func (cmd *getCommand) getDepTokens(args []string) error {
+	flagset := flag.NewFlagSet("dep-tokens", flag.ExitOnError)
+	var (
+		flFullCK        = flagset.Bool("v", false, "display full ConsumerKey in summary list")
+		flPublicKeyPath = flagset.String("export-public-key", "", "filename of public key to write (to be uploaded to deploy.apple.com)")
+		flTokenPath     = flagset.String("export-token", "", "filename to save decrypted oauth token (JSON)")
+	)
+	flagset.Usage = usageFor(flagset, "mdmctl get dep-tokens [flags]")
+	if err := flagset.Parse(args); err != nil {
+		return err
+	}
+
+	w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
+	fmt.Fprintf(w, "ConsumerKey\tAccessTokenExpiry\n")
+	ctx := context.Background()
+	tokens, certBytes, err := cmd.list.GetDEPTokens(ctx)
+	if err != nil {
+		return err
+	}
+	var ckTrimmed string
+	for _, t := range tokens {
+		if len(t.ConsumerKey) > 40 && !*flFullCK {
+			ckTrimmed = t.ConsumerKey[0:39] + "…"
+		} else {
+			ckTrimmed = t.ConsumerKey
+		}
+		fmt.Fprintf(w, "%s\t%s\n", ckTrimmed, t.AccessTokenExpiry.String())
+	}
+	w.Flush()
+
+	if *flPublicKeyPath != "" && certBytes != nil {
+		cert, err := x509.ParseCertificate(certBytes)
+		if err != nil {
+			return err
+		}
+		err = WritePEMCertificateFile(cert, *flPublicKeyPath)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("\nWrote DEP public key to: %s\n", *flPublicKeyPath)
+	}
+
+	if *flTokenPath != "" && len(tokens) > 0 {
+		t := tokens[0]
+
+		tokenFile, err := os.Create(*flTokenPath)
+		if err != nil {
+			return err
+		}
+		defer tokenFile.Close()
+
+		err = json.NewEncoder(tokenFile).Encode(t)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("\nWrote DEP token JSON to: %s\n", *flTokenPath)
+		if len(tokens) > 1 {
+			fmt.Println("WARNING: more than one DEP token returned; only saved first")
+		}
+	}
+
+	return nil
+}
+
+// TODO: move into crypto package and use for all main.savePEMCert() invocations
+func WritePEMCertificateFile(cert *x509.Certificate, path string) error {
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	return pem.Encode(
+		file,
+		&pem.Block{
+			Type:  "CERTIFICATE",
+			Bytes: cert.Raw,
+		})
 }

@@ -27,6 +27,8 @@ func main() {
 		cmd := &getCommand{}
 		run = cmd.Run
 	case "apply":
+		cmd := &applyCommand{}
+		run = cmd.Run
 	default:
 		usage()
 		os.Exit(1)
@@ -43,6 +45,7 @@ func usage() error {
 
 Available Commands:
 	get
+	apply
 	config
 	version
 

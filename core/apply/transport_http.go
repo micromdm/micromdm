@@ -12,15 +12,35 @@ import (
 	"github.com/micromdm/micromdm/blueprint"
 )
 
-func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) http.Handler {
-	var h http.Handler
-	h = httptransport.NewServer(
-		endpoints.ApplyBlueprintEndpoint,
-		decodeBlueprintRequest,
-		encodeResponse,
-		opts...,
-	)
+type HTTPHandlers struct {
+	BlueprintHandler http.Handler
+	DEPTokensHandler http.Handler
+}
+
+func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
+	h := HTTPHandlers{
+		BlueprintHandler: httptransport.NewServer(
+			endpoints.ApplyBlueprintEndpoint,
+			decodeBlueprintRequest,
+			encodeResponse,
+			opts...,
+		),
+		DEPTokensHandler: httptransport.NewServer(
+			endpoints.ApplyDEPTokensEndpoint,
+			decodeDEPTokensRequest,
+			encodeResponse,
+			opts...,
+		),
+	}
 	return h
+}
+
+func decodeDEPTokensRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	var req depTokensRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+	return req, nil
 }
 
 func decodeBlueprintRequest(ctx context.Context, r *http.Request) (interface{}, error) {
@@ -62,7 +82,10 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, response interfa
 }
 
 func EncodeError(ctx context.Context, err error, w http.ResponseWriter) {
-	http.Error(w, err.Error(), http.StatusInternalServerError)
+	w.WriteHeader(http.StatusInternalServerError)
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", " ")
+	enc.Encode(errorWrapper{Error: err.Error()})
 }
 
 // EncodeHTTPGenericRequest is a transport/http.EncodeRequestFunc that
@@ -81,6 +104,15 @@ func DecodeBlueprintRequest(_ context.Context, r *http.Response) (interface{}, e
 		return nil, errorDecoder(r)
 	}
 	var resp blueprintResponse
+	err := json.NewDecoder(r.Body).Decode(&resp)
+	return resp, err
+}
+
+func DecodeDEPTokensRequest(_ context.Context, r *http.Response) (interface{}, error) {
+	if r.StatusCode != http.StatusOK {
+		return nil, errorDecoder(r)
+	}
+	var resp depTokensResponse
 	err := json.NewDecoder(r.Body).Decode(&resp)
 	return resp, err
 }

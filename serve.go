@@ -193,7 +193,7 @@ func serve(args []string) error {
 
 	var listsvc list.Service
 	{
-		listsvc = &list.ListService{Devices: devDB}
+		listsvc = &list.ListService{Devices: devDB, DB: sm.db}
 	}
 	var listDevicesEndpoint endpoint.Endpoint
 	{
@@ -201,7 +201,8 @@ func serve(args []string) error {
 
 	}
 	listEndpoints := list.Endpoints{
-		ListDevicesEndpoint: listDevicesEndpoint,
+		ListDevicesEndpoint:  listDevicesEndpoint,
+		GetDEPTokensEndpoint: list.MakeGetDEPTokensEndpoint(listsvc),
 	}
 
 	var applysvc apply.Service
@@ -216,6 +217,7 @@ func serve(args []string) error {
 
 	applyEndpoints := apply.Endpoints{
 		ApplyBlueprintEndpoint: applyBlueprintEndpoint,
+		ApplyDEPTokensEndpoint: apply.MakeApplyDEPTokensEndpoint(applysvc),
 	}
 
 	applyAPIHandlers := apply.MakeHTTPHandlers(ctx, applyEndpoints, connectOpts...)
@@ -242,8 +244,10 @@ func serve(args []string) error {
 
 	// API commands. Only handled if the user provides an api key.
 	if *flAPIKey != "" {
-		r.Handle("/v1/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers)).Methods("GET")
-		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, applyAPIHandlers)).Methods("PUT")
+		r.Handle("/v1/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListDevicesHandler)).Methods("GET")
+		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPTokensHandler)).Methods("GET")
+		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DEPTokensHandler)).Methods("PUT")
+		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.BlueprintHandler)).Methods("PUT")
 	}
 
 	if *flRepoPath != "" {

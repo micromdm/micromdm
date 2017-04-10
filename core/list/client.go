@@ -25,9 +25,19 @@ func NewClient(instance string, logger log.Logger, token string) (Service, error
 			DecodeDevicesResponse,
 		).Endpoint()
 	}
+	var getDEPTokensEndpoint endpoint.Endpoint
+	{
+		getDEPTokensEndpoint = httptransport.NewClient(
+			"GET",
+			copyURL(u, "/v1/dep-tokens"),
+			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
+			DecodeGetDEPTokensResponse,
+		).Endpoint()
+	}
 
 	return Endpoints{
-		ListDevicesEndpoint: listDevicesEndpoint,
+		ListDevicesEndpoint:  listDevicesEndpoint,
+		GetDEPTokensEndpoint: getDEPTokensEndpoint,
 	}, nil
 }
 

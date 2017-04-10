@@ -11,15 +11,30 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
-func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) http.Handler {
-	var h http.Handler
-	h = httptransport.NewServer(
-		endpoints.ListDevicesEndpoint,
-		decodeListDevicesRequest,
-		encodeResponse,
-		opts...,
-	)
+type HTTPHandlers struct {
+	ListDevicesHandler  http.Handler
+	GetDEPTokensHandler http.Handler
+}
+
+func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
+	h := HTTPHandlers{
+		ListDevicesHandler: httptransport.NewServer(
+			endpoints.ListDevicesEndpoint,
+			decodeListDevicesRequest,
+			encodeResponse,
+			opts...,
+		),
+		GetDEPTokensHandler: httptransport.NewServer(
+			endpoints.GetDEPTokensEndpoint,
+			decodeGetDEPTokensRequest,
+			encodeResponse,
+			opts...),
+	}
 	return h
+}
+
+func decodeGetDEPTokensRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	return nil, nil
 }
 
 func decodeListDevicesRequest(ctx context.Context, r *http.Request) (interface{}, error) {
@@ -76,6 +91,15 @@ func DecodeDevicesResponse(_ context.Context, r *http.Response) (interface{}, er
 		return nil, errorDecoder(r)
 	}
 	var resp devicesResponse
+	err := json.NewDecoder(r.Body).Decode(&resp)
+	return resp, err
+}
+
+func DecodeGetDEPTokensResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	if r.StatusCode != http.StatusOK {
+		return nil, errorDecoder(r)
+	}
+	var resp depTokenResponse
 	err := json.NewDecoder(r.Body).Decode(&resp)
 	return resp, err
 }

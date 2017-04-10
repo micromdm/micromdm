@@ -8,7 +8,8 @@ import (
 )
 
 type Endpoints struct {
-	ListDevicesEndpoint endpoint.Endpoint
+	ListDevicesEndpoint  endpoint.Endpoint
+	GetDEPTokensEndpoint endpoint.Endpoint
 }
 
 func (e Endpoints) ListDevices(ctx context.Context, opts ListDevicesOption) ([]DeviceDTO, error) {
@@ -20,6 +21,14 @@ func (e Endpoints) ListDevices(ctx context.Context, opts ListDevicesOption) ([]D
 	return response.(devicesResponse).Devices, response.(devicesResponse).Err
 }
 
+func (e Endpoints) GetDEPTokens(ctx context.Context) ([]DEPToken, []byte, error) {
+	resp, err := e.GetDEPTokensEndpoint(ctx, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+	return resp.(depTokenResponse).DEPTokens, resp.(depTokenResponse).DEPPubKey, nil
+}
+
 func MakeListDevicesEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(devicesRequest)
@@ -27,6 +36,17 @@ func MakeListDevicesEndpoint(svc Service) endpoint.Endpoint {
 		return devicesResponse{
 			Devices: dto,
 			Err:     err,
+		}, nil
+	}
+}
+
+func MakeGetDEPTokensEndpoint(svc Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		tokens, pubkey, err := svc.GetDEPTokens(ctx)
+		return depTokenResponse{
+			DEPTokens: tokens,
+			DEPPubKey: pubkey,
+			Err:       err,
 		}, nil
 	}
 }
@@ -42,4 +62,18 @@ type devicesRequest struct{ Opts ListDevicesOption }
 type devicesResponse struct {
 	Devices []DeviceDTO `json:"devices"`
 	Err     error       `json:"err,omitempty"`
+}
+
+type DEPToken struct {
+	ConsumerKey       string    `json:"consumer_key"`
+	ConsumerSecret    string    `json:"consumer_secret"`
+	AccessToken       string    `json:"access_token"`
+	AccessSecret      string    `json:"access_secret"`
+	AccessTokenExpiry time.Time `json:"access_token_expiry"`
+}
+
+type depTokenResponse struct {
+	DEPTokens []DEPToken `json:"dep_tokens"`
+	DEPPubKey []byte     `json:"public_key"`
+	Err       error      `json:"err,omitempty"`
 }
