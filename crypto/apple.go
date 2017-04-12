@@ -3,10 +3,14 @@ package crypto
 import (
 	"crypto/x509"
 	"encoding/pem"
-	"errors"
+	"fmt"
 )
 
-const AppleRootCAPEM = `-----BEGIN CERTIFICATE-----
+/*
+These certificates are not currently used but they represent the chain
+of certificates to verify a device's certificate in DEP & OTA requests.
+
+const appleRootCAPEM = `-----BEGIN CERTIFICATE-----
 MIIEuzCCA6OgAwIBAgIBAjANBgkqhkiG9w0BAQUFADBiMQswCQYDVQQGEwJVUzET
 MBEGA1UEChMKQXBwbGUgSW5jLjEmMCQGA1UECxMdQXBwbGUgQ2VydGlmaWNhdGlv
 biBBdXRob3JpdHkxFjAUBgNVBAMTDUFwcGxlIFJvb3QgQ0EwHhcNMDYwNDI1MjE0
@@ -36,7 +40,7 @@ UKqK1drk/NAJBzewdXUh
 -----END CERTIFICATE-----
 `
 
-const AppleiPhoneCertificateAuthorityPEM = `-----BEGIN CERTIFICATE-----
+const appleiPhoneCertificateAuthorityPEM = `-----BEGIN CERTIFICATE-----
 MIID8zCCAtugAwIBAgIBFzANBgkqhkiG9w0BAQUFADBiMQswCQYDVQQGEwJVUzET
 MBEGA1UEChMKQXBwbGUgSW5jLjEmMCQGA1UECxMdQXBwbGUgQ2VydGlmaWNhdGlv
 biBBdXRob3JpdHkxFjAUBgNVBAMTDUFwcGxlIFJvb3QgQ0EwHhcNMDcwNDEyMTc0
@@ -59,10 +63,12 @@ wYVCEyaNA1RmEF5ghAUSMStrVMCgyEG8VB7nVK0TANJKx7vBiq+BCI7wRgq/J6a+
 3M85OoBwGSMyo2tmXZ5NqEdJsntFtVEzp3RnCU62bG9I9yy5MwVEa0W+dEtvsoaR
 tD4lKCWes8JRhvxP5a87qrtELAFJ4nSzNPpE7xTCEfItGRpRidMISkFsWFbemzrh
 BVflYs/SDw==
------END CERTIFICATE-----`
+-----END CERTIFICATE-----
+`
+*/
 
 // TODO: This certificate expired 2014, but is required.
-const AppleiPhoneDeviceCAPEM = `-----BEGIN CERTIFICATE-----
+const appleiPhoneDeviceCAPEM = `-----BEGIN CERTIFICATE-----
 MIIDaTCCAlGgAwIBAgIBATANBgkqhkiG9w0BAQUFADB5MQswCQYDVQQGEwJVUzET
 MBEGA1UEChMKQXBwbGUgSW5jLjEmMCQGA1UECxMdQXBwbGUgQ2VydGlmaWNhdGlv
 biBBdXRob3JpdHkxLTArBgNVBAMTJEFwcGxlIGlQaG9uZSBDZXJ0aWZpY2F0aW9u
@@ -85,15 +91,19 @@ pyQPbp8orlXe+tA8JA==
 -----END CERTIFICATE-----
 `
 
-// TODO: want to have more intensive verification
+// VerifyFromAppleDeviceCA verifies a certificate was signed by Apple's iPhone Device CA.
+// TODO: We want to have more intensive verification (like the whole provided chain).
+// TODO: Implement some sort of cache so we don't need to parse PEM & DER every invocation.
 func VerifyFromAppleDeviceCA(c *x509.Certificate) error {
-	block, _ := pem.Decode([]byte(AppleiPhoneDeviceCAPEM))
+	block, _ := pem.Decode([]byte(appleiPhoneDeviceCAPEM))
 	if block == nil || block.Type != "CERTIFICATE" {
-		return errors.New("invalid device CA")
+		panic("appleiPhoneDeviceCAPEM: invalid PEM block")
 	}
 	parent, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
-		return err
+		panic(fmt.Sprintf("appleiPhoneDeviceCAPEM: err parsing: %s", err))
 	}
+	// Note we CheckSignatureFrom() as we cannot Verify the certificate chain
+	// (known expired intermediate)
 	return c.CheckSignatureFrom(parent)
 }

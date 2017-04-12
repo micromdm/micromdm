@@ -34,7 +34,7 @@ type otaEnrollmentRequest struct {
 	IMEI          string `plist:"IMEI,omitempty"`
 	MEID          string `plist:"MEID,omitempty"`
 	ICCID         string `plist:"ICCID"`
-	MacAddressEn0 string `plist:"MAC_ADDRESS_EN0"`
+	MACAddressEN0 string `plist:"MAC_ADDRESS_EN0"`
 	DeviceName    string `plist:"DEVICE_NAME"`
 	NotOnConsole  bool
 	UserID        string // GUID of User
@@ -94,6 +94,10 @@ func MakeOTAPhase2Phase3Endpoint(s Service, scepDepot *boltdepot.Depot) endpoint
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(mdmOTAPhase2Phase3Request)
 
+		if req.p7 == nil || req.p7.GetOnlySigner() == nil {
+			return nil, errors.New("invalid signer/signer not provided")
+		}
+
 		// TODO: currently only verifying the signing certificate but ought to
 		// verify the whole provided chain. Note this will be difficult to do
 		// given the inconsist certificate chain returned by macOS in OTA mode,
@@ -105,7 +109,18 @@ func MakeOTAPhase2Phase3Endpoint(s Service, scepDepot *boltdepot.Depot) endpoint
 			// OTA enrollment
 			profile, err := s.OTAPhase2(ctx)
 			return mdmEnrollResponse{profile, err}, nil
-		} else if caChain, _, err := scepDepot.CA(nil); err == nil && len(caChain) > 0 && req.p7.GetOnlySigner().CheckSignatureFrom(caChain[0]) == nil {
+		}
+
+		caChain, _, err := scepDepot.CA(nil)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(caChain) < 1 {
+			return nil, errors.New("invalid SCEP CA chain")
+		}
+
+		if req.p7.GetOnlySigner().CheckSignatureFrom(caChain[0]) == nil {
 			// signing certificate is signed by our SCEP CA. this means we
 			// we are in Phase 3 of OTA enrollment (as we already have a
 			// identified certificate)
@@ -115,6 +130,8 @@ func MakeOTAPhase2Phase3Endpoint(s Service, scepDepot *boltdepot.Depot) endpoint
 			// TODO: we can encrypt the enrollment (or any profile) at this
 			// point: we have a device identity that we can encrypt to that
 			// device's private key that it can decrypt
+			// TODO: the SCEP CA checking ought to be more robust
+			// see: https://github.com/micromdm/scep/issues/32
 
 			profile, err := s.Enroll(ctx)
 			// profile, err := s.OTAPhase3(ctx)

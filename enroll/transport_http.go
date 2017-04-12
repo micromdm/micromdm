@@ -12,8 +12,11 @@ import (
 )
 
 type HTTPHandlers struct {
-	EnrollHandler          http.Handler
-	OTAEnrollHandler       http.Handler
+	EnrollHandler    http.Handler
+	OTAEnrollHandler http.Handler
+
+	// In Apple's Over-the-Air design Phases 2 and 3 happen over the same URL.
+	// The differentiator is which certificate signed the CMS POST body.
 	OTAPhase2Phase3Handler http.Handler
 }
 
@@ -71,16 +74,11 @@ func decodeMDMEnrollRequest(_ context.Context, r *http.Request) (interface{}, er
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
-	switch resp := response.(type) {
-	case mdmEnrollRequest, mdmOTAEnrollResponse:
-		_ = resp
-	default:
-		errors.New("unknown response type")
-	}
-
 	w.Header().Set("Content-Type", "application/x-apple-aspen-config")
 
-	if err := plist.NewEncoder(w).Encode(response); err != nil {
+	enc := plist.NewEncoder(w)
+	enc.Indent("  ")
+	if err := enc.Encode(response); err != nil {
 		return err
 	}
 

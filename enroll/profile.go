@@ -78,15 +78,6 @@ type MDMPayloadContent struct {
 	Topic                   string
 }
 
-var DefaultProfileServiceDeviceAttributes = []string{
-	"UDID",
-	"VERSION",
-	"PRODUCT",
-	"SERIAL",
-	"MEID",
-	"IMEI",
-}
-
 type ProfileServicePayload struct {
 	URL              string
 	Challenge        string `plist:",omitempty"`

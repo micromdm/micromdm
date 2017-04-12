@@ -1,6 +1,7 @@
 package enroll
 
 import (
+	"crypto/x509"
 	"golang.org/x/net/context"
 	"io/ioutil"
 	"strings"
@@ -149,6 +150,7 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 	return *profile, nil
 }
 
+// OTAEnroll returns an Over-the-Air "Profile Service" Payload for enrollment.
 func (svc service) OTAEnroll(ctx context.Context) (Payload, error) {
 	payload := NewPayload("Profile Service")
 	payload.PayloadIdentifier = "com.github.micromdm.ota.profile-service"
@@ -158,13 +160,14 @@ func (svc service) OTAEnroll(ctx context.Context) (Payload, error) {
 	payload.PayloadContent = ProfileServicePayload{
 		URL:              svc.URL + "/ota/phase23",
 		Challenge:        "",
-		DeviceAttributes: DefaultProfileServiceDeviceAttributes,
+		DeviceAttributes: []string{"UDID", "VERSION", "PRODUCT", "SERIAL", "MEID", "IMEI"},
 	}
 
 	// yes, this is a bare Payload, not a Profile
 	return *payload, nil
 }
 
+// OTAPhase2 returns a SCEP Profile for use in phase 2 of Over-the-Air enrollment.
 func (svc service) OTAPhase2(ctx context.Context) (Profile, error) {
 	profile := NewProfile()
 	profile.PayloadIdentifier = "com.github.micromdm.micromdm.ota-scep"
@@ -177,7 +180,7 @@ func (svc service) OTAPhase2(ctx context.Context) (Profile, error) {
 		URL:      svc.SCEPURL,
 		Keysize:  1024,
 		KeyType:  "RSA",
-		KeyUsage: 0,
+		KeyUsage: int(x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment),
 		Name:     "Device Management Identity Certificate",
 		Subject:  svc.SCEPSubject,
 	}
@@ -199,6 +202,11 @@ func (svc service) OTAPhase2(ctx context.Context) (Profile, error) {
 	return *profile, nil
 }
 
+// OTAPhase3 returns a Profile for use in phase 3 of Over-the-Air profile enrollment.
+// This would typically be the final or end profile of the Over-the-Air
+// enrollment process. In our case this would probably be a device-specifc
+// MDM enrollment payload.
+// TODO: Not implemented.
 func (svc service) OTAPhase3(ctx context.Context) (Profile, error) {
 	return Profile{}, nil
 }
