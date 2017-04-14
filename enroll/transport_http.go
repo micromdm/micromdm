@@ -9,6 +9,7 @@ import (
 	"github.com/fullsailor/pkcs7"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/groob/plist"
+	"github.com/micromdm/micromdm/crypto"
 )
 
 type HTTPHandlers struct {
@@ -52,7 +53,7 @@ func decodeMDMEnrollRequest(_ context.Context, r *http.Request) (interface{}, er
 	switch r.Method {
 	case "GET":
 		return mdmEnrollRequest{}, nil
-	case "POST":
+	case "POST": // DEP request
 		data, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			return nil, err
@@ -61,8 +62,18 @@ func decodeMDMEnrollRequest(_ context.Context, r *http.Request) (interface{}, er
 		if err != nil {
 			return nil, err
 		}
-		// TODO: We should verify but not currently possible. Apple
-		// does no provide a cert for the CA.
+		err = p7.Verify()
+		if err != nil {
+			return nil, err
+		}
+		signer := p7.GetOnlySigner()
+		if signer == nil {
+			return nil, errors.New("invalid CMS signer during enrollment")
+		}
+		err = crypto.VerifyFromAppleDeviceCA(signer)
+		if err != nil {
+			return nil, errors.New("unauthorized enrollment client: not signed by Apple Device CA")
+		}
 		var request depEnrollmentRequest
 		if err := plist.Unmarshal(p7.Content, &request); err != nil {
 			return nil, err
