@@ -66,6 +66,7 @@ func decodeMDMEnrollRequest(_ context.Context, r *http.Request) (interface{}, er
 		if err != nil {
 			return nil, err
 		}
+		// TODO: for thse errors provide better feedback as 4xx HTTP status
 		signer := p7.GetOnlySigner()
 		if signer == nil {
 			return nil, errors.New("invalid CMS signer during enrollment")
