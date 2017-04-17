@@ -102,7 +102,7 @@ func generateAndStoreDEPKeypair(db *bolt.DB) (key *rsa.PrivateKey, cert *x509.Ce
 }
 
 // TODO: move into seperate svc/pkg
-func getDEPKeypair(db *bolt.DB) (key *rsa.PrivateKey, cert *x509.Certificate, err error) {
+func GetDEPKeypair(db *bolt.DB) (key *rsa.PrivateKey, cert *x509.Certificate, err error) {
 	var keyBytes, certBytes []byte
 	err = db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(depTokenBucket))
@@ -130,7 +130,7 @@ func getDEPKeypair(db *bolt.DB) (key *rsa.PrivateKey, cert *x509.Certificate, er
 }
 
 func (svc *ListService) GetDEPTokens(ctx context.Context) ([]DEPToken, []byte, error) {
-	_, cert, err := getDEPKeypair(svc.DB)
+	_, cert, err := GetDEPKeypair(svc.DB)
 	if err != nil {
 		return nil, nil, err
 	}

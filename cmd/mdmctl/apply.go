@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -95,11 +96,15 @@ func (cmd *applyCommand) applyDEPTokens(args []string) error {
 	if _, err := os.Stat(*flPublicKeyPath); os.IsNotExist(err) {
 		return err
 	}
-	ctx := context.Background()
-	err := cmd.applysvc.ApplyDEPToken(ctx, []byte{1, 2, 3})
+	p7mBytes, err := ioutil.ReadFile(*flPublicKeyPath)
 	if err != nil {
 		return err
 	}
-
+	ctx := context.Background()
+	err = cmd.applysvc.ApplyDEPToken(ctx, p7mBytes)
+	if err != nil {
+		return err
+	}
+	fmt.Println("imported DEP token")
 	return nil
 }

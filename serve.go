@@ -207,7 +207,7 @@ func serve(args []string) error {
 
 	var applysvc apply.Service
 	{
-		applysvc = &apply.ApplyService{Blueprints: bpDB}
+		applysvc = &apply.ApplyService{Blueprints: bpDB, DB: sm.db}
 	}
 
 	var applyBlueprintEndpoint endpoint.Endpoint
