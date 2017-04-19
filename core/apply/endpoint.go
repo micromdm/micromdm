@@ -67,3 +67,4 @@ type depTokensResponse struct {
 }
 
 func (r depTokensResponse) error() error { return r.Err }
+func (r blueprintResponse) error() error { return r.Err }

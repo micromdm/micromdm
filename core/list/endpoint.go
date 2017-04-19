@@ -5,11 +5,13 @@ import (
 	"time"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/micromdm/micromdm/blueprint"
 )
 
 type Endpoints struct {
-	ListDevicesEndpoint  endpoint.Endpoint
-	GetDEPTokensEndpoint endpoint.Endpoint
+	ListDevicesEndpoint   endpoint.Endpoint
+	GetDEPTokensEndpoint  endpoint.Endpoint
+	GetBlueprintsEndpoint endpoint.Endpoint
 }
 
 func (e Endpoints) ListDevices(ctx context.Context, opts ListDevicesOption) ([]DeviceDTO, error) {
@@ -27,6 +29,15 @@ func (e Endpoints) GetDEPTokens(ctx context.Context) ([]DEPToken, []byte, error)
 		return nil, nil, err
 	}
 	return resp.(depTokenResponse).DEPTokens, resp.(depTokenResponse).DEPPubKey, nil
+}
+
+func (e Endpoints) GetBlueprints(ctx context.Context, opt GetBlueprintsOption) ([]blueprint.Blueprint, error) {
+	request := blueprintsRequest{opt}
+	response, err := e.GetBlueprintsEndpoint(ctx, request.Opts)
+	if err != nil {
+		return nil, err
+	}
+	return response.(blueprintsResponse).Blueprints, response.(blueprintsResponse).Err
 }
 
 func MakeListDevicesEndpoint(svc Service) endpoint.Endpoint {
@@ -47,6 +58,17 @@ func MakeGetDEPTokensEndpoint(svc Service) endpoint.Endpoint {
 			DEPTokens: tokens,
 			DEPPubKey: pubkey,
 			Err:       err,
+		}, nil
+	}
+}
+
+func MakeGetBlueprintsEndpoint(svc Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(blueprintsRequest)
+		blueprints, err := svc.GetBlueprints(ctx, req.Opts)
+		return blueprintsResponse{
+			Blueprints: blueprints,
+			Err:        err,
 		}, nil
 	}
 }
@@ -77,3 +99,11 @@ type depTokenResponse struct {
 	DEPPubKey []byte     `json:"public_key"`
 	Err       error      `json:"err,omitempty"`
 }
+
+type blueprintsRequest struct{ Opts GetBlueprintsOption }
+type blueprintsResponse struct {
+	Blueprints []blueprint.Blueprint `json:"blueprints"`
+	Err        error                 `json:"err,omitempty"`
+}
+
+func (r blueprintsResponse) error() error { return r.Err }

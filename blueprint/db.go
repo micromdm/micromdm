@@ -64,6 +64,9 @@ func (db *DB) List() ([]Blueprint, error) {
 }
 
 func (db *DB) Save(bp *Blueprint) error {
+	if bp.Name == "" || bp.UUID == "" {
+		return errors.New("cannot Save: blueprint must have Name and UUID")
+	}
 	tx, err := db.DB.Begin(true)
 	if err != nil {
 		return errors.Wrap(err, "begin transaction")

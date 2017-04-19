@@ -14,6 +14,7 @@ import (
 
 	"github.com/boltdb/bolt"
 
+	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/device"
 )
 
@@ -25,14 +26,20 @@ type ListDevicesOption struct {
 	FilterUDID   []string
 }
 
+type GetBlueprintsOption struct {
+	FilterName string
+}
+
 type Service interface {
 	ListDevices(ctx context.Context, opt ListDevicesOption) ([]DeviceDTO, error)
 	GetDEPTokens(ctx context.Context) ([]DEPToken, []byte, error)
+	GetBlueprints(ctx context.Context, opt GetBlueprintsOption) ([]blueprint.Blueprint, error)
 }
 
 type ListService struct {
-	Devices *device.DB
-	DB      *bolt.DB // TODO: replace with reference to DEP token svc/pkg
+	Devices    *device.DB
+	Blueprints *blueprint.DB
+	DB         *bolt.DB // TODO: replace with reference to DEP token svc/pkg
 }
 
 func (svc *ListService) ListDevices(ctx context.Context, opt ListDevicesOption) ([]DeviceDTO, error) {
@@ -196,4 +203,20 @@ func SimpleSelfSignedRSAKeypair(cn string, days int) (key *rsa.PrivateKey, cert 
 	}
 
 	return
+}
+
+func (svc *ListService) GetBlueprints(ctx context.Context, opt GetBlueprintsOption) ([]blueprint.Blueprint, error) {
+	if opt.FilterName != "" {
+		bp, err := svc.Blueprints.BlueprintByName(opt.FilterName)
+		if err != nil {
+			return nil, err
+		}
+		return []blueprint.Blueprint{*bp}, err
+	} else {
+		bps, err := svc.Blueprints.List()
+		if err != nil {
+			return nil, err
+		}
+		return bps, nil
+	}
 }

@@ -12,8 +12,9 @@ import (
 )
 
 type HTTPHandlers struct {
-	ListDevicesHandler  http.Handler
-	GetDEPTokensHandler http.Handler
+	ListDevicesHandler   http.Handler
+	GetDEPTokensHandler  http.Handler
+	GetBlueprintsHandler http.Handler
 }
 
 func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
@@ -29,6 +30,11 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 			decodeGetDEPTokensRequest,
 			encodeResponse,
 			opts...),
+		GetBlueprintsHandler: httptransport.NewServer(
+			endpoints.GetBlueprintsEndpoint,
+			decodeGetBlueprintsRequest,
+			encodeResponse,
+			opts...),
 	}
 	return h
 }
@@ -40,6 +46,17 @@ func decodeGetDEPTokensRequest(ctx context.Context, r *http.Request) (interface{
 func decodeListDevicesRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	req := devicesRequest{
 		Opts: ListDevicesOption{},
+	}
+	return req, nil
+}
+
+func decodeGetBlueprintsRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	var opts GetBlueprintsOption
+	if err := json.NewDecoder(r.Body).Decode(&opts); err != nil {
+		return nil, err
+	}
+	req := blueprintsRequest{
+		Opts: opts,
 	}
 	return req, nil
 }
@@ -72,7 +89,10 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, response interfa
 }
 
 func EncodeError(ctx context.Context, err error, w http.ResponseWriter) {
-	http.Error(w, err.Error(), http.StatusInternalServerError)
+	w.WriteHeader(http.StatusInternalServerError)
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", " ")
+	enc.Encode(errorWrapper{Error: err.Error()})
 }
 
 // EncodeHTTPGenericRequest is a transport/http.EncodeRequestFunc that
@@ -100,6 +120,15 @@ func DecodeGetDEPTokensResponse(_ context.Context, r *http.Response) (interface{
 		return nil, errorDecoder(r)
 	}
 	var resp depTokenResponse
+	err := json.NewDecoder(r.Body).Decode(&resp)
+	return resp, err
+}
+
+func DecodeGetBlueprintsResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	if r.StatusCode != http.StatusOK {
+		return nil, errorDecoder(r)
+	}
+	var resp blueprintsResponse
 	err := json.NewDecoder(r.Body).Decode(&resp)
 	return resp, err
 }

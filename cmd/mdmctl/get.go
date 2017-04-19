@@ -53,6 +53,8 @@ func (cmd *getCommand) Run(args []string) error {
 		run = cmd.getDevices
 	case "dep-tokens":
 		run = cmd.getDepTokens
+	case "blueprints":
+		run = cmd.getBlueprints
 	default:
 		cmd.Usage()
 		os.Exit(1)
@@ -192,4 +194,60 @@ func WritePEMCertificateFile(cert *x509.Certificate, path string) error {
 			Type:  "CERTIFICATE",
 			Bytes: cert.Raw,
 		})
+}
+
+func (cmd *getCommand) getBlueprints(args []string) error {
+	flagset := flag.NewFlagSet("blueprints", flag.ExitOnError)
+	var (
+		flBlueprintName = flagset.String("name", "", "name of blueprint")
+		flJSONName      = flagset.String("json", "", "file name of JSON to save for a single result")
+	)
+	flagset.Usage = usageFor(flagset, "mdmctl get blueprints [flags]")
+	if err := flagset.Parse(args); err != nil {
+		return err
+	}
+
+	ctx := context.Background()
+	blueprints, err := cmd.list.GetBlueprints(ctx, list.GetBlueprintsOption{FilterName: *flBlueprintName})
+	if err != nil {
+		return err
+	}
+
+	w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
+	fmt.Fprintf(w, "Name\tUUID\tManifests\tProfiles\n")
+	for _, bp := range blueprints {
+		fmt.Fprintf(
+			w,
+			"%s\t%s\t%d\t%d\n",
+			bp.Name,
+			bp.UUID,
+			len(bp.ApplicationURLs),
+			len(bp.Profiles),
+		)
+	}
+	w.Flush()
+
+	if *flJSONName != "" && len(blueprints) > 0 {
+		bp := blueprints[0]
+
+		bpFile, err := os.Create(*flJSONName)
+		if err != nil {
+			return err
+		}
+		defer bpFile.Close()
+
+		enc := json.NewEncoder(bpFile)
+		enc.SetIndent("", "  ")
+		err = enc.Encode(bp)
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("\nWrote Blueprint to: %s\n", *flJSONName)
+		if len(blueprints) > 1 {
+			fmt.Println("WARNING: more than one Blueprint returned; only saved first")
+		}
+	}
+
+	return nil
 }

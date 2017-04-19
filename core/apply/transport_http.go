@@ -9,7 +9,6 @@ import (
 	"net/http"
 
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/micromdm/micromdm/blueprint"
 )
 
 type HTTPHandlers struct {
@@ -44,14 +43,11 @@ func decodeDEPTokensRequest(ctx context.Context, r *http.Request) (interface{}, 
 }
 
 func decodeBlueprintRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	var bp blueprint.Blueprint
-	if err := json.NewDecoder(r.Body).Decode(&bp); err != nil {
+	var bpReq blueprintRequest
+	if err := json.NewDecoder(r.Body).Decode(&bpReq); err != nil {
 		return nil, err
 	}
-	req := blueprintRequest{
-		Blueprint: &bp,
-	}
-	return req, nil
+	return bpReq, nil
 }
 
 type errorWrapper struct {

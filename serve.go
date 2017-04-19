@@ -192,7 +192,7 @@ func serve(args []string) error {
 
 	var listsvc list.Service
 	{
-		listsvc = &list.ListService{Devices: devDB, DB: sm.db}
+		listsvc = &list.ListService{Devices: devDB, DB: sm.db, Blueprints: bpDB}
 	}
 	var listDevicesEndpoint endpoint.Endpoint
 	{
@@ -200,8 +200,9 @@ func serve(args []string) error {
 
 	}
 	listEndpoints := list.Endpoints{
-		ListDevicesEndpoint:  listDevicesEndpoint,
-		GetDEPTokensEndpoint: list.MakeGetDEPTokensEndpoint(listsvc),
+		ListDevicesEndpoint:   listDevicesEndpoint,
+		GetDEPTokensEndpoint:  list.MakeGetDEPTokensEndpoint(listsvc),
+		GetBlueprintsEndpoint: list.MakeGetBlueprintsEndpoint(listsvc),
 	}
 
 	var applysvc apply.Service
@@ -246,6 +247,7 @@ func serve(args []string) error {
 		r.Handle("/v1/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListDevicesHandler)).Methods("GET")
 		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPTokensHandler)).Methods("GET")
 		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DEPTokensHandler)).Methods("PUT")
+		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetBlueprintsHandler)).Methods("GET")
 		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.BlueprintHandler)).Methods("PUT")
 	}
 

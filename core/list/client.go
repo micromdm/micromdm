@@ -36,10 +36,20 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 			opts...,
 		).Endpoint()
 	}
+	var getBlueprintsEndpoint endpoint.Endpoint
+	{
+		getBlueprintsEndpoint = httptransport.NewClient(
+			"GET",
+			copyURL(u, "/v1/blueprints"),
+			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
+			DecodeGetBlueprintsResponse,
+		).Endpoint()
+	}
 
 	return Endpoints{
-		ListDevicesEndpoint:  listDevicesEndpoint,
-		GetDEPTokensEndpoint: getDEPTokensEndpoint,
+		ListDevicesEndpoint:   listDevicesEndpoint,
+		GetDEPTokensEndpoint:  getDEPTokensEndpoint,
+		GetBlueprintsEndpoint: getBlueprintsEndpoint,
 	}, nil
 }
 

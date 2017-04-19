@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -11,7 +12,9 @@ import (
 
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/core/apply"
+	uuid "github.com/satori/go.uuid"
 )
 
 type applyCommand struct {
@@ -75,9 +78,59 @@ Examples:
 
 func (cmd *applyCommand) applyBlueprint(args []string) error {
 	flagset := flag.NewFlagSet("blueprints", flag.ExitOnError)
+	var (
+		flBlueprintPath    = flagset.String("f", "", "filename of blueprint JSON to apply")
+		flNewBlueprintPath = flagset.String("generate-blueprint", "", "filename of new template blueprint JSON to create")
+	)
 	flagset.Usage = usageFor(flagset, "mdmctl apply blueprints [flags]")
 	if err := flagset.Parse(args); err != nil {
 		return err
+	}
+	if *flBlueprintPath == "" && *flNewBlueprintPath == "" {
+		return errors.New("must provide -f or -generate-blueprint parameter")
+	}
+	if *flBlueprintPath != "" {
+		if _, err := os.Stat(*flBlueprintPath); os.IsNotExist(err) {
+			return err
+		}
+		jsonBytes, err := ioutil.ReadFile(*flBlueprintPath)
+		if err != nil {
+			return err
+		}
+		var blpt blueprint.Blueprint
+		err = json.Unmarshal(jsonBytes, &blpt)
+		if err != nil {
+			return err
+		}
+		ctx := context.Background()
+		err = cmd.applysvc.ApplyBlueprint(ctx, &blpt)
+		if err != nil {
+			return err
+		}
+		fmt.Println("applied blueprint", *flBlueprintPath)
+		return nil
+	}
+	if *flNewBlueprintPath != "" {
+		newBlueprintFile, err := os.Create(*flNewBlueprintPath)
+		if err != nil {
+			return err
+		}
+		defer newBlueprintFile.Close()
+
+		newBlueprint := new(blueprint.Blueprint)
+		newBlueprint.Name = "exampleName"
+		newBlueprint.UUID = uuid.NewV4().String()
+		newBlueprint.ApplicationURLs = []string{cmd.config.ServerURL + "repo/exampleAppManifest.plist"}
+		newBlueprint.Profiles = []blueprint.Mobileconfig{blueprint.Mobileconfig([]byte("this should be a configuration profile"))}
+
+		enc := json.NewEncoder(newBlueprintFile)
+		enc.SetIndent("", "  ")
+		err = enc.Encode(newBlueprint)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("wrote", *flNewBlueprintPath)
 	}
 	return nil
 }
