@@ -55,7 +55,7 @@ const (
 )
 
 // TODO: move into seperate svc/pkg
-func getDEPTokens(db *bolt.DB) ([]DEPToken, error) {
+func GetDEPTokens(db *bolt.DB) ([]DEPToken, error) {
 	var result []DEPToken
 	err := db.View(func(tx *bolt.Tx) error {
 		c := tx.Bucket([]byte(depTokenBucket)).Cursor()
@@ -139,7 +139,7 @@ func (svc *ListService) GetDEPTokens(ctx context.Context) ([]DEPToken, []byte, e
 		certBytes = cert.Raw
 	}
 
-	tokens, err := getDEPTokens(svc.DB)
+	tokens, err := GetDEPTokens(svc.DB)
 	if err != nil {
 		return nil, certBytes, err
 	}
