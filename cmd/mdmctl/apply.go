@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/go-kit/kit/log"
+	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/micromdm/micromdm/core/apply"
 )
 
@@ -25,7 +26,7 @@ func (cmd *applyCommand) setup() error {
 	}
 	cmd.config = cfg
 	logger := log.NewLogfmtLogger(os.Stderr)
-	applysvc, err := apply.NewClient(cfg.ServerURL, logger, cfg.APIToken)
+	applysvc, err := apply.NewClient(cfg.ServerURL, logger, cfg.APIToken, httptransport.SetClient(skipVerifyHTTPClient(cmd.config.SkipVerify)))
 	if err != nil {
 		return err
 	}

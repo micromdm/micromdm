@@ -10,10 +10,25 @@ import (
 	"os/user"
 	"path/filepath"
 	"strings"
+
+	"crypto/tls"
+	"net/http"
 )
 
 type configCommand struct {
 	config *ClientConfig
+}
+
+// skipVerifyHTTPClient returns an *http.Client with InsecureSkipVerify set
+// to true for its TLS config. This allows self-signed SSL certificates.
+func skipVerifyHTTPClient(skipVerify bool) *http.Client {
+	if skipVerify {
+		tlsConfig := &tls.Config{InsecureSkipVerify: true}
+		transport := &http.Transport{TLSClientConfig: tlsConfig}
+		return &http.Client{Transport: transport}
+	} else {
+		return http.DefaultClient
+	}
 }
 
 func (cmd *configCommand) Run(args []string) error {
@@ -51,8 +66,9 @@ mdmctl config set -h
 func setCmd(cfg *ClientConfig, args []string) error {
 	flagset := flag.NewFlagSet("set", flag.ExitOnError)
 	var (
-		flToken     = flagset.String("api-token", "", "api token to connect to micromdm server")
-		flServerURL = flagset.String("server-url", "", "server url of micromdm server")
+		flToken      = flagset.String("api-token", "", "api token to connect to micromdm server")
+		flServerURL  = flagset.String("server-url", "", "server url of micromdm server")
+		flSkipVerify = flagset.Bool("skip-verify", false, "skip verification of server certificate (insecure)")
 	)
 
 	flagset.Usage = usageFor(flagset, "mdmctl config set [flags]")
@@ -77,6 +93,8 @@ func setCmd(cfg *ClientConfig, args []string) error {
 		u.Path = "/"
 		cfg.ServerURL = u.String()
 	}
+
+	cfg.SkipVerify = *flSkipVerify
 
 	return SaveClientConfig(cfg)
 }
@@ -131,6 +149,7 @@ func LoadClientConfig() (*ClientConfig, error) {
 }
 
 type ClientConfig struct {
-	APIToken  string `json:"api_token"`
-	ServerURL string `json:"server_url"`
+	APIToken   string `json:"api_token"`
+	ServerURL  string `json:"server_url"`
+	SkipVerify bool   `json:"skip_verify"`
 }

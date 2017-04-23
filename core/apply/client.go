@@ -10,7 +10,7 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 )
 
-func NewClient(instance string, logger log.Logger, token string) (Service, error) {
+func NewClient(instance string, logger log.Logger, token string, opts ...httptransport.ClientOption) (Service, error) {
 	u, err := url.Parse(instance)
 	if err != nil {
 		return nil, err
@@ -23,6 +23,7 @@ func NewClient(instance string, logger log.Logger, token string) (Service, error
 			copyURL(u, "/v1/blueprints"),
 			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
 			DecodeBlueprintRequest,
+			opts...,
 		).Endpoint()
 	}
 	var applyDEPTokensEndpoint endpoint.Endpoint
@@ -32,6 +33,7 @@ func NewClient(instance string, logger log.Logger, token string) (Service, error
 			copyURL(u, "/v1/dep-tokens"),
 			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
 			DecodeDEPTokensRequest,
+			opts...,
 		).Endpoint()
 	}
 

@@ -13,6 +13,7 @@ import (
 	"encoding/pem"
 
 	"github.com/go-kit/kit/log"
+	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/micromdm/micromdm/core/list"
 )
 
@@ -28,7 +29,7 @@ func (cmd *getCommand) setup() error {
 	}
 	cmd.config = cfg
 	logger := log.NewLogfmtLogger(os.Stderr)
-	listsvc, err := list.NewClient(cfg.ServerURL, logger, cfg.APIToken)
+	listsvc, err := list.NewClient(cfg.ServerURL, logger, cfg.APIToken, httptransport.SetClient(skipVerifyHTTPClient(cmd.config.SkipVerify)))
 	if err != nil {
 		return err
 	}
