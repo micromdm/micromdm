@@ -58,7 +58,11 @@ const (
 func GetDEPTokens(db *bolt.DB) ([]DEPToken, error) {
 	var result []DEPToken
 	err := db.View(func(tx *bolt.Tx) error {
-		c := tx.Bucket([]byte(depTokenBucket)).Cursor()
+		b := tx.Bucket([]byte(depTokenBucket))
+		if b == nil {
+			return nil
+		}
+		c := b.Cursor()
 
 		prefix := []byte("CK_")
 		for k, v := c.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = c.Next() {
@@ -86,8 +90,11 @@ func generateAndStoreDEPKeypair(db *bolt.DB) (key *rsa.PrivateKey, cert *x509.Ce
 	certBytes := cert.Raw
 
 	err = db.Update(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(depTokenBucket))
-		err := b.Put([]byte("key"), pkBytes)
+		b, err := tx.CreateBucketIfNotExists([]byte(depTokenBucket))
+		if err != nil {
+			return err
+		}
+		err = b.Put([]byte("key"), pkBytes)
 		if err != nil {
 			return err
 		}
@@ -106,6 +113,9 @@ func GetDEPKeypair(db *bolt.DB) (key *rsa.PrivateKey, cert *x509.Certificate, er
 	var keyBytes, certBytes []byte
 	err = db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(depTokenBucket))
+		if b == nil {
+			return nil
+		}
 		keyBytes = b.Get([]byte("key"))
 		certBytes = b.Get([]byte("certificate"))
 		return nil
