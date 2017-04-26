@@ -26,9 +26,8 @@ func skipVerifyHTTPClient(skipVerify bool) *http.Client {
 		tlsConfig := &tls.Config{InsecureSkipVerify: true}
 		transport := &http.Transport{TLSClientConfig: tlsConfig}
 		return &http.Client{Transport: transport}
-	} else {
-		return http.DefaultClient
 	}
+	return http.DefaultClient
 }
 
 func (cmd *configCommand) Run(args []string) error {
