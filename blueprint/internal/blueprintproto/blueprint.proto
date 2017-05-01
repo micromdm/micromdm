@@ -5,6 +5,7 @@ package blueprintproto;
 message Blueprint {
 	string uuid = 1;
 	string name = 2;
-	repeated string manifest_urls = 3;
-	repeated bytes mobileconfigs = 4;
+	string when = 3;
+	repeated string manifest_urls = 4;
+	repeated bytes mobileconfigs = 5;
 }
