@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func RandomCertificateSerialNumber() (*big.Int, error) {
+func GenerateRandomCertificateSerialNumber() (*big.Int, error) {
 	limit := new(big.Int).Lsh(big.NewInt(1), 128)
 	return rand.Int(rand.Reader, limit)
 }
@@ -19,12 +19,12 @@ func RandomCertificateSerialNumber() (*big.Int, error) {
 func SimpleSelfSignedRSAKeypair(cn string, days int) (key *rsa.PrivateKey, cert *x509.Certificate, err error) {
 	key, err = rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		return
+		return key, cert, err
 	}
 
-	serialNumber, err := RandomCertificateSerialNumber()
+	serialNumber, err := GenerateRandomCertificateSerialNumber()
 	if err != nil {
-		return
+		return key, cert, err
 	}
 	timeNow := time.Now()
 	template := x509.Certificate{
@@ -41,14 +41,14 @@ func SimpleSelfSignedRSAKeypair(cn string, days int) (key *rsa.PrivateKey, cert 
 	}
 	certBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &key.PublicKey, key)
 	if err != nil {
-		return
+		return key, cert, err
 	}
 	cert, err = x509.ParseCertificate(certBytes)
 	if err != nil {
-		return
+		return key, cert, err
 	}
 
-	return
+	return key, cert, err
 }
 
 func WritePEMCertificateFile(cert *x509.Certificate, path string) error {
