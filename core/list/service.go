@@ -4,17 +4,14 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"time"
 
-	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
-	"crypto/x509/pkix"
-	"math/big"
 
 	"github.com/boltdb/bolt"
 
 	"github.com/micromdm/micromdm/blueprint"
+	"github.com/micromdm/micromdm/crypto"
 	"github.com/micromdm/micromdm/device"
 )
 
@@ -88,7 +85,7 @@ func GetDEPTokens(db *bolt.DB) ([]DEPToken, error) {
 
 // TODO: move into seperate svc/pkg
 func generateAndStoreDEPKeypair(db *bolt.DB) (key *rsa.PrivateKey, cert *x509.Certificate, err error) {
-	key, cert, err = SimpleSelfSignedRSAKeypair("micromdm-dep-token", 365)
+	key, cert, err = crypto.SimpleSelfSignedRSAKeypair("micromdm-dep-token", 365)
 	if err != nil {
 		return
 	}
@@ -162,47 +159,6 @@ func (svc *ListService) GetDEPTokens(ctx context.Context) ([]DEPToken, []byte, e
 	}
 
 	return tokens, certBytes, nil
-}
-
-// TODO: move into crypto package
-func RandomCertificateSerialNumber() (*big.Int, error) {
-	limit := new(big.Int).Lsh(big.NewInt(1), 128)
-	return rand.Int(rand.Reader, limit)
-}
-
-// TODO: move into crypto package
-func SimpleSelfSignedRSAKeypair(cn string, days int) (key *rsa.PrivateKey, cert *x509.Certificate, err error) {
-	key, err = rsa.GenerateKey(rand.Reader, 2048)
-	if err != nil {
-		return
-	}
-
-	serialNumber, err := RandomCertificateSerialNumber()
-	if err != nil {
-		return
-	}
-	timeNow := time.Now()
-	template := x509.Certificate{
-		SerialNumber: serialNumber,
-		Subject: pkix.Name{
-			CommonName: cn,
-		},
-		NotBefore:             timeNow,
-		NotAfter:              timeNow.Add(time.Duration(days) * 24 * time.Hour),
-		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
-		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
-		BasicConstraintsValid: true,
-	}
-	certBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, &key.PublicKey, key)
-	if err != nil {
-		return
-	}
-	cert, err = x509.ParseCertificate(certBytes)
-	if err != nil {
-		return
-	}
-
-	return
 }
 
 func (svc *ListService) GetBlueprints(ctx context.Context, opt GetBlueprintsOption) ([]blueprint.Blueprint, error) {

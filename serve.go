@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"context"
-	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/asn1"
@@ -47,6 +46,7 @@ import (
 	"github.com/micromdm/micromdm/connect"
 	"github.com/micromdm/micromdm/core/apply"
 	"github.com/micromdm/micromdm/core/list"
+	"github.com/micromdm/micromdm/crypto"
 	"github.com/micromdm/micromdm/depsync"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/enroll"
@@ -692,7 +692,7 @@ func (c *config) setupSCEP(logger log.Logger) {
 		return
 	}
 
-	c.err = savePEMCert(scepCACertName, caCert)
+	c.err = crypto.WritePEMCertificateFile(caCert, scepCACertName)
 	if c.err != nil {
 		return
 	}
@@ -705,38 +705,6 @@ func (c *config) setupSCEP(logger log.Logger) {
 	if c.err == nil {
 		c.scepService = scep.NewLoggingService(logger, c.scepService)
 	}
-}
-
-func savePEMKey(path string, key *rsa.PrivateKey) error {
-	keyOutput, err := os.OpenFile(path,
-		os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600,
-	)
-	if err != nil {
-		return err
-	}
-	defer keyOutput.Close()
-
-	return pem.Encode(
-		keyOutput,
-		&pem.Block{
-			Type:  "RSA PRIVATE KEY",
-			Bytes: x509.MarshalPKCS1PrivateKey(key),
-		})
-}
-
-func savePEMCert(path string, cert *x509.Certificate) error {
-	certOutput, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer certOutput.Close()
-
-	return pem.Encode(
-		certOutput,
-		&pem.Block{
-			Type:  "CERTIFICATE",
-			Bytes: cert.Raw,
-		})
 }
 
 func debugHTTPmiddleware(next http.Handler) http.Handler {

@@ -10,11 +10,11 @@ import (
 	"text/tabwriter"
 
 	"crypto/x509"
-	"encoding/pem"
 
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/micromdm/micromdm/core/list"
+	"github.com/micromdm/micromdm/crypto"
 )
 
 type getCommand struct {
@@ -150,7 +150,7 @@ func (cmd *getCommand) getDepTokens(args []string) error {
 		if err != nil {
 			return err
 		}
-		err = WritePEMCertificateFile(cert, *flPublicKeyPath)
+		err = crypto.WritePEMCertificateFile(cert, *flPublicKeyPath)
 		if err != nil {
 			return err
 		}
@@ -178,22 +178,6 @@ func (cmd *getCommand) getDepTokens(args []string) error {
 	}
 
 	return nil
-}
-
-// TODO: move into crypto package and use for all main.savePEMCert() invocations
-func WritePEMCertificateFile(cert *x509.Certificate, path string) error {
-	file, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	return pem.Encode(
-		file,
-		&pem.Block{
-			Type:  "CERTIFICATE",
-			Bytes: cert.Raw,
-		})
 }
 
 func (cmd *getCommand) getBlueprints(args []string) error {
