@@ -3,6 +3,7 @@ package push
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/RobotsAndPencils/buford/payload"
 	"github.com/RobotsAndPencils/buford/push"
@@ -66,5 +67,11 @@ func (svc *Push) Push(ctx context.Context, deviceUDID string) (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "marshalling push notification payload")
 	}
-	return svc.pushsvc.Push(info.Token, nil, jsonPayload)
+	result, err := svc.pushsvc.Push(info.Token, nil, jsonPayload)
+	if strings.HasSuffix(err.Error(), "remote error: tls: internal error") {
+		// TODO: yuck, error substring searching. see:
+		// https://github.com/micromdm/micromdm/issues/150
+		return result, errors.Wrap(err, "push error: possibly expired or invalid APNs certificate")
+	}
+	return result, err
 }
