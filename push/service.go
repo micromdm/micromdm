@@ -68,7 +68,7 @@ func (svc *Push) Push(ctx context.Context, deviceUDID string) (string, error) {
 		return "", errors.Wrap(err, "marshalling push notification payload")
 	}
 	result, err := svc.pushsvc.Push(info.Token, nil, jsonPayload)
-	if strings.HasSuffix(err.Error(), "remote error: tls: internal error") {
+	if err != nil && strings.HasSuffix(err.Error(), "remote error: tls: internal error") {
 		// TODO: yuck, error substring searching. see:
 		// https://github.com/micromdm/micromdm/issues/150
 		return result, errors.Wrap(err, "push error: possibly expired or invalid APNs certificate")
