@@ -13,6 +13,7 @@ import (
 	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/crypto"
 	"github.com/micromdm/micromdm/device"
+	"github.com/micromdm/micromdm/profile"
 )
 
 type ListDevicesOption struct {
@@ -27,15 +28,21 @@ type GetBlueprintsOption struct {
 	FilterName string
 }
 
+type GetProfilesOption struct {
+	Identifier string `json:"id"`
+}
+
 type Service interface {
 	ListDevices(ctx context.Context, opt ListDevicesOption) ([]DeviceDTO, error)
 	GetDEPTokens(ctx context.Context) ([]DEPToken, []byte, error)
 	GetBlueprints(ctx context.Context, opt GetBlueprintsOption) ([]blueprint.Blueprint, error)
+	GetProfiles(ctx context.Context, opt GetProfilesOption) ([]profile.Profile, error)
 }
 
 type ListService struct {
 	Devices    *device.DB
 	Blueprints *blueprint.DB
+	Profiles   *profile.DB
 	DB         *bolt.DB // TODO: replace with reference to DEP token svc/pkg
 }
 
@@ -174,5 +181,17 @@ func (svc *ListService) GetBlueprints(ctx context.Context, opt GetBlueprintsOpti
 			return nil, err
 		}
 		return bps, nil
+	}
+}
+
+func (svc *ListService) GetProfiles(ctx context.Context, opt GetProfilesOption) ([]profile.Profile, error) {
+	if opt.Identifier != "" {
+		foundProf, err := svc.Profiles.ProfileById(opt.Identifier)
+		if err != nil {
+			return nil, err
+		}
+		return []profile.Profile{*foundProf}, nil
+	} else {
+		return svc.Profiles.List()
 	}
 }

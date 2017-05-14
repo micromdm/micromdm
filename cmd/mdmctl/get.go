@@ -55,6 +55,8 @@ func (cmd *getCommand) Run(args []string) error {
 		run = cmd.getDepTokens
 	case "blueprints":
 		run = cmd.getBlueprints
+	case "profiles":
+		run = cmd.getProfiles
 	default:
 		cmd.Usage()
 		os.Exit(1)
@@ -72,6 +74,7 @@ Valid resource types:
   * devices
   * blueprints
   * dep-tokens
+  * profiles
 
 Examples:
   # Get a list of devices
@@ -233,5 +236,55 @@ func (cmd *getCommand) getBlueprints(args []string) error {
 		}
 	}
 
+	return nil
+}
+
+func (cmd *getCommand) getProfiles(args []string) error {
+	flagset := flag.NewFlagSet("profiles", flag.ExitOnError)
+	var (
+		flProfilePath = flagset.String("f", "", "filename of profile to write")
+		flIdentifier  = flagset.String("id", "", "profile Identifier")
+	)
+	flagset.Usage = usageFor(flagset, "mdmctl get blueprints [flags]")
+	if err := flagset.Parse(args); err != nil {
+		return err
+	}
+
+	ctx := context.Background()
+	profiles, err := cmd.list.GetProfiles(ctx, list.GetProfilesOption{Identifier: *flIdentifier})
+	if err != nil {
+		return err
+	}
+	w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
+	fmt.Fprintf(w, "Identifier\tLength\n")
+	for _, p := range profiles {
+		fmt.Fprintf(
+			w,
+			"%s\t%d\n",
+			p.Identifier,
+			len(p.Mobileconfig),
+		)
+	}
+	w.Flush()
+
+	if *flIdentifier != "" && *flProfilePath != "" {
+		p := profiles[0]
+
+		newProfileFile, err := os.Create(*flProfilePath)
+		if err != nil {
+			return err
+		}
+		defer newProfileFile.Close()
+
+		_, err = newProfileFile.Write([]byte(p.Mobileconfig))
+		if err != nil {
+			return err
+		}
+		fmt.Printf("\nwrote profile id %s to: %s\n", p.Identifier, *flProfilePath)
+
+		if len(profiles) > 1 {
+			fmt.Println("WARNING: more than one Profile returned; only saved first")
+		}
+	}
 	return nil
 }

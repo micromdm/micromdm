@@ -15,15 +15,18 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/core/list"
+	"github.com/micromdm/micromdm/profile"
 )
 
 type Service interface {
 	ApplyBlueprint(ctx context.Context, bp *blueprint.Blueprint) error
 	ApplyDEPToken(ctx context.Context, P7MContent []byte) error
+	ApplyProfile(ctx context.Context, p *profile.Profile) error
 }
 
 type ApplyService struct {
 	Blueprints *blueprint.DB
+	Profiles   *profile.DB
 	DB         *bolt.DB // TODO: replace with reference to DEP token svc/pkg
 }
 
@@ -114,4 +117,8 @@ func (svc *ApplyService) ApplyDEPToken(ctx context.Context, P7MContent []byte) e
 	}
 	fmt.Println("stored DEP token with ck", depToken.ConsumerKey)
 	return nil
+}
+
+func (svc *ApplyService) ApplyProfile(ctx context.Context, p *profile.Profile) error {
+	return svc.Profiles.Save(p)
 }

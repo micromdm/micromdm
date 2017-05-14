@@ -5,11 +5,13 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/micromdm/blueprint"
+	"github.com/micromdm/micromdm/profile"
 )
 
 type Endpoints struct {
 	ApplyBlueprintEndpoint endpoint.Endpoint
 	ApplyDEPTokensEndpoint endpoint.Endpoint
+	ApplyProfileEndpoint   endpoint.Endpoint
 }
 
 func (e Endpoints) ApplyBlueprint(ctx context.Context, bp *blueprint.Blueprint) error {
@@ -28,6 +30,15 @@ func (e Endpoints) ApplyDEPToken(ctx context.Context, P7MContent []byte) error {
 		return err
 	}
 	return resp.(depTokensResponse).Err
+}
+
+func (e Endpoints) ApplyProfile(ctx context.Context, p *profile.Profile) error {
+	request := profileRequest{Profile: p}
+	resp, err := e.ApplyProfileEndpoint(ctx, request)
+	if err != nil {
+		return err
+	}
+	return resp.(profileResponse).Err
 }
 
 func MakeApplyBlueprintEndpoint(svc Service) endpoint.Endpoint {
@@ -50,11 +61,29 @@ func MakeApplyDEPTokensEndpoint(svc Service) endpoint.Endpoint {
 	}
 }
 
+func MakeApplyProfileEndpoint(svc Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(profileRequest)
+		err = svc.ApplyProfile(ctx, req.Profile)
+		return profileResponse{
+			Err: err,
+		}, nil
+	}
+}
+
 type blueprintRequest struct {
 	Blueprint *blueprint.Blueprint `json:"blueprint"`
 }
 
 type blueprintResponse struct {
+	Err error `json:"err,omitempty"`
+}
+
+type profileRequest struct {
+	Profile *profile.Profile `json:"profile"`
+}
+
+type profileResponse struct {
 	Err error `json:"err,omitempty"`
 }
 
@@ -68,3 +97,4 @@ type depTokensResponse struct {
 
 func (r depTokensResponse) error() error { return r.Err }
 func (r blueprintResponse) error() error { return r.Err }
+func (r profileResponse) error() error   { return r.Err }

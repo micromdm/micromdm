@@ -50,6 +50,7 @@ import (
 	"github.com/micromdm/micromdm/depsync"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/enroll"
+	"github.com/micromdm/micromdm/profile"
 	"github.com/micromdm/micromdm/pubsub"
 	nanopush "github.com/micromdm/micromdm/push"
 	"github.com/micromdm/micromdm/queue"
@@ -151,6 +152,11 @@ func serve(args []string) error {
 		stdlog.Fatal(err)
 	}
 
+	profDB, err := profile.NewDB(sm.db)
+	if err != nil {
+		stdlog.Fatal(err)
+	}
+
 	ctx := context.Background()
 	httpLogger := log.With(logger, "transport", "http")
 	var checkinEndpoint endpoint.Endpoint
@@ -192,7 +198,7 @@ func serve(args []string) error {
 
 	var listsvc list.Service
 	{
-		listsvc = &list.ListService{Devices: devDB, DB: sm.db, Blueprints: bpDB}
+		listsvc = &list.ListService{Devices: devDB, DB: sm.db, Blueprints: bpDB, Profiles: profDB}
 	}
 	var listDevicesEndpoint endpoint.Endpoint
 	{
@@ -203,11 +209,12 @@ func serve(args []string) error {
 		ListDevicesEndpoint:   listDevicesEndpoint,
 		GetDEPTokensEndpoint:  list.MakeGetDEPTokensEndpoint(listsvc),
 		GetBlueprintsEndpoint: list.MakeGetBlueprintsEndpoint(listsvc),
+		GetProfilesEndpoint:   list.MakeGetProfilesEndpoint(listsvc),
 	}
 
 	var applysvc apply.Service
 	{
-		applysvc = &apply.ApplyService{Blueprints: bpDB, DB: sm.db}
+		applysvc = &apply.ApplyService{Blueprints: bpDB, DB: sm.db, Profiles: profDB}
 	}
 
 	var applyBlueprintEndpoint endpoint.Endpoint
@@ -215,9 +222,15 @@ func serve(args []string) error {
 		applyBlueprintEndpoint = apply.MakeApplyBlueprintEndpoint(applysvc)
 	}
 
+	var applyProfileEndpoint endpoint.Endpoint
+	{
+		applyProfileEndpoint = apply.MakeApplyProfileEndpoint(applysvc)
+	}
+
 	applyEndpoints := apply.Endpoints{
 		ApplyBlueprintEndpoint: applyBlueprintEndpoint,
 		ApplyDEPTokensEndpoint: apply.MakeApplyDEPTokensEndpoint(applysvc),
+		ApplyProfileEndpoint:   applyProfileEndpoint,
 	}
 
 	applyAPIHandlers := apply.MakeHTTPHandlers(ctx, applyEndpoints, connectOpts...)
@@ -249,6 +262,8 @@ func serve(args []string) error {
 		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DEPTokensHandler)).Methods("PUT")
 		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetBlueprintsHandler)).Methods("GET")
 		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.BlueprintHandler)).Methods("PUT")
+		r.Handle("/v1/profiles", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetProfilesHandler)).Methods("GET")
+		r.Handle("/v1/profiles", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.ProfileHandler)).Methods("PUT")
 	}
 
 	if *flRepoPath != "" {

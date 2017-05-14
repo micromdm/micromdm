@@ -12,8 +12,10 @@ import (
 
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/groob/plist"
 	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/core/apply"
+	"github.com/micromdm/micromdm/profile"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -51,6 +53,8 @@ func (cmd *applyCommand) Run(args []string) error {
 		run = cmd.applyBlueprint
 	case "dep-tokens":
 		run = cmd.applyDEPTokens
+	case "profiles":
+		run = cmd.applyProfile
 	default:
 		cmd.Usage()
 		os.Exit(1)
@@ -65,6 +69,7 @@ Apply a resource.
 Valid resource types:
 
   * blueprints
+  * profiles
   * dep-tokens
 
 Examples:
@@ -160,5 +165,55 @@ func (cmd *applyCommand) applyDEPTokens(args []string) error {
 		return err
 	}
 	fmt.Println("imported DEP token")
+	return nil
+}
+
+// only used to parse plists to get the PayloadIdentifier
+type PayloadIdentifier struct {
+	PayloadIdentifier string
+}
+
+func (cmd *applyCommand) applyProfile(args []string) error {
+	flagset := flag.NewFlagSet("profiles", flag.ExitOnError)
+	var (
+		flProfilePath = flagset.String("f", "", "filename of profile to apply")
+		flIdentifier  = flagset.String("id", "", "Profile PayloadIdentifier (only needed for encrypted profiles)")
+	)
+	flagset.Usage = usageFor(flagset, "mdmctl apply profiles [flags]")
+	if err := flagset.Parse(args); err != nil {
+		return err
+	}
+	if *flProfilePath == "" {
+		return errors.New("must provide -f parameter")
+	}
+	if _, err := os.Stat(*flProfilePath); os.IsNotExist(err) {
+		return err
+	}
+	profileBytes, err := ioutil.ReadFile(*flProfilePath)
+	if err != nil {
+		return err
+	}
+	var pId PayloadIdentifier
+	// TODO: handle signed & encrypted profiles
+	err = plist.Unmarshal(profileBytes, &pId)
+	if err != nil {
+		return err
+	}
+	if *flIdentifier != "" && pId.PayloadIdentifier != *flIdentifier {
+		// TODO: we may not be able to unmarshal the mobileconfig and so
+		// will have to blindly accept the input when we handle encrypted
+		// profiles
+		return errors.New(fmt.Sprintf("provided id %s does not match PayloadIdentifier %s", *flIdentifier, pId.PayloadIdentifier))
+	}
+	var p profile.Profile
+	p.Identifier = pId.PayloadIdentifier // TODO: need to use provided ID when we support encrypted profiles
+	p.Mobileconfig = profileBytes
+	ctx := context.Background()
+	err = cmd.applysvc.ApplyProfile(ctx, &p)
+	if err != nil {
+		return err
+	}
+	fmt.Println(fmt.Sprintf("applied blueprint id %s from %s", p.Identifier, *flProfilePath))
+	return nil
 	return nil
 }

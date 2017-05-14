@@ -6,12 +6,14 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/micromdm/blueprint"
+	"github.com/micromdm/micromdm/profile"
 )
 
 type Endpoints struct {
 	ListDevicesEndpoint   endpoint.Endpoint
 	GetDEPTokensEndpoint  endpoint.Endpoint
 	GetBlueprintsEndpoint endpoint.Endpoint
+	GetProfilesEndpoint   endpoint.Endpoint
 }
 
 func (e Endpoints) ListDevices(ctx context.Context, opts ListDevicesOption) ([]DeviceDTO, error) {
@@ -38,6 +40,15 @@ func (e Endpoints) GetBlueprints(ctx context.Context, opt GetBlueprintsOption) (
 		return nil, err
 	}
 	return response.(blueprintsResponse).Blueprints, response.(blueprintsResponse).Err
+}
+
+func (e Endpoints) GetProfiles(ctx context.Context, opt GetProfilesOption) ([]profile.Profile, error) {
+	request := profilesRequest{opt}
+	response, err := e.GetProfilesEndpoint(ctx, request.Opts)
+	if err != nil {
+		return nil, err
+	}
+	return response.(profilesResponse).Profiles, response.(profilesResponse).Err
 }
 
 func MakeListDevicesEndpoint(svc Service) endpoint.Endpoint {
@@ -69,6 +80,17 @@ func MakeGetBlueprintsEndpoint(svc Service) endpoint.Endpoint {
 		return blueprintsResponse{
 			Blueprints: blueprints,
 			Err:        err,
+		}, nil
+	}
+}
+
+func MakeGetProfilesEndpoint(svc Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(profilesRequest)
+		profiles, err := svc.GetProfiles(ctx, req.Opts)
+		return profilesResponse{
+			Profiles: profiles,
+			Err:      err,
 		}, nil
 	}
 }
@@ -106,4 +128,11 @@ type blueprintsResponse struct {
 	Err        error                 `json:"err,omitempty"`
 }
 
+type profilesRequest struct{ Opts GetProfilesOption }
+type profilesResponse struct {
+	Profiles []profile.Profile `json:"profiles"`
+	Err      error             `json:"err,omitempty"`
+}
+
 func (r blueprintsResponse) error() error { return r.Err }
+func (r profilesResponse) error() error   { return r.Err }
