@@ -73,11 +73,10 @@ const homePage = `<!doctype html>
 </html>
 `
 
-const configDBPath = "/var/db/micromdm"
-
 func serve(args []string) error {
 	flagset := flag.NewFlagSet("serve", flag.ExitOnError)
 	var (
+		flConfigPath   = flagset.String("config-path", "/var/db/micromdm", "path to configuration directory")
 		flServerURL    = flagset.String("server-url", "", "public HTTPS url of your server")
 		flAPIKey       = flagset.String("api-key", "", "API Token for mdmctl command")
 		flAPNSCertPath = flagset.String("apns-cert", "", "path to APNS certificate")
@@ -112,16 +111,17 @@ func serve(args []string) error {
 	mainLogger := log.With(logger, "component", "main")
 	mainLogger.Log("msg", "started")
 
+	if err := os.MkdirAll(*flConfigPath, 0755); err != nil {
+		return errors.Wrapf(err, "creating config directory %s", *flConfigPath)
+	}
 	sm := &config{
+		configPath:          *flConfigPath,
 		ServerPublicURL:     strings.TrimRight(*flServerURL, "/"),
 		APNSCertificatePath: *flAPNSCertPath,
 		APNSPrivateKeyPass:  *flAPNSKeyPass,
 		APNSPrivateKeyPath:  *flAPNSKeyPath,
 		depsim:              *flDepSim,
 		tlsCertPath:         *flTLSCert,
-	}
-	if err := os.MkdirAll(configDBPath, 0755); err != nil {
-		return errors.Wrapf(err, "creating config directory %s", configDBPath)
 	}
 	sm.setupPubSub()
 	sm.setupBolt()
@@ -313,7 +313,7 @@ func serve(args []string) error {
 		} else {
 			logger.Log("addr", srv.Addr)
 			redirectTLS(*flRedirAddr, sm.ServerPublicURL)
-			errs <- serveACME(srv, srvURL.Hostname())
+			errs <- serveACME(srv, srvURL.Hostname(), filepath.Join(sm.configPath, "le-certificates"))
 			return
 		}
 	}()
@@ -340,11 +340,11 @@ func serveTLS(server *http.Server, certPath, keyPath string) error {
 	return err
 }
 
-func serveACME(server *http.Server, domain string) error {
+func serveACME(server *http.Server, domain, cachePath string) error {
 	m := autocert.Manager{
 		Prompt:     autocert.AcceptTOS,
 		HostPolicy: autocert.HostWhitelist(domain),
-		Cache:      autocert.DirCache("/var/db/micromdm/le-certificates"),
+		Cache:      autocert.DirCache(cachePath),
 	}
 	server.TLSConfig.GetCertificate = m.GetCertificate
 	err := server.ListenAndServeTLS("", "")
@@ -387,6 +387,7 @@ func tlsConfig() *tls.Config {
 }
 
 type config struct {
+	configPath          string
 	depsim              bool
 	pubclient           *pubsub.Inmem
 	db                  *bolt.DB
@@ -398,6 +399,11 @@ type config struct {
 	APNSPrivateKeyPass  string
 	tlsCertPath         string
 	scepDepot           *boltdepot.Depot
+
+	// TODO: refactor enroll service and remove the need to reference
+	// this on-disk cert. but it might be useful to keep the PEM
+	// around for anyone who will need to export the CA.
+	scepCACertPath string
 
 	PushService    *push.Service // bufford push
 	pushService    *nanopush.Push
@@ -453,7 +459,7 @@ func (c *config) setupBolt() {
 	if c.err != nil {
 		return
 	}
-	dbPath := filepath.Join(configDBPath, "micromdm.db")
+	dbPath := filepath.Join(c.configPath, "micromdm.db")
 	c.db, c.err = bolt.Open(dbPath, 0644, nil)
 	if c.err != nil {
 		return
@@ -574,7 +580,7 @@ func (c *config) setupEnrollmentService() {
 	// but if you do, the packages are coupled, better not.
 	c.enrollService, c.err = enroll.NewService(
 		pushTopic,
-		scepCACertName,
+		c.scepCACertPath,
 		c.ServerPublicURL+"/scep",
 		c.SCEPChallenge,
 		c.ServerPublicURL,
@@ -593,11 +599,6 @@ func topicFromCert(cert *x509.Certificate) (string, error) {
 
 	return "", errors.New("could not find Push Topic (UserID OID) in certificate")
 }
-
-// TODO: refactor enroll service and remove the need to reference this cert.
-// but it might be useful to keep the PEM around for anyone who will need to export
-// the CA.
-const scepCACertName = "/var/db/micromdm/SCEPCACert.pem"
 
 func (c *config) depClient() (dep.Client, error) {
 	if c.err != nil {
@@ -692,7 +693,9 @@ func (c *config) setupSCEP(logger log.Logger) {
 		return
 	}
 
-	c.err = crypto.WritePEMCertificateFile(caCert, scepCACertName)
+	c.scepCACertPath = filepath.Join(c.configPath, "SCEPCACert.pem")
+
+	c.err = crypto.WritePEMCertificateFile(caCert, c.scepCACertPath)
 	if c.err != nil {
 		return
 	}
