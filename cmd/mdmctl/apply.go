@@ -186,16 +186,15 @@ func (cmd *applyCommand) applyProfile(args []string) error {
 	if err != nil {
 		return err
 	}
-	payloadId, err := profile.GetMobileconfigIdentifier(profileBytes)
-	if err != nil {
-		return err
-	}
 
 	// TODO: to consider just uploading the Mobileconfig data (without a
 	// Profile struct and doing init server side)
 	var p profile.Profile
-	p.Identifier = payloadId
 	p.Mobileconfig = profileBytes
+	p.Identifier, err = p.Mobileconfig.GetPayloadIdentifier()
+	if err != nil {
+		return err
+	}
 
 	ctx := context.Background()
 	err = cmd.applysvc.ApplyProfile(ctx, &p)

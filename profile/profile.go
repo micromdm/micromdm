@@ -10,6 +10,24 @@ import (
 
 type Mobileconfig []byte
 
+// only used to parse plists to get the PayloadIdentifier
+type payloadIdentifier struct {
+	PayloadIdentifier string
+}
+
+func (mc *Mobileconfig) GetPayloadIdentifier() (string, error) {
+	// TODO: support CMS signed profiles
+	var pId payloadIdentifier
+	err := plist.Unmarshal(*mc, &pId)
+	if err != nil {
+		return "", err
+	}
+	if pId.PayloadIdentifier == "" {
+		return "", errors.New("empty PayloadIdentifier in profile")
+	}
+	return pId.PayloadIdentifier, err
+}
+
 type Profile struct {
 	Identifier   string
 	Mobileconfig Mobileconfig
@@ -23,7 +41,7 @@ func (p *Profile) Validate() error {
 	if len(p.Mobileconfig) < 1 {
 		return errors.New("no Mobileconfig data")
 	}
-	payloadId, err := GetMobileconfigIdentifier(p.Mobileconfig)
+	payloadId, err := p.Mobileconfig.GetPayloadIdentifier()
 	if err != nil {
 		return err
 	}
@@ -49,22 +67,4 @@ func UnmarshalProfile(data []byte, p *Profile) error {
 	p.Identifier = pb.GetId()
 	p.Mobileconfig = pb.GetMobileconfig()
 	return nil
-}
-
-// only used to parse plists to get the PayloadIdentifier
-type payloadIdentifier struct {
-	PayloadIdentifier string
-}
-
-func GetMobileconfigIdentifier(mc Mobileconfig) (string, error) {
-	// TODO: support CMS signed profiles
-	var pId payloadIdentifier
-	err := plist.Unmarshal(mc, &pId)
-	if err != nil {
-		return "", err
-	}
-	if pId.PayloadIdentifier == "" {
-		return "", errors.New("empty PayloadIdentifier in profile")
-	}
-	return pId.PayloadIdentifier, err
 }
