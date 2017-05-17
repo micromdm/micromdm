@@ -48,8 +48,9 @@ func (db *DB) List() ([]Profile, error) {
 }
 
 func (db *DB) Save(p *Profile) error {
-	if p.Identifier == "" || len(p.Mobileconfig) < 1 {
-		return errors.New("cannot save: Profile must have Identifier or Mobileconfig")
+	err := p.Validate()
+	if err != nil {
+		return err
 	}
 	tx, err := db.DB.Begin(true)
 	if err != nil {

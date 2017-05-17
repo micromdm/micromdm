@@ -12,7 +12,6 @@ import (
 
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/groob/plist"
 	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/core/apply"
 	"github.com/micromdm/micromdm/profile"
@@ -168,16 +167,10 @@ func (cmd *applyCommand) applyDEPTokens(args []string) error {
 	return nil
 }
 
-// only used to parse plists to get the PayloadIdentifier
-type PayloadIdentifier struct {
-	PayloadIdentifier string
-}
-
 func (cmd *applyCommand) applyProfile(args []string) error {
 	flagset := flag.NewFlagSet("profiles", flag.ExitOnError)
 	var (
 		flProfilePath = flagset.String("f", "", "filename of profile to apply")
-		flIdentifier  = flagset.String("id", "", "Profile PayloadIdentifier (only needed for encrypted profiles)")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl apply profiles [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -193,27 +186,23 @@ func (cmd *applyCommand) applyProfile(args []string) error {
 	if err != nil {
 		return err
 	}
-	var pId PayloadIdentifier
-	// TODO: handle signed & encrypted profiles
-	err = plist.Unmarshal(profileBytes, &pId)
+	payloadId, err := profile.GetMobileconfigIdentifier(profileBytes)
 	if err != nil {
 		return err
 	}
-	if *flIdentifier != "" && pId.PayloadIdentifier != *flIdentifier {
-		// TODO: we may not be able to unmarshal the mobileconfig and so
-		// will have to blindly accept the input when we handle encrypted
-		// profiles
-		return errors.New(fmt.Sprintf("provided id %s does not match PayloadIdentifier %s", *flIdentifier, pId.PayloadIdentifier))
-	}
+
+	// TODO: to consider just uploading the Mobileconfig data (without a
+	// Profile struct and doing init server side)
 	var p profile.Profile
-	p.Identifier = pId.PayloadIdentifier // TODO: need to use provided ID when we support encrypted profiles
+	p.Identifier = payloadId
 	p.Mobileconfig = profileBytes
+
 	ctx := context.Background()
 	err = cmd.applysvc.ApplyProfile(ctx, &p)
 	if err != nil {
 		return err
 	}
+
 	fmt.Println(fmt.Sprintf("applied blueprint id %s from %s", p.Identifier, *flProfilePath))
-	return nil
 	return nil
 }
