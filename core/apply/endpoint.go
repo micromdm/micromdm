@@ -79,6 +79,8 @@ type blueprintResponse struct {
 	Err error `json:"err,omitempty"`
 }
 
+func (r blueprintResponse) error() error { return r.Err }
+
 type profileRequest struct {
 	Profile *profile.Profile `json:"profile"`
 }
@@ -86,6 +88,8 @@ type profileRequest struct {
 type profileResponse struct {
 	Err error `json:"err,omitempty"`
 }
+
+func (r profileResponse) error() error { return r.Err }
 
 type depTokensRequest struct {
 	P7MContent []byte `json:"p7m_content"`
@@ -96,5 +100,3 @@ type depTokensResponse struct {
 }
 
 func (r depTokensResponse) error() error { return r.Err }
-func (r blueprintResponse) error() error { return r.Err }
-func (r profileResponse) error() error   { return r.Err }
