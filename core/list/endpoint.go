@@ -128,11 +128,12 @@ type blueprintsResponse struct {
 	Err        error                 `json:"err,omitempty"`
 }
 
+func (r blueprintsResponse) error() error { return r.Err }
+
 type profilesRequest struct{ Opts GetProfilesOption }
 type profilesResponse struct {
 	Profiles []profile.Profile `json:"profiles"`
 	Err      error             `json:"err,omitempty"`
 }
 
-func (r blueprintsResponse) error() error { return r.Err }
-func (r profilesResponse) error() error   { return r.Err }
+func (r profilesResponse) error() error { return r.Err }
