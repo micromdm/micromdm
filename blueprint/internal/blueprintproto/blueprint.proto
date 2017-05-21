@@ -7,4 +7,5 @@ message Blueprint {
 	string name = 2;
 	repeated string manifest_urls = 3;
 	repeated bytes mobileconfigs = 4;
+	string when = 5;
 }

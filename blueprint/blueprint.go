@@ -10,6 +10,7 @@ type Mobileconfig []byte
 type Blueprint struct {
 	UUID            string         `json:"uuid"`
 	Name            string         `json:"name"`
+	When            string         `json:"when"`
 	ApplicationURLs []string       `json:"install_application_manifest_urls"`
 	Profiles        []Mobileconfig `json:"profiles"`
 }
@@ -22,6 +23,7 @@ func MarshalBlueprint(bp *Blueprint) ([]byte, error) {
 	protobp := blueprintproto.Blueprint{
 		Uuid:          bp.UUID,
 		Name:          bp.Name,
+		When:          bp.When,
 		ManifestUrls:  bp.ApplicationURLs,
 		Mobileconfigs: profiles,
 	}
@@ -39,6 +41,7 @@ func UnmarshalBlueprint(data []byte, bp *Blueprint) error {
 	}
 	bp.UUID = pb.GetUuid()
 	bp.Name = pb.GetName()
+	bp.When = pb.GetWhen()
 	bp.ApplicationURLs = pb.GetManifestUrls()
 	bp.Profiles = profiles
 	return nil

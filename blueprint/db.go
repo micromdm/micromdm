@@ -122,6 +122,31 @@ func (db *DB) BlueprintByName(name string) (*Blueprint, error) {
 	return &bp, nil
 }
 
+func (db *DB) BlueprintsByWhenTag(when string) ([]*Blueprint, error) {
+	var bps []*Blueprint
+	err := db.View(func(tx *bolt.Tx) error {
+		// TODO: SUPER inefficient. demo purposes only. right thing to do is
+		// probably to make an index on the When field and iterate over that
+		// somehow.
+		b := tx.Bucket([]byte(BlueprintBucket))
+		c := b.Cursor()
+		for k, v := c.First(); k != nil; k, v = c.Next() {
+			var bp Blueprint
+			err := UnmarshalBlueprint(v, &bp)
+			if err != nil {
+				// skipping for now
+				fmt.Println("could not unmarshal blueprint")
+				continue
+			}
+			if bp.When == when {
+				bps = append(bps, &bp)
+			}
+		}
+		return nil
+	})
+	return bps, err
+}
+
 type notFound struct {
 	ResourceType string
 	Message      string

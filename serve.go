@@ -151,6 +151,9 @@ func serve(args []string) error {
 	if err != nil {
 		stdlog.Fatal(err)
 	}
+	if err := bpDB.StartListener(sm.pubclient, sm.commandService); err != nil {
+		stdlog.Fatal(err)
+	}
 
 	profDB, err := profile.NewDB(sm.db)
 	if err != nil {
