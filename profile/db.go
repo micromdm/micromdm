@@ -92,7 +92,7 @@ func (e *notFound) Error() string {
 	return fmt.Sprintf("not found: %s %s", e.ResourceType, e.Message)
 }
 
-func isNotFound(err error) bool {
+func IsNotFound(err error) bool {
 	if _, ok := err.(*notFound); ok {
 		return true
 	}

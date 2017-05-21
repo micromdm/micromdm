@@ -125,7 +125,7 @@ func (cmd *applyCommand) applyBlueprint(args []string) error {
 		newBlueprint.Name = "exampleName"
 		newBlueprint.UUID = uuid.NewV4().String()
 		newBlueprint.ApplicationURLs = []string{cmd.config.ServerURL + "repo/exampleAppManifest.plist"}
-		newBlueprint.Profiles = []blueprint.Mobileconfig{blueprint.Mobileconfig([]byte("this should be a configuration profile"))}
+		newBlueprint.ProfileIdentifiers = []string{"com.example.my.profile"}
 
 		enc := json.NewEncoder(newBlueprintFile)
 		enc.SetIndent("", "  ")

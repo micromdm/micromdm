@@ -1,29 +1,34 @@
 package blueprint
 
 import (
+	"errors"
+
 	"github.com/gogo/protobuf/proto"
 	"github.com/micromdm/micromdm/blueprint/internal/blueprintproto"
 )
 
-type Mobileconfig []byte
-
 type Blueprint struct {
-	UUID            string         `json:"uuid"`
-	Name            string         `json:"name"`
-	ApplicationURLs []string       `json:"install_application_manifest_urls"`
-	Profiles        []Mobileconfig `json:"profiles"`
+	UUID               string   `json:"uuid"`
+	Name               string   `json:"name"`
+	ApplicationURLs    []string `json:"install_application_manifest_urls"`
+	ProfileIdentifiers []string `json:"profile_ids"`
+	ApplyAt            []string `json:"apply_at"`
+}
+
+func (bp *Blueprint) Verify() error {
+	if bp.Name == "" || bp.UUID == "" {
+		return errors.New("Blueprint must have Name and UUID")
+	}
+	return nil
 }
 
 func MarshalBlueprint(bp *Blueprint) ([]byte, error) {
-	var profiles [][]byte
-	for _, p := range bp.Profiles {
-		profiles = append(profiles, []byte(p))
-	}
 	protobp := blueprintproto.Blueprint{
-		Uuid:          bp.UUID,
-		Name:          bp.Name,
-		ManifestUrls:  bp.ApplicationURLs,
-		Mobileconfigs: profiles,
+		Uuid:         bp.UUID,
+		Name:         bp.Name,
+		ManifestUrls: bp.ApplicationURLs,
+		ProfileIds:   bp.ProfileIdentifiers,
+		ApplyAt:      bp.ApplyAt,
 	}
 	return proto.Marshal(&protobp)
 }
@@ -33,13 +38,10 @@ func UnmarshalBlueprint(data []byte, bp *Blueprint) error {
 	if err := proto.Unmarshal(data, &pb); err != nil {
 		return err
 	}
-	var profiles []Mobileconfig
-	for _, p := range pb.GetMobileconfigs() {
-		profiles = append(profiles, Mobileconfig(p))
-	}
 	bp.UUID = pb.GetUuid()
 	bp.Name = pb.GetName()
 	bp.ApplicationURLs = pb.GetManifestUrls()
-	bp.Profiles = profiles
+	bp.ProfileIdentifiers = pb.GetProfileIds()
+	bp.ApplyAt = pb.GetApplyAt()
 	return nil
 }

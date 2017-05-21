@@ -5,6 +5,8 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/pkg/errors"
+
+	"github.com/micromdm/micromdm/profile"
 )
 
 const (
@@ -14,9 +16,10 @@ const (
 
 type DB struct {
 	*bolt.DB
+	profDB *profile.DB
 }
 
-func NewDB(db *bolt.DB) (*DB, error) {
+func NewDB(db *bolt.DB, pDB *profile.DB) (*DB, error) {
 	err := db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(blueprintIndexBucket))
 		if err != nil {
@@ -29,7 +32,8 @@ func NewDB(db *bolt.DB) (*DB, error) {
 		return nil, errors.Wrapf(err, "creating %s bucket", BlueprintBucket)
 	}
 	datastore := &DB{
-		DB: db,
+		DB:     db,
+		profDB: pDB,
 	}
 	return datastore, nil
 }
@@ -64,8 +68,18 @@ func (db *DB) List() ([]Blueprint, error) {
 }
 
 func (db *DB) Save(bp *Blueprint) error {
-	if bp.Name == "" || bp.UUID == "" {
-		return errors.New("cannot Save: blueprint must have Name and UUID")
+	err := bp.Verify()
+	if err != nil {
+		return err
+	}
+	// verify that each Profile ID represents a profile we know about
+	for _, p := range bp.ProfileIdentifiers {
+		if _, err := db.profDB.ProfileById(p); err != nil {
+			if profile.IsNotFound(err) {
+				return errors.New(fmt.Sprintf("Profile ID %s in Blueprint %s does not exist", p, bp.Name))
+			}
+			return errors.Wrap(err, "fetching profile")
+		}
 	}
 	tx, err := db.DB.Begin(true)
 	if err != nil {

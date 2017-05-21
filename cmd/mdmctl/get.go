@@ -201,15 +201,22 @@ func (cmd *getCommand) getBlueprints(args []string) error {
 	}
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
-	fmt.Fprintf(w, "Name\tUUID\tManifests\tProfiles\n")
+	fmt.Fprintf(w, "Name\tUUID\tManifests\tProfiles\tApply At\n")
 	for _, bp := range blueprints {
+		var applyAtStr string
+		if len(bp.ApplyAt) > 0 {
+			applyAtStr = strings.Join(bp.ApplyAt, ",")
+		} else {
+			applyAtStr = "(None)"
+		}
 		fmt.Fprintf(
 			w,
-			"%s\t%s\t%d\t%d\n",
+			"%s\t%s\t%d\t%d\t%s\n",
 			bp.Name,
 			bp.UUID,
 			len(bp.ApplicationURLs),
-			len(bp.Profiles),
+			len(bp.ProfileIdentifiers),
+			applyAtStr,
 		)
 	}
 	w.Flush()
