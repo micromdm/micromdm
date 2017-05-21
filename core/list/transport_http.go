@@ -12,10 +12,13 @@ import (
 )
 
 type HTTPHandlers struct {
-	ListDevicesHandler   http.Handler
-	GetDEPTokensHandler  http.Handler
-	GetBlueprintsHandler http.Handler
-	GetProfilesHandler   http.Handler
+	ListDevicesHandler         http.Handler
+	GetDEPTokensHandler        http.Handler
+	GetBlueprintsHandler       http.Handler
+	GetProfilesHandler         http.Handler
+	GetDEPAccountInfoHandler   http.Handler
+	GetDEPProfileHander        http.Handler
+	GetDEPDeviceDetailsHandler http.Handler
 }
 
 func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
@@ -41,6 +44,24 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 			decodeGetProfilesRequest,
 			encodeResponse,
 			opts...),
+		GetDEPAccountInfoHandler: httptransport.NewServer(
+			endpoints.GetDEPAccountInfoEndpoint,
+			decodeDepAccountInfoRequest,
+			encodeResponse,
+			opts...,
+		),
+		GetDEPDeviceDetailsHandler: httptransport.NewServer(
+			endpoints.GetDEPDeviceEndpoint,
+			decodeDepDeviceDetailsRequest,
+			encodeResponse,
+			opts...,
+		),
+		GetDEPProfileHander: httptransport.NewServer(
+			endpoints.GetDEPProfileEndpoint,
+			decodeDEPProfileRequest,
+			encodeResponse,
+			opts...,
+		),
 	}
 	return h
 }
@@ -76,6 +97,26 @@ func decodeGetProfilesRequest(ctx context.Context, r *http.Request) (interface{}
 		Opts: opts,
 	}
 	return req, nil
+}
+
+func decodeDepAccountInfoRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	return nil, nil
+}
+
+func decodeDepDeviceDetailsRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	var request depDeviceDetailsRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return nil, err
+	}
+	return request, nil
+}
+
+func decodeDEPProfileRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	var request depProfileRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return nil, err
+	}
+	return request, nil
 }
 
 func errorDecoder(r *http.Response) error {
@@ -155,6 +196,33 @@ func DecodeGetProfilesResponse(_ context.Context, r *http.Response) (interface{}
 		return nil, errorDecoder(r)
 	}
 	var resp profilesResponse
+	err := json.NewDecoder(r.Body).Decode(&resp)
+	return resp, err
+}
+
+func DecodeDEPAccountInfoResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	if r.StatusCode != http.StatusOK {
+		return nil, errorDecoder(r)
+	}
+	var resp depAccountInfoResponse
+	err := json.NewDecoder(r.Body).Decode(&resp)
+	return resp, err
+}
+
+func DecodeDEPDeviceDetailsReponse(_ context.Context, r *http.Response) (interface{}, error) {
+	if r.StatusCode != http.StatusOK {
+		return nil, errorDecoder(r)
+	}
+	var resp depDeviceDetailsResponse
+	err := json.NewDecoder(r.Body).Decode(&resp)
+	return resp, err
+}
+
+func DecodeDEPProfileResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	if r.StatusCode != http.StatusOK {
+		return nil, errorDecoder(r)
+	}
+	var resp depProfileResponse
 	err := json.NewDecoder(r.Body).Decode(&resp)
 	return resp, err
 }

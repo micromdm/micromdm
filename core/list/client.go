@@ -55,11 +55,44 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 		).Endpoint()
 	}
 
+	var getDEPAccountInfoEndpoint endpoint.Endpoint
+	{
+		getDEPAccountInfoEndpoint = httptransport.NewClient(
+			"GET",
+			copyURL(u, "/v1/dep/account"),
+			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
+			DecodeDEPAccountInfoResponse,
+		).Endpoint()
+	}
+
+	var getDEPDeviceDetailsEndpoint endpoint.Endpoint
+	{
+		getDEPDeviceDetailsEndpoint = httptransport.NewClient(
+			"GET",
+			copyURL(u, "/v1/dep/devices"),
+			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
+			DecodeDEPDeviceDetailsReponse,
+		).Endpoint()
+	}
+
+	var getDEPProfilesEndpoint endpoint.Endpoint
+	{
+		getDEPProfilesEndpoint = httptransport.NewClient(
+			"GET",
+			copyURL(u, "/v1/dep/profiles"),
+			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
+			DecodeDEPProfileResponse,
+		).Endpoint()
+	}
+
 	return Endpoints{
-		ListDevicesEndpoint:   listDevicesEndpoint,
-		GetDEPTokensEndpoint:  getDEPTokensEndpoint,
-		GetBlueprintsEndpoint: getBlueprintsEndpoint,
-		GetProfilesEndpoint:   getProfilesEndpoint,
+		ListDevicesEndpoint:       listDevicesEndpoint,
+		GetDEPTokensEndpoint:      getDEPTokensEndpoint,
+		GetBlueprintsEndpoint:     getBlueprintsEndpoint,
+		GetProfilesEndpoint:       getProfilesEndpoint,
+		GetDEPAccountInfoEndpoint: getDEPAccountInfoEndpoint,
+		GetDEPDeviceEndpoint:      getDEPDeviceDetailsEndpoint,
+		GetDEPProfileEndpoint:     getDEPProfilesEndpoint,
 	}, nil
 }
 

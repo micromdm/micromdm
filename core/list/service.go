@@ -10,6 +10,7 @@ import (
 
 	"github.com/boltdb/bolt"
 
+	"github.com/micromdm/dep"
 	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/crypto"
 	"github.com/micromdm/micromdm/device"
@@ -37,9 +38,11 @@ type Service interface {
 	GetDEPTokens(ctx context.Context) ([]DEPToken, []byte, error)
 	GetBlueprints(ctx context.Context, opt GetBlueprintsOption) ([]blueprint.Blueprint, error)
 	GetProfiles(ctx context.Context, opt GetProfilesOption) ([]profile.Profile, error)
+	DEPService
 }
 
 type ListService struct {
+	DEPClient  dep.Client
 	Devices    *device.DB
 	Blueprints *blueprint.DB
 	Profiles   *profile.DB
