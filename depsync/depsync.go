@@ -9,6 +9,7 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/micromdm/dep"
 	"github.com/micromdm/micromdm/pubsub"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -83,6 +84,10 @@ func isCursorExhausted(err error) bool {
 	return strings.Contains(err.Error(), "EXHAUSTED_CURSOR")
 }
 
+func isCursorExpired(err error) bool {
+	return strings.Contains(err.Error(), "EXPIRED_CURSOR")
+}
+
 func (w *watcher) Run() error {
 	ticker := time.NewTicker(30 * time.Minute).C
 FETCH:
@@ -94,7 +99,10 @@ FETCH:
 			return err
 		}
 		fmt.Printf("more=%v, cursor=%s, fetched=%v\n", resp.MoreToFollow, resp.Cursor, resp.FetchedUntil)
-		w.conf.Cursor.Value = resp.Cursor
+		w.conf.Cursor = cursor{Value: resp.Cursor, CreatedAt: time.Now()}
+		if err := w.conf.Save(); err != nil {
+			return errors.Wrap(err, "saving cursor from fetch")
+		}
 		e := NewEvent(resp.Devices)
 		data, err := MarshalEvent(e)
 		if err != nil {
@@ -103,22 +111,29 @@ FETCH:
 		if err := w.publisher.Publish(SyncTopic, data); err != nil {
 			return err
 		}
-		if resp.MoreToFollow {
-			break FETCH
+		if !resp.MoreToFollow {
+			goto SYNC
 		}
 	}
 
 SYNC:
 	for {
 		resp, err := w.client.SyncDevices(w.conf.Cursor.Value, dep.Cursor(w.conf.Cursor.Value))
-		if err != nil {
+		if err != nil && isCursorExpired(err) {
+			w.conf.Cursor.Value = ""
+			goto FETCH
+		} else if err != nil {
 			return err
 		}
 		if len(resp.Devices) != 0 {
 			fmt.Printf("more=%v, cursor=%s, synced=%v\n", resp.MoreToFollow, resp.Cursor, resp.FetchedUntil)
 		}
+		w.conf.Cursor = cursor{Value: resp.Cursor, CreatedAt: time.Now()}
+		if err := w.conf.Save(); err != nil {
+			return errors.Wrap(err, "saving cursor from sync")
+		}
+
 		// TODO handle sync response here.
 		<-ticker
 	}
-	return nil
 }
