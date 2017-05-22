@@ -35,7 +35,7 @@ func (db *DB) ApplyToDevice(ctx context.Context, svc command.Service, bp *Bluepr
 				fmt.Printf("Profile ID %s in Blueprint %s does not exist\n", p, bp.Name)
 				continue
 			}
-			fmt.Println(errors.Wrap(err, "fetching profile"))
+			fmt.Println(err)
 			continue
 		}
 
@@ -77,7 +77,7 @@ func (db *DB) StartListener(sub pubsub.Subscriber, cmdSvc command.Service) error
 					// skip UserID token updates
 					continue
 				}
-				bps, err := db.BlueprintsByApplyAt("enroll")
+				bps, err := db.BlueprintsByApplyAt(ApplyAtEnroll)
 				if err != nil {
 					fmt.Println(err)
 					continue

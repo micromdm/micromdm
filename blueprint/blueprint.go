@@ -7,6 +7,15 @@ import (
 	"github.com/micromdm/micromdm/blueprint/internal/blueprintproto"
 )
 
+// ApplyAt is a case-insensitive string that specifies at which point the
+// system should apply a Blueprint to devices. For example if a Blueprint has
+// an ApplyAt of "Enroll" then that profile will be applied immediately after
+// a device's enrollment in the MDM system. Currently "Enroll" is the only
+// supported value but more are planned.
+const (
+	ApplyAtEnroll string = "Enroll"
+)
+
 type Blueprint struct {
 	UUID               string   `json:"uuid"`
 	Name               string   `json:"name"`
