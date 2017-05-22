@@ -157,6 +157,10 @@ func serve(args []string) error {
 		stdlog.Fatal(err)
 	}
 
+	if err := bpDB.StartListener(sm.pubclient, sm.commandService); err != nil {
+		stdlog.Fatal(err)
+	}
+
 	ctx := context.Background()
 	httpLogger := log.With(logger, "transport", "http")
 	var checkinEndpoint endpoint.Endpoint

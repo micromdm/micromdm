@@ -2,6 +2,7 @@ package blueprint
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/boltdb/bolt"
 	"github.com/pkg/errors"
@@ -134,6 +135,33 @@ func (db *DB) BlueprintByName(name string) (*Blueprint, error) {
 		return nil, err
 	}
 	return &bp, nil
+}
+
+func (db *DB) BlueprintsByApplyAt(name string) ([]*Blueprint, error) {
+	var bps []*Blueprint
+	err := db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(BlueprintBucket))
+		c := b.Cursor()
+		// TODO: fix this to use an index of ApplyAt strings mapping to
+		// an array of Blueprints or other more efficient means. Looping
+		// over every blueprint is quite inefficient!
+		for k, v := c.First(); k != nil; k, v = c.Next() {
+			var bp Blueprint
+			err := UnmarshalBlueprint(v, &bp)
+			if err != nil {
+				fmt.Println("could not Unmarshal Blueprint")
+				continue
+			}
+			for _, n := range bp.ApplyAt {
+				if strings.ToLower(n) == strings.ToLower(name) {
+					bps = append(bps, &bp)
+					break
+				}
+			}
+		}
+		return nil
+	})
+	return bps, err
 }
 
 type notFound struct {
