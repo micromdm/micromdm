@@ -18,13 +18,15 @@ const (
 	// The deviceIndexBucket index bucket stores serial number and UDID references
 	// to the device uuid.
 	deviceIndexBucket = "mdm.DeviceIdx"
+
+	DeviceEnrolledTopic = "mdm.DeviceEnrolled"
 )
 
 type DB struct {
 	*bolt.DB
 }
 
-func NewDB(db *bolt.DB, sub pubsub.Subscriber) (*DB, error) {
+func NewDB(db *bolt.DB, pubsubSvc pubsub.PublishSubscriber) (*DB, error) {
 	err := db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(deviceIndexBucket))
 		if err != nil {
@@ -39,10 +41,10 @@ func NewDB(db *bolt.DB, sub pubsub.Subscriber) (*DB, error) {
 	datastore := &DB{
 		DB: db,
 	}
-	if sub == nil { // don't start the poller without pubsub.
+	if pubsubSvc == nil { // don't start the poller without pubsub.
 		return datastore, nil
 	}
-	if err := datastore.pollCheckin(sub); err != nil {
+	if err := datastore.pollCheckin(pubsubSvc); err != nil {
 		return nil, err
 	}
 	return datastore, nil
@@ -162,23 +164,23 @@ func isNotFound(err error) bool {
 	return false
 }
 
-func (db *DB) pollCheckin(sub pubsub.Subscriber) error {
-	authenticateEvents, err := sub.Subscribe("devices", checkin.AuthenticateTopic)
+func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
+	authenticateEvents, err := pubsubSvc.Subscribe("devices", checkin.AuthenticateTopic)
 	if err != nil {
 		return errors.Wrapf(err,
 			"subscribing devices to %s topic", checkin.AuthenticateTopic)
 	}
-	tokenUpdateEvents, err := sub.Subscribe("devices", checkin.TokenUpdateTopic)
+	tokenUpdateEvents, err := pubsubSvc.Subscribe("devices", checkin.TokenUpdateTopic)
 	if err != nil {
 		return errors.Wrapf(err,
 			"subscribing devices to %s topic", checkin.TokenUpdateTopic)
 	}
-	checkoutEvents, err := sub.Subscribe("devices", checkin.CheckoutTopic)
+	checkoutEvents, err := pubsubSvc.Subscribe("devices", checkin.CheckoutTopic)
 	if err != nil {
 		return errors.Wrapf(err,
 			"subscribing devices to %s topic", checkin.CheckoutTopic)
 	}
-	depSyncEvents, err := sub.Subscribe("devices", depsync.SyncTopic)
+	depSyncEvents, err := pubsubSvc.Subscribe("devices", depsync.SyncTopic)
 	if err != nil {
 		return errors.Wrapf(err,
 			"subscribing devices to %s topic", depsync.SyncTopic)
@@ -209,6 +211,7 @@ func (db *DB) pollCheckin(sub pubsub.Subscriber) error {
 					continue
 				} else if err == nil {
 					fmt.Printf("re-enrolling device %s\n", ev.Command.SerialNumber)
+					newDevice.Enrolled = false
 				}
 
 				// only create new UUID on initial enrollment.
@@ -250,10 +253,22 @@ func (db *DB) pollCheckin(sub pubsub.Subscriber) error {
 				dev.PushMagic = ev.Command.PushMagic
 				dev.UnlockToken = ev.Command.UnlockToken.String()
 				dev.AwaitingConfiguration = ev.Command.AwaitingConfiguration
-				dev.Enrolled = true
+				dev.LastCheckin = time.Now()
+				var newlyEnrolled bool = false
+				if dev.Enrolled == false {
+					newlyEnrolled = true
+					dev.Enrolled = true
+				}
 				if err := db.Save(dev); err != nil {
 					fmt.Println(err)
 					continue
+				}
+				if newlyEnrolled {
+					fmt.Printf("device %s enrolled\n", ev.Command.UDID)
+					err := pubsubSvc.Publish(DeviceEnrolledTopic, event.Message)
+					if err != nil {
+						fmt.Println(err)
+					}
 				}
 			case event := <-depSyncEvents:
 				var ev depsync.Event

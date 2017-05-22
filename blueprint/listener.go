@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/pkg/errors"
+
 	"github.com/micromdm/mdm"
 	"github.com/micromdm/micromdm/checkin"
 	"github.com/micromdm/micromdm/command"
+	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/profile"
 	"github.com/micromdm/micromdm/pubsub"
-	"github.com/pkg/errors"
 )
 
 func (db *DB) ApplyToDevice(ctx context.Context, svc command.Service, bp *Blueprint, udid string) error {
@@ -56,10 +58,10 @@ func (db *DB) ApplyToDevice(ctx context.Context, svc command.Service, bp *Bluepr
 }
 
 func (db *DB) StartListener(sub pubsub.Subscriber, cmdSvc command.Service) error {
-	tokenUpdateEvents, err := sub.Subscribe("applyAtEnroll", checkin.TokenUpdateTopic)
+	tokenUpdateEvents, err := sub.Subscribe("applyAtEnroll", device.DeviceEnrolledTopic)
 	if err != nil {
 		return errors.Wrapf(err,
-			"subscribing devices to %s topic", checkin.TokenUpdateTopic)
+			"subscribing devices to %s topic", device.DeviceEnrolledTopic)
 	}
 
 	go func() {
@@ -75,7 +77,6 @@ func (db *DB) StartListener(sub pubsub.Subscriber, cmdSvc command.Service) error
 					// skip UserID token updates
 					continue
 				}
-				fmt.Println("UserID", ev.Command.UserID)
 				bps, err := db.BlueprintsByApplyAt("enroll")
 				if err != nil {
 					fmt.Println(err)
