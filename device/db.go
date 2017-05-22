@@ -301,7 +301,6 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 					newDevice.DEPProfileAssignTime = d.ProfileAssignTime
 					newDevice.DEPProfileAssignedDate = d.DeviceAssignedDate
 					newDevice.DEPProfileAssignedBy = d.DeviceAssignedBy
-					newDevice.LastCheckin = time.Now()
 					// TODO: deal with sync fields OpType, OpDate
 					if err := db.Save(newDevice); err != nil {
 						fmt.Println(err)
