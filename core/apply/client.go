@@ -22,7 +22,7 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 			"PUT",
 			copyURL(u, "/v1/blueprints"),
 			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
-			DecodeBlueprintRequest,
+			DecodeBlueprintResponse,
 			opts...,
 		).Endpoint()
 	}
@@ -32,7 +32,7 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 			"PUT",
 			copyURL(u, "/v1/dep-tokens"),
 			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
-			DecodeDEPTokensRequest,
+			DecodeDEPTokensResponse,
 			opts...,
 		).Endpoint()
 	}
@@ -42,15 +42,27 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 			"PUT",
 			copyURL(u, "/v1/profiles"),
 			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
-			DecodeProfileRequest,
+			DecodeProfileResponse,
+			opts...,
+		).Endpoint()
+	}
+
+	var defineDEPProfileEndpoint endpoint.Endpoint
+	{
+		defineDEPProfileEndpoint = httptransport.NewClient(
+			"POST",
+			copyURL(u, "/v1/dep/profiles"),
+			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
+			DecodeDEPProfileResponse,
 			opts...,
 		).Endpoint()
 	}
 
 	return Endpoints{
-		ApplyBlueprintEndpoint: applyBlueprintEndpoint,
-		ApplyDEPTokensEndpoint: applyDEPTokensEndpoint,
-		ApplyProfileEndpoint:   applyProfileEndpoint,
+		ApplyBlueprintEndpoint:   applyBlueprintEndpoint,
+		ApplyDEPTokensEndpoint:   applyDEPTokensEndpoint,
+		ApplyProfileEndpoint:     applyProfileEndpoint,
+		DefineDEPProfileEndpoint: defineDEPProfileEndpoint,
 	}, nil
 }
 
