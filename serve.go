@@ -140,7 +140,6 @@ func serve(args []string) error {
 	sm.setupBolt()
 	sm.loadPushCerts()
 	sm.setupSCEP(logger)
-	sm.setupEnrollmentService()
 	sm.setupCheckinService()
 	sm.setupPushService()
 	sm.setupCommandService()
@@ -155,12 +154,14 @@ func serve(args []string) error {
 		stdlog.Fatal(err)
 	}
 
-	profDB, err := profile.NewDB(sm.db)
+	sm.profileDB, err = profile.NewDB(sm.db)
 	if err != nil {
 		stdlog.Fatal(err)
 	}
 
-	bpDB, err := blueprint.NewDB(sm.db, profDB)
+	sm.setupEnrollmentService()
+
+	bpDB, err := blueprint.NewDB(sm.db, sm.profileDB)
 	if err != nil {
 		stdlog.Fatal(err)
 	}
@@ -215,7 +216,7 @@ func serve(args []string) error {
 	tokenDB := &deptoken.DB{DB: sm.db, Publisher: sm.pubclient}
 	var listsvc list.Service
 	{
-		l := &list.ListService{DEPClient: dc, Devices: devDB, Tokens: tokenDB, Blueprints: bpDB, Profiles: profDB}
+		l := &list.ListService{DB: sm.db, DEPClient: dc, Devices: devDB, Tokens: tokenDB, Blueprints: bpDB, Profiles: profDB}
 		listsvc = l
 
 		if err := l.WatchTokenUpdates(sm.pubclient); err != nil {
@@ -239,7 +240,7 @@ func serve(args []string) error {
 
 	var applysvc apply.Service
 	{
-		l := &apply.ApplyService{DEPClient: dc, Blueprints: bpDB, Tokens: tokenDB, Profiles: profDB}
+		l := &apply.ApplyService{DB: sm.db, DEPClient: dc, Blueprints: bpDB, Tokens: tokenDB, Profiles: profDB}
 		applysvc = l
 		if err := l.WatchTokenUpdates(sm.pubclient); err != nil {
 			stdlog.Fatal(err)
@@ -459,6 +460,7 @@ type config struct {
 	APNSPrivateKeyPass  string
 	tlsCertPath         string
 	scepDepot           *boltdepot.Depot
+	profileDB           *profile.DB
 
 	// TODO: refactor enroll service and remove the need to reference
 	// this on-disk cert. but it might be useful to keep the PEM
@@ -636,6 +638,7 @@ func (c *config) setupEnrollmentService() {
 		c.ServerPublicURL,
 		c.tlsCertPath,
 		SCEPCertificateSubject,
+		c.profileDB,
 	)
 }
 

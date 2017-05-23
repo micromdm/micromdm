@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/micromdm/micromdm/crypto"
+	"github.com/micromdm/micromdm/profile"
 	boltdepot "github.com/micromdm/scep/depot/bolt"
 
 	"github.com/fullsailor/pkcs7"
@@ -49,6 +50,11 @@ type mdmEnrollResponse struct {
 	Err error `plist:"error,omitempty"`
 }
 
+type mobileconfigResponse struct {
+	profile.Mobileconfig
+	Err error `plist:"error,omitempty"`
+}
+
 type mdmOTAPhase2Phase3Request struct {
 	otaEnrollmentRequest otaEnrollmentRequest
 	p7                   *pkcs7.PKCS7
@@ -71,12 +77,12 @@ func MakeGetEnrollEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		switch req := request.(type) {
 		case mdmEnrollRequest:
-			profile, err := s.Enroll(ctx)
-			return mdmEnrollResponse{profile, err}, nil
+			mc, err := s.Enroll(ctx)
+			return mobileconfigResponse{mc, err}, nil
 		case depEnrollmentRequest:
 			fmt.Printf("got DEP enrollment request from %s\n", req.Serial)
-			profile, err := s.Enroll(ctx)
-			return mdmEnrollResponse{profile, err}, nil
+			mc, err := s.Enroll(ctx)
+			return mobileconfigResponse{mc, err}, nil
 		default:
 			return nil, errors.New("unknown enrollment type")
 		}
@@ -133,9 +139,9 @@ func MakeOTAPhase2Phase3Endpoint(s Service, scepDepot *boltdepot.Depot) endpoint
 			// TODO: the SCEP CA checking ought to be more robust
 			// see: https://github.com/micromdm/scep/issues/32
 
-			profile, err := s.Enroll(ctx)
 			// profile, err := s.OTAPhase3(ctx)
-			return mdmEnrollResponse{profile, err}, nil
+			mc, err := s.Enroll(ctx)
+			return mobileconfigResponse{mc, err}, nil
 		}
 		return mdmEnrollResponse{Profile{}, errors.New("unauthorized client")}, nil
 	}

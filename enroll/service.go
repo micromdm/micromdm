@@ -1,20 +1,49 @@
 package enroll
 
 import (
+	"bytes"
 	"crypto/x509"
-	"golang.org/x/net/context"
 	"io/ioutil"
 	"strings"
+
+	"github.com/groob/plist"
+	"golang.org/x/net/context"
+
+	"github.com/micromdm/micromdm/profile"
 )
 
+const EnrollmentProfileId string = "com.github.micromdm.micromdm.mdm"
+
 type Service interface {
-	Enroll(ctx context.Context) (Profile, error)
+	Enroll(ctx context.Context) (profile.Mobileconfig, error)
 	OTAEnroll(ctx context.Context) (Payload, error)
 	OTAPhase2(ctx context.Context) (Profile, error)
 	OTAPhase3(ctx context.Context) (Profile, error)
 }
 
-func NewService(pushTopic, caCertPath, scepURL, scepChallenge, url, tlsCertPath, scepSubject string) (Service, error) {
+// profileToProfile translates an enroll.Profile struct into a profile.Profile struct.
+// Note: converts the Profile to a property list.
+func profileToProfile(in Profile) (*profile.Profile, error) {
+	out := new(profile.Profile)
+	buf := new(bytes.Buffer)
+
+	enc := plist.NewEncoder(buf)
+	enc.Indent("  ")
+	err := enc.Encode(in)
+	if err != nil {
+		return out, err
+	}
+
+	out.Mobileconfig = buf.Bytes()
+	out.Identifier, err = out.Mobileconfig.GetPayloadIdentifier()
+	if err != nil {
+		return out, err
+	}
+
+	return out, err
+}
+
+func NewService(pushTopic, caCertPath, scepURL, scepChallenge, url, tlsCertPath, scepSubject string, profileDB *profile.DB) (Service, error) {
 	var caCert, tlsCert []byte
 	var err error
 
@@ -49,7 +78,7 @@ func NewService(pushTopic, caCertPath, scepURL, scepChallenge, url, tlsCertPath,
 		subject = append(subject, [][]string{[]string{subjectKeyValue[0], subjectKeyValue[1]}})
 	}
 
-	return &service{
+	svc := &service{
 		URL:           url,
 		SCEPURL:       scepURL,
 		SCEPSubject:   subject,
@@ -57,7 +86,29 @@ func NewService(pushTopic, caCertPath, scepURL, scepChallenge, url, tlsCertPath,
 		Topic:         pushTopic,
 		CACert:        caCert,
 		TLSCert:       tlsCert,
-	}, nil
+		ProfileDB:     profileDB,
+	}
+
+	// look for existing enrollment profile, and save a new one if not found
+	_, err = svc.ProfileDB.ProfileById(EnrollmentProfileId)
+	if err != nil && profile.IsNotFound(err) {
+		enrollmentProfile, err := svc.MakeEnrollmentProfile()
+		if err != nil {
+			return svc, err
+		}
+
+		profile, err := profileToProfile(enrollmentProfile)
+		if err != nil {
+			return svc, err
+		}
+
+		err = svc.ProfileDB.Save(profile)
+		if err != nil {
+			return svc, err
+		}
+	}
+
+	return svc, err
 }
 
 type service struct {
@@ -68,11 +119,26 @@ type service struct {
 	Topic         string // APNS Topic for MDM notifications
 	CACert        []byte
 	TLSCert       []byte
+	ProfileDB     *profile.DB
 }
 
-func (svc service) Enroll(ctx context.Context) (Profile, error) {
+func (svc service) Enroll(ctx context.Context) (profile.Mobileconfig, error) {
+	// NOTE: this effectively makes the enrollment profile static. that is it
+	// only gets generated once on service start _only if_ one doesn't already
+	// exist. when we integrate dynamic enrollment profile generation (for
+	// e.g. per-device SCEP challenges) we'll need to modify this enrollment
+	// profile before delivery. treating it much like a template (when
+	// templated profiles get implemented)
+	profile, err := svc.ProfileDB.ProfileById(EnrollmentProfileId)
+	if err != nil {
+		return nil, err
+	}
+	return profile.Mobileconfig, nil
+}
+
+func (svc service) MakeEnrollmentProfile() (Profile, error) {
 	profile := NewProfile()
-	profile.PayloadIdentifier = "com.github.micromdm.micromdm.mdm"
+	profile.PayloadIdentifier = EnrollmentProfileId
 	profile.PayloadOrganization = "MicroMDM"
 	profile.PayloadDisplayName = "Enrollment Profile"
 	profile.PayloadDescription = "The server may alter your settings"

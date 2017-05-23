@@ -26,7 +26,7 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 		EnrollHandler: httptransport.NewServer(
 			endpoints.GetEnrollEndpoint,
 			decodeMDMEnrollRequest,
-			encodeResponse,
+			encodeMobileconfigResponse,
 			opts...,
 		),
 		OTAEnrollHandler: httptransport.NewServer(
@@ -95,6 +95,13 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, response interfa
 	}
 
 	return nil
+}
+
+func encodeMobileconfigResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+	w.Header().Set("Content-Type", "application/x-apple-aspen-config")
+	mcResp := response.(mobileconfigResponse)
+	_, err := w.Write(mcResp.Mobileconfig)
+	return err
 }
 
 func decodeOTAPhase2Phase3Request(_ context.Context, r *http.Request) (interface{}, error) {
