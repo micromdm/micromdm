@@ -123,6 +123,12 @@ func serve(args []string) error {
 		APNSPrivateKeyPath:  *flAPNSKeyPath,
 		depsim:              *flDepSim,
 		tlsCertPath:         *flTLSCert,
+
+		// TODO: we have a static SCEP challenge password here to prevent
+		// being prompted for the SCEP challenge which happens in a "normal"
+		// (non-DEP) enrollment. While security is not improved it is at least
+		// no less secure and prevents a useless dialog from showing.
+		SCEPChallenge: "micromdm",
 	}
 	sm.setupPubSub()
 	sm.setupBolt()
@@ -721,6 +727,7 @@ func (c *config) setupSCEP(logger log.Logger) {
 
 	opts := []scep.ServiceOption{
 		scep.ClientValidity(365),
+		scep.ChallengePassword(c.SCEPChallenge),
 	}
 	c.scepDepot = depot
 	c.scepService, c.err = scep.NewService(depot, opts...)
