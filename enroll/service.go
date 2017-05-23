@@ -165,9 +165,9 @@ func (svc service) MakeEnrollmentProfile() (Profile, error) {
 	if svc.SCEPURL != "" {
 		scepContent := SCEPPayloadContent{
 			URL:      svc.SCEPURL,
-			Keysize:  1024,
+			Keysize:  2048,
 			KeyType:  "RSA",
-			KeyUsage: 0,
+			KeyUsage: int(x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment),
 			Name:     "Device Management Identity Certificate",
 			Subject:  svc.SCEPSubject,
 		}
@@ -219,7 +219,7 @@ func (svc service) MakeEnrollmentProfile() (Profile, error) {
 // OTAEnroll returns an Over-the-Air "Profile Service" Payload for enrollment.
 func (svc service) OTAEnroll(ctx context.Context) (Payload, error) {
 	payload := NewPayload("Profile Service")
-	payload.PayloadIdentifier = "com.github.micromdm.ota.profile-service"
+	payload.PayloadIdentifier = "com.github.micromdm.micromdm.ota"
 	payload.PayloadDisplayName = "MicroMDM Profile Service"
 	payload.PayloadDescription = "Profile Service enrollment"
 	payload.PayloadOrganization = "MicroMDM"
@@ -236,19 +236,27 @@ func (svc service) OTAEnroll(ctx context.Context) (Payload, error) {
 // OTAPhase2 returns a SCEP Profile for use in phase 2 of Over-the-Air enrollment.
 func (svc service) OTAPhase2(ctx context.Context) (Profile, error) {
 	profile := NewProfile()
-	profile.PayloadIdentifier = "com.github.micromdm.micromdm.ota-scep"
+	profile.PayloadIdentifier = "com.github.micromdm.micromdm.ota.phase2"
 	profile.PayloadOrganization = "MicroMDM"
-	profile.PayloadDisplayName = "Enrollment Profile"
-	profile.PayloadDescription = "The server may alter your settings"
+	profile.PayloadDisplayName = "OTA Phase 2"
 	profile.PayloadScope = "System"
 
 	scepContent := SCEPPayloadContent{
-		URL:      svc.SCEPURL,
-		Keysize:  1024,
-		KeyType:  "RSA",
+		URL: svc.SCEPURL,
+
+		// TODO: OTA spec says: "In general, 1024-bit keys are recommended
+		// because of the overhead involved in generating 2048-bit keys." We'd
+		// prefer to use 2048, but deferring for now.
+		Keysize: 1024,
+
+		KeyType: "RSA",
+
+		// OTA spec says: "Note that the MS SCEP server will only issue
+		// signature or encryption, not both."
 		KeyUsage: int(x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment),
-		Name:     "Device Management Identity Certificate",
-		Subject:  svc.SCEPSubject,
+
+		Name:    "OTA Phase 2 Certificate",
+		Subject: svc.SCEPSubject,
 	}
 
 	if svc.SCEPChallenge != "" {
@@ -258,7 +266,7 @@ func (svc service) OTAPhase2(ctx context.Context) (Profile, error) {
 	scepPayload := NewPayload("com.apple.security.scep")
 	scepPayload.PayloadDescription = "Configures SCEP"
 	scepPayload.PayloadDisplayName = "SCEP"
-	scepPayload.PayloadIdentifier = "com.github.micromdm.scep"
+	scepPayload.PayloadIdentifier = "com.github.micromdm.micromdm.ota.phase2.scep"
 	scepPayload.PayloadOrganization = "MicroMDM"
 	scepPayload.PayloadContent = scepContent
 	scepPayload.PayloadScope = "System"
