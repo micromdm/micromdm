@@ -106,6 +106,9 @@ func serve(args []string) error {
 	if *flServerURL == "" {
 		return errors.New("must supply -server-url")
 	}
+	if !strings.HasPrefix(*flServerURL, "https://") {
+		return errors.New("-server-url must begin with https://")
+	}
 
 	logger := log.NewLogfmtLogger(os.Stderr)
 	stdlog.SetOutput(log.NewStdlibAdapter(logger)) // force structured logs
