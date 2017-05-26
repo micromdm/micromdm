@@ -39,10 +39,12 @@ func (svc *Push) startQueuedSubscriber(push *push.Service, sub pubsub.Subscriber
 				cq, err := queue.UnmarshalQueuedCommand(event.Message)
 				if err != nil {
 					fmt.Println(err)
+					continue
 				}
-				_, err = svc.Push(nil, cq.DeviceUDID)
+				_, err = svc.Push(context.TODO(), cq.DeviceUDID)
 				if err != nil {
 					fmt.Println(err)
+					continue
 				}
 			}
 		}
