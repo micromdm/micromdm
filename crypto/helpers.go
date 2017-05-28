@@ -6,6 +6,8 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
+	"errors"
+	"io/ioutil"
 	"math/big"
 	"os"
 	"time"
@@ -49,6 +51,18 @@ func SimpleSelfSignedRSAKeypair(cn string, days int) (key *rsa.PrivateKey, cert 
 	}
 
 	return key, cert, err
+}
+
+func ReadPEMCertificateFile(path string) (*x509.Certificate, error) {
+	pemData, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	block, _ := pem.Decode(pemData)
+	if block == nil || block.Type != "CERTIFICATE" {
+		return nil, errors.New("failed to decode PEM block containing certificate")
+	}
+	return x509.ParseCertificate(block.Bytes)
 }
 
 func WritePEMCertificateFile(cert *x509.Certificate, path string) error {

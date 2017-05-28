@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"crypto/x509"
 	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
 
 	"github.com/micromdm/dep"
+	"github.com/micromdm/micromdm/crypto"
 	"github.com/pkg/errors"
 )
 
@@ -16,6 +18,7 @@ func (cmd *applyCommand) applyDEPProfile(args []string) error {
 	var (
 		flProfilePath = flagset.String("f", "", "filename of DEP profile to apply")
 		flTemplate    = flagset.Bool("template", false, "print a JSON example of a DEP profile")
+		flAnchorFile  = flagset.String("anchor", "", "filename of PEM certificate to add to trusted anchors")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl apply dep-profiles [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -23,8 +26,15 @@ func (cmd *applyCommand) applyDEPProfile(args []string) error {
 	}
 
 	if *flTemplate {
-		printDEPProfileTemplate()
-		return nil
+		var anchorCerts []*x509.Certificate
+		if *flAnchorFile != "" {
+			cert, err := crypto.ReadPEMCertificateFile(*flAnchorFile)
+			if err != nil {
+				return err
+			}
+			anchorCerts = append(anchorCerts, cert)
+		}
+		return printDEPProfileTemplate(anchorCerts)
 	}
 
 	if *flProfilePath == "" {
@@ -54,9 +64,24 @@ func (cmd *applyCommand) applyDEPProfile(args []string) error {
 	return nil
 }
 
-func printDEPProfileTemplate() {
+func printDEPProfileTemplate(anchorCerts []*x509.Certificate) error {
+	var anchorCertStr string = "[]"
 
-	resp := `
+	// convert certificates into base64 encoded strings
+	// json.Marshal does this for us for byte[] arrays
+	if len(anchorCerts) > 0 {
+		var certs [][]byte
+		for _, cert := range anchorCerts {
+			certs = append(certs, cert.Raw)
+		}
+		jsonBytes, err := json.Marshal(certs)
+		if err != nil {
+			return nil
+		}
+		anchorCertStr = string(jsonBytes)
+	}
+
+	resp := fmt.Sprintf(`
 {
   "profile_name": "(Required) Human readable name",
   "url": "https://mymdm.example.org/mdm/enroll",
@@ -69,12 +94,13 @@ func printDEPProfileTemplate() {
   "support_phone_number": "(Optional) +1 408 555 1010",
   "support_email_address": "(Optional) support@example.com",
   "org_magic": "(Optional)",
-  "anchor_certs": [],
+  "anchor_certs": %s,
   "supervising_host_certs": [],
   "skip_setup_items": ["AppleID", "Android"],
   "department": "(Optional) support@example.com",
   "devices": ["SERIAL1","SERIAL2"]
 }
-`
+`, anchorCertStr)
 	fmt.Println(resp)
+	return nil
 }
