@@ -52,6 +52,8 @@ func (cmd *applyCommand) Run(args []string) error {
 		run = cmd.applyBlueprint
 	case "dep-tokens":
 		run = cmd.applyDEPTokens
+	case "dep-profiles":
+		run = cmd.applyDEPProfile
 	case "profiles":
 		run = cmd.applyProfile
 	default:
@@ -70,6 +72,7 @@ Valid resource types:
   * blueprints
   * profiles
   * dep-tokens
+  * dep-profiles
 
 Examples:
   # Get a list of devices
@@ -177,7 +180,8 @@ func (cmd *applyCommand) applyProfile(args []string) error {
 		return err
 	}
 	if *flProfilePath == "" {
-		return errors.New("must provide -f parameter")
+		flagset.Usage()
+		return errors.New("bad input: must provide -f parameter")
 	}
 	if _, err := os.Stat(*flProfilePath); os.IsNotExist(err) {
 		return err
