@@ -87,7 +87,7 @@ func MakeDefineDEPProfile(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(depProfileRequest)
 		resp, err := svc.DefineDEPProfile(ctx, req.Profile)
-		return depProfileResponse{
+		return &depProfileResponse{
 			ProfileResponse: resp,
 			Err:             err,
 		}, nil
