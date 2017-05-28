@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -15,6 +14,7 @@ import (
 	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/core/apply"
 	"github.com/micromdm/micromdm/profile"
+	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -52,6 +52,8 @@ func (cmd *applyCommand) Run(args []string) error {
 		run = cmd.applyBlueprint
 	case "dep-tokens":
 		run = cmd.applyDEPTokens
+	case "dep-profiles":
+		run = cmd.applyDEPProfile
 	case "profiles":
 		run = cmd.applyProfile
 	default:
@@ -70,10 +72,14 @@ Valid resource types:
   * blueprints
   * profiles
   * dep-tokens
+  * dep-profiles
 
 Examples:
-  # Get a list of devices
+  # Apply a Blueprint.
   mdmctl apply blueprints -f /path/to/blueprint.json
+
+  # Apply a DEP Profile.
+  mdmctl apply dep-profiles -f /path/to/dep-profile.json
 
 `
 	fmt.Println(applyUsage)
@@ -83,16 +89,36 @@ Examples:
 func (cmd *applyCommand) applyBlueprint(args []string) error {
 	flagset := flag.NewFlagSet("blueprints", flag.ExitOnError)
 	var (
-		flBlueprintPath    = flagset.String("f", "", "filename of blueprint JSON to apply")
-		flNewBlueprintPath = flagset.String("generate-blueprint", "", "filename of new template blueprint JSON to create")
+		flBlueprintPath = flagset.String("f", "", "filename of blueprint JSON to apply")
+		flTemplate      = flagset.Bool("template", false, "print a new blueprint template")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl apply blueprints [flags]")
 	if err := flagset.Parse(args); err != nil {
 		return err
 	}
-	if *flBlueprintPath == "" && *flNewBlueprintPath == "" {
-		return errors.New("must provide -f or -generate-blueprint parameter")
+
+	if *flTemplate {
+		newBlueprint := &blueprint.Blueprint{
+			Name:               "exampleName",
+			UUID:               uuid.NewV4().String(),
+			ApplicationURLs:    []string{cmd.config.ServerURL + "repo/exampleAppManifest.plist"},
+			ProfileIdentifiers: []string{"com.example.my.profile"},
+			ApplyAt:            []string{"Enroll"},
+		}
+
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetIndent("", "  ")
+		if err := enc.Encode(newBlueprint); err != nil {
+			return errors.Wrap(err, "encode blueprint template")
+		}
+		return nil
 	}
+
+	if *flBlueprintPath == "" {
+		flagset.Usage()
+		return errors.New("bad input: must provide -f flag")
+	}
+
 	if *flBlueprintPath != "" {
 		if _, err := os.Stat(*flBlueprintPath); os.IsNotExist(err) {
 			return err
@@ -114,28 +140,7 @@ func (cmd *applyCommand) applyBlueprint(args []string) error {
 		fmt.Println("applied blueprint", *flBlueprintPath)
 		return nil
 	}
-	if *flNewBlueprintPath != "" {
-		newBlueprintFile, err := os.Create(*flNewBlueprintPath)
-		if err != nil {
-			return err
-		}
-		defer newBlueprintFile.Close()
 
-		newBlueprint := new(blueprint.Blueprint)
-		newBlueprint.Name = "exampleName"
-		newBlueprint.UUID = uuid.NewV4().String()
-		newBlueprint.ApplicationURLs = []string{cmd.config.ServerURL + "repo/exampleAppManifest.plist"}
-		newBlueprint.ProfileIdentifiers = []string{"com.example.my.profile"}
-
-		enc := json.NewEncoder(newBlueprintFile)
-		enc.SetIndent("", "  ")
-		err = enc.Encode(newBlueprint)
-		if err != nil {
-			return err
-		}
-
-		fmt.Println("wrote", *flNewBlueprintPath)
-	}
 	return nil
 }
 
@@ -177,7 +182,8 @@ func (cmd *applyCommand) applyProfile(args []string) error {
 		return err
 	}
 	if *flProfilePath == "" {
-		return errors.New("must provide -f parameter")
+		flagset.Usage()
+		return errors.New("bad input: must provide -f parameter")
 	}
 	if _, err := os.Stat(*flProfilePath); os.IsNotExist(err) {
 		return err
@@ -202,6 +208,6 @@ func (cmd *applyCommand) applyProfile(args []string) error {
 		return err
 	}
 
-	fmt.Println(fmt.Sprintf("applied blueprint id %s from %s", p.Identifier, *flProfilePath))
+	fmt.Printf("applied profile id %s from %s\n", p.Identifier, *flProfilePath)
 	return nil
 }

@@ -12,9 +12,10 @@ import (
 )
 
 type HTTPHandlers struct {
-	BlueprintHandler http.Handler
-	DEPTokensHandler http.Handler
-	ProfileHandler   http.Handler
+	BlueprintHandler        http.Handler
+	DEPTokensHandler        http.Handler
+	ProfileHandler          http.Handler
+	DefineDEPProfileHandler http.Handler
 }
 
 func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
@@ -34,6 +35,12 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 		ProfileHandler: httptransport.NewServer(
 			endpoints.ApplyProfileEndpoint,
 			decodeProfileRequest,
+			encodeResponse,
+			opts...,
+		),
+		DefineDEPProfileHandler: httptransport.NewServer(
+			endpoints.DefineDEPProfileEndpoint,
+			decodeDEPProfileRequest,
 			encodeResponse,
 			opts...,
 		),
@@ -59,6 +66,14 @@ func decodeBlueprintRequest(ctx context.Context, r *http.Request) (interface{}, 
 
 func decodeProfileRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req profileRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, err
+	}
+	return req, nil
+}
+
+func decodeDEPProfileRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	var req depProfileRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, err
 	}
@@ -110,7 +125,7 @@ func EncodeHTTPGenericRequest(_ context.Context, r *http.Request, request interf
 	return nil
 }
 
-func DecodeBlueprintRequest(_ context.Context, r *http.Response) (interface{}, error) {
+func DecodeBlueprintResponse(_ context.Context, r *http.Response) (interface{}, error) {
 	if r.StatusCode != http.StatusOK {
 		return nil, errorDecoder(r)
 	}
@@ -119,7 +134,7 @@ func DecodeBlueprintRequest(_ context.Context, r *http.Response) (interface{}, e
 	return resp, err
 }
 
-func DecodeDEPTokensRequest(_ context.Context, r *http.Response) (interface{}, error) {
+func DecodeDEPTokensResponse(_ context.Context, r *http.Response) (interface{}, error) {
 	if r.StatusCode != http.StatusOK {
 		return nil, errorDecoder(r)
 	}
@@ -128,11 +143,20 @@ func DecodeDEPTokensRequest(_ context.Context, r *http.Response) (interface{}, e
 	return resp, err
 }
 
-func DecodeProfileRequest(_ context.Context, r *http.Response) (interface{}, error) {
+func DecodeProfileResponse(_ context.Context, r *http.Response) (interface{}, error) {
 	if r.StatusCode != http.StatusOK {
 		return nil, errorDecoder(r)
 	}
 	var resp profileResponse
+	err := json.NewDecoder(r.Body).Decode(&resp)
+	return resp, err
+}
+
+func DecodeDEPProfileResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	if r.StatusCode != http.StatusOK {
+		return nil, errorDecoder(r)
+	}
+	var resp depProfileResponse
 	err := json.NewDecoder(r.Body).Decode(&resp)
 	return resp, err
 }

@@ -51,6 +51,12 @@ func (cmd *getCommand) Run(args []string) error {
 	switch strings.ToLower(args[0]) {
 	case "devices":
 		run = cmd.getDevices
+	case "dep-devices":
+		run = cmd.getDEPDevices
+	case "dep-account":
+		run = cmd.getDEPAccount
+	case "dep-profiles":
+		run = cmd.getDEPProfiles
 	case "dep-tokens":
 		run = cmd.getDepTokens
 	case "blueprints":
@@ -74,6 +80,9 @@ Valid resource types:
   * devices
   * blueprints
   * dep-tokens
+  * dep-devices
+  * dep-account
+  * dep-profiles
   * profiles
 
 Examples:

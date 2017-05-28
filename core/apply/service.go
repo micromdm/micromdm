@@ -8,11 +8,13 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/json"
-	"github.com/fullsailor/pkcs7"
 	"io"
 	"net/textproto"
 
+	"github.com/fullsailor/pkcs7"
+
 	"github.com/boltdb/bolt"
+	"github.com/micromdm/dep"
 	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/core/list"
 	"github.com/micromdm/micromdm/profile"
@@ -22,9 +24,11 @@ type Service interface {
 	ApplyBlueprint(ctx context.Context, bp *blueprint.Blueprint) error
 	ApplyDEPToken(ctx context.Context, P7MContent []byte) error
 	ApplyProfile(ctx context.Context, p *profile.Profile) error
+	DEPService
 }
 
 type ApplyService struct {
+	DEPClient  dep.Client
 	Blueprints *blueprint.DB
 	Profiles   *profile.DB
 	DB         *bolt.DB // TODO: replace with reference to DEP token svc/pkg
