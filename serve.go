@@ -248,10 +248,16 @@ func serve(args []string) error {
 		applyProfileEndpoint = apply.MakeApplyProfileEndpoint(applysvc)
 	}
 
+	var defineDEPProfileEndpoint endpoint.Endpoint
+	{
+		defineDEPProfileEndpoint = apply.MakeDefineDEPProfile(applysvc)
+	}
+
 	applyEndpoints := apply.Endpoints{
-		ApplyBlueprintEndpoint: applyBlueprintEndpoint,
-		ApplyDEPTokensEndpoint: apply.MakeApplyDEPTokensEndpoint(applysvc),
-		ApplyProfileEndpoint:   applyProfileEndpoint,
+		ApplyBlueprintEndpoint:   applyBlueprintEndpoint,
+		ApplyDEPTokensEndpoint:   apply.MakeApplyDEPTokensEndpoint(applysvc),
+		ApplyProfileEndpoint:     applyProfileEndpoint,
+		DefineDEPProfileEndpoint: defineDEPProfileEndpoint,
 	}
 
 	applyAPIHandlers := apply.MakeHTTPHandlers(ctx, applyEndpoints, connectOpts...)
