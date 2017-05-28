@@ -1,5 +1,6 @@
 # v1.0.1 TBD
 
+* /push and /v1/commands API endpoints require API authentication #157
 * Add `mdmctl` binary for interacting with the server over API. #127
 * Save DEP cursor for use after restart. #109
 * Add `-examples` flag to micromdm serve. #119
