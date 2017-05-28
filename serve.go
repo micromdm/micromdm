@@ -210,12 +210,12 @@ func serve(args []string) error {
 		ConnectEndpoint: connectEndpoint,
 	}
 
+	dc, err := sm.depClient()
+	if err != nil {
+		stdlog.Fatalf("creating DEP client %s\n", err)
+	}
 	var listsvc list.Service
 	{
-		dc, err := sm.depClient()
-		if err != nil {
-			stdlog.Fatalf("creating DEP client %s\n", err)
-		}
 		listsvc = &list.ListService{DEPClient: dc, Devices: devDB, DB: sm.db, Blueprints: bpDB, Profiles: profDB}
 	}
 	var listDevicesEndpoint endpoint.Endpoint
@@ -235,7 +235,7 @@ func serve(args []string) error {
 
 	var applysvc apply.Service
 	{
-		applysvc = &apply.ApplyService{Blueprints: bpDB, DB: sm.db, Profiles: profDB}
+		applysvc = &apply.ApplyService{DEPClient: dc, Blueprints: bpDB, DB: sm.db, Profiles: profDB}
 	}
 
 	var applyBlueprintEndpoint endpoint.Endpoint
