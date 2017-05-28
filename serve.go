@@ -288,6 +288,7 @@ func serve(args []string) error {
 		r.Handle("/v1/dep/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPDeviceDetailsHandler)).Methods("GET")
 		r.Handle("/v1/dep/account", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPAccountInfoHandler)).Methods("GET")
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPProfileHander)).Methods("GET")
+		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DefineDEPProfileHandler)).Methods("POST")
 	}
 
 	if *flRepoPath != "" {
