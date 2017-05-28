@@ -22,6 +22,7 @@ message Command {
     AccountConfiguration account_configuration = 5;
     ScheduleOSUpdate schedule_os_update = 6;
     ScheduleOSUpdateScan schedule_os_update_scan = 7;
+    RemoveProfile remove_profile = 8;
 }
 
 message ScheduleOSUpdate {
@@ -56,6 +57,10 @@ message DeviceInformation {
 
 message InstallProfile {
     bytes payload = 1;
+}
+
+message RemoveProfile {
+    string identifier = 1;
 }
 
 

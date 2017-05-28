@@ -77,6 +77,10 @@ func MarshalEvent(e *Event) ([]byte, error) {
 		payload.Command.InstallProfile = &commandproto.InstallProfile{
 			Payload: e.Payload.Command.InstallProfile.Payload,
 		}
+	case "RemoveProfile":
+		payload.Command.RemoveProfile = &commandproto.RemoveProfile{
+			Identifier: e.Payload.Command.RemoveProfile.Identifier,
+		}
 	case "InstallApplication":
 		cmd := e.Payload.Command.InstallApplication
 		payload.Command.InstallApplication = &commandproto.InstallApplication{
