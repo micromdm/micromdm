@@ -132,8 +132,18 @@ SYNC:
 		if err := w.conf.Save(); err != nil {
 			return errors.Wrap(err, "saving cursor from sync")
 		}
-
-		// TODO handle sync response here.
-		<-ticker
+		if len(resp.Devices) > 0 {
+			e := NewEvent(resp.Devices)
+			data, err := MarshalEvent(e)
+			if err != nil {
+				return err
+			}
+			if err := w.publisher.Publish(SyncTopic, data); err != nil {
+				return err
+			}
+		}
+		if !resp.MoreToFollow {
+			<-ticker
+		}
 	}
 }
