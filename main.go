@@ -28,12 +28,6 @@ func main() {
 		return
 	case "serve":
 		run = serve
-	case "get":
-		run = getResource
-	case "apply":
-		run = applyResource
-	case "dev":
-		run = dev
 	default:
 		usage()
 		os.Exit(1)
@@ -50,9 +44,6 @@ func usage() error {
 
 Available Commands:
 	serve
-	dev
-	get
-	apply
 	version
 
 Use micromdm <command> -h for additional usage of each command.
