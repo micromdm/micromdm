@@ -103,6 +103,7 @@ func (cmd *applyCommand) applyBlueprint(args []string) error {
 			UUID:               uuid.NewV4().String(),
 			ApplicationURLs:    []string{cmd.config.ServerURL + "repo/exampleAppManifest.plist"},
 			ProfileIdentifiers: []string{"com.example.my.profile"},
+			ApplyAt:            []string{"Enroll"},
 		}
 
 		enc := json.NewEncoder(os.Stdout)
@@ -207,6 +208,6 @@ func (cmd *applyCommand) applyProfile(args []string) error {
 		return err
 	}
 
-	fmt.Println(fmt.Sprintf("applied blueprint id %s from %s", p.Identifier, *flProfilePath))
+	fmt.Printf("applied profile id %s from %s\n", p.Identifier, *flProfilePath)
 	return nil
 }
