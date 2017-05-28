@@ -163,6 +163,10 @@ func UnmarshalEvent(data []byte, e *Event) error {
 		e.Payload.Command.InstallProfile = mdm.InstallProfile{
 			Payload: pb.Payload.Command.InstallProfile.Payload,
 		}
+	case "RemoveProfile":
+		e.Payload.Command.RemoveProfile = mdm.RemoveProfile{
+			Identifier: pb.Payload.Command.RemoveProfile.Identifier,
+		}
 	case "InstallApplication":
 		cmd := pb.Payload.Command.GetInstallApplication()
 		e.Payload.Command.InstallApplication = mdm.InstallApplication{
