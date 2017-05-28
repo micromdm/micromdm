@@ -50,10 +50,10 @@
   version = "v0.4"
 
 [[projects]]
-  branch = "master"
+  branch = "revert-275-go-context-stdlib"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
-  revision = "9f174c986221c608fb5143bd623b6076a71feae3"
+  revision = "154c03a3a9331d88d991096c1c3023aafafecf64"
 
 [[projects]]
   name = "github.com/gorilla/context"
@@ -95,7 +95,7 @@
   branch = "master"
   name = "github.com/micromdm/mdm"
   packages = ["."]
-  revision = "255824c8b22417622b1fee883b5508dec9587b34"
+  revision = "90769a42e9940a8cdc99c33840e6a4bbc192917d"
 
 [[projects]]
   name = "github.com/micromdm/scep"
@@ -142,6 +142,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9502148927d630aed51089b18e46395f56995ed144a986d44a960379d1bff4b8"
+  inputs-digest = "5b77abba24cd41ee8041e87f39d656f92bbff87b25fc92f299a48400f6385d3f"
   solver-name = "gps-cdcl"
   solver-version = 1
