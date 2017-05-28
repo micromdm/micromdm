@@ -75,8 +75,11 @@ Valid resource types:
   * dep-profiles
 
 Examples:
-  # Get a list of devices
+  # Apply a Blueprint.
   mdmctl apply blueprints -f /path/to/blueprint.json
+
+  # Apply a DEP Profile.
+  mdmctl apply dep-profiles -f /path/to/dep-profile.json
 
 `
 	fmt.Println(applyUsage)
