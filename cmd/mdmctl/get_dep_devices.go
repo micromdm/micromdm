@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -25,6 +26,10 @@ func (cmd *getCommand) getDEPDevices(args []string) error {
 	flagset.Usage = usageFor(flagset, "mdmctl get dep-devices [flags]")
 	if err := flagset.Parse(args); err != nil {
 		return err
+	}
+	if *flSerials == "" {
+		flagset.Usage()
+		return errors.New("bad input: must provide a comma separated list of DEP serials")
 	}
 	w := tabwriter.NewWriter(os.Stderr, 0, 4, 2, ' ', 0)
 	out := &depDevicesTableOutput{w}
