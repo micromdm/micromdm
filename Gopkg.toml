@@ -1,20 +1,20 @@
 
-[[dependencies]]
+[[constraint]]
   name = "github.com/boltdb/bolt"
   version = "v1.3.0"
 
-[[dependencies]]
+[[constraint]]
   name = "github.com/go-kit/kit"
   version = "v0.4.0"
 
-[[dependencies]]
+[[constraint]]
   name = "github.com/gorilla/mux"
   version = "v1.3.0"
 
-[[dependencies]]
+[[constraint]]
   name = "github.com/pkg/errors"
   version = "v0.8.0"
 
-[[dependencies]]
+[[constraint]]
   name = "github.com/satori/go.uuid"
   version = "v1.1.0"
