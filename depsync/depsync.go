@@ -1,9 +1,11 @@
 package depsync
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/boltdb/bolt"
@@ -23,9 +25,12 @@ type Syncer interface {
 }
 
 type watcher struct {
-	client    dep.Client
+	mtx    sync.RWMutex
+	client dep.Client
+
 	publisher pubsub.Publisher
 	conf      *config
+	startSync chan bool
 }
 
 type cursor struct {
@@ -84,6 +89,10 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, opts ...Option) (Syncer, err
 
 	go func() {
 		defer saveCursor()
+		if sync.client == nil {
+			// block until we have a DEP client to start sync process
+			<-sync.startSync
+		}
 		if err := sync.Run(); err != nil {
 			log.Println("DEP watcher failed: ", err)
 		}
@@ -92,16 +101,37 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, opts ...Option) (Syncer, err
 }
 
 func (w *watcher) updateClient(pubsub pubsub.Subscriber) error {
-	configEvents, err := pubsub.Subscribe("token-events", deptoken.DEPTokenTopic)
+	tokenAdded, err := pubsub.Subscribe("token-events", deptoken.DEPTokenTopic)
 	if err != nil {
 		return err
 	}
 
 	go func() {
 		for {
-			// TODO add config events
-			_ = configEvents
-			select {}
+			select {
+			case event := <-tokenAdded:
+				var token deptoken.DEPToken
+				if err := json.Unmarshal(event.Message, &token); err != nil {
+					log.Printf("unmarshalling tokenAdded to token: %s\n", err)
+					continue
+				}
+				conf := &dep.Config{
+					ConsumerKey:    token.ConsumerKey,
+					ConsumerSecret: token.ConsumerSecret,
+					AccessSecret:   token.AccessSecret,
+					AccessToken:    token.AccessToken,
+				}
+				depServerURL := "https://mdmenrollment.apple.com"
+				client, err := dep.NewClient(conf, dep.ServerURL(depServerURL))
+				if err != nil {
+					log.Printf("creating new DEP client: %s\n", err)
+					continue
+				}
+				w.mtx.Lock()
+				w.client = client
+				w.mtx.Unlock()
+				go func() { w.startSync <- true }() // unblock Run
+			}
 		}
 	}()
 	return nil
