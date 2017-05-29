@@ -95,7 +95,7 @@
   branch = "master"
   name = "github.com/micromdm/mdm"
   packages = ["."]
-  revision = "90769a42e9940a8cdc99c33840e6a4bbc192917d"
+  revision = "2e3f297ba6a2e801dec12771c92c301b8e15f76c"
 
 [[projects]]
   name = "github.com/micromdm/scep"
@@ -139,9 +139,15 @@
   packages = ["internal/gen","internal/triegen","internal/ucd","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
   revision = "19e51611da83d6be54ddafce4a4af510cb3e9ea4"
 
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/tools"
+  packages = ["go/ast/astutil","imports"]
+  revision = "bc6db94186c03835daa5c1c679fba599dc1f3b79"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5b77abba24cd41ee8041e87f39d656f92bbff87b25fc92f299a48400f6385d3f"
+  inputs-digest = "9502148927d630aed51089b18e46395f56995ed144a986d44a960379d1bff4b8"
   solver-name = "gps-cdcl"
   solver-version = 1
