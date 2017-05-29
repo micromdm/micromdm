@@ -1,5 +1,6 @@
 # v1.0.1 TBD
 
+* Option to include SSL certificates in DEP profile template (-anchor and -use-server-cert) #107
 * /push and /v1/commands API endpoints require API authentication #157
 * Add `mdmctl` binary for interacting with the server over API. #127
 * Save DEP cursor for use after restart. #109
