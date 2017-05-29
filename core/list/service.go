@@ -2,12 +2,16 @@ package list
 
 import (
 	"context"
+	"encoding/json"
+	"log"
+	"sync"
 
 	"github.com/micromdm/dep"
 	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/deptoken"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/profile"
+	"github.com/micromdm/micromdm/pubsub"
 )
 
 type ListDevicesOption struct {
@@ -35,11 +39,45 @@ type Service interface {
 }
 
 type ListService struct {
-	DEPClient  dep.Client
+	mtx       sync.RWMutex
+	DEPClient dep.Client
+
 	Devices    *device.DB
 	Blueprints *blueprint.DB
 	Profiles   *profile.DB
 	Tokens     *deptoken.DB
+}
+
+func (svc *ListService) WatchTokenUpdates(pubsub pubsub.Subscriber) error {
+	tokenAdded, err := pubsub.Subscribe("list-token-events", deptoken.DEPTokenTopic)
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		for {
+			select {
+			case event := <-tokenAdded:
+				var token deptoken.DEPToken
+				if err := json.Unmarshal(event.Message, &token); err != nil {
+					log.Printf("unmarshalling tokenAdded to token: %s\n", err)
+					continue
+				}
+
+				client, err := token.Client()
+				if err != nil {
+					log.Printf("creating new DEP client: %s\n", err)
+					continue
+				}
+
+				svc.mtx.Lock()
+				svc.DEPClient = client
+				svc.mtx.Unlock()
+			}
+		}
+	}()
+
+	return nil
 }
 
 func (svc *ListService) ListDevices(ctx context.Context, opt ListDevicesOption) ([]DeviceDTO, error) {

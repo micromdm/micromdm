@@ -115,18 +115,13 @@ func (w *watcher) updateClient(pubsub pubsub.Subscriber) error {
 					log.Printf("unmarshalling tokenAdded to token: %s\n", err)
 					continue
 				}
-				conf := &dep.Config{
-					ConsumerKey:    token.ConsumerKey,
-					ConsumerSecret: token.ConsumerSecret,
-					AccessSecret:   token.AccessSecret,
-					AccessToken:    token.AccessToken,
-				}
-				depServerURL := "https://mdmenrollment.apple.com"
-				client, err := dep.NewClient(conf, dep.ServerURL(depServerURL))
+
+				client, err := token.Client()
 				if err != nil {
 					log.Printf("creating new DEP client: %s\n", err)
 					continue
 				}
+
 				w.mtx.Lock()
 				w.client = client
 				w.mtx.Unlock()

@@ -214,7 +214,12 @@ func serve(args []string) error {
 	tokenDB := &deptoken.DB{DB: sm.db, Publisher: sm.pubclient}
 	var listsvc list.Service
 	{
-		listsvc = &list.ListService{DEPClient: dc, Devices: devDB, Tokens: tokenDB, Blueprints: bpDB, Profiles: profDB}
+		l := &list.ListService{DEPClient: dc, Devices: devDB, Tokens: tokenDB, Blueprints: bpDB, Profiles: profDB}
+		listsvc = l
+
+		if err := l.WatchTokenUpdates(sm.pubclient); err != nil {
+			stdlog.Fatal(err)
+		}
 	}
 	var listDevicesEndpoint endpoint.Endpoint
 	{
@@ -233,7 +238,11 @@ func serve(args []string) error {
 
 	var applysvc apply.Service
 	{
-		applysvc = &apply.ApplyService{DEPClient: dc, Blueprints: bpDB, Tokens: tokenDB, Profiles: profDB}
+		l := &apply.ApplyService{DEPClient: dc, Blueprints: bpDB, Tokens: tokenDB, Profiles: profDB}
+		applysvc = l
+		if err := l.WatchTokenUpdates(sm.pubclient); err != nil {
+			stdlog.Fatal(err)
+		}
 	}
 
 	var applyBlueprintEndpoint endpoint.Endpoint

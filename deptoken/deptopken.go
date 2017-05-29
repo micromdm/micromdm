@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/boltdb/bolt"
+	"github.com/micromdm/dep"
 	"github.com/micromdm/micromdm/crypto"
 	"github.com/micromdm/micromdm/pubsub"
 )
@@ -29,6 +30,19 @@ type DEPToken struct {
 	AccessToken       string    `json:"access_token"`
 	AccessSecret      string    `json:"access_secret"`
 	AccessTokenExpiry time.Time `json:"access_token_expiry"`
+}
+
+// create a DEP client from token.
+func (tok DEPToken) Client() (dep.Client, error) {
+	conf := &dep.Config{
+		ConsumerKey:    tok.ConsumerKey,
+		ConsumerSecret: tok.ConsumerSecret,
+		AccessSecret:   tok.AccessSecret,
+		AccessToken:    tok.AccessToken,
+	}
+	depServerURL := "https://mdmenrollment.apple.com"
+	client, err := dep.NewClient(conf, dep.ServerURL(depServerURL))
+	return client, err
 }
 
 func (db *DB) AddToken(consumerKey string, json []byte) error {
