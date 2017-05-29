@@ -48,6 +48,7 @@ import (
 	"github.com/micromdm/micromdm/core/list"
 	"github.com/micromdm/micromdm/crypto"
 	"github.com/micromdm/micromdm/depsync"
+	"github.com/micromdm/micromdm/deptoken"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/enroll"
 	"github.com/micromdm/micromdm/profile"
@@ -651,8 +652,9 @@ func (c *config) depClient() (dep.Client, error) {
 	depsim := c.depsim
 	var conf *dep.Config
 
+	tokenDB := &deptoken.DB{DB: c.db}
 	// try getting the oauth config from bolt
-	tokens, err := list.GetDEPTokens(c.db)
+	tokens, err := tokenDB.DEPTokens()
 	if err != nil {
 		return nil, err
 	}
