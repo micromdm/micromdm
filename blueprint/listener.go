@@ -19,11 +19,13 @@ func (db *DB) ApplyToDevice(ctx context.Context, svc command.Service, bp *Bluepr
 	var requests []*mdm.CommandRequest
 	for _, appURL := range bp.ApplicationURLs {
 		requests = append(requests, &mdm.CommandRequest{
-			RequestType: "InstallApplication",
-			UDID:        udid,
-			InstallApplication: mdm.InstallApplication{
-				ManifestURL:     appURL,
-				ManagementFlags: 1,
+			UDID: udid,
+			Command: mdm.Command{
+				RequestType: "InstallApplication",
+				InstallApplication: mdm.InstallApplication{
+					ManifestURL:     appURL,
+					ManagementFlags: 1,
+				},
 			},
 		})
 	}
@@ -40,10 +42,12 @@ func (db *DB) ApplyToDevice(ctx context.Context, svc command.Service, bp *Bluepr
 		}
 
 		requests = append(requests, &mdm.CommandRequest{
-			RequestType: "InstallProfile",
-			UDID:        udid,
-			InstallProfile: mdm.InstallProfile{
-				Payload: foundProfile.Mobileconfig,
+			UDID: udid,
+			Command: mdm.Command{
+				RequestType: "InstallProfile",
+				InstallProfile: mdm.InstallProfile{
+					Payload: foundProfile.Mobileconfig,
+				},
 			},
 		})
 	}
@@ -93,8 +97,8 @@ func (db *DB) StartListener(sub pubsub.Subscriber, cmdSvc command.Service) error
 
 				if ev.Command.AwaitingConfiguration {
 					_, err := cmdSvc.NewCommand(ctx, &mdm.CommandRequest{
-						RequestType: "DeviceConfigured",
-						UDID:        ev.Command.UDID,
+						Command: mdm.Command{RequestType: "DeviceConfigured"},
+						UDID:    ev.Command.UDID,
 					})
 					if err != nil {
 						fmt.Println(errors.Wrapf(err, "sending DeviceConfigured"))
