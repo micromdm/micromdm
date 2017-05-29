@@ -8,6 +8,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/micromdm/dep"
+	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/pubsub"
 	"github.com/pkg/errors"
 )
@@ -41,7 +42,15 @@ func (c cursor) Valid() bool {
 	return true
 }
 
-func New(client dep.Client, pub pubsub.Publisher, db *bolt.DB) (Syncer, error) {
+type Option func(*watcher)
+
+func WithClient(client dep.Client) Option {
+	return func(w *watcher) {
+		w.client = client
+	}
+}
+
+func New(pub pubsub.PublishSubscriber, db *bolt.DB, opts ...Option) (Syncer, error) {
 	conf, err := LoadConfig(db)
 	if err != nil {
 		return nil, err
@@ -51,10 +60,18 @@ func New(client dep.Client, pub pubsub.Publisher, db *bolt.DB) (Syncer, error) {
 	} else {
 		conf.Cursor.Value = ""
 	}
+
 	sync := &watcher{
 		publisher: pub,
-		client:    client,
 		conf:      conf,
+	}
+
+	for _, opt := range opts {
+		opt(sync)
+	}
+
+	if err := sync.updateClient(pub); err != nil {
+		return nil, err
 	}
 
 	saveCursor := func() {
@@ -72,6 +89,22 @@ func New(client dep.Client, pub pubsub.Publisher, db *bolt.DB) (Syncer, error) {
 		}
 	}()
 	return sync, nil
+}
+
+func (w *watcher) updateClient(pubsub pubsub.Subscriber) error {
+	configEvents, err := pubsub.Subscribe("config-events", command.CommandTopic)
+	if err != nil {
+		return err
+	}
+
+	go func() {
+		for {
+			// TODO add config events
+			_ = configEvents
+			select {}
+		}
+	}()
+	return nil
 }
 
 // TODO this is private temporarily until the interface can be defined

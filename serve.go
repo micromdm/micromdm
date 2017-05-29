@@ -702,12 +702,11 @@ func (c *config) setupDEPSync() {
 		c.err = err
 		return
 	}
-	if client == nil {
-		fmt.Println("no DEP server configured. skipping device sync from DEP.")
-		return
+	var opts []depsync.Option
+	if client != nil {
+		opts = append(opts, depsync.WithClient(client))
 	}
-
-	_, c.err = depsync.New(client, c.pubclient, c.db)
+	_, c.err = depsync.New(c.pubclient, c.db, opts...)
 	if err != nil {
 		return
 	}
