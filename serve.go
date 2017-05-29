@@ -211,9 +211,10 @@ func serve(args []string) error {
 	if err != nil {
 		stdlog.Fatalf("creating DEP client %s\n", err)
 	}
+	tokenDB := &deptoken.DB{DB: sm.db, Publisher: sm.pubclient}
 	var listsvc list.Service
 	{
-		listsvc = &list.ListService{DEPClient: dc, Devices: devDB, DB: sm.db, Blueprints: bpDB, Profiles: profDB}
+		listsvc = &list.ListService{DEPClient: dc, Devices: devDB, Tokens: tokenDB, Blueprints: bpDB, Profiles: profDB}
 	}
 	var listDevicesEndpoint endpoint.Endpoint
 	{
@@ -232,7 +233,7 @@ func serve(args []string) error {
 
 	var applysvc apply.Service
 	{
-		applysvc = &apply.ApplyService{DEPClient: dc, Blueprints: bpDB, DB: sm.db, Profiles: profDB}
+		applysvc = &apply.ApplyService{DEPClient: dc, Blueprints: bpDB, Tokens: tokenDB, Profiles: profDB}
 	}
 
 	var applyBlueprintEndpoint endpoint.Endpoint

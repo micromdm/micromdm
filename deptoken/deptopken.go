@@ -20,7 +20,7 @@ const (
 
 type DB struct {
 	*bolt.DB
-	publisher pubsub.Publisher
+	Publisher pubsub.Publisher
 }
 
 type DEPToken struct {
@@ -42,7 +42,7 @@ func (db *DB) AddToken(consumerKey string, json []byte) error {
 	if err != nil {
 		return err
 	}
-	if err := db.publisher.Publish(DEPTokenTopic, json); err != nil {
+	if err := db.Publisher.Publish(DEPTokenTopic, json); err != nil {
 		return err
 	}
 	return nil
@@ -72,7 +72,7 @@ func (db *DB) DEPTokens() ([]DEPToken, error) {
 	return result, err
 }
 
-func (db *DB) DEPKeypair(key *rsa.PrivateKey, cert *x509.Certificate, err error) {
+func (db *DB) DEPKeypair() (key *rsa.PrivateKey, cert *x509.Certificate, err error) {
 	var keyBytes, certBytes []byte
 	err = db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(depTokenBucket))

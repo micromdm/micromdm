@@ -7,6 +7,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/dep"
 	"github.com/micromdm/micromdm/blueprint"
+	"github.com/micromdm/micromdm/deptoken"
 	"github.com/micromdm/micromdm/profile"
 )
 
@@ -29,7 +30,7 @@ func (e Endpoints) ListDevices(ctx context.Context, opts ListDevicesOption) ([]D
 	return response.(devicesResponse).Devices, response.(devicesResponse).Err
 }
 
-func (e Endpoints) GetDEPTokens(ctx context.Context) ([]DEPToken, []byte, error) {
+func (e Endpoints) GetDEPTokens(ctx context.Context) ([]deptoken.DEPToken, []byte, error) {
 	resp, err := e.GetDEPTokensEndpoint(ctx, nil)
 	if err != nil {
 		return nil, nil, err
@@ -162,18 +163,10 @@ type devicesResponse struct {
 	Err     error       `json:"err,omitempty"`
 }
 
-type DEPToken struct {
-	ConsumerKey       string    `json:"consumer_key"`
-	ConsumerSecret    string    `json:"consumer_secret"`
-	AccessToken       string    `json:"access_token"`
-	AccessSecret      string    `json:"access_secret"`
-	AccessTokenExpiry time.Time `json:"access_token_expiry"`
-}
-
 type depTokenResponse struct {
-	DEPTokens []DEPToken `json:"dep_tokens"`
-	DEPPubKey []byte     `json:"public_key"`
-	Err       error      `json:"err,omitempty"`
+	DEPTokens []deptoken.DEPToken `json:"dep_tokens"`
+	DEPPubKey []byte              `json:"public_key"`
+	Err       error               `json:"err,omitempty"`
 }
 
 type blueprintsRequest struct{ Opts GetBlueprintsOption }
