@@ -8,7 +8,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/micromdm/dep"
-	"github.com/micromdm/micromdm/command"
+	"github.com/micromdm/micromdm/deptoken"
 	"github.com/micromdm/micromdm/pubsub"
 	"github.com/pkg/errors"
 )
@@ -92,7 +92,7 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, opts ...Option) (Syncer, err
 }
 
 func (w *watcher) updateClient(pubsub pubsub.Subscriber) error {
-	configEvents, err := pubsub.Subscribe("config-events", command.CommandTopic)
+	configEvents, err := pubsub.Subscribe("token-events", deptoken.DEPTokenTopic)
 	if err != nil {
 		return err
 	}
