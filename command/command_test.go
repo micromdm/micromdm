@@ -31,9 +31,13 @@ func TestService_NewCommand(t *testing.T) {
 			wantErr:   false,
 			publisher: passPublisher,
 			request: &mdm.CommandRequest{
-				RequestType: "DeviceInformation",
-				UDID:        "foobarbaz",
-				Queries:     []string{"foo", "bar", "baz"},
+				UDID: "foobarbaz",
+				Command: mdm.Command{
+					RequestType: "DeviceInformation",
+					DeviceInformation: mdm.DeviceInformation{
+						Queries: []string{"foo", "bar", "baz"},
+					},
+				},
 			},
 		},
 		{
@@ -41,7 +45,9 @@ func TestService_NewCommand(t *testing.T) {
 			wantErr:   true,
 			publisher: failPublisher,
 			request: &mdm.CommandRequest{
-				RequestType: "DeviceInformation",
+				Command: mdm.Command{
+					RequestType: "DeviceInformation",
+				},
 			},
 		},
 		{
@@ -54,8 +60,10 @@ func TestService_NewCommand(t *testing.T) {
 			wantErr:   true,
 			publisher: passPublisher,
 			request: &mdm.CommandRequest{
-				RequestType: "DevicePropaganda",
-				UDID:        "foobarbaz",
+				UDID: "foobarbaz",
+				Command: mdm.Command{
+					RequestType: "DevicePropaganda",
+				},
 			},
 		},
 	}
