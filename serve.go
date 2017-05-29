@@ -148,10 +148,6 @@ func serve(args []string) error {
 		stdlog.Fatal(sm.err)
 	}
 
-	if err := hardcodeCommands(sm); err != nil {
-		stdlog.Fatal(err)
-	}
-
 	devDB, err := device.NewDB(sm.db, sm.pubclient)
 	if err != nil {
 		stdlog.Fatal(err)
