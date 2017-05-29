@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/micromdm/dep"
@@ -13,12 +15,30 @@ import (
 	"github.com/pkg/errors"
 )
 
+func certificateFromURL(serverURL string, insecure bool) (*x509.Certificate, error) {
+	urlParsed, err := url.Parse(serverURL)
+	if err != nil {
+		return nil, err
+	}
+	addr := urlParsed.Host
+	if urlParsed.Port() == "" {
+		addr += ":443"
+	}
+	conn, err := tls.Dial("tcp", addr, &tls.Config{InsecureSkipVerify: insecure})
+	if err != nil {
+		return nil, err
+	}
+	defer conn.Close()
+	return conn.ConnectionState().PeerCertificates[0], nil
+}
+
 func (cmd *applyCommand) applyDEPProfile(args []string) error {
 	flagset := flag.NewFlagSet("dep-profiles", flag.ExitOnError)
 	var (
 		flProfilePath = flagset.String("f", "", "filename of DEP profile to apply")
 		flTemplate    = flagset.Bool("template", false, "print a JSON example of a DEP profile")
 		flAnchorFile  = flagset.String("anchor", "", "filename of PEM certificate to add to trusted anchors")
+		flUseServer   = flagset.Bool("use-server-cert", false, "use the certificate presented by the server")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl apply dep-profiles [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -29,6 +49,13 @@ func (cmd *applyCommand) applyDEPProfile(args []string) error {
 		var anchorCerts []*x509.Certificate
 		if *flAnchorFile != "" {
 			cert, err := crypto.ReadPEMCertificateFile(*flAnchorFile)
+			if err != nil {
+				return err
+			}
+			anchorCerts = append(anchorCerts, cert)
+		}
+		if *flUseServer {
+			cert, err := certificateFromURL(cmd.config.ServerURL, cmd.config.SkipVerify)
 			if err != nil {
 				return err
 			}
