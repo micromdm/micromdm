@@ -77,11 +77,11 @@ func MarshalDevice(dev *Device) ([]byte, error) {
 		DepDevice:              dev.DEPDevice,
 		DepProfileStatus:       string(dev.DEPProfileStatus),
 		DepProfileUuid:         dev.DEPProfileUUID,
-		DepProfileAssignTime:   dev.DEPProfileAssignTime.UnixNano(),
-		DepProfilePushTime:     dev.DEPProfilePushTime.UnixNano(),
-		DepProfileAssignedDate: dev.DEPProfileAssignedDate.UnixNano(),
+		DepProfileAssignTime:   timeToNano(dev.DEPProfileAssignTime),
+		DepProfilePushTime:     timeToNano(dev.DEPProfilePushTime),
+		DepProfileAssignedDate: timeToNano(dev.DEPProfileAssignedDate),
 		DepProfileAssignedBy:   dev.DEPProfileAssignedBy,
-		LastCheckIn:            dev.LastCheckin.UnixNano(),
+		LastCheckIn:            timeToNano(dev.LastCheckin),
 		LastQueryResponse:      dev.LastQueryResponse,
 	}
 	return proto.Marshal(&protodev)
@@ -115,11 +115,25 @@ func UnmarshalDevice(data []byte, dev *Device) error {
 	dev.DEPDevice = pb.GetDepDevice()
 	dev.DEPProfileStatus = DEPProfileStatus(pb.GetDepProfileStatus())
 	dev.DEPProfileUUID = pb.GetDepProfileUuid()
-	dev.DEPProfileAssignTime = time.Unix(0, pb.GetDepProfileAssignTime()).UTC()
-	dev.DEPProfilePushTime = time.Unix(0, pb.GetDepProfilePushTime()).UTC()
-	dev.DEPProfileAssignedDate = time.Unix(0, pb.GetDepProfileAssignedDate()).UTC()
+	dev.DEPProfileAssignTime = timeFromNano(pb.GetDepProfileAssignTime())
+	dev.DEPProfilePushTime = timeFromNano(pb.GetDepProfilePushTime())
+	dev.DEPProfileAssignedDate = timeFromNano(pb.GetDepProfileAssignedDate())
 	dev.DEPProfileAssignedBy = pb.GetDepProfileAssignedBy()
-	dev.LastCheckin = time.Unix(0, pb.GetLastCheckIn()).UTC()
+	dev.LastCheckin = timeFromNano(pb.GetLastCheckIn())
 	dev.LastQueryResponse = pb.GetLastQueryResponse()
 	return nil
+}
+
+func timeToNano(t time.Time) int64 {
+	if t.IsZero() {
+		return 0
+	}
+	return t.UnixNano()
+}
+
+func timeFromNano(nano int64) time.Time {
+	if nano == 0 {
+		return time.Time{}
+	}
+	return time.Unix(0, nano).UTC()
 }

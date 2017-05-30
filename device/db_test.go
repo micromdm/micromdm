@@ -49,6 +49,11 @@ func TestSave(t *testing.T) {
 			if have, want := haveDev.ProductName, dev.ProductName; have != want {
 				t.Errorf("have %s, want %s", have, want)
 			}
+
+			if have, want := haveDev.LastCheckin, dev.LastCheckin; have != want {
+				t.Errorf("have %s, want %s", have, want)
+			}
+
 		}
 	}
 
