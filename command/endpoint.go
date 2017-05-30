@@ -26,7 +26,7 @@ func MakeNewCommandEndpoint(svc Service) endpoint.Endpoint {
 		if req.UDID == "" || req.RequestType == "" {
 			return newCommandResponse{Err: errEmptyRequest}, nil
 		}
-		payload, err := svc.NewCommand(ctx, req.CommandRequest)
+		payload, err := svc.NewCommand(ctx, &req.CommandRequest)
 		if err != nil {
 			return newCommandResponse{Err: err}, nil
 		}
@@ -66,7 +66,7 @@ func EndpointLoggingMiddleware(logger log.Logger) endpoint.Middleware {
 }
 
 type newCommandRequest struct {
-	*mdm.CommandRequest
+	mdm.CommandRequest
 }
 
 type newCommandResponse struct {
