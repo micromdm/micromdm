@@ -196,7 +196,7 @@ func (cmd *getCommand) getBlueprints(args []string) error {
 	flagset := flag.NewFlagSet("blueprints", flag.ExitOnError)
 	var (
 		flBlueprintName = flagset.String("name", "", "name of blueprint")
-		flJSONName      = flagset.String("json", "", "file name of JSON to save for a single result")
+		flJSONName      = flagset.String("f", "-", "filename of JSON to save to")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl get blueprints [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -209,46 +209,56 @@ func (cmd *getCommand) getBlueprints(args []string) error {
 		return err
 	}
 
-	w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
-	fmt.Fprintf(w, "Name\tUUID\tManifests\tProfiles\tApply At\n")
-	for _, bp := range blueprints {
-		var applyAtStr string
-		if len(bp.ApplyAt) > 0 {
-			applyAtStr = strings.Join(bp.ApplyAt, ",")
-		} else {
-			applyAtStr = "(None)"
+	if *flBlueprintName == "" || len(blueprints) < 1 {
+		w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
+		fmt.Fprintf(w, "Name\tUUID\tManifests\tProfiles\tApply At\n")
+		for _, bp := range blueprints {
+			var applyAtStr string
+			if len(bp.ApplyAt) > 0 {
+				applyAtStr = strings.Join(bp.ApplyAt, ",")
+			} else {
+				applyAtStr = "(None)"
+			}
+			fmt.Fprintf(
+				w,
+				"%s\t%s\t%d\t%d\t%s\n",
+				bp.Name,
+				bp.UUID,
+				len(bp.ApplicationURLs),
+				len(bp.ProfileIdentifiers),
+				applyAtStr,
+			)
 		}
-		fmt.Fprintf(
-			w,
-			"%s\t%s\t%d\t%d\t%s\n",
-			bp.Name,
-			bp.UUID,
-			len(bp.ApplicationURLs),
-			len(bp.ProfileIdentifiers),
-			applyAtStr,
-		)
-	}
-	w.Flush()
-
-	if *flJSONName != "" && len(blueprints) > 0 {
+		w.Flush()
+	} else if *flJSONName != "" {
 		bp := blueprints[0]
 
-		bpFile, err := os.Create(*flJSONName)
-		if err != nil {
-			return err
+		var output *os.File
+		{
+			if *flJSONName == "-" {
+				output = os.Stdout
+			} else {
+				var err error
+				output, err = os.Create(*flJSONName)
+				if err != nil {
+					return err
+				}
+				defer output.Close()
+			}
 		}
-		defer bpFile.Close()
 
-		enc := json.NewEncoder(bpFile)
+		enc := json.NewEncoder(output)
 		enc.SetIndent("", "  ")
 		err = enc.Encode(bp)
 		if err != nil {
 			return err
 		}
 
-		fmt.Printf("\nWrote Blueprint to: %s\n", *flJSONName)
-		if len(blueprints) > 1 {
-			fmt.Println("WARNING: more than one Blueprint returned; only saved first")
+		if *flJSONName != "-" {
+			fmt.Printf("wrote blueprint %s to: %s\n", *flBlueprintName, *flJSONName)
+			if len(blueprints) > 1 {
+				fmt.Println("WARNING: more than one Blueprint returned; only saved first")
+			}
 		}
 	}
 
@@ -271,19 +281,20 @@ func (cmd *getCommand) getProfiles(args []string) error {
 	if err != nil {
 		return err
 	}
-	w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
-	fmt.Fprintf(w, "Identifier\tLength\n")
-	for _, p := range profiles {
-		fmt.Fprintf(
-			w,
-			"%s\t%d\n",
-			p.Identifier,
-			len(p.Mobileconfig),
-		)
-	}
-	w.Flush()
 
-	if *flIdentifier != "" && *flProfilePath != "" {
+	if *flIdentifier == "" || len(profiles) < 1 {
+		w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
+		fmt.Fprintf(w, "Identifier\tLength\n")
+		for _, p := range profiles {
+			fmt.Fprintf(
+				w,
+				"%s\t%d\n",
+				p.Identifier,
+				len(p.Mobileconfig),
+			)
+		}
+		w.Flush()
+	} else if *flProfilePath != "" {
 		p := profiles[0]
 
 		var output *os.File
@@ -291,25 +302,23 @@ func (cmd *getCommand) getProfiles(args []string) error {
 			if *flProfilePath == "-" {
 				output = os.Stdout
 			} else {
-				newProfileFile, err := os.Create(*flProfilePath)
+				var err error
+				output, err = os.Create(*flProfilePath)
 				if err != nil {
 					return err
 				}
-				defer newProfileFile.Close()
-				output = newProfileFile
+				defer output.Close()
 			}
 		}
-
 		_, err = output.Write([]byte(p.Mobileconfig))
 		if err != nil {
 			return err
 		}
 		if *flProfilePath != "-" {
-			fmt.Printf("\nwrote profile id %s to: %s\n", p.Identifier, *flProfilePath)
-		}
-
-		if len(profiles) > 1 {
-			fmt.Println("WARNING: more than one Profile returned; only saved first")
+			fmt.Printf("wrote profile id %s to: %s\n", p.Identifier, *flProfilePath)
+			if len(profiles) > 1 {
+				fmt.Println("WARNING: more than one Profile returned; only saved first")
+			}
 		}
 	}
 	return nil

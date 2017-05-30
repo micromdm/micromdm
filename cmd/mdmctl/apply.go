@@ -116,7 +116,7 @@ func (cmd *applyCommand) applyBlueprint(args []string) error {
 
 	if *flBlueprintPath == "" {
 		flagset.Usage()
-		return errors.New("bad input: must provide -f flag")
+		return errors.New("bad input: must provide -f or -template flag")
 	}
 
 	if *flBlueprintPath != "" {
@@ -214,5 +214,4 @@ func readBytesFromPath(path string) ([]byte, error) {
 		return nil, err
 	}
 	return ioutil.ReadFile(path)
-
 }
