@@ -37,8 +37,8 @@ func (cmd *applyCommand) applyDEPProfile(args []string) error {
 	var (
 		flProfilePath = flagset.String("f", "", "filename of DEP profile to apply")
 		flTemplate    = flagset.Bool("template", false, "print a JSON example of a DEP profile")
-		flAnchorFile  = flagset.String("anchor", "", "filename of PEM certificate to add to trusted anchors")
-		flUseServer   = flagset.Bool("use-server-cert", false, "use the certificate presented by the server")
+		flAnchorFile  = flagset.String("anchor", "", "filename of PEM cert(s) to add to anchor certs in template")
+		flUseServer   = flagset.Bool("use-server-cert", false, "use the server cert(s) to add to anchor certs in template")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl apply dep-profiles [flags]")
 	if err := flagset.Parse(args); err != nil {
