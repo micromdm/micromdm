@@ -120,10 +120,7 @@ func (cmd *applyCommand) applyBlueprint(args []string) error {
 	}
 
 	if *flBlueprintPath != "" {
-		if _, err := os.Stat(*flBlueprintPath); os.IsNotExist(err) {
-			return err
-		}
-		jsonBytes, err := ioutil.ReadFile(*flBlueprintPath)
+		jsonBytes, err := readBytesFromPath(*flBlueprintPath)
 		if err != nil {
 			return err
 		}
@@ -183,12 +180,9 @@ func (cmd *applyCommand) applyProfile(args []string) error {
 	}
 	if *flProfilePath == "" {
 		flagset.Usage()
-		return errors.New("bad input: must provide -f parameter")
+		return errors.New("bad input: must provide -f parameter. use - for stdin")
 	}
-	if _, err := os.Stat(*flProfilePath); os.IsNotExist(err) {
-		return err
-	}
-	profileBytes, err := ioutil.ReadFile(*flProfilePath)
+	profileBytes, err := readBytesFromPath(*flProfilePath)
 	if err != nil {
 		return err
 	}
@@ -210,4 +204,15 @@ func (cmd *applyCommand) applyProfile(args []string) error {
 
 	fmt.Printf("applied profile id %s from %s\n", p.Identifier, *flProfilePath)
 	return nil
+}
+
+func readBytesFromPath(path string) ([]byte, error) {
+	if path == "-" {
+		return ioutil.ReadAll(os.Stdin)
+	}
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return nil, err
+	}
+	return ioutil.ReadFile(path)
+
 }
