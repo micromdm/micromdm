@@ -95,7 +95,7 @@
   branch = "master"
   name = "github.com/micromdm/mdm"
   packages = ["."]
-  revision = "2e3f297ba6a2e801dec12771c92c301b8e15f76c"
+  revision = "33dc653861c4691c3579fd1d26a4b5bf26302cb4"
 
 [[projects]]
   name = "github.com/micromdm/scep"
