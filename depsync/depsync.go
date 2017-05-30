@@ -69,6 +69,7 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, opts ...Option) (Syncer, err
 	sync := &watcher{
 		publisher: pub,
 		conf:      conf,
+		startSync: make(chan bool),
 	}
 
 	for _, opt := range opts {
