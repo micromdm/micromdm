@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/url"
 	"os"
 	"os/user"
@@ -46,6 +47,9 @@ func (cmd *configCommand) Run(args []string) error {
 	switch strings.ToLower(args[0]) {
 	case "set":
 		run = setCmd
+	case "print":
+		printConfig()
+		return nil
 	default:
 		cmd.Usage()
 		os.Exit(1)
@@ -54,8 +58,21 @@ func (cmd *configCommand) Run(args []string) error {
 	return run(config, args[1:])
 }
 
+func printConfig() {
+	path, err := clientConfigPath()
+	if err != nil {
+		log.Fatal(err)
+	}
+	cfgData, err := ioutil.ReadFile(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(cfgData))
+}
+
 func (cmd *configCommand) Usage() error {
 	const help = `
+mdmctl config print
 mdmctl config set -h
 `
 	fmt.Println(help)
