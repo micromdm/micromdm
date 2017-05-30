@@ -66,17 +66,25 @@ func (cmd *applyCommand) applyDEPProfile(args []string) error {
 
 	if *flProfilePath == "" {
 		flagset.Usage()
-		return errors.New("bad input: must provide -f parameter")
+		return errors.New("bad input: must provide -f or -template parameter ")
 	}
 
-	pf, err := os.Open(*flProfilePath)
-	if err != nil {
-		return errors.Wrap(err, "opening DEP profile file")
+	var output *os.File
+	{
+		if *flProfilePath == "-" {
+			output = os.Stdin
+		} else {
+			var err error
+			output, err = os.Open(*flProfilePath)
+			if err != nil {
+				return err
+			}
+			defer output.Close()
+		}
 	}
-	defer pf.Close()
 
 	var profile dep.Profile
-	if err := json.NewDecoder(pf).Decode(&profile); err != nil {
+	if err := json.NewDecoder(output).Decode(&profile); err != nil {
 		return errors.Wrap(err, "decode DEP Profile JSON")
 	}
 
@@ -108,8 +116,7 @@ func printDEPProfileTemplate(anchorCerts []*x509.Certificate) error {
 		anchorCertStr = string(jsonBytes)
 	}
 
-	resp := fmt.Sprintf(`
-{
+	resp := fmt.Sprintf(`{
   "profile_name": "(Required) Human readable name",
   "url": "https://mymdm.example.org/mdm/enroll",
   "allow_pairing": true,
@@ -126,8 +133,7 @@ func printDEPProfileTemplate(anchorCerts []*x509.Certificate) error {
   "skip_setup_items": ["AppleID", "Android"],
   "department": "(Optional) support@example.com",
   "devices": ["SERIAL1","SERIAL2"]
-}
-`, anchorCertStr)
+}`, anchorCertStr)
 	fmt.Println(resp)
 	return nil
 }
