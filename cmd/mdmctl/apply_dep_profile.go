@@ -15,7 +15,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func certificateFromURL(serverURL string, insecure bool) (*x509.Certificate, error) {
+func certificatesFromURL(serverURL string, insecure bool) ([]*x509.Certificate, error) {
 	urlParsed, err := url.Parse(serverURL)
 	if err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func certificateFromURL(serverURL string, insecure bool) (*x509.Certificate, err
 		return nil, err
 	}
 	defer conn.Close()
-	return conn.ConnectionState().PeerCertificates[0], nil
+	return conn.ConnectionState().PeerCertificates, nil
 }
 
 func (cmd *applyCommand) applyDEPProfile(args []string) error {
@@ -48,18 +48,18 @@ func (cmd *applyCommand) applyDEPProfile(args []string) error {
 	if *flTemplate {
 		var anchorCerts []*x509.Certificate
 		if *flAnchorFile != "" {
-			cert, err := crypto.ReadPEMCertificateFile(*flAnchorFile)
+			certs, err := crypto.ReadPEMCertificatesFile(*flAnchorFile)
 			if err != nil {
 				return err
 			}
-			anchorCerts = append(anchorCerts, cert)
+			anchorCerts = append(anchorCerts, certs...)
 		}
 		if *flUseServer {
-			cert, err := certificateFromURL(cmd.config.ServerURL, cmd.config.SkipVerify)
+			certs, err := certificatesFromURL(cmd.config.ServerURL, cmd.config.SkipVerify)
 			if err != nil {
 				return err
 			}
-			anchorCerts = append(anchorCerts, cert)
+			anchorCerts = append(anchorCerts, certs...)
 		}
 		return printDEPProfileTemplate(anchorCerts)
 	}
