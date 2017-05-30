@@ -258,7 +258,7 @@ func (cmd *getCommand) getBlueprints(args []string) error {
 func (cmd *getCommand) getProfiles(args []string) error {
 	flagset := flag.NewFlagSet("profiles", flag.ExitOnError)
 	var (
-		flProfilePath = flagset.String("f", "", "filename of profile to write")
+		flProfilePath = flagset.String("f", "-", "filename of profile to write")
 		flIdentifier  = flagset.String("id", "", "profile Identifier")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl get blueprints [flags]")
@@ -286,17 +286,27 @@ func (cmd *getCommand) getProfiles(args []string) error {
 	if *flIdentifier != "" && *flProfilePath != "" {
 		p := profiles[0]
 
-		newProfileFile, err := os.Create(*flProfilePath)
-		if err != nil {
-			return err
+		var output *os.File
+		{
+			if *flProfilePath == "-" {
+				output = os.Stdout
+			} else {
+				newProfileFile, err := os.Create(*flProfilePath)
+				if err != nil {
+					return err
+				}
+				defer newProfileFile.Close()
+				output = newProfileFile
+			}
 		}
-		defer newProfileFile.Close()
 
-		_, err = newProfileFile.Write([]byte(p.Mobileconfig))
+		_, err = output.Write([]byte(p.Mobileconfig))
 		if err != nil {
 			return err
 		}
-		fmt.Printf("\nwrote profile id %s to: %s\n", p.Identifier, *flProfilePath)
+		if *flProfilePath != "-" {
+			fmt.Printf("\nwrote profile id %s to: %s\n", p.Identifier, *flProfilePath)
+		}
 
 		if len(profiles) > 1 {
 			fmt.Println("WARNING: more than one Profile returned; only saved first")
