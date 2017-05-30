@@ -43,6 +43,7 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 			copyURL(u, "/v1/blueprints"),
 			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
 			DecodeGetBlueprintsResponse,
+			opts...,
 		).Endpoint()
 	}
 	var getProfilesEndpoint endpoint.Endpoint
@@ -52,6 +53,7 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 			copyURL(u, "/v1/profiles"),
 			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
 			DecodeGetProfilesResponse,
+			opts...,
 		).Endpoint()
 	}
 
@@ -62,6 +64,7 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 			copyURL(u, "/v1/dep/account"),
 			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
 			DecodeDEPAccountInfoResponse,
+			opts...,
 		).Endpoint()
 	}
 
@@ -72,6 +75,7 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 			copyURL(u, "/v1/dep/devices"),
 			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
 			DecodeDEPDeviceDetailsReponse,
+			opts...,
 		).Endpoint()
 	}
 
@@ -82,6 +86,7 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 			copyURL(u, "/v1/dep/profiles"),
 			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
 			DecodeDEPProfileResponse,
+			opts...,
 		).Endpoint()
 	}
 
