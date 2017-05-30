@@ -536,29 +536,19 @@ func (c *config) loadPushCerts() {
 		return
 	}
 
+	c.pushCert.Certificate, c.err = crypto.ReadPEMCertificateFile(c.APNSCertificatePath)
+	if c.err != nil {
+		return
+	}
+
 	var pemData []byte
-	pemData, c.err = ioutil.ReadFile(c.APNSCertificatePath)
-	if c.err != nil {
-		return
-	}
-
-	pemBlock, _ := pem.Decode(pemData)
-	if pemBlock == nil {
-		c.err = errors.New("invalid PEM data for cert")
-		return
-	}
-	c.pushCert.Certificate, c.err = x509.ParseCertificate(pemBlock.Bytes)
-	if c.err != nil {
-		return
-	}
-
 	pemData, c.err = ioutil.ReadFile(c.APNSPrivateKeyPath)
 	if c.err != nil {
 		return
 	}
 
 	pkeyBlock := new(bytes.Buffer)
-	pemBlock, _ = pem.Decode(pemData)
+	pemBlock, _ := pem.Decode(pemData)
 	if pemBlock == nil {
 		c.err = errors.New("invalid PEM data for privkey")
 		return
