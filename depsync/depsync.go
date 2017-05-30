@@ -91,6 +91,7 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, opts ...Option) (Syncer, err
 		defer saveCursor()
 		if sync.client == nil {
 			// block until we have a DEP client to start sync process
+			log.Println("depsync: waiting for DEP token to be added before starting sync")
 			<-sync.startSync
 		}
 		if err := sync.Run(); err != nil {

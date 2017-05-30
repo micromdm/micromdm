@@ -38,7 +38,7 @@ type ApplyService struct {
 }
 
 func (svc *ApplyService) WatchTokenUpdates(pubsub pubsub.Subscriber) error {
-	tokenAdded, err := pubsub.Subscribe("list-token-events", deptoken.DEPTokenTopic)
+	tokenAdded, err := pubsub.Subscribe("apply-token-events", deptoken.DEPTokenTopic)
 	if err != nil {
 		return err
 	}
