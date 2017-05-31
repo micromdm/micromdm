@@ -51,15 +51,36 @@ type File interface {
 	Size() int64
 }
 
+type Option func(*config)
+
+// WithMD5Size overrides the DefaultMD5Size when creating an AppManifest.
+func WithMD5Size(md5Size int64) Option {
+	return func(c *config) {
+		c.md5Size = md5Size
+	}
+}
+
+type config struct {
+	md5Size int64
+}
+
 // Create an AppManifest and write it to an io.Writer.
-func Create(file File, url string, md5Size int64) (*Manifest, error) {
+func Create(file File, url string, opts ...Option) (*Manifest, error) {
+	c := config{
+		md5Size: DefaultMD5Size,
+	}
+
+	for _, opt := range opts {
+		opt(&c)
+	}
+
 	fSize := file.Size()
-	if md5Size > fSize {
-		md5Size = fSize
+	if c.md5Size > fSize {
+		c.md5Size = fSize
 	}
 
 	// create a list of md5s
-	md5s, err := calculateMD5s(file, md5Size)
+	md5s, err := calculateMD5s(file, c.md5Size)
 	if err != nil {
 		return nil, errors.Wrap(err, "calculate appmanifest md5s")
 	}
@@ -67,7 +88,7 @@ func Create(file File, url string, md5Size int64) (*Manifest, error) {
 	// create an asset
 	ast := Asset{
 		Kind:    "software-package",
-		MD5Size: md5Size,
+		MD5Size: c.md5Size,
 		MD5s:    md5s,
 		URL:     url,
 	}
