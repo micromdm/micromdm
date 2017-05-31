@@ -48,10 +48,12 @@ But there's a larger design goal we have in mind — what will differentiate Mic
 For example here is a process of applying a DEP profile (not to be confused with an Apple Configuration Profile, of course):
 
 ```
-$ mdmctl apply dep-profile -f /tmp/profile.json
+$ mdmctl apply dep-profiles -template > /tmp/profile.json
+
+$ mdmctl apply dep-profiles -f /tmp/profile.json
 Defined DEP Profile with UUID 4B05B09E8AC7E7FC12C8F3338E099310
 
-$ mdmctl get dep profile -f - -uuid=4B05B09E8AC7E7FC12C8F3338E099310
+$ mdmctl get dep-profiles -f - -uuid=4B05B09E8AC7E7FC12C8F3338E099310
 {
   "profile_name": "Test Profile",
   "url": "https://mdm.acmeinc.com/getconfig",
