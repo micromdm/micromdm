@@ -31,10 +31,8 @@ If `dep` is not installed please review the [If you're new to Go](#if-youre-new-
 ## If you're new to Go
 
 Go is a bit different from other languages in its requirements for how it expects its programmers to organize Go code files in directories.
-First, Go expects you to choose a folder, called a workspace (you can name it anything you'd like). The path to this folder must always be set in the environment variable `GOPATH` (example: `export GOPATH=/Users/groob/code/go`).
+First, Go requires a folder, called a workspace (you can name it anything you'd like) to exist for go source, dependencies, etc. Before Go 1.8 the path to this folder must always be set in the environment variable `GOPATH` (example: `export GOPATH=/Users/groob/code/go`). As of Go 1.8 the default `GOPATH` is set to `$HOME/go` but you can still set it to whatever you like.
 Your `GOPATH` must have thee subfolders: `bin`, `pkg`, and `src`. Any code you create must live inside the `src` folder. It's also helpful to add `$GOPATH/bin` to your environment's `PATH` as that is where `go install` will place go binaries that you build. This makes it so that binaries that are insalled can just be invoked by name rather than their full page.
-
-Note: As of Go 1.8 the default `GOPATH` is set to `$HOME/go`.
 
 A few helpful resources for getting started with Go:
 
