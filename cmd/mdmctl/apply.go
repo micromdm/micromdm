@@ -56,6 +56,8 @@ func (cmd *applyCommand) Run(args []string) error {
 		run = cmd.applyDEPProfile
 	case "profiles":
 		run = cmd.applyProfile
+	case "app":
+		run = cmd.applyApp
 	default:
 		cmd.Usage()
 		os.Exit(1)
@@ -73,6 +75,7 @@ Valid resource types:
   * profiles
   * dep-tokens
   * dep-profiles
+  * app
 
 Examples:
   # Apply a Blueprint.
