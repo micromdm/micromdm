@@ -2,7 +2,10 @@ package main
 
 import (
 	"bytes"
+	"compress/zlib"
+	"encoding/binary"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/url"
@@ -47,6 +50,22 @@ func (cmd *applyCommand) applyApp(args []string) error {
 		return err
 	}
 
+	distribution, err := checkDistribution(*flPkgPath)
+	if err != nil {
+		return err
+	}
+	if !distribution {
+		fmt.Println(`
+[WARNING] The package you're importing is not a macOS distribution package. MDM requires distribution packages.
+You can turn a flat package to a distribution one with the productbuild command:
+
+productbuild --package someFlatPkg.pkg myNewPkg.pkg
+
+Please rebuild the package and re-run the command.
+
+		`)
+	}
+
 	if !signed {
 		if *flSign == "" {
 			flagset.Usage()
@@ -89,6 +108,42 @@ func (cmd *applyCommand) applyApp(args []string) error {
 	}
 
 	return nil
+}
+
+func checkDistribution(pkgPath string) (bool, error) {
+	const (
+		xarHeaderMagic = 0x78617221
+		xarHeaderSize  = 28
+	)
+
+	f, err := os.Open(pkgPath)
+	if err != nil {
+		return false, err
+	}
+	defer f.Close()
+
+	hdr := make([]byte, xarHeaderSize)
+	_, err = f.ReadAt(hdr, 0)
+	if err != nil {
+		return false, err
+	}
+	tocLenZlib := binary.BigEndian.Uint64(hdr[8:16])
+	ztoc := make([]byte, tocLenZlib)
+	_, err = f.ReadAt(ztoc, xarHeaderSize)
+	if err != nil {
+		return false, err
+	}
+
+	br := bytes.NewBuffer(ztoc)
+	zr, err := zlib.NewReader(br)
+	if err != nil {
+		return false, err
+	}
+	toc, err := ioutil.ReadAll(zr)
+	if err != nil {
+		return false, err
+	}
+	return bytes.Contains(toc, []byte(`<name>Distribution</name>`)), nil
 }
 
 func (cmd *applyCommand) serverRepoURL() (string, error) {
