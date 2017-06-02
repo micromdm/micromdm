@@ -40,6 +40,7 @@ import (
 	boltdepot "github.com/micromdm/scep/depot/bolt"
 	scep "github.com/micromdm/scep/server"
 
+	"github.com/micromdm/micromdm/appstore"
 	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/checkin"
 	"github.com/micromdm/micromdm/command"
@@ -238,7 +239,13 @@ func serve(args []string) error {
 
 	var applysvc apply.Service
 	{
-		l := &apply.ApplyService{DEPClient: dc, Blueprints: bpDB, Tokens: tokenDB, Profiles: profDB}
+		l := &apply.ApplyService{
+			DEPClient:  dc,
+			Blueprints: bpDB,
+			Tokens:     tokenDB,
+			Profiles:   profDB,
+			Apps:       &appstore.Repo{Path: *flRepoPath},
+		}
 		applysvc = l
 		if err := l.WatchTokenUpdates(sm.pubclient); err != nil {
 			stdlog.Fatal(err)
@@ -260,11 +267,17 @@ func serve(args []string) error {
 		defineDEPProfileEndpoint = apply.MakeDefineDEPProfile(applysvc)
 	}
 
+	var appUploadEndpoint endpoint.Endpoint
+	{
+		appUploadEndpoint = apply.MakeUploadAppEndpiont(applysvc)
+	}
+
 	applyEndpoints := apply.Endpoints{
 		ApplyBlueprintEndpoint:   applyBlueprintEndpoint,
 		ApplyDEPTokensEndpoint:   apply.MakeApplyDEPTokensEndpoint(applysvc),
 		ApplyProfileEndpoint:     applyProfileEndpoint,
 		DefineDEPProfileEndpoint: defineDEPProfileEndpoint,
+		AppUploadEndpoint:        appUploadEndpoint,
 	}
 
 	applyAPIHandlers := apply.MakeHTTPHandlers(ctx, applyEndpoints, connectOpts...)
@@ -300,8 +313,9 @@ func serve(args []string) error {
 		r.Handle("/v1/profiles", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.ProfileHandler)).Methods("PUT")
 		r.Handle("/v1/dep/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPDeviceDetailsHandler)).Methods("GET")
 		r.Handle("/v1/dep/account", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPAccountInfoHandler)).Methods("GET")
-		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPProfileHander)).Methods("GET")
+		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPProfileHandler)).Methods("GET")
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DefineDEPProfileHandler)).Methods("POST")
+		r.Handle("/v1/apps", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.AppUploadHandler)).Methods("POST")
 	}
 
 	if *flRepoPath != "" {

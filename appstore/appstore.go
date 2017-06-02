@@ -16,7 +16,7 @@ import (
 
 type AppStore interface {
 	SaveFile(name string, f io.Reader) error
-	Manifest(name string) (appmanifest.Manifest, error)
+	Manifest(name string) (*appmanifest.Manifest, error)
 	Apps() ([]string, error)
 }
 

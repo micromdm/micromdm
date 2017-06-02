@@ -17,7 +17,7 @@ type HTTPHandlers struct {
 	GetBlueprintsHandler       http.Handler
 	GetProfilesHandler         http.Handler
 	GetDEPAccountInfoHandler   http.Handler
-	GetDEPProfileHander        http.Handler
+	GetDEPProfileHandler       http.Handler
 	GetDEPDeviceDetailsHandler http.Handler
 }
 
@@ -56,7 +56,7 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 			encodeResponse,
 			opts...,
 		),
-		GetDEPProfileHander: httptransport.NewServer(
+		GetDEPProfileHandler: httptransport.NewServer(
 			endpoints.GetDEPProfileEndpoint,
 			decodeDEPProfileRequest,
 			encodeResponse,
