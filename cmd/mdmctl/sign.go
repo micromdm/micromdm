@@ -5,9 +5,11 @@ package main
 import "fmt"
 
 func signPackage(path, outpath, developerID string) error {
-	return fmt.Errorf("package signing only implemented on macOS")
+	fmt.Println("[WARNING] package signing only implemented on macOS")
+	return nil
 }
 
 func checkSignature(pkgpath string) (bool, error) {
-	return false, fmt.Errorf("package signing only implemented on macOS")
+	fmt.Println("[WARNING] package signing only implemented on macOS. An unsigned macOS package will not install with MDM.")
+	return true, nil
 }
