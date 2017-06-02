@@ -101,7 +101,7 @@ Please rebuild the package and re-run the command.
 	}
 
 	if *flUpload {
-		err := cmd.applysvc.UploadApp(context.TODO(), nameMannifest(f.Name()), &buf, f.Name(), f)
+		err := cmd.applysvc.UploadApp(context.TODO(), nameMannifest(f.Name()), &buf, filepath.Base(f.Name()), f)
 		if err != nil {
 			return err
 		}
@@ -120,7 +120,8 @@ Please rebuild the package and re-run the command.
 }
 
 func nameMannifest(pkgName string) string {
-	return filepath.Base(pkgName)
+	trimmed := strings.TrimSuffix(filepath.Base(pkgName), filepath.Ext(pkgName))
+	return trimmed + ".plist"
 }
 
 func checkDistribution(pkgPath string) (bool, error) {

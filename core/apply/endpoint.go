@@ -132,6 +132,8 @@ type appUploadResponse struct {
 	Err error `json:"err,omitempty"`
 }
 
+func (r appUploadResponse) error() error { return r.Err }
+
 type blueprintRequest struct {
 	Blueprint *blueprint.Blueprint `json:"blueprint"`
 }
