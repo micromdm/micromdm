@@ -2,6 +2,7 @@ package apply
 
 import (
 	"context"
+	"io"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/dep"
@@ -14,6 +15,7 @@ type Endpoints struct {
 	ApplyDEPTokensEndpoint   endpoint.Endpoint
 	ApplyProfileEndpoint     endpoint.Endpoint
 	DefineDEPProfileEndpoint endpoint.Endpoint
+	AppUploadEndpoint        endpoint.Endpoint
 }
 
 func (e Endpoints) DefineDEPProfile(ctx context.Context, p *dep.Profile) (*dep.ProfileResponse, error) {
@@ -92,6 +94,18 @@ func MakeDefineDEPProfile(svc Service) endpoint.Endpoint {
 			Err:             err,
 		}, nil
 	}
+}
+
+type appUploadRequest struct {
+	ManifestName string
+	ManifestFile io.Reader
+
+	PKGFilename string
+	PKGFile     io.Reader
+}
+
+type appUploadResponse struct {
+	Err error `json:"err,omitempty"`
 }
 
 type blueprintRequest struct {

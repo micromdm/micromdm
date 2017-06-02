@@ -4,11 +4,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"net/http"
 
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/pkg/errors"
 )
 
 type HTTPHandlers struct {
@@ -78,6 +78,27 @@ func decodeDEPProfileRequest(ctx context.Context, r *http.Request) (interface{},
 		return nil, err
 	}
 	return req, nil
+}
+
+func decodeAppUploadRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	defer r.Body.Close()
+	appManifestFilename := r.FormValue("app_manifest_filename")
+	manifestFile, _, err := r.FormFile("app_manifest_filedata")
+	if err != nil && err != http.ErrMissingFile {
+		return nil, errors.Wrap(err, "manifest file")
+	}
+	pkgFilename := r.FormValue("pkg_name")
+	pkgFile, _, err := r.FormFile("pkg_filedata")
+	if err != nil && err != http.ErrMissingFile {
+		return nil, err
+	}
+
+	return appUploadRequest{
+		ManifestName: appManifestFilename,
+		ManifestFile: manifestFile,
+		PKGFilename:  pkgFilename,
+		PKGFile:      pkgFile,
+	}, nil
 }
 
 type errorWrapper struct {
