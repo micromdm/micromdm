@@ -27,5 +27,5 @@ build "linux" "amd64" "./*.go"
 
 NAME=mdmctl
 echo "\nBuilding $NAME version $VERSION"
-build "darwin" "amd64" "./cmd/mdmctl/*.go"
-build "linux" "amd64" "./cmd/mdmctl/*.go"
+build "darwin" "amd64" "./cmd/mdmctl"
+build "linux" "amd64" "./cmd/mdmctl"
