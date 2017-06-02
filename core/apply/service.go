@@ -15,6 +15,7 @@ import (
 	"github.com/fullsailor/pkcs7"
 
 	"github.com/micromdm/dep"
+	"github.com/micromdm/micromdm/appstore"
 	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/deptoken"
 	"github.com/micromdm/micromdm/profile"
@@ -25,6 +26,7 @@ type Service interface {
 	ApplyBlueprint(ctx context.Context, bp *blueprint.Blueprint) error
 	ApplyDEPToken(ctx context.Context, P7MContent []byte) error
 	ApplyProfile(ctx context.Context, p *profile.Profile) error
+	UploadApp(ctx context.Context, manifestName string, manifest io.Reader, pkgName string, pkg io.Reader) error
 	DEPService
 }
 
@@ -35,6 +37,23 @@ type ApplyService struct {
 	Blueprints *blueprint.DB
 	Profiles   *profile.DB
 	Tokens     *deptoken.DB
+	Apps       appstore.AppStore
+}
+
+func (svc *ApplyService) UploadApp(ctx context.Context, manifestName string, manifest io.Reader, pkgName string, pkg io.Reader) error {
+	if manifestName != "" {
+		if err := svc.Apps.SaveFile(manifestName, manifest); err != nil {
+			return err
+		}
+	}
+
+	if pkgName != "" {
+		if err := svc.Apps.SaveFile(pkgName, pkg); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (svc *ApplyService) WatchTokenUpdates(pubsub pubsub.Subscriber) error {

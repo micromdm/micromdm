@@ -18,6 +18,20 @@ type Endpoints struct {
 	AppUploadEndpoint        endpoint.Endpoint
 }
 
+func (e Endpoints) UploadApp(ctx context.Context, manifestName string, manifest io.Reader, pkgName string, pkg io.Reader) error {
+	request := appUploadRequest{
+		ManifestName: manifestName,
+		ManifestFile: manifest,
+		PKGFilename:  pkgName,
+		PKGFile:      pkg,
+	}
+	resp, err := e.AppUploadEndpoint(ctx, request)
+	if err != nil {
+		return err
+	}
+	return resp.(appUploadResponse).Err
+}
+
 func (e Endpoints) DefineDEPProfile(ctx context.Context, p *dep.Profile) (*dep.ProfileResponse, error) {
 	request := depProfileRequest{Profile: p}
 	resp, err := e.DefineDEPProfileEndpoint(ctx, request)
@@ -92,6 +106,16 @@ func MakeDefineDEPProfile(svc Service) endpoint.Endpoint {
 		return &depProfileResponse{
 			ProfileResponse: resp,
 			Err:             err,
+		}, nil
+	}
+}
+
+func MakeUploadAppEndpiont(svc Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(appUploadRequest)
+		err = svc.UploadApp(ctx, req.ManifestName, req.ManifestFile, req.PKGFilename, req.PKGFile)
+		return &appUploadResponse{
+			Err: err,
 		}, nil
 	}
 }
