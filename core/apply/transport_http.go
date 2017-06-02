@@ -16,6 +16,7 @@ type HTTPHandlers struct {
 	DEPTokensHandler        http.Handler
 	ProfileHandler          http.Handler
 	DefineDEPProfileHandler http.Handler
+	AppUploadHander         http.Handler
 }
 
 func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
@@ -41,6 +42,12 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 		DefineDEPProfileHandler: httptransport.NewServer(
 			endpoints.DefineDEPProfileEndpoint,
 			decodeDEPProfileRequest,
+			encodeResponse,
+			opts...,
+		),
+		AppUploadHander: httptransport.NewServer(
+			endpoints.AppUploadEndpoint,
+			decodeAppUploadRequest,
 			encodeResponse,
 			opts...,
 		),
