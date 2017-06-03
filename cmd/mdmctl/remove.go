@@ -62,8 +62,8 @@ Display one or many resources.
 Valid resource types:
 
   * blueprints
-  * profiles
-`
+  * profiles`
+
 	fmt.Println(getUsage)
 	return nil
 }
