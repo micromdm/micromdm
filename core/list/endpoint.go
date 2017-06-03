@@ -31,7 +31,7 @@ func (e Endpoints) ListDevices(ctx context.Context, opts ListDevicesOption) ([]D
 	return response.(devicesResponse).Devices, response.(devicesResponse).Err
 }
 
-func (e Endpoints) ListApplications(ctx context.Context, opts ListAppsOption) ([]string, error) {
+func (e Endpoints) ListApplications(ctx context.Context, opts ListAppsOption) ([]AppDTO, error) {
 	request := appListRequest{opts}
 	response, err := e.ListAppsEndpont(ctx, request.Opts)
 	if err != nil {
@@ -239,8 +239,13 @@ type appListRequest struct {
 	Opts ListAppsOption
 }
 
+type AppDTO struct {
+	Name    string `json:"name"`
+	Payload []byte `json:"payload,omitempty"`
+}
+
 type appListResponse struct {
-	Apps []string `json:"apps,omitempty"`
+	Apps []AppDTO `json:"apps,omitempty"`
 	Err  error    `json:"err,omitempty"`
 }
 

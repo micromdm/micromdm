@@ -161,16 +161,20 @@ func checkDistribution(pkgPath string) (bool, error) {
 }
 
 func (cmd *applyCommand) serverRepoURL() (string, error) {
-	serverURL, err := url.Parse(cmd.config.ServerURL)
+	return repoURL(cmd.config.ServerURL)
+}
+
+func pkgURL(repoURL, pkgPath string) string {
+	return path.Join(repoURL, filepath.Base(pkgPath))
+}
+
+func repoURL(server string) (string, error) {
+	serverURL, err := url.Parse(server)
 	if err != nil {
 		return "", err
 	}
 	serverURL.Path = "/repo"
 	return serverURL.String(), nil
-}
-
-func pkgURL(repoURL, pkgPath string) string {
-	return path.Join(repoURL, filepath.Base(pkgPath))
 }
 
 // replaces .pkg with .plist

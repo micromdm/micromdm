@@ -326,24 +326,3 @@ func (cmd *getCommand) getProfiles(args []string) error {
 	}
 	return nil
 }
-
-func (cmd *getCommand) getApps(args []string) error {
-	flagset := flag.NewFlagSet("apps", flag.ExitOnError)
-	flagset.Usage = usageFor(flagset, "mdmctl get apps [flags]")
-	if err := flagset.Parse(args); err != nil {
-		return err
-	}
-	w := tabwriter.NewWriter(os.Stderr, 0, 4, 2, ' ', 0)
-	out := &devicesTableOutput{w}
-	out.BasicHeader()
-	defer out.BasicFooter()
-	ctx := context.Background()
-	apps, err := cmd.list.ListApplications(ctx, list.ListAppsOption{})
-	if err != nil {
-		return err
-	}
-	for _, a := range apps {
-		fmt.Println(a)
-	}
-	return nil
-}

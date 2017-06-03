@@ -6,6 +6,7 @@ import (
 	"log"
 	"sync"
 
+	"github.com/groob/plist"
 	"github.com/micromdm/dep"
 	"github.com/micromdm/micromdm/appstore"
 	"github.com/micromdm/micromdm/blueprint"
@@ -13,6 +14,7 @@ import (
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/profile"
 	"github.com/micromdm/micromdm/pubsub"
+	"github.com/pkg/errors"
 )
 
 type ListDevicesOption struct {
@@ -40,7 +42,7 @@ type Service interface {
 	GetDEPTokens(ctx context.Context) ([]deptoken.DEPToken, []byte, error)
 	GetBlueprints(ctx context.Context, opt GetBlueprintsOption) ([]blueprint.Blueprint, error)
 	GetProfiles(ctx context.Context, opt GetProfilesOption) ([]profile.Profile, error)
-	ListApplications(ctx context.Context, opt ListAppsOption) ([]string, error)
+	ListApplications(ctx context.Context, opt ListAppsOption) ([]AppDTO, error)
 	DEPService
 }
 
@@ -55,8 +57,27 @@ type ListService struct {
 	Apps       appstore.AppStore
 }
 
-func (svc *ListService) ListApplications(ctx context.Context, opt ListAppsOption) ([]string, error) {
-	return svc.Apps.Apps()
+func (svc *ListService) ListApplications(ctx context.Context, opts ListAppsOption) ([]AppDTO, error) {
+	var filter string
+	if len(opts.FilterName) == 1 {
+		filter = opts.FilterName[0]
+	}
+	apps, err := svc.Apps.Apps(filter)
+	if err != nil {
+		return nil, err
+	}
+	var appList []AppDTO
+	for name, app := range apps {
+		payload, err := plist.MarshalIndent(&app, "  ")
+		if err != nil {
+			return nil, errors.Wrap(err, "create dto payload")
+		}
+		appList = append(appList, AppDTO{
+			Name:    name,
+			Payload: payload,
+		})
+	}
+	return appList, nil
 }
 
 func (svc *ListService) WatchTokenUpdates(pubsub pubsub.Subscriber) error {

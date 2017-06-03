@@ -17,7 +17,7 @@ import (
 type AppStore interface {
 	SaveFile(name string, f io.Reader) error
 	Manifest(name string) (*appmanifest.Manifest, error)
-	Apps() ([]string, error)
+	Apps(name string) (map[string]appmanifest.Manifest, error)
 }
 
 type Repo struct {
@@ -57,18 +57,40 @@ func (r *Repo) Manifest(name string) (*appmanifest.Manifest, error) {
 	return &m, nil
 }
 
-func (r *Repo) Apps() ([]string, error) {
+func (r *Repo) Apps(name string) (map[string]appmanifest.Manifest, error) {
+	manifests := make(map[string]appmanifest.Manifest)
+	if name != "" {
+		mf, err := os.Open(filepath.Join(r.Path, name))
+		if err != nil {
+			return nil, err
+		}
+		var m appmanifest.Manifest
+		if err := plist.NewDecoder(mf).Decode(&m); err != nil {
+			return nil, err
+		}
+		manifests[name] = m
+		return manifests, nil
+	}
+
 	files, err := ioutil.ReadDir(r.Path)
 	if err != nil {
 		return nil, err
 	}
 
-	var manifests []string
 	for _, file := range files {
-		if file.IsDir() || filepath.Ext(file.Name()) != ".plist" {
+		manifestName := file.Name()
+		if file.IsDir() || filepath.Ext(manifestName) != ".plist" {
 			continue
 		}
-		manifests = append(manifests, filepath.Base(file.Name()))
+		mf, err := os.Open(filepath.Join(r.Path, manifestName))
+		if err != nil {
+			return nil, err
+		}
+		var m appmanifest.Manifest
+		if err := plist.NewDecoder(mf).Decode(&m); err != nil {
+			return nil, err
+		}
+		manifests[manifestName] = m
 	}
 
 	return manifests, nil
