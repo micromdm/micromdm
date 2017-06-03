@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/micromdm/dep"
+	"github.com/micromdm/micromdm/appstore"
 	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/deptoken"
 	"github.com/micromdm/micromdm/device"
@@ -30,11 +31,16 @@ type GetProfilesOption struct {
 	Identifier string `json:"id"`
 }
 
+type ListAppsOption struct {
+	FilterName []string `json:"filter_name"`
+}
+
 type Service interface {
 	ListDevices(ctx context.Context, opt ListDevicesOption) ([]DeviceDTO, error)
 	GetDEPTokens(ctx context.Context) ([]deptoken.DEPToken, []byte, error)
 	GetBlueprints(ctx context.Context, opt GetBlueprintsOption) ([]blueprint.Blueprint, error)
 	GetProfiles(ctx context.Context, opt GetProfilesOption) ([]profile.Profile, error)
+	ListApplications(ctx context.Context, opt ListAppsOption) ([]string, error)
 	DEPService
 }
 
@@ -46,6 +52,11 @@ type ListService struct {
 	Blueprints *blueprint.DB
 	Profiles   *profile.DB
 	Tokens     *deptoken.DB
+	Apps       appstore.AppStore
+}
+
+func (svc *ListService) ListApplications(ctx context.Context, opt ListAppsOption) ([]string, error) {
+	return svc.Apps.Apps()
 }
 
 func (svc *ListService) WatchTokenUpdates(pubsub pubsub.Subscriber) error {

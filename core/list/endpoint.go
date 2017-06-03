@@ -19,6 +19,7 @@ type Endpoints struct {
 	GetDEPAccountInfoEndpoint endpoint.Endpoint
 	GetDEPDeviceEndpoint      endpoint.Endpoint
 	GetDEPProfileEndpoint     endpoint.Endpoint
+	ListAppsEndpont           endpoint.Endpoint
 }
 
 func (e Endpoints) ListDevices(ctx context.Context, opts ListDevicesOption) ([]DeviceDTO, error) {
@@ -28,6 +29,15 @@ func (e Endpoints) ListDevices(ctx context.Context, opts ListDevicesOption) ([]D
 		return nil, err
 	}
 	return response.(devicesResponse).Devices, response.(devicesResponse).Err
+}
+
+func (e Endpoints) ListApplications(ctx context.Context, opts ListAppsOption) ([]string, error) {
+	request := appListRequest{opts}
+	response, err := e.ListAppsEndpont(ctx, request.Opts)
+	if err != nil {
+		return nil, err
+	}
+	return response.(appListResponse).Apps, response.(appListResponse).Err
 }
 
 func (e Endpoints) GetDEPTokens(ctx context.Context) ([]deptoken.DEPToken, []byte, error) {
@@ -81,6 +91,17 @@ func MakeListDevicesEndpoint(svc Service) endpoint.Endpoint {
 		return devicesResponse{
 			Devices: dto,
 			Err:     err,
+		}, nil
+	}
+}
+
+func MakeListAppsEndpoint(svc Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(appListRequest)
+		apps, err := svc.ListApplications(ctx, req.Opts)
+		return appListResponse{
+			Apps: apps,
+			Err:  err,
 		}, nil
 	}
 }
@@ -213,3 +234,14 @@ type depProfileResponse struct {
 }
 
 func (r depProfileResponse) error() error { return r.Err }
+
+type appListRequest struct {
+	Opts ListAppsOption
+}
+
+type appListResponse struct {
+	Apps []string `json:"apps,omitempty"`
+	Err  error    `json:"err,omitempty"`
+}
+
+func (r appListResponse) error() error { return r.Err }

@@ -63,6 +63,8 @@ func (cmd *getCommand) Run(args []string) error {
 		run = cmd.getBlueprints
 	case "profiles":
 		run = cmd.getProfiles
+	case "apps":
+		run = cmd.getApps
 	default:
 		cmd.Usage()
 		os.Exit(1)
@@ -84,6 +86,7 @@ Valid resource types:
   * dep-account
   * dep-profiles
   * profiles
+  * apps
 
 Examples:
   # Get a list of devices
@@ -320,6 +323,27 @@ func (cmd *getCommand) getProfiles(args []string) error {
 				fmt.Println("WARNING: more than one Profile returned; only saved first")
 			}
 		}
+	}
+	return nil
+}
+
+func (cmd *getCommand) getApps(args []string) error {
+	flagset := flag.NewFlagSet("apps", flag.ExitOnError)
+	flagset.Usage = usageFor(flagset, "mdmctl get apps [flags]")
+	if err := flagset.Parse(args); err != nil {
+		return err
+	}
+	w := tabwriter.NewWriter(os.Stderr, 0, 4, 2, ' ', 0)
+	out := &devicesTableOutput{w}
+	out.BasicHeader()
+	defer out.BasicFooter()
+	ctx := context.Background()
+	apps, err := cmd.list.ListApplications(ctx, list.ListAppsOption{})
+	if err != nil {
+		return err
+	}
+	for _, a := range apps {
+		fmt.Println(a)
 	}
 	return nil
 }

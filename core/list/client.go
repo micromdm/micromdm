@@ -90,6 +90,17 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 		).Endpoint()
 	}
 
+	var listAppsEndpoint endpoint.Endpoint
+	{
+		listAppsEndpoint = httptransport.NewClient(
+			"GET",
+			copyURL(u, "/v1/apps"),
+			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
+			DecodeListAppsResponse,
+			opts...,
+		).Endpoint()
+	}
+
 	return Endpoints{
 		ListDevicesEndpoint:       listDevicesEndpoint,
 		GetDEPTokensEndpoint:      getDEPTokensEndpoint,
@@ -98,6 +109,7 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 		GetDEPAccountInfoEndpoint: getDEPAccountInfoEndpoint,
 		GetDEPDeviceEndpoint:      getDEPDeviceDetailsEndpoint,
 		GetDEPProfileEndpoint:     getDEPProfilesEndpoint,
+		ListAppsEndpont:           listAppsEndpoint,
 	}, nil
 }
 

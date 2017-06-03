@@ -213,9 +213,17 @@ func serve(args []string) error {
 		stdlog.Fatalf("creating DEP client %s\n", err)
 	}
 	tokenDB := &deptoken.DB{DB: sm.db, Publisher: sm.pubclient}
+	appDB := &appstore.Repo{Path: *flRepoPath}
 	var listsvc list.Service
 	{
-		l := &list.ListService{DEPClient: dc, Devices: devDB, Tokens: tokenDB, Blueprints: bpDB, Profiles: profDB}
+		l := &list.ListService{
+			DEPClient:  dc,
+			Devices:    devDB,
+			Tokens:     tokenDB,
+			Blueprints: bpDB,
+			Profiles:   profDB,
+			Apps:       appDB,
+		}
 		listsvc = l
 
 		if err := l.WatchTokenUpdates(sm.pubclient); err != nil {
@@ -235,6 +243,7 @@ func serve(args []string) error {
 		GetDEPAccountInfoEndpoint: list.MakeGetDEPAccountInfoEndpoint(listsvc),
 		GetDEPProfileEndpoint:     list.MakeGetDEPProfileEndpoint(listsvc),
 		GetDEPDeviceEndpoint:      list.MakeGetDEPDeviceDetailsEndpoint(listsvc),
+		ListAppsEndpont:           list.MakeListAppsEndpoint(listsvc),
 	}
 
 	var applysvc apply.Service
@@ -244,7 +253,7 @@ func serve(args []string) error {
 			Blueprints: bpDB,
 			Tokens:     tokenDB,
 			Profiles:   profDB,
-			Apps:       &appstore.Repo{Path: *flRepoPath},
+			Apps:       appDB,
 		}
 		applysvc = l
 		if err := l.WatchTokenUpdates(sm.pubclient); err != nil {
@@ -316,6 +325,7 @@ func serve(args []string) error {
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPProfileHandler)).Methods("GET")
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DefineDEPProfileHandler)).Methods("POST")
 		r.Handle("/v1/apps", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.AppUploadHandler)).Methods("POST")
+		r.Handle("/v1/apps", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListAppsHandler)).Methods("GET")
 	}
 
 	if *flRepoPath != "" {

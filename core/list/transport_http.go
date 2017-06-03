@@ -19,6 +19,7 @@ type HTTPHandlers struct {
 	GetDEPAccountInfoHandler   http.Handler
 	GetDEPProfileHandler       http.Handler
 	GetDEPDeviceDetailsHandler http.Handler
+	ListAppsHandler            http.Handler
 }
 
 func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
@@ -59,6 +60,12 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 		GetDEPProfileHandler: httptransport.NewServer(
 			endpoints.GetDEPProfileEndpoint,
 			decodeDEPProfileRequest,
+			encodeResponse,
+			opts...,
+		),
+		ListAppsHandler: httptransport.NewServer(
+			endpoints.ListAppsEndpont,
+			decodeListAppsRequest,
 			encodeResponse,
 			opts...,
 		),
@@ -113,6 +120,14 @@ func decodeDepDeviceDetailsRequest(ctx context.Context, r *http.Request) (interf
 
 func decodeDEPProfileRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var request depProfileRequest
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		return nil, err
+	}
+	return request, nil
+}
+
+func decodeListAppsRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	var request appListRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
 		return nil, err
 	}
@@ -223,6 +238,15 @@ func DecodeDEPProfileResponse(_ context.Context, r *http.Response) (interface{},
 		return nil, errorDecoder(r)
 	}
 	var resp depProfileResponse
+	err := json.NewDecoder(r.Body).Decode(&resp)
+	return resp, err
+}
+
+func DecodeListAppsResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	if r.StatusCode != http.StatusOK {
+		return nil, errorDecoder(r)
+	}
+	var resp appListResponse
 	err := json.NewDecoder(r.Body).Decode(&resp)
 	return resp, err
 }
