@@ -29,6 +29,9 @@ func main() {
 	case "apply":
 		cmd := &applyCommand{}
 		run = cmd.Run
+	case "remove":
+		cmd := &removeCommand{}
+		run = cmd.Run
 	default:
 		usage()
 		os.Exit(1)
@@ -47,6 +50,7 @@ Available Commands:
 	get
 	apply
 	config
+	remove
 	version
 
 Use micromdm <command> -h for additional usage of each command.

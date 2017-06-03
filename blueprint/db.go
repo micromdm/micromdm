@@ -164,6 +164,32 @@ func (db *DB) BlueprintsByApplyAt(name string) ([]*Blueprint, error) {
 	return bps, err
 }
 
+func (db *DB) Delete(name string) error {
+	bp, err := db.BlueprintByName(name)
+	if err != nil {
+		return err
+	}
+	err = db.Update(func(tx *bolt.Tx) error {
+		// TODO: reformulate into a transaction?
+		b := tx.Bucket([]byte(BlueprintBucket))
+		i := tx.Bucket([]byte(blueprintIndexBucket))
+		err := i.Delete([]byte(bp.Name))
+		if err != nil {
+			return err
+		}
+		err = i.Delete([]byte(bp.UUID))
+		if err != nil {
+			return err
+		}
+		err = b.Delete([]byte(bp.UUID))
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
+}
+
 type notFound struct {
 	ResourceType string
 	Message      string

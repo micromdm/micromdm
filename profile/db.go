@@ -83,6 +83,14 @@ func (db *DB) ProfileById(id string) (*Profile, error) {
 	return &p, err
 }
 
+func (db *DB) Delete(id string) error {
+	err := db.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(ProfileBucket))
+		return b.Delete([]byte(id))
+	})
+	return err
+}
+
 type notFound struct {
 	ResourceType string
 	Message      string

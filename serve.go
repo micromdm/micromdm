@@ -46,6 +46,7 @@ import (
 	"github.com/micromdm/micromdm/connect"
 	"github.com/micromdm/micromdm/core/apply"
 	"github.com/micromdm/micromdm/core/list"
+	"github.com/micromdm/micromdm/core/remove"
 	"github.com/micromdm/micromdm/crypto"
 	"github.com/micromdm/micromdm/depsync"
 	"github.com/micromdm/micromdm/deptoken"
@@ -271,6 +272,9 @@ func serve(args []string) error {
 
 	listAPIHandlers := list.MakeHTTPHandlers(ctx, listEndpoints, connectOpts...)
 
+	rmsvc := &remove.RemoveService{Blueprints: bpDB, Profiles: profDB}
+	removeAPIHandlers := remove.MakeHTTPHandlers(ctx, remove.MakeEndpoints(rmsvc), connectOpts...)
+
 	connectHandlers := connect.MakeHTTPHandlers(ctx, connectEndpoints, connectOpts...)
 
 	pushHandlers := nanopush.MakeHTTPHandlers(ctx, pushEndpoints, checkinOpts...)
@@ -296,8 +300,10 @@ func serve(args []string) error {
 		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DEPTokensHandler)).Methods("PUT")
 		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetBlueprintsHandler)).Methods("GET")
 		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.BlueprintHandler)).Methods("PUT")
+		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, removeAPIHandlers.BlueprintHandler)).Methods("DELETE")
 		r.Handle("/v1/profiles", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetProfilesHandler)).Methods("GET")
 		r.Handle("/v1/profiles", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.ProfileHandler)).Methods("PUT")
+		r.Handle("/v1/profiles", apiAuthMiddleware(*flAPIKey, removeAPIHandlers.ProfileHandler)).Methods("DELETE")
 		r.Handle("/v1/dep/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPDeviceDetailsHandler)).Methods("GET")
 		r.Handle("/v1/dep/account", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPAccountInfoHandler)).Methods("GET")
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPProfileHander)).Methods("GET")
