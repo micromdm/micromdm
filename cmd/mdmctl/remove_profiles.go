@@ -12,7 +12,7 @@ func (cmd *removeCommand) removeProfiles(args []string) error {
 	var (
 		flIdentifier = flagset.String("id", "", "profile Identifier, optionally comma separated")
 	)
-	flagset.Usage = usageFor(flagset, "mdmctl get blueprints [flags]")
+	flagset.Usage = usageFor(flagset, "mdmctl remove profiles [flags]")
 	if err := flagset.Parse(args); err != nil {
 		return err
 	}
