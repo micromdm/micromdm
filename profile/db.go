@@ -86,6 +86,10 @@ func (db *DB) ProfileById(id string) (*Profile, error) {
 func (db *DB) Delete(id string) error {
 	err := db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(ProfileBucket))
+		v := b.Get([]byte(id))
+		if v == nil {
+			return &notFound{"Profile", fmt.Sprintf("id %s", id)}
+		}
 		return b.Delete([]byte(id))
 	})
 	return err
