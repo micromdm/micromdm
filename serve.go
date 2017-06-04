@@ -216,7 +216,7 @@ func serve(args []string) error {
 	tokenDB := &deptoken.DB{DB: sm.db, Publisher: sm.pubclient}
 	var listsvc list.Service
 	{
-		l := &list.ListService{DB: sm.db, DEPClient: dc, Devices: devDB, Tokens: tokenDB, Blueprints: bpDB, Profiles: profDB}
+		l := &list.ListService{DEPClient: dc, Devices: devDB, Tokens: tokenDB, Blueprints: bpDB, Profiles: sm.profileDB}
 		listsvc = l
 
 		if err := l.WatchTokenUpdates(sm.pubclient); err != nil {
@@ -240,7 +240,7 @@ func serve(args []string) error {
 
 	var applysvc apply.Service
 	{
-		l := &apply.ApplyService{DB: sm.db, DEPClient: dc, Blueprints: bpDB, Tokens: tokenDB, Profiles: profDB}
+		l := &apply.ApplyService{DEPClient: dc, Blueprints: bpDB, Tokens: tokenDB, Profiles: sm.profileDB}
 		applysvc = l
 		if err := l.WatchTokenUpdates(sm.pubclient); err != nil {
 			stdlog.Fatal(err)
@@ -273,7 +273,7 @@ func serve(args []string) error {
 
 	listAPIHandlers := list.MakeHTTPHandlers(ctx, listEndpoints, connectOpts...)
 
-	rmsvc := &remove.RemoveService{Blueprints: bpDB, Profiles: profDB}
+	rmsvc := &remove.RemoveService{Blueprints: bpDB, Profiles: sm.profileDB}
 	removeAPIHandlers := remove.MakeHTTPHandlers(ctx, remove.MakeEndpoints(rmsvc), connectOpts...)
 
 	connectHandlers := connect.MakeHTTPHandlers(ctx, connectEndpoints, connectOpts...)
