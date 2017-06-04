@@ -88,29 +88,7 @@ func NewService(pushTopic, caCertPath, scepURL, scepChallenge, url, tlsCertPath,
 		TLSCert:       tlsCert,
 		ProfileDB:     profileDB,
 	}
-
-	// look for existing enrollment profile, and save a new one if not found
-	_, err = svc.ProfileDB.ProfileById(EnrollmentProfileId)
-	if err != nil && profile.IsNotFound(err) {
-		enrollmentProfile, err := svc.MakeEnrollmentProfile()
-		if err != nil {
-			return svc, err
-		}
-
-		profile, err := profileToProfile(enrollmentProfile)
-		if err != nil {
-			return svc, err
-		}
-
-		err = svc.ProfileDB.Save(profile)
-		if err != nil {
-			return svc, err
-		}
-
-		return svc, nil
-	} else {
-		return svc, err
-	}
+	return svc, nil
 }
 
 type service struct {
@@ -125,17 +103,22 @@ type service struct {
 }
 
 func (svc service) Enroll(ctx context.Context) (profile.Mobileconfig, error) {
-	// NOTE: this effectively makes the enrollment profile static. that is it
-	// only gets generated once on service start _only if_ one doesn't already
-	// exist. when we integrate dynamic enrollment profile generation (for
-	// e.g. per-device SCEP challenges) we'll need to modify this enrollment
-	// profile before delivery. treating it much like a template (when
-	// templated profiles get implemented)
-	profile, err := svc.ProfileDB.ProfileById(EnrollmentProfileId)
+	enrollMC, err := svc.ProfileDB.ProfileById(EnrollmentProfileId)
 	if err != nil {
+		if profile.IsNotFound(err) {
+			enrollmentProfile, err := svc.MakeEnrollmentProfile()
+			if err != nil {
+				return nil, err
+			}
+			enrollMC, err := profileToProfile(enrollmentProfile)
+			if err != nil {
+				return nil, err
+			}
+			return enrollMC.Mobileconfig, nil
+		}
 		return nil, err
 	}
-	return profile.Mobileconfig, nil
+	return enrollMC.Mobileconfig, nil
 }
 
 func (svc service) MakeEnrollmentProfile() (Profile, error) {
