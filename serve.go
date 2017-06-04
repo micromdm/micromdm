@@ -160,6 +160,9 @@ func serve(args []string) error {
 	}
 
 	sm.setupEnrollmentService()
+	if sm.err != nil {
+		stdlog.Fatalf("enrollment service: %s", sm.err)
+	}
 
 	bpDB, err := blueprint.NewDB(sm.db, sm.profileDB)
 	if err != nil {
@@ -211,7 +214,7 @@ func serve(args []string) error {
 
 	dc, err := sm.depClient()
 	if err != nil {
-		stdlog.Fatalf("creating DEP client %s\n", err)
+		stdlog.Fatalf("creating DEP client: %s\n", err)
 	}
 	tokenDB := &deptoken.DB{DB: sm.db, Publisher: sm.pubclient}
 	var listsvc list.Service
