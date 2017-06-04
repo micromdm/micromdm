@@ -106,9 +106,11 @@ func NewService(pushTopic, caCertPath, scepURL, scepChallenge, url, tlsCertPath,
 		if err != nil {
 			return svc, err
 		}
-	}
 
-	return svc, err
+		return svc, nil
+	} else {
+		return svc, err
+	}
 }
 
 type service struct {
