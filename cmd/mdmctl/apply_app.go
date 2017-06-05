@@ -101,6 +101,10 @@ Please rebuild the package and re-run the command.
 	}
 
 	if *flUpload {
+		// we read the file to generate the appmanifest, so we need to seek to the beginning of the file again.
+		if _, err := f.Seek(0, 0); err != nil {
+			return errors.Wrap(err, "reset pkg file reader")
+		}
 		err := cmd.applysvc.UploadApp(context.TODO(), nameMannifest(f.Name()), &buf, filepath.Base(f.Name()), f)
 		if err != nil {
 			return err
