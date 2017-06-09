@@ -55,6 +55,7 @@ import (
 	"github.com/micromdm/micromdm/enroll"
 	"github.com/micromdm/micromdm/profile"
 	"github.com/micromdm/micromdm/pubsub"
+	"github.com/micromdm/micromdm/pubsub/inmem"
 	nanopush "github.com/micromdm/micromdm/push"
 	"github.com/micromdm/micromdm/queue"
 )
@@ -473,7 +474,7 @@ func tlsConfig() *tls.Config {
 type config struct {
 	configPath          string
 	depsim              bool
-	pubclient           *pubsub.Inmem
+	pubclient           pubsub.PublishSubscriber
 	db                  *bolt.DB
 	pushCert            pushServiceCert
 	ServerPublicURL     string
@@ -504,7 +505,7 @@ func (c *config) setupPubSub() {
 	if c.err != nil {
 		return
 	}
-	c.pubclient = pubsub.NewInmemPubsub()
+	c.pubclient = inmem.NewPubSub()
 }
 
 func (c *config) setupCommandService() {

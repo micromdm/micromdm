@@ -1,16 +1,9 @@
-package pubsub
+package inmem
 
-type Subscriber interface {
-	Subscribe(name, topic string) (<-chan Event, error)
-}
+import "github.com/micromdm/micromdm/pubsub"
 
-type PublishSubscriber interface {
-	Publisher
-	Subscriber
-}
-
-func (p *Inmem) Subscribe(name, topic string) (<-chan Event, error) {
-	events := make(chan Event)
+func (p *Inmem) Subscribe(name, topic string) (<-chan pubsub.Event, error) {
+	events := make(chan pubsub.Event)
 	sub := subscription{
 		name:      name,
 		topic:     topic,

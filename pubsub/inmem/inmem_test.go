@@ -1,4 +1,4 @@
-package pubsub
+package inmem
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 )
 
 func TestPubSub(t *testing.T) {
-	inmem := NewInmemPubsub()
+	inmem := NewPubSub()
 	tests := []string{"a", "b", "c"}
 	for _, tt := range tests {
 		if err := inmem.Publish(tt, []byte(tt+tt+tt)); err != nil {

@@ -1,18 +1,13 @@
-package pubsub
+package inmem
 
-import "sync"
+import (
+	"sync"
 
-type Publisher interface {
-	Publish(topic string, msg []byte) error
-}
+	"github.com/micromdm/micromdm/pubsub"
+)
 
-type Event struct {
-	Topic   string
-	Message []byte
-}
-
-func NewInmemPubsub() *Inmem {
-	publish := make(chan Event)
+func NewPubSub() *Inmem {
+	publish := make(chan pubsub.Event)
 	subscriptions := make(map[string][]subscription)
 	inmem := &Inmem{
 		publish:       publish,
@@ -26,17 +21,17 @@ type Inmem struct {
 	mtx           sync.RWMutex
 	subscriptions map[string][]subscription
 
-	publish chan Event
+	publish chan pubsub.Event
 }
 
 type subscription struct {
 	name      string
 	topic     string
-	eventChan chan<- Event
+	eventChan chan<- pubsub.Event
 }
 
 func (p *Inmem) Publish(topic string, msg []byte) error {
-	event := Event{Topic: topic, Message: msg}
+	event := pubsub.Event{Topic: topic, Message: msg}
 	go func() { p.publish <- event }()
 	return nil
 }
