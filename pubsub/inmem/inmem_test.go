@@ -1,33 +1,35 @@
 package inmem
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
 )
 
 func TestPubSub(t *testing.T) {
+	ctx := context.Background()
 	inmem := NewPubSub()
 	tests := []string{"a", "b", "c"}
 	for _, tt := range tests {
-		if err := inmem.Publish(tt, []byte(tt+tt+tt)); err != nil {
+		if err := inmem.Publish(ctx, tt, []byte(tt+tt+tt)); err != nil {
 			t.Fatal(err)
 		}
-		if err := inmem.Publish(tt, []byte(tt+tt)); err != nil {
+		if err := inmem.Publish(ctx, tt, []byte(tt+tt)); err != nil {
 			t.Fatal(err)
 		}
 	}
 
-	subA, err := inmem.Subscribe("asub", "a")
+	subA, err := inmem.Subscribe(ctx, "asub", "a")
 	if err != nil {
 		t.Fatal(err)
 	}
-	subA1, err := inmem.Subscribe("asub1", "a")
+	subA1, err := inmem.Subscribe(ctx, "asub1", "a")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	subB, err := inmem.Subscribe("bsub", "b")
+	subB, err := inmem.Subscribe(ctx, "bsub", "b")
 	if err != nil {
 		t.Fatal(err)
 	}

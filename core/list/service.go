@@ -81,7 +81,7 @@ func (svc *ListService) ListApplications(ctx context.Context, opts ListAppsOptio
 }
 
 func (svc *ListService) WatchTokenUpdates(pubsub pubsub.Subscriber) error {
-	tokenAdded, err := pubsub.Subscribe("list-token-events", deptoken.DEPTokenTopic)
+	tokenAdded, err := pubsub.Subscribe(context.TODO(), "list-token-events", deptoken.DEPTokenTopic)
 	if err != nil {
 		return err
 	}

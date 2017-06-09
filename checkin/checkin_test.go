@@ -47,7 +47,7 @@ type mockPublisher struct {
 	PublishFn func(string, []byte) error
 }
 
-func (m *mockPublisher) Publish(s string, b []byte) error {
+func (m *mockPublisher) Publish(ctx context.Context, s string, b []byte) error {
 	m.Invoked = true
 	return m.PublishFn(s, b)
 }

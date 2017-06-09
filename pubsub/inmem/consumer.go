@@ -1,8 +1,12 @@
 package inmem
 
-import "github.com/micromdm/micromdm/pubsub"
+import (
+	"context"
 
-func (p *Inmem) Subscribe(name, topic string) (<-chan pubsub.Event, error) {
+	"github.com/micromdm/micromdm/pubsub"
+)
+
+func (p *Inmem) Subscribe(_ context.Context, name, topic string) (<-chan pubsub.Event, error) {
 	events := make(chan pubsub.Event)
 	sub := subscription{
 		name:      name,

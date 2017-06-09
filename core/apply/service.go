@@ -57,7 +57,7 @@ func (svc *ApplyService) UploadApp(ctx context.Context, manifestName string, man
 }
 
 func (svc *ApplyService) WatchTokenUpdates(pubsub pubsub.Subscriber) error {
-	tokenAdded, err := pubsub.Subscribe("apply-token-events", deptoken.DEPTokenTopic)
+	tokenAdded, err := pubsub.Subscribe(context.TODO(), "apply-token-events", deptoken.DEPTokenTopic)
 	if err != nil {
 		return err
 	}

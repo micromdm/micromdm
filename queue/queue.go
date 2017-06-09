@@ -175,7 +175,7 @@ func (e *notFound) Error() string {
 }
 
 func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
-	commandEvents, err := pubsub.Subscribe("command-queue", command.CommandTopic)
+	commandEvents, err := pubsub.Subscribe(context.TODO(), "command-queue", command.CommandTopic)
 	if err != nil {
 		return errors.Wrapf(err,
 			"subscribing push to %s topic", command.CommandTopic)
@@ -222,7 +222,7 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 					continue
 				}
 
-				pubsub.Publish(CommandQueuedTopic, msgBytes)
+				pubsub.Publish(context.TODO(), CommandQueuedTopic, msgBytes)
 			}
 		}
 	}()

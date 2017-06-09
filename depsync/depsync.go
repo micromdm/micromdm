@@ -1,6 +1,7 @@
 package depsync
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -103,7 +104,7 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, opts ...Option) (Syncer, err
 }
 
 func (w *watcher) updateClient(pubsub pubsub.Subscriber) error {
-	tokenAdded, err := pubsub.Subscribe("token-events", deptoken.DEPTokenTopic)
+	tokenAdded, err := pubsub.Subscribe(context.TODO(), "token-events", deptoken.DEPTokenTopic)
 	if err != nil {
 		return err
 	}
@@ -168,7 +169,7 @@ FETCH:
 		if err != nil {
 			return err
 		}
-		if err := w.publisher.Publish(SyncTopic, data); err != nil {
+		if err := w.publisher.Publish(context.TODO(), SyncTopic, data); err != nil {
 			return err
 		}
 		if !resp.MoreToFollow {
@@ -198,7 +199,7 @@ SYNC:
 			if err != nil {
 				return err
 			}
-			if err := w.publisher.Publish(SyncTopic, data); err != nil {
+			if err := w.publisher.Publish(context.TODO(), SyncTopic, data); err != nil {
 				return err
 			}
 		}

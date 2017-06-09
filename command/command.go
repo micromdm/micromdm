@@ -57,7 +57,7 @@ func (svc *Command) NewCommand(ctx context.Context, request *mdm.CommandRequest)
 	if err := svc.archive(event.Time.UnixNano(), msg); err != nil {
 		return nil, errors.Wrap(err, "archive mdm command")
 	}
-	if err := svc.publisher.Publish(CommandTopic, msg); err != nil {
+	if err := svc.publisher.Publish(context.TODO(), CommandTopic, msg); err != nil {
 		return nil, errors.Wrapf(err, "publish mdm command on topic: %s", CommandTopic)
 	}
 	return payload, nil

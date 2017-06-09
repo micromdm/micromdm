@@ -1,6 +1,7 @@
 package device
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -165,22 +166,22 @@ func isNotFound(err error) bool {
 }
 
 func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
-	authenticateEvents, err := pubsubSvc.Subscribe("devices", checkin.AuthenticateTopic)
+	authenticateEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", checkin.AuthenticateTopic)
 	if err != nil {
 		return errors.Wrapf(err,
 			"subscribing devices to %s topic", checkin.AuthenticateTopic)
 	}
-	tokenUpdateEvents, err := pubsubSvc.Subscribe("devices", checkin.TokenUpdateTopic)
+	tokenUpdateEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", checkin.TokenUpdateTopic)
 	if err != nil {
 		return errors.Wrapf(err,
 			"subscribing devices to %s topic", checkin.TokenUpdateTopic)
 	}
-	checkoutEvents, err := pubsubSvc.Subscribe("devices", checkin.CheckoutTopic)
+	checkoutEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", checkin.CheckoutTopic)
 	if err != nil {
 		return errors.Wrapf(err,
 			"subscribing devices to %s topic", checkin.CheckoutTopic)
 	}
-	depSyncEvents, err := pubsubSvc.Subscribe("devices", depsync.SyncTopic)
+	depSyncEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", depsync.SyncTopic)
 	if err != nil {
 		return errors.Wrapf(err,
 			"subscribing devices to %s topic", depsync.SyncTopic)
@@ -265,7 +266,7 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 				}
 				if newlyEnrolled {
 					fmt.Printf("device %s enrolled\n", ev.Command.UDID)
-					err := pubsubSvc.Publish(DeviceEnrolledTopic, event.Message)
+					err := pubsubSvc.Publish(context.TODO(), DeviceEnrolledTopic, event.Message)
 					if err != nil {
 						fmt.Println(err)
 					}

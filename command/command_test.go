@@ -1,6 +1,7 @@
 package command
 
 import (
+	"context"
 	"errors"
 	"io/ioutil"
 	"os"
@@ -8,7 +9,6 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/micromdm/mdm"
-	"golang.org/x/net/context"
 )
 
 func TestService_NewCommand(t *testing.T) {
@@ -82,7 +82,7 @@ type mockPublisher struct {
 	PublishFn func(string, []byte) error
 }
 
-func (m *mockPublisher) Publish(s string, b []byte) error {
+func (m *mockPublisher) Publish(ctx context.Context, s string, b []byte) error {
 	return m.PublishFn(s, b)
 }
 

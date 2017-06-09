@@ -28,7 +28,7 @@ func New(db *DB, push *push.Service, sub pubsub.Subscriber) (*Push, error) {
 }
 
 func (svc *Push) startQueuedSubscriber(push *push.Service, sub pubsub.Subscriber) error {
-	commandQueuedEvents, err := sub.Subscribe("push-info", queue.CommandQueuedTopic)
+	commandQueuedEvents, err := sub.Subscribe(context.TODO(), "push-info", queue.CommandQueuedTopic)
 	if err != nil {
 		return errors.Wrapf(err,
 			"subscribing push to %s topic", queue.CommandQueuedTopic)

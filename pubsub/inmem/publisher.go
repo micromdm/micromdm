@@ -1,6 +1,7 @@
 package inmem
 
 import (
+	"context"
 	"sync"
 
 	"github.com/micromdm/micromdm/pubsub"
@@ -30,7 +31,7 @@ type subscription struct {
 	eventChan chan<- pubsub.Event
 }
 
-func (p *Inmem) Publish(topic string, msg []byte) error {
+func (p *Inmem) Publish(_ context.Context, topic string, msg []byte) error {
 	event := pubsub.Event{Topic: topic, Message: msg}
 	go func() { p.publish <- event }()
 	return nil

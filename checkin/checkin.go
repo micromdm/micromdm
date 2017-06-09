@@ -92,7 +92,7 @@ func (svc *Checkin) archiveAndPublish(topic string, cmd mdm.CheckinCommand) erro
 	if err := svc.archiveFn(event.Time.UnixNano(), msg); err != nil {
 		return errors.Wrap(err, "archive checkin")
 	}
-	if err := svc.publisher.Publish(topic, msg); err != nil {
+	if err := svc.publisher.Publish(context.TODO(), topic, msg); err != nil {
 		return errors.Wrapf(err, "publish checkin on topic: %s", topic)
 	}
 	return nil

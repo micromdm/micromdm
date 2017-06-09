@@ -2,6 +2,7 @@ package deptoken
 
 import (
 	"bytes"
+	"context"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/json"
@@ -56,7 +57,7 @@ func (db *DB) AddToken(consumerKey string, json []byte) error {
 	if err != nil {
 		return err
 	}
-	if err := db.Publisher.Publish(DEPTokenTopic, json); err != nil {
+	if err := db.Publisher.Publish(context.TODO(), DEPTokenTopic, json); err != nil {
 		return err
 	}
 	return nil

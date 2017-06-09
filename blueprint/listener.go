@@ -62,7 +62,7 @@ func (db *DB) ApplyToDevice(ctx context.Context, svc command.Service, bp *Bluepr
 }
 
 func (db *DB) StartListener(sub pubsub.Subscriber, cmdSvc command.Service) error {
-	tokenUpdateEvents, err := sub.Subscribe("applyAtEnroll", device.DeviceEnrolledTopic)
+	tokenUpdateEvents, err := sub.Subscribe(context.TODO(), "applyAtEnroll", device.DeviceEnrolledTopic)
 	if err != nil {
 		return errors.Wrapf(err,
 			"subscribing devices to %s topic", device.DeviceEnrolledTopic)

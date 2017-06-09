@@ -1,6 +1,7 @@
 package push
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/boltdb/bolt"
@@ -78,7 +79,7 @@ func (db *DB) Save(info *PushInfo) error {
 }
 
 func (db *DB) pollCheckin(sub pubsub.Subscriber) error {
-	tokenUpdateEvents, err := sub.Subscribe("push-info", checkin.TokenUpdateTopic)
+	tokenUpdateEvents, err := sub.Subscribe(context.TODO(), "push-info", checkin.TokenUpdateTopic)
 	if err != nil {
 		return errors.Wrapf(err,
 			"subscribing push to %s topic", checkin.TokenUpdateTopic)
