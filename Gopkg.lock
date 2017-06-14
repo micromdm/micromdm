@@ -17,7 +17,7 @@
   branch = "master"
   name = "github.com/fullsailor/pkcs7"
   packages = ["."]
-  revision = "eb67e7e564b9eae64dc7d95fae0784d6086a5fc4"
+  revision = "a009d8d7de53d9503c797cb8ec66fa3b21eed209"
 
 [[projects]]
   branch = "master"
@@ -53,7 +53,7 @@
   branch = "master"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
-  revision = "5a0f697c9ed9d68fef0116532c6e05cfeae00e55"
+  revision = "e325f446bebc2998605911c0a2650d9920361d4a"
 
 [[projects]]
   name = "github.com/gorilla/context"
@@ -119,13 +119,13 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["acme","acme/autocert","pkcs12","pkcs12/internal/rc2"]
-  revision = "e7ba82683099cae71475961448ab8f903ea77c26"
+  revision = "850760c427c516be930bc91280636328f1a62286"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = ["context","context/ctxhttp","http2","http2/hpack","idna","lex/httplex"]
-  revision = "59a0b19b5533c7977ddeb86b017bf507ed407b12"
+  revision = "dfe83d419c9403b40b19d08cdba2afec27b002f7"
 
 [[projects]]
   branch = "master"
@@ -137,13 +137,13 @@
   branch = "master"
   name = "golang.org/x/text"
   packages = ["internal/gen","internal/triegen","internal/ucd","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
-  revision = "eae24e7440a7aee8476ea69a0c574eafb42f5839"
+  revision = "3491b61b9edc56653ad4333e605e2908e46a036b"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil","imports"]
-  revision = "e4933889654a3d0cd7f3ab2ae7511ce0199b4994"
+  revision = "b4e0c5ecfb3125b1fbb235b1d381898d2b2a16d6"
 
 [solve-meta]
   analyzer-name = "dep"
