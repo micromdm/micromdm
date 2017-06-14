@@ -1,20 +1,30 @@
 package enroll
 
 import (
+	"bytes"
 	"crypto/x509"
-	"golang.org/x/net/context"
 	"io/ioutil"
 	"strings"
+
+	"github.com/groob/plist"
+	"golang.org/x/net/context"
+
+	"github.com/micromdm/micromdm/profile"
+)
+
+const (
+	EnrollmentProfileId string = "com.github.micromdm.micromdm.enroll"
+	OTAProfileId        string = "com.github.micromdm.micromdm.ota"
 )
 
 type Service interface {
-	Enroll(ctx context.Context) (Profile, error)
-	OTAEnroll(ctx context.Context) (Payload, error)
-	OTAPhase2(ctx context.Context) (Profile, error)
-	OTAPhase3(ctx context.Context) (Profile, error)
+	Enroll(ctx context.Context) (profile.Mobileconfig, error)
+	OTAEnroll(ctx context.Context) (profile.Mobileconfig, error)
+	OTAPhase2(ctx context.Context) (profile.Mobileconfig, error)
+	OTAPhase3(ctx context.Context) (profile.Mobileconfig, error)
 }
 
-func NewService(pushTopic, caCertPath, scepURL, scepChallenge, url, tlsCertPath, scepSubject string) (Service, error) {
+func NewService(pushTopic, caCertPath, scepURL, scepChallenge, url, tlsCertPath, scepSubject string, profileDB *profile.DB) (Service, error) {
 	var caCert, tlsCert []byte
 	var err error
 
@@ -57,6 +67,7 @@ func NewService(pushTopic, caCertPath, scepURL, scepChallenge, url, tlsCertPath,
 		Topic:         pushTopic,
 		CACert:        caCert,
 		TLSCert:       tlsCert,
+		ProfileDB:     profileDB,
 	}, nil
 }
 
@@ -68,11 +79,51 @@ type service struct {
 	Topic         string // APNS Topic for MDM notifications
 	CACert        []byte
 	TLSCert       []byte
+	ProfileDB     *profile.DB
 }
 
-func (svc service) Enroll(ctx context.Context) (Profile, error) {
+func profileOrPayloadFromFunc(f interface{}) (interface{}, error) {
+	fPayload, ok := f.(func() (Payload, error))
+	if !ok {
+		fProfile := f.(func() (Profile, error))
+		return fProfile()
+	}
+	return fPayload()
+}
+
+func profileOrPayloadToMobileconfig(in interface{}) (profile.Mobileconfig, error) {
+	if _, ok := in.(Payload); !ok {
+		_ = in.(Profile)
+	}
+	buf := new(bytes.Buffer)
+	enc := plist.NewEncoder(buf)
+	enc.Indent("  ")
+	err := enc.Encode(in)
+	return buf.Bytes(), err
+}
+
+func (svc service) findOrMakeMobileconfig(id string, f interface{}) (profile.Mobileconfig, error) {
+	p, err := svc.ProfileDB.ProfileById(id)
+	if err != nil {
+		if profile.IsNotFound(err) {
+			profile, err := profileOrPayloadFromFunc(f)
+			if err != nil {
+				return nil, err
+			}
+			return profileOrPayloadToMobileconfig(profile)
+		}
+		return nil, err
+	}
+	return p.Mobileconfig, nil
+}
+
+func (svc service) Enroll(ctx context.Context) (profile.Mobileconfig, error) {
+	return svc.findOrMakeMobileconfig(EnrollmentProfileId, svc.MakeEnrollmentProfile)
+}
+
+func (svc service) MakeEnrollmentProfile() (Profile, error) {
 	profile := NewProfile()
-	profile.PayloadIdentifier = "com.github.micromdm.micromdm.mdm"
+	profile.PayloadIdentifier = EnrollmentProfileId
 	profile.PayloadOrganization = "MicroMDM"
 	profile.PayloadDisplayName = "Enrollment Profile"
 	profile.PayloadDescription = "The server may alter your settings"
@@ -81,7 +132,7 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 	mdmPayload := NewPayload("com.apple.mdm")
 	mdmPayload.PayloadDescription = "Enrolls with the MDM server"
 	mdmPayload.PayloadOrganization = "MicroMDM"
-	mdmPayload.PayloadIdentifier = "com.github.micromdm.mdm"
+	mdmPayload.PayloadIdentifier = EnrollmentProfileId + ".mdm"
 	mdmPayload.PayloadScope = "System"
 
 	mdmPayloadContent := MDMPayloadContent{
@@ -99,9 +150,9 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 	if svc.SCEPURL != "" {
 		scepContent := SCEPPayloadContent{
 			URL:      svc.SCEPURL,
-			Keysize:  1024,
+			Keysize:  2048,
 			KeyType:  "RSA",
-			KeyUsage: 0,
+			KeyUsage: int(x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment),
 			Name:     "Device Management Identity Certificate",
 			Subject:  svc.SCEPSubject,
 		}
@@ -113,7 +164,7 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 		scepPayload := NewPayload("com.apple.security.scep")
 		scepPayload.PayloadDescription = "Configures SCEP"
 		scepPayload.PayloadDisplayName = "SCEP"
-		scepPayload.PayloadIdentifier = "com.github.micromdm.scep"
+		scepPayload.PayloadIdentifier = EnrollmentProfileId + ".scep"
 		scepPayload.PayloadOrganization = "MicroMDM"
 		scepPayload.PayloadContent = scepContent
 		scepPayload.PayloadScope = "System"
@@ -128,7 +179,7 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 		caPayload := NewPayload("com.apple.security.root")
 		caPayload.PayloadDisplayName = "Root certificate for MicroMDM"
 		caPayload.PayloadDescription = "Installs the root CA certificate for MicroMDM"
-		caPayload.PayloadIdentifier = "com.github.micromdm.ssl.ca"
+		caPayload.PayloadIdentifier = EnrollmentProfileId + ".cert.ca"
 		caPayload.PayloadContent = svc.CACert
 
 		payloadContent = append(payloadContent, *caPayload)
@@ -139,7 +190,7 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 		tlsPayload := NewPayload("com.apple.security.pem")
 		tlsPayload.PayloadDisplayName = "Self-signed TLS certificate for MicroMDM"
 		tlsPayload.PayloadDescription = "Installs the TLS certificate for MicroMDM"
-		tlsPayload.PayloadIdentifier = "com.github.micromdm.tls"
+		tlsPayload.PayloadIdentifier = EnrollmentProfileId + ".cert.selfsigned"
 		tlsPayload.PayloadContent = svc.TLSCert
 
 		payloadContent = append(payloadContent, *tlsPayload)
@@ -151,9 +202,13 @@ func (svc service) Enroll(ctx context.Context) (Profile, error) {
 }
 
 // OTAEnroll returns an Over-the-Air "Profile Service" Payload for enrollment.
-func (svc service) OTAEnroll(ctx context.Context) (Payload, error) {
+func (svc service) OTAEnroll(ctx context.Context) (profile.Mobileconfig, error) {
+	return svc.findOrMakeMobileconfig(OTAProfileId, svc.MakeOTAEnrollPayload)
+}
+
+func (svc service) MakeOTAEnrollPayload() (Payload, error) {
 	payload := NewPayload("Profile Service")
-	payload.PayloadIdentifier = "com.github.micromdm.ota.profile-service"
+	payload.PayloadIdentifier = OTAProfileId
 	payload.PayloadDisplayName = "MicroMDM Profile Service"
 	payload.PayloadDescription = "Profile Service enrollment"
 	payload.PayloadOrganization = "MicroMDM"
@@ -168,20 +223,24 @@ func (svc service) OTAEnroll(ctx context.Context) (Payload, error) {
 }
 
 // OTAPhase2 returns a SCEP Profile for use in phase 2 of Over-the-Air enrollment.
-func (svc service) OTAPhase2(ctx context.Context) (Profile, error) {
+func (svc service) OTAPhase2(ctx context.Context) (profile.Mobileconfig, error) {
+	return svc.findOrMakeMobileconfig(OTAProfileId+".phase2", svc.MakeOTAPhase2Profile)
+}
+
+func (svc service) MakeOTAPhase2Profile() (Profile, error) {
 	profile := NewProfile()
-	profile.PayloadIdentifier = "com.github.micromdm.micromdm.ota-scep"
+	profile.PayloadIdentifier = OTAProfileId + ".phase2"
 	profile.PayloadOrganization = "MicroMDM"
-	profile.PayloadDisplayName = "Enrollment Profile"
+	profile.PayloadDisplayName = "OTA Phase 2"
 	profile.PayloadDescription = "The server may alter your settings"
 	profile.PayloadScope = "System"
 
 	scepContent := SCEPPayloadContent{
 		URL:      svc.SCEPURL,
-		Keysize:  1024,
+		Keysize:  2048, // NOTE: OTA docs recommend 1024
 		KeyType:  "RSA",
 		KeyUsage: int(x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment),
-		Name:     "Device Management Identity Certificate",
+		Name:     "OTA Phase 2 Certificate",
 		Subject:  svc.SCEPSubject,
 	}
 
@@ -192,7 +251,7 @@ func (svc service) OTAPhase2(ctx context.Context) (Profile, error) {
 	scepPayload := NewPayload("com.apple.security.scep")
 	scepPayload.PayloadDescription = "Configures SCEP"
 	scepPayload.PayloadDisplayName = "SCEP"
-	scepPayload.PayloadIdentifier = "com.github.micromdm.scep"
+	scepPayload.PayloadIdentifier = OTAProfileId + ".phase2.scep"
 	scepPayload.PayloadOrganization = "MicroMDM"
 	scepPayload.PayloadContent = scepContent
 	scepPayload.PayloadScope = "System"
@@ -207,6 +266,6 @@ func (svc service) OTAPhase2(ctx context.Context) (Profile, error) {
 // enrollment process. In our case this would probably be a device-specifc
 // MDM enrollment payload.
 // TODO: Not implemented.
-func (svc service) OTAPhase3(ctx context.Context) (Profile, error) {
-	return Profile{}, nil
+func (svc service) OTAPhase3(ctx context.Context) (profile.Mobileconfig, error) {
+	return profile.Mobileconfig{}, nil
 }

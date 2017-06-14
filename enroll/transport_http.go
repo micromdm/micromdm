@@ -26,26 +26,26 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 		EnrollHandler: httptransport.NewServer(
 			endpoints.GetEnrollEndpoint,
 			decodeMDMEnrollRequest,
-			encodeResponse,
+			encodeMobileconfigResponse,
 			opts...,
 		),
 		OTAEnrollHandler: httptransport.NewServer(
 			endpoints.OTAEnrollEndpoint,
-			nilRequest,
-			encodeResponse,
+			decodeEmptyRequest,
+			encodeMobileconfigResponse,
 			opts...,
 		),
 		OTAPhase2Phase3Handler: httptransport.NewServer(
 			endpoints.OTAPhase2Phase3Endpoint,
 			decodeOTAPhase2Phase3Request,
-			encodeResponse,
+			encodeMobileconfigResponse,
 			opts...,
 		),
 	}
 	return h
 }
 
-func nilRequest(_ context.Context, _ *http.Request) (interface{}, error) {
+func decodeEmptyRequest(_ context.Context, _ *http.Request) (interface{}, error) {
 	return nil, nil
 }
 
@@ -85,16 +85,11 @@ func decodeMDMEnrollRequest(_ context.Context, r *http.Request) (interface{}, er
 	}
 }
 
-func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
+func encodeMobileconfigResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
 	w.Header().Set("Content-Type", "application/x-apple-aspen-config")
-
-	enc := plist.NewEncoder(w)
-	enc.Indent("  ")
-	if err := enc.Encode(response); err != nil {
-		return err
-	}
-
-	return nil
+	mcResp := response.(mobileconfigResponse)
+	_, err := w.Write(mcResp.Mobileconfig)
+	return err
 }
 
 func decodeOTAPhase2Phase3Request(_ context.Context, r *http.Request) (interface{}, error) {

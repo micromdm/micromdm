@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/micromdm/micromdm/crypto"
+	"github.com/micromdm/micromdm/profile"
 	boltdepot "github.com/micromdm/scep/depot/bolt"
 
 	"github.com/fullsailor/pkcs7"
@@ -44,8 +45,8 @@ type otaEnrollmentRequest struct {
 
 type mdmEnrollRequest struct{}
 
-type mdmEnrollResponse struct {
-	Profile
+type mobileconfigResponse struct {
+	profile.Mobileconfig
 	Err error `plist:"error,omitempty"`
 }
 
@@ -71,12 +72,12 @@ func MakeGetEnrollEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		switch req := request.(type) {
 		case mdmEnrollRequest:
-			profile, err := s.Enroll(ctx)
-			return mdmEnrollResponse{profile, err}, nil
+			mc, err := s.Enroll(ctx)
+			return mobileconfigResponse{mc, err}, nil
 		case depEnrollmentRequest:
 			fmt.Printf("got DEP enrollment request from %s\n", req.Serial)
-			profile, err := s.Enroll(ctx)
-			return mdmEnrollResponse{profile, err}, nil
+			mc, err := s.Enroll(ctx)
+			return mobileconfigResponse{mc, err}, nil
 		default:
 			return nil, errors.New("unknown enrollment type")
 		}
@@ -85,8 +86,8 @@ func MakeGetEnrollEndpoint(s Service) endpoint.Endpoint {
 
 func MakeOTAEnrollEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		payload, err := s.OTAEnroll(ctx)
-		return mdmOTAEnrollResponse{payload, err}, nil
+		mc, err := s.OTAEnroll(ctx)
+		return mobileconfigResponse{mc, err}, nil
 	}
 }
 
@@ -107,8 +108,8 @@ func MakeOTAPhase2Phase3Endpoint(s Service, scepDepot *boltdepot.Depot) endpoint
 			// signing certificate is signed by the Apple Device CA. this means
 			// we don't yet have a SCEP identity and thus are in Phase 2 of the
 			// OTA enrollment
-			profile, err := s.OTAPhase2(ctx)
-			return mdmEnrollResponse{profile, err}, nil
+			mc, err := s.OTAPhase2(ctx)
+			return mobileconfigResponse{mc, err}, nil
 		}
 
 		caChain, _, err := scepDepot.CA(nil)
@@ -133,10 +134,10 @@ func MakeOTAPhase2Phase3Endpoint(s Service, scepDepot *boltdepot.Depot) endpoint
 			// TODO: the SCEP CA checking ought to be more robust
 			// see: https://github.com/micromdm/scep/issues/32
 
-			profile, err := s.Enroll(ctx)
+			mc, err := s.Enroll(ctx)
 			// profile, err := s.OTAPhase3(ctx)
-			return mdmEnrollResponse{profile, err}, nil
+			return mobileconfigResponse{mc, err}, nil
 		}
-		return mdmEnrollResponse{Profile{}, errors.New("unauthorized client")}, nil
+		return mobileconfigResponse{profile.Mobileconfig{}, errors.New("unauthorized client")}, nil
 	}
 }

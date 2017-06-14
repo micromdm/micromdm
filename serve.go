@@ -142,7 +142,6 @@ func serve(args []string) error {
 	sm.setupBolt()
 	sm.loadPushCerts()
 	sm.setupSCEP(logger)
-	sm.setupEnrollmentService()
 	sm.setupCheckinService()
 	sm.setupPushService()
 	sm.setupCommandService()
@@ -157,12 +156,17 @@ func serve(args []string) error {
 		stdlog.Fatal(err)
 	}
 
-	profDB, err := profile.NewDB(sm.db)
+	sm.profileDB, err = profile.NewDB(sm.db)
 	if err != nil {
 		stdlog.Fatal(err)
 	}
 
-	bpDB, err := blueprint.NewDB(sm.db, profDB)
+	sm.setupEnrollmentService()
+	if sm.err != nil {
+		stdlog.Fatalf("enrollment service: %s", sm.err)
+	}
+
+	bpDB, err := blueprint.NewDB(sm.db, sm.profileDB)
 	if err != nil {
 		stdlog.Fatal(err)
 	}
@@ -212,7 +216,7 @@ func serve(args []string) error {
 
 	dc, err := sm.depClient()
 	if err != nil {
-		stdlog.Fatalf("creating DEP client %s\n", err)
+		stdlog.Fatalf("creating DEP client: %s\n", err)
 	}
 	tokenDB := &deptoken.DB{DB: sm.db, Publisher: sm.pubclient}
 	appDB := &appstore.Repo{Path: *flRepoPath}
@@ -223,7 +227,7 @@ func serve(args []string) error {
 			Devices:    devDB,
 			Tokens:     tokenDB,
 			Blueprints: bpDB,
-			Profiles:   profDB,
+			Profiles:   sm.profileDB,
 			Apps:       appDB,
 		}
 		listsvc = l
@@ -254,7 +258,7 @@ func serve(args []string) error {
 			DEPClient:  dc,
 			Blueprints: bpDB,
 			Tokens:     tokenDB,
-			Profiles:   profDB,
+			Profiles:   sm.profileDB,
 			Apps:       appDB,
 		}
 		applysvc = l
@@ -295,7 +299,7 @@ func serve(args []string) error {
 
 	listAPIHandlers := list.MakeHTTPHandlers(ctx, listEndpoints, connectOpts...)
 
-	rmsvc := &remove.RemoveService{Blueprints: bpDB, Profiles: profDB}
+	rmsvc := &remove.RemoveService{Blueprints: bpDB, Profiles: sm.profileDB}
 	removeAPIHandlers := remove.MakeHTTPHandlers(ctx, remove.MakeEndpoints(rmsvc), connectOpts...)
 
 	connectHandlers := connect.MakeHTTPHandlers(ctx, connectEndpoints, connectOpts...)
@@ -484,6 +488,7 @@ type config struct {
 	APNSPrivateKeyPass  string
 	tlsCertPath         string
 	scepDepot           *boltdepot.Depot
+	profileDB           *profile.DB
 
 	// TODO: refactor enroll service and remove the need to reference
 	// this on-disk cert. but it might be useful to keep the PEM
@@ -661,6 +666,7 @@ func (c *config) setupEnrollmentService() {
 		c.ServerPublicURL,
 		c.tlsCertPath,
 		SCEPCertificateSubject,
+		c.profileDB,
 	)
 }
 
