@@ -1,8 +1,9 @@
 package profile
 
 import (
-	"errors"
+	"github.com/pkg/errors"
 
+	"github.com/fullsailor/pkcs7"
 	"github.com/gogo/protobuf/proto"
 	"github.com/groob/plist"
 	"github.com/micromdm/micromdm/profile/internal/profileproto"
@@ -16,9 +17,22 @@ type payloadIdentifier struct {
 }
 
 func (mc *Mobileconfig) GetPayloadIdentifier() (string, error) {
+	mcBytes := *mc
+	if len(mcBytes) > 5 && string(mcBytes[0:5]) != "<?xml" {
+		p7, err := pkcs7.Parse(mcBytes)
+		if err != nil {
+			return "", errors.Wrapf(err, "Mobileconfig is not XML nor PKCS7 parseable")
+		}
+		err = p7.Verify()
+		if err != nil {
+			return "", err
+		}
+		mcBytes = Mobileconfig(p7.Content)
+	}
+
 	// TODO: support CMS signed profiles
 	var pId payloadIdentifier
-	err := plist.Unmarshal(*mc, &pId)
+	err := plist.Unmarshal(mcBytes, &pId)
 	if err != nil {
 		return "", err
 	}
