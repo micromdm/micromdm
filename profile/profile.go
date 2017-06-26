@@ -29,8 +29,6 @@ func (mc *Mobileconfig) GetPayloadIdentifier() (string, error) {
 		}
 		mcBytes = Mobileconfig(p7.Content)
 	}
-
-	// TODO: support CMS signed profiles
 	var pId payloadIdentifier
 	err := plist.Unmarshal(mcBytes, &pId)
 	if err != nil {
