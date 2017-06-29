@@ -44,6 +44,7 @@ import (
 	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/checkin"
 	"github.com/micromdm/micromdm/command"
+	"github.com/micromdm/micromdm/commandcallback"
 	"github.com/micromdm/micromdm/connect"
 	"github.com/micromdm/micromdm/core/apply"
 	"github.com/micromdm/micromdm/core/list"
@@ -97,6 +98,7 @@ func serve(args []string) error {
 		flRepoPath     = flagset.String("filerepo", "", "path to http file repo")
 		flDepSim       = flagset.Bool("depsim", false, "use depsim config")
 		flExamples     = flagset.Bool("examples", false, "prints some example usage")
+		flCommandCB    = flagset.String("cmdcb", "", "URL to send JSON command responses")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -131,6 +133,7 @@ func serve(args []string) error {
 		APNSPrivateKeyPath:  *flAPNSKeyPath,
 		depsim:              *flDepSim,
 		tlsCertPath:         *flTLSCert,
+		cmdCallbackURL:      *flCommandCB,
 
 		// TODO: we have a static SCEP challenge password here to prevent
 		// being prompted for the SCEP challenge which happens in a "normal"
@@ -148,6 +151,7 @@ func serve(args []string) error {
 	sm.setupCommandService()
 	sm.setupCommandQueue()
 	sm.setupDEPSync()
+	sm.setupCommandCallback()
 	if sm.err != nil {
 		stdlog.Fatal(sm.err)
 	}
@@ -484,6 +488,7 @@ type config struct {
 	APNSPrivateKeyPass  string
 	tlsCertPath         string
 	scepDepot           *boltdepot.Depot
+	cmdCallbackURL      string
 
 	// TODO: refactor enroll service and remove the need to reference
 	// this on-disk cert. but it might be useful to keep the PEM
@@ -499,6 +504,15 @@ type config struct {
 	commandService command.Service
 
 	err error
+}
+
+func (c *config) setupCommandCallback() {
+	if c.err != nil {
+		return
+	}
+	if c.cmdCallbackURL != "" {
+		c.err = commandcallback.NewCommandCallback(c.pubclient, c.cmdCallbackURL)
+	}
 }
 
 func (c *config) setupPubSub() {

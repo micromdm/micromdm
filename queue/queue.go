@@ -2,7 +2,9 @@
 package queue
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/boltdb/bolt"
@@ -11,6 +13,7 @@ import (
 
 	"github.com/micromdm/mdm"
 	"github.com/micromdm/micromdm/command"
+	"github.com/micromdm/micromdm/commandcallback"
 	"github.com/micromdm/micromdm/pubsub"
 )
 
@@ -22,6 +25,18 @@ const (
 
 type Store struct {
 	*bolt.DB
+	pubsub.Publisher
+}
+
+func (db *Store) publishResponseJSON(resp mdm.Response) error {
+	buf := new(bytes.Buffer)
+	enc := json.NewEncoder(buf)
+	enc.SetIndent("", "  ")
+	err := enc.Encode(resp)
+	if err != nil {
+		return err
+	}
+	return db.Publish(context.TODO(), commandcallback.CommandResponseJSONTopic, buf.Bytes())
 }
 
 func (db *Store) Next(ctx context.Context, resp mdm.Response) (*Command, error) {
@@ -92,6 +107,10 @@ func (db *Store) Next(ctx context.Context, resp mdm.Response) (*Command, error) 
 		return nil, err
 	}
 
+	if err := db.publishResponseJSON(resp); err != nil {
+		return nil, fmt.Errorf("publishing command response JSON:", err)
+	}
+
 	return cmd, nil
 }
 
@@ -122,7 +141,7 @@ func NewQueue(db *bolt.DB, pubsub pubsub.PublishSubscriber) (*Store, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "creating %s bucket", DeviceCommandBucket)
 	}
-	datastore := &Store{DB: db}
+	datastore := &Store{DB: db, Publisher: pubsub}
 	if err := datastore.pollCommands(pubsub); err != nil {
 		return nil, err
 	}
