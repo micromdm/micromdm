@@ -69,7 +69,7 @@ $ mdmctl get dep-profiles -f - -uuid=4B05B09E8AC7E7FC12C8F3338E099310
 }
 ``` 
 
-- Expose an API for developers and administratos. Today you can send MDM commands to the server using a RESTful API. We intend to make more processes scriptable.
+- Expose an API for developers and administrators. Today you can send MDM commands to the server using a RESTful API. We intend to make more processes scriptable.
 - Provide a way for administrators to subscribe to events generated from the MDM interactions between client & server. MicroMDM works through a pubsub system at its core. For example, when a new device enrolls with the MDM server it doesn't record this in the database immediately, but instead creates an event which is sent on the message bus to other services that are listening. Today, this message bus is built in-memory, but we plan to expose the same hooks over the network, allowing developers to consume events in any language — not just Go.
 
 [Here](https://docs.google.com/drawings/d/1B4w5xOmU-7D5pcW0kdiY7ia5fl7UnBfRpWR8KxzD1YI/edit?usp=sharing) is a slightly more in depth design overview of the pubsub system within MicroMDM.
