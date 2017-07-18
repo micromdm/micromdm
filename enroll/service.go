@@ -143,6 +143,7 @@ func (svc service) MakeEnrollmentProfile() (Profile, error) {
 		ServerURL:           svc.URL + "/mdm/connect",
 		Topic:               svc.Topic,
 		SignMessage:         true,
+		ServerCapabilities:  []string{"com.apple.mdm.per-user-connections"},
 	}
 
 	payloadContent := []interface{}{}
