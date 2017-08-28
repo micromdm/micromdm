@@ -97,6 +97,7 @@ func serve(args []string) error {
 		flRepoPath     = flagset.String("filerepo", "", "path to http file repo")
 		flDepSim       = flagset.Bool("depsim", false, "use depsim config")
 		flExamples     = flagset.Bool("examples", false, "prints some example usage")
+		flCommandCB    = flagset.String("cmdcb", "", "URL to send JSON command responses")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -131,6 +132,7 @@ func serve(args []string) error {
 		APNSPrivateKeyPath:  *flAPNSKeyPath,
 		depsim:              *flDepSim,
 		tlsCertPath:         *flTLSCert,
+		cmdCallbackURL:      *flCommandCB,
 
 		// TODO: we have a static SCEP challenge password here to prevent
 		// being prompted for the SCEP challenge which happens in a "normal"
@@ -309,7 +311,11 @@ func serve(args []string) error {
 	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.enrollService, sm.scepDepot), httptransport.ServerErrorLogger(httpLogger))
 	r := mux.NewRouter()
 	r.Handle("/mdm/checkin", mdmAuthSignMessageMiddleware(sm.scepDepot, checkinHandlers.CheckinHandler)).Methods("PUT")
-	r.Handle("/mdm/connect", mdmAuthSignMessageMiddleware(sm.scepDepot, connectHandlers.ConnectHandler)).Methods("PUT")
+	if *flCommandCB != "" {
+		r.Handle("/mdm/connect", commandCallbackmiddleware(*flCommandCB, mdmAuthSignMessageMiddleware(sm.scepDepot, connectHandlers.ConnectHandler))).Methods("PUT")
+	} else {
+		r.Handle("/mdm/connect", mdmAuthSignMessageMiddleware(sm.scepDepot, connectHandlers.ConnectHandler)).Methods("PUT")
+	} 
 	r.Handle("/mdm/enroll", enrollHandlers.EnrollHandler).Methods("GET", "POST")
 	r.Handle("/ota/enroll", enrollHandlers.OTAEnrollHandler)
 	r.Handle("/ota/phase23", enrollHandlers.OTAPhase2Phase3Handler).Methods("POST")
@@ -883,6 +889,25 @@ func apiAuthMiddleware(token string, next http.Handler) http.HandlerFunc {
 			http.Error(w, `{"error": "you need to log in"}`, http.StatusUnauthorized)
 			return
 		}
+		next.ServeHTTP(w, r)
+
+	}
+}
+
+func commandCallbackmiddleware(url string, next http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		out, err := httputil.DumpRequest(r, true)
+		if err != nil {
+			stdlog.Println(err)
+		}
+
+		c := http.Client{}
+		_, err = c.Post(url, "application/xml", bytes.NewReader(out))
+		if err != nil {
+			fmt.Printf("error sending command callback: %s\n", err)
+		}
+
 		next.ServeHTTP(w, r)
 
 	}
