@@ -36,13 +36,8 @@ func (db *Store) Next(ctx context.Context, resp mdm.Response) (*Command, error) 
 	var cmd *Command
 	switch resp.Status {
 	case "NotNow":
-		// move down, send next
-		x, a := cut(dc.Commands, resp.CommandUUID)
-		dc.Commands = a
-		if x == nil {
-			break
-		}
-		dc.Commands = append(dc.Commands, *x)
+		// Device is busy, it will poll later
+		return nil, nil
 
 	case "Acknowledged":
 		// move to completed, send next
@@ -81,11 +76,6 @@ func (db *Store) Next(ctx context.Context, resp mdm.Response) (*Command, error) 
 	cmd, dc.Commands = popFirst(dc.Commands)
 	if cmd != nil {
 		dc.Commands = append(dc.Commands, *cmd)
-
-		if cmd.UUID == resp.CommandUUID && resp.Status == "NotNow" {
-			// This command was just handled by NotNow, ignore.
-			cmd = nil
-		}
 	}
 
 	if err := db.Save(dc); err != nil {
