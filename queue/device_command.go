@@ -30,6 +30,7 @@ type DeviceCommand struct {
 	// These are going to scale great. We'll have to see.
 	Completed []Command
 	Failed    []Command
+	NotNow	  []Command
 }
 
 func MarshalDeviceCommand(c *DeviceCommand) ([]byte, error) {
@@ -82,6 +83,21 @@ func MarshalDeviceCommand(c *DeviceCommand) ([]byte, error) {
 			FailureMessage: command.FailureMessage,
 		})
 	}
+
+	for _, command := range c.NotNow {
+		protoc.NotNow = append(protoc.NotNow, &devicecommandproto.Command{
+			Uuid:         command.UUID,
+			Payload:      command.Payload,
+			CreatedAt:    command.CreatedAt.UnixNano(),
+			LastSentAt:   command.LastSentAt.UnixNano(),
+			Acknowledged: command.Acknowledged.UnixNano(),
+
+			TimesSent: int64(command.TimesSent),
+
+			LastStatus:     command.LastStatus,
+			FailureMessage: command.FailureMessage,
+		})
+	}
 	return proto.Marshal(&protoc)
 }
 
@@ -92,10 +108,26 @@ func UnmarshalDeviceCommand(data []byte, c *DeviceCommand) error {
 	}
 	c.DeviceUDID = pb.GetDeviceUdid()
 	protoCommands := pb.GetCommands()
-	protoCommandsFailed := pb.GetFailed()
 	protoCommandsCompleted := pb.GetCompleted()
+	protoCommandsFailed := pb.GetFailed()
+	protoCommandsNotNow := pb.GetNotNow()
 	for _, command := range protoCommands {
 		c.Commands = append(c.Commands, Command{
+			UUID:         command.GetUuid(),
+			Payload:      command.GetPayload(),
+			CreatedAt:    time.Unix(0, command.GetCreatedAt()).UTC(),
+			LastSentAt:   time.Unix(0, command.GetLastSentAt()).UTC(),
+			Acknowledged: time.Unix(0, command.GetAcknowledged()).UTC(),
+
+			TimesSent: int(command.TimesSent),
+
+			LastStatus:     command.LastStatus,
+			FailureMessage: command.FailureMessage,
+		})
+	}
+
+	for _, command := range protoCommandsCompleted {
+		c.Completed = append(c.Completed, Command{
 			UUID:         command.GetUuid(),
 			Payload:      command.GetPayload(),
 			CreatedAt:    time.Unix(0, command.GetCreatedAt()).UTC(),
@@ -124,8 +156,8 @@ func UnmarshalDeviceCommand(data []byte, c *DeviceCommand) error {
 		})
 	}
 
-	for _, command := range protoCommandsCompleted {
-		c.Completed = append(c.Completed, Command{
+	for _, command := range protoCommandsNotNow {
+		c.NotNow = append(c.NotNow, Command{
 			UUID:         command.GetUuid(),
 			Payload:      command.GetPayload(),
 			CreatedAt:    time.Unix(0, command.GetCreatedAt()).UTC(),

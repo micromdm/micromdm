@@ -50,29 +50,37 @@ func TestNext_NotNow(t *testing.T) {
 	dc := &DeviceCommand{DeviceUDID: "TestDevice"}
 	dc.Commands = append(dc.Commands, Command{UUID: "xCmd"})
 	dc.Commands = append(dc.Commands, Command{UUID: "yCmd"})
-	dc.Commands = append(dc.Commands, Command{UUID: "zCmd"})
 	if err := store.Save(dc); err != nil {
 		t.Fatal(err)
 	}
 
 	ctx := context.Background()
 	tf := func(t *testing.T) {
+
+
 		resp := mdm.Response{
 			UDID:        dc.DeviceUDID,
-			CommandUUID: "xCmd",
+			CommandUUID: "yCmd",
 			Status:      "NotNow",
 		}
-		for i := 0; i <= 10; i++ {
-			cmd, err := store.Next(ctx, resp)
-			if err != nil {
+		cmd, err := store.Next(ctx, resp)
+
+		if err != nil {
 				t.Fatalf("expected nil, but got err: %s", err)
-			}
-			if cmd == nil {
-				continue
-			}
-			if have, notNow := cmd.UUID, "xCmd"; have == notNow {
-				t.Error("got back a notnowed command.")
-			}
+		}
+
+		resp = mdm.Response{
+			UDID:        dc.DeviceUDID,
+			CommandUUID: cmd.UUID,
+			Status:      "NotNow",
+		}
+
+		cmd, err = store.Next(ctx, resp)
+		if err != nil {
+			t.Fatalf("expected nil, but got err: %s", err)
+		}
+		if cmd != nil {
+			t.Error("Got back a notnowed command.")
 		}
 	}
 

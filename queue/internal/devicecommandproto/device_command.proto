@@ -21,4 +21,5 @@ message DeviceCommand {
     repeated Command commands = 2;
     repeated Command completed = 3;
     repeated Command failed = 4;
+    repeated Command not_now = 5;
 }
