@@ -17,16 +17,43 @@ Here's a few places to get started and find out what's outstanding.
 
 To build MicroMDM from source, you will need [Go 1.8](https://golang.org/dl/) or later installed.
 
-## Once you have Go
+```
+# if GOPATH is unset:
+# export GOPATH=${HOME}/go
 
-MicroMDM uses the go lang `dep` tool for vendor management. 
-Use `which dep` to verify you have it installed and in your PATH.
-If `dep` is not installed please review the [If you're new to Go](#if-youre-new-to-go) section for install steps.
+# clone repo into GOPATH:
+git clone git@github.com:micromdm/micromdm $GOPATH/src/github.com/micromdm/micromdm
+cd $GOPATH/src/github.com/micromdm/micromdm
 
-1. `go get github.com/micromdm/micromdm`
-2. `cd $GOPATH/src/github.com/micromdm/micromdm`
-3. `dep ensure` install the necessary dependencies into  the `/vendor` folder
-4. `go build` or `go install`
+# download dependencies and build:
+make deps
+make
+
+# run
+./build/darwin/micromdm -h
+```
+
+## Git workflow
+Go requires that your repo lives in `$GOPATH/src/github.com/micromdm/micromdm` even if you're trying to push to your github fork. To work with a forked copy, use a git remote.
+Example:
+```
+# clone repo into GOPATH:
+git clone git@github.com:micromdm/micromdm $GOPATH/src/github.com/micromdm/micromdm
+
+# add your remote/upstream
+git remote add groob git@github.com:groob/micromdm.git 
+
+# update from origin/master
+git pull --rebase 
+
+# create a branch
+git checkout -b my_feature
+
+# push changes from my_feature to your fork.
+#    -u, --set-upstream    set upstream for git pull/status
+git push -u groob
+```
+
 
 ## If you're new to Go
 
