@@ -18,13 +18,13 @@ SHELL = /bin/bash
 
 
 BUILD_VERSION = "\
-	-X github.com/micromdm/micromdm/version.appName=${APP_NAME} \
-	-X github.com/micromdm/micromdm/version.version=${VERSION} \
-	-X github.com/micromdm/micromdm/version.branch=${BRANCH} \
-	-X github.com/micromdm/micromdm/version.buildUser=${USER} \
-	-X github.com/micromdm/micromdm/version.buildDate=${NOW} \
-	-X github.com/micromdm/micromdm/version.revision=${REVISION} \
-	-X github.com/micromdm/micromdm/version.goVersion=${GOVERSION}"
+	-X github.com/micromdm/micromdm/vendor/github.com/micromdm/go4/version.appName=${APP_NAME} \
+	-X github.com/micromdm/micromdm/vendor/github.com/micromdm/go4/version.version=${VERSION} \
+	-X github.com/micromdm/micromdm/vendor/github.com/micromdm/go4/version.branch=${BRANCH} \
+	-X github.com/micromdm/micromdm/vendor/github.com/micromdm/go4/version.buildUser=${USER} \
+	-X github.com/micromdm/micromdm/vendor/github.com/micromdm/go4/version.buildDate=${NOW} \
+	-X github.com/micromdm/micromdm/vendor/github.com/micromdm/go4/version.revision=${REVISION} \
+	-X github.com/micromdm/micromdm/vendor/github.com/micromdm/go4/version.goVersion=${GOVERSION}"
 
 WORKSPACE = ${GOPATH}/src/github.com/micromdm/micromdm
 check-deps:
@@ -63,21 +63,27 @@ INSTALL_STEPS := \
 
 install-local: $(INSTALL_STEPS)
 
-APP_NAME = mdmctl
-mdmctl: .pre-build
+.pre-mdmctl:
+	$(eval APP_NAME = mdmctl)
+
+mdmctl: .pre-build .pre-mdmctl
 	go build -i -o build/darwin/mdmctl -ldflags ${BUILD_VERSION} ./cmd/mdmctl
 
-install-mdmctl:
+install-mdmctl: .pre-mdmctl
 	go install -ldflags ${BUILD_VERSION} ./cmd/mdmctl
 
 APP_NAME = micromdm
-micromdm: .pre-build
+
+.pre-micromdm:
+	$(eval APP_NAME = micromdm)
+
+micromdm: .pre-build .pre-micromdm
 	go build -i -o build/darwin/micromdm -ldflags ${BUILD_VERSION} ./cmd/mdmctl
 
-install-micromdm: 
+install-micromdm: .pre-micromdm
 	go install -ldflags ${BUILD_VERSION}
 
-xp-micromdm: .pre-build
+xp-micromdm: .pre-build .pre-micromdm
 	GOOS=darwin go build -i -o build/darwin/micromdm -ldflags ${BUILD_VERSION}
 	GOOS=linux CGO_ENABLED=0 go build -i -o build/linux/micromdm  -ldflags ${BUILD_VERSION}
 

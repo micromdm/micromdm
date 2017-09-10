@@ -9,7 +9,7 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/micromdm/micromdm/version"
+	"github.com/micromdm/go4/version"
 )
 
 func init() {

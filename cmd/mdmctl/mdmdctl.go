@@ -7,7 +7,7 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"github.com/micromdm/micromdm/version"
+	"github.com/micromdm/go4/version"
 )
 
 func main() {

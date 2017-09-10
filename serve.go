@@ -14,16 +14,14 @@ import (
 	"io/ioutil"
 	stdlog "log"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"strings"
-	"syscall"
-	"time"
 
 	"github.com/fullsailor/pkcs7"
+	"github.com/groob/finalizer/logutil"
+	"github.com/micromdm/go4/env"
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/crypto/pkcs12"
 
@@ -32,11 +30,11 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/dep"
+	"github.com/micromdm/go4/httputil"
 	boltdepot "github.com/micromdm/scep/depot/bolt"
 	scep "github.com/micromdm/scep/server"
 
@@ -84,15 +82,14 @@ func serve(args []string) error {
 	var (
 		flConfigPath   = flagset.String("config-path", "/var/db/micromdm", "path to configuration directory")
 		flServerURL    = flagset.String("server-url", "", "public HTTPS url of your server")
-		flAPIKey       = flagset.String("api-key", "", "API Token for mdmctl command")
+		flAPIKey       = flagset.String("api-key", env.String("MICROMDM_API_KEY", ""), "API Token for mdmctl command")
 		flAPNSCertPath = flagset.String("apns-cert", "", "path to APNS certificate")
-		flAPNSKeyPass  = flagset.String("apns-password", "", "password for your p12 APNS cert file (if using)")
+		flAPNSKeyPass  = flagset.String("apns-password", env.String("MICROMDM_APNS_KEY_PASSWORD", ""), "password for your p12 APNS cert file (if using)")
 		flAPNSKeyPath  = flagset.String("apns-key", "", "path to key file if using .pem push cert")
 		flTLS          = flagset.Bool("tls", true, "use https")
 		flTLSCert      = flagset.String("tls-cert", "", "path to TLS certificate")
 		flTLSKey       = flagset.String("tls-key", "", "path to TLS private key")
 		flHTTPAddr     = flagset.String("http-addr", ":https", "http(s) listen address of mdm server. defaults to :8080 if tls is false")
-		flRedirAddr    = flagset.String("redir-addr", ":http", "http redirect to https listen address")
 		flHTTPDebug    = flagset.Bool("http-debug", false, "enable debug for http(dumps full request)")
 		flRepoPath     = flagset.String("filerepo", "", "path to http file repo")
 		flDepSim       = flagset.Bool("depsim", false, "use depsim config")
@@ -348,67 +345,61 @@ func serve(args []string) error {
 
 	var handler http.Handler
 	if *flHTTPDebug {
-		handler = debugHTTPmiddleware(r)
+		handler = httputil.HTTPDebugMiddleware(os.Stdout, true, logger.Log)(r)
 	} else {
 		handler = r
 	}
-	handler = handlers.CombinedLoggingHandler(os.Stdout, handler)
-	srv := &http.Server{
-		Addr:              *flHTTPAddr,
-		Handler:           handler,
-		ReadTimeout:       60 * time.Second,
-		WriteTimeout:      60 * time.Second,
-		ReadHeaderTimeout: 10 * time.Second,
-		IdleTimeout:       10 * time.Minute,
-		MaxHeaderBytes:    1 << 18, // 0.25 MB
-		TLSConfig:         tlsConfig(),
-	}
+	handler = logutil.NewHTTPLogger(httpLogger).Middleware(handler)
 
 	srvURL, err := url.Parse(sm.ServerPublicURL)
 	if err != nil {
-		stdlog.Fatal(err)
+		return errors.Wrapf(err, "parsing serverURL %q", sm.ServerPublicURL)
 	}
 
-	errs := make(chan error, 2)
-	go func() {
-		sig := make(chan os.Signal)
-		signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
-		<-sig // block on signal then gracefully shutdown.
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-		defer cancel()
-		errs <- srv.Shutdown(ctx)
-	}()
+	serveOpts := serveOptions(
+		handler,
+		*flHTTPAddr,
+		srvURL.Hostname(),
+		logger,
+		*flTLSCert,
+		*flTLSKey,
+		sm.configPath,
+		*flTLS,
+	)
+	err = httputil.ListenAndServe(serveOpts...)
+	return errors.Wrap(err, "calling ListenAndServe")
+}
 
-	go func() {
-		logger := log.With(logger, "transport", "HTTP")
-		if !*flTLS {
-			var httpAddr string
-			if *flHTTPAddr == ":https" {
-				httpAddr = ":8080"
-			} else {
-				httpAddr = *flHTTPAddr
-			}
-			logger.Log("addr", httpAddr)
-			errs <- http.ListenAndServe(httpAddr, handler)
-			return
-		}
-
-		tlsFromFile := (*flTLSCert != "" && *flTLSKey != "")
-		if tlsFromFile {
-			logger.Log("addr", srv.Addr)
-			redirectTLS(*flRedirAddr, sm.ServerPublicURL)
-			errs <- serveTLS(srv, *flTLSCert, *flTLSKey)
-			return
-		} else {
-			logger.Log("addr", srv.Addr)
-			redirectTLS(*flRedirAddr, sm.ServerPublicURL)
-			errs <- serveACME(srv, srvURL.Hostname(), filepath.Join(sm.configPath, "le-certificates"))
-			return
-		}
-	}()
-
-	mainLogger.Log("terminated", <-errs)
-	return nil
+// serveOptions configures the []httputil.Options for ListenAndServe
+func serveOptions(
+	handler http.Handler,
+	addr string,
+	hostname string,
+	logger log.Logger,
+	certPath string,
+	keyPath string,
+	configPath string,
+	tls bool,
+) []httputil.Option {
+	tlsFromFile := (certPath != "" && keyPath != "")
+	serveOpts := []httputil.Option{
+		httputil.WithACMEHosts([]string{hostname}),
+		httputil.WithLogger(logger),
+		httputil.WithHTTPHandler(handler),
+	}
+	if tlsFromFile {
+		serveOpts = append(serveOpts, httputil.WithKeyPair(certPath, keyPath))
+	}
+	if !tls && addr == ":https" {
+		serveOpts = append(serveOpts, httputil.WithAddress(":8080"))
+	}
+	if tls {
+		serveOpts = append(serveOpts, httputil.WithAutocertCache(autocert.DirCache(filepath.Join(configPath, "le-certificates"))))
+	}
+	if addr != ":https" {
+		serveOpts = append(serveOpts, httputil.WithAddress(addr))
+	}
+	return serveOpts
 }
 
 func printExamples() {
@@ -422,57 +413,6 @@ func printExamples() {
 
 		`
 	fmt.Println(exampleText)
-}
-
-func serveTLS(server *http.Server, certPath, keyPath string) error {
-	err := server.ListenAndServeTLS(certPath, keyPath)
-	return err
-}
-
-func serveACME(server *http.Server, domain, cachePath string) error {
-	m := autocert.Manager{
-		Prompt:     autocert.AcceptTOS,
-		HostPolicy: autocert.HostWhitelist(domain),
-		Cache:      autocert.DirCache(cachePath),
-	}
-	server.TLSConfig.GetCertificate = m.GetCertificate
-	err := server.ListenAndServeTLS("", "")
-	return err
-}
-
-// redirects port 80 to port 443
-func redirectTLS(addr, serverUrl string) {
-	srv := &http.Server{
-		Addr:         addr,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 5 * time.Second,
-		Handler: http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-			w.Header().Set("Connection", "close")
-			url := serverUrl + req.URL.String()
-			http.Redirect(w, req, url, http.StatusMovedPermanently)
-		}),
-	}
-	go func() { stdlog.Fatal(srv.ListenAndServe()) }()
-}
-
-func tlsConfig() *tls.Config {
-	cfg := &tls.Config{
-		PreferServerCipherSuites: true,
-		CurvePreferences: []tls.CurveID{
-			tls.CurveP256,
-			tls.X25519,
-		},
-		MinVersion: tls.VersionTLS12,
-		CipherSuites: []uint16{
-			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-			tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305,
-			tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,
-			tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-		},
-	}
-	return cfg
 }
 
 type config struct {
@@ -790,21 +730,6 @@ func (c *config) setupSCEP(logger log.Logger) {
 	if c.err == nil {
 		c.scepService = scep.NewLoggingService(logger, c.scepService)
 	}
-}
-
-func debugHTTPmiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		body := io.TeeReader(r.Body, os.Stderr)
-		r.Body = ioutil.NopCloser(body)
-		out, err := httputil.DumpRequest(r, true)
-		if err != nil {
-			stdlog.Println(err)
-		}
-		fmt.Println("")
-		fmt.Println(string(out))
-		fmt.Println("")
-		next.ServeHTTP(w, r)
-	})
 }
 
 // TODO: move to separate package/library
