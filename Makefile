@@ -16,6 +16,15 @@ GOVERSION = $(shell go version | awk '{print $$3}')
 NOW	= $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 SHELL = /bin/bash
 
+ifneq ($(OS), Windows_NT)
+	CURRENT_PLATFORM = linux
+	ifeq ($(shell uname), Darwin)
+		SHELL := /bin/bash
+		CURRENT_PLATFORM = darwin
+	endif
+else
+	CURRENT_PLATFORM = windows
+endif
 
 BUILD_VERSION = "\
 	-X github.com/micromdm/micromdm/vendor/github.com/micromdm/go4/version.appName=${APP_NAME} \
@@ -67,7 +76,7 @@ install-local: $(INSTALL_STEPS)
 	$(eval APP_NAME = mdmctl)
 
 mdmctl: .pre-build .pre-mdmctl
-	go build -i -o build/darwin/mdmctl -ldflags ${BUILD_VERSION} ./cmd/mdmctl
+	go build -i -o build/$(CURRENT_PLATFORM)/mdmctl -ldflags ${BUILD_VERSION} ./cmd/mdmctl
 
 install-mdmctl: .pre-mdmctl
 	go install -ldflags ${BUILD_VERSION} ./cmd/mdmctl
@@ -78,7 +87,7 @@ APP_NAME = micromdm
 	$(eval APP_NAME = micromdm)
 
 micromdm: .pre-build .pre-micromdm
-	go build -i -o build/darwin/micromdm -ldflags ${BUILD_VERSION} ./cmd/mdmctl
+	go build -i -o build/$(CURRENT_PLATFORM)/micromdm -ldflags ${BUILD_VERSION} ./
 
 install-micromdm: .pre-micromdm
 	go install -ldflags ${BUILD_VERSION}
