@@ -1,12 +1,26 @@
 version: 2
 jobs:
-  build:
+  build-go1.8:
     docker:
         - image: golang:1.8
     working_directory: /go/src/github.com/micromdm/micromdm
-    steps:
+    steps: &steps
       - checkout
-      - run: go get -u github.com/golang/dep/...
-      - run: dep ensure
-      - run: go install
-      - run: go test -race -cover $(go list ./... | grep -v /vendor/)
+      - run: make deps
+      - run: make test
+      - run: make
+
+
+  build-go1.9:
+    docker:
+        - image: golang:1.9
+    working_directory: /go/src/github.com/micromdm/micromdm
+    steps: *steps
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build-go1.8
+      - build-go1.9
+
