@@ -21,16 +21,19 @@ func main() {
 		version.Print()
 		return
 	case "config":
-		cmd := &configCommand{}
+		cmd := new(configCommand)
 		run = cmd.Run
 	case "get":
-		cmd := &getCommand{}
+		cmd := new(getCommand)
 		run = cmd.Run
 	case "apply":
-		cmd := &applyCommand{}
+		cmd := new(applyCommand)
 		run = cmd.Run
 	case "remove":
-		cmd := &removeCommand{}
+		cmd := new(removeCommand)
+		run = cmd.Run
+	case "mdmcert":
+		cmd := new(mdmcertCommand)
 		run = cmd.Run
 	default:
 		usage()
@@ -51,6 +54,7 @@ Available Commands:
 	apply
 	config
 	remove
+	mdmcert
 	version
 
 Use micromdm <command> -h for additional usage of each command.
