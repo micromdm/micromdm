@@ -12,6 +12,7 @@ import (
 	"crypto/x509/pkix"
 	"encoding/base64"
 	"encoding/pem"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -107,7 +108,7 @@ func CreatePushCertificateRequest(mdmCertPath, providerCSRPath, pKeyPath string,
 	// wwdr cert
 	wwdrCertBytes, err := loadCertfromHTTP(wwdrIntermediaryURL)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "load WWDR certificate from %s", wwdrIntermediaryURL)
 	}
 	wwdrPEM := pemCert(wwdrCertBytes)
 
@@ -255,18 +256,30 @@ func loadDERCertFromFile(path string) ([]byte, error) {
 }
 
 func loadCertfromHTTP(url string) ([]byte, error) {
-	resp, err := http.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "create GET request for %s", url)
+	}
+	req.Header.Set("Accept", "*/*") // required by Apple at some point.
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, errors.Wrapf(err, "GET request to %s", url)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("got %s when trying to http.Get %s", resp.Status, url)
+	}
+
 	data, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "reading get certificate request response body")
 	}
+
 	crt, err := x509.ParseCertificate(data)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "parse wwdr intermediate certificate")
 	}
 	return crt.Raw, nil
 }
