@@ -1,11 +1,12 @@
 # TBD
 
+* Incorporated certhelper into mdmctl.
 * Added ENV variables for sensitive flags: `MICROMDM_APNS_KEY_PASSWORD`,`MICROMDM_API_KEY`
 * Removed the `-redir-addr` flag. Redirect to HTTPS is only enabled when the 443 port is used.
 
 # v1.1.0 June 05 2017
 
-* Import and sign pkgs, generate appmanifest on import. 
+* Import and sign pkgs, generate appmanifest on import.
 * Support syncing devices from DEP when token is added.
 * Option to include SSL certificates in DEP profile template (-anchor and -use-server-cert) #107
 * /push and /v1/commands API endpoints require API authentication #157
