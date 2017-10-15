@@ -21,20 +21,25 @@ Create new MDM Push Certificate.
 This utility helps obtain a MDM Push Certificate using the Apple Developer MDM CSR option in the enterprise developer portal.
 
 First you must create a vendor CSR which you will upload to the enterprise developer portal and get a signed MDM Vendor certificate. Use the MDM-CSR option in the dev portal when creating the certificate.
-The MDM Vendor certificate is required in order to obtain the MDM push certificate.
+The MDM Vendor certificate is required in order to obtain the MDM push certificate. After you complete the MDM-CSR step, copy the downloaded file to the same folder as the private key. By default this will be
+mdm-certificates/
 
-Next, create a push CSR. This step generates a CSR required to get a signed a push certificate. 
+    mdmctl mdmcert vendor -password=secret -country=US -email=admin@acme.co
+
+Next, create a push CSR. This step generates a CSR required to get a signed a push certificate.
+
+	mdmctl mdmcert push -password=secret -country=US -email=admin@acme.co
+
 Once you created the push CSR, you mush sign the push CSR with the MDM Vendor Certificate, and get a push certificate request file.
 
-Once generated, upload the push certificate request to https://identity.apple.com. 
+    mdmctl mdmcert vendor -sign -cert=./mdm-certificates/mdm.cer -password=secret
+
+Once generated, upload the PushCertificateRequest file to https://identity.apple.com to obtain your MDM Push Certificate.
 Use the push private key and the push cert you got from identity.apple.com in your MDM server.
 
 Commands:
     vendor
     push
-
-Examples:
-    mdmctl mdmcert vendor -password=secret -country=US -email=foo@gmail.com
 `
 	fmt.Println(usageText)
 	return nil
@@ -79,7 +84,7 @@ func (cmd *mdmcertCommand) runVendor(args []string) error {
 		flCountry        = flagset.String("country", "US", "Two letter country code for the CSR Subject(example: US).")
 		flCN             = flagset.String("cn", "micromdm-vendor", "CommonName for the CSR Subject.")
 		flPKeyPass       = flagset.String("password", "", "Password to encrypt/read the RSA key.")
-		flVendorcertPath = flagset.String("cert", "mdm.cer", "Path to the MDM Vendor certificate from dev portal.")
+		flVendorcertPath = flagset.String("cert", filepath.Join(mdmcertdir, "mdm.cer"), "Path to the MDM Vendor certificate from dev portal.")
 		flPushCSRPath    = flagset.String("push-csr", filepath.Join(mdmcertdir, pushCSRFilename), "Path to the user CSR(required for the -sign step).")
 		flKeyPath        = flagset.String("private-key", filepath.Join(mdmcertdir, vendorPKeyFilename), "Path to the vendor private key. A new RSA key will be created at this path.")
 		flCSRPath        = flagset.String("out", filepath.Join(mdmcertdir, vendorCSRFilename), "Path to save the MDM Vendor CSR.")
