@@ -77,31 +77,31 @@ const (
 )
 
 // CreatePushCertificateRequest creates a request structure required by identity.apple.com.
-// It requires a "MDM CSR" certificate (the vendor certificate), a provider CSR (the customer specific CSR),
+// It requires a "MDM CSR" certificate (the vendor certificate), a push CSR (the customer specific CSR),
 // and the vendor private key.
-func CreatePushCertificateRequest(mdmCertPath, providerCSRPath, pKeyPath string, pKeyPass []byte) (*PushCertificateRequest, error) {
+func CreatePushCertificateRequest(mdmCertPath, pushCSRPath, pKeyPath string, pKeyPass []byte) (*PushCertificateRequest, error) {
 	// private key of the mdm vendor cert
 	key, err := loadKeyFromFile(pKeyPath, pKeyPass)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "load private key from %s", pKeyPath)
 	}
 
-	// provider csr
-	csr, err := loadCSRfromFile(providerCSRPath)
+	// push csr
+	csr, err := loadCSRfromFile(pushCSRPath)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "load push CSR from %s", pushCSRPath)
 	}
 
 	// csr signature
-	signature, err := signProviderCSR(csr.Raw, key)
+	signature, err := signPushCSR(csr.Raw, key)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "sign push CSR with private key")
 	}
 
 	// vendor cert
 	mdmCertBytes, err := loadDERCertFromFile(mdmCertPath)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "load vendor certificate from path %s", mdmCertPath)
 	}
 	mdmPEM := pemCert(mdmCertBytes)
 
@@ -115,7 +115,7 @@ func CreatePushCertificateRequest(mdmCertPath, providerCSRPath, pKeyPath string,
 	// apple root certificate
 	rootCertBytes, err := loadCertfromHTTP(appleRootCAURL)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "load root certificate from %s", appleRootCAURL)
 	}
 	rootPEM := pemCert(rootCertBytes)
 
@@ -133,11 +133,11 @@ func makeCertChain(mdmPEM, wwdrPEM, rootPEM []byte) string {
 	return string(mdmPEM) + string(wwdrPEM) + string(rootPEM)
 }
 
-func signProviderCSR(csrData []byte, key *rsa.PrivateKey) ([]byte, error) {
+func signPushCSR(csrData []byte, key *rsa.PrivateKey) ([]byte, error) {
 	h := sha1.New()
 	h.Write(csrData)
 	signature, err := rsa.SignPKCS1v15(rand.Reader, key, crypto.SHA1, h.Sum(nil))
-	return signature, errors.Wrap(err, "signing provider CSR")
+	return signature, errors.Wrap(err, "signing push CSR")
 }
 
 const (
