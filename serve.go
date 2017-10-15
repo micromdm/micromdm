@@ -3,9 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
-	"crypto/tls"
 	"crypto/x509"
-	"encoding/asn1"
 	"encoding/base64"
 	"encoding/pem"
 	"flag"
@@ -42,6 +40,7 @@ import (
 	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/checkin"
 	"github.com/micromdm/micromdm/command"
+	configsvc "github.com/micromdm/micromdm/config"
 	"github.com/micromdm/micromdm/connect"
 	"github.com/micromdm/micromdm/core/apply"
 	"github.com/micromdm/micromdm/core/list"
@@ -137,6 +136,7 @@ func serve(args []string) error {
 	}
 	sm.setupPubSub()
 	sm.setupBolt()
+	sm.setupConfigStore()
 	sm.loadPushCerts()
 	sm.setupSCEP(logger)
 	sm.setupCheckinService()
@@ -174,34 +174,61 @@ func serve(args []string) error {
 
 	ctx := context.Background()
 	httpLogger := log.With(logger, "transport", "http")
-	var checkinEndpoint endpoint.Endpoint
+
+	var configHandlers configsvc.HTTPHandlers
 	{
-		checkinEndpoint = checkin.MakeCheckinEndpoint(sm.checkinService)
+		pushCertEndpoint := configsvc.MakeSavePushCertificateEndpoint(sm.configService)
+		configEndpoints := configsvc.Endpoints{
+			SavePushCertificateEndpoint: pushCertEndpoint,
+		}
+		configOpts := []httptransport.ServerOption{
+			httptransport.ServerErrorLogger(httpLogger),
+			httptransport.ServerErrorEncoder(checkin.EncodeError),
+		}
+		configHandlers = configsvc.MakeHTTPHandlers(ctx, configEndpoints, configOpts...)
 	}
 
-	checkinEndpoints := checkin.Endpoints{
-		CheckinEndpoint: checkinEndpoint,
+	var checkinHandlers checkin.HTTPHandlers
+	{
+		e := checkin.Endpoints{
+			CheckinEndpoint: checkin.MakeCheckinEndpoint(sm.checkinService),
+		}
+		opts := []httptransport.ServerOption{
+			httptransport.ServerErrorLogger(httpLogger),
+			httptransport.ServerErrorEncoder(checkin.EncodeError),
+		}
+		checkinHandlers = checkin.MakeHTTPHandlers(ctx, e, opts...)
 	}
 
-	checkinOpts := []httptransport.ServerOption{
-		httptransport.ServerErrorLogger(httpLogger),
-		httptransport.ServerErrorEncoder(checkin.EncodeError),
+	var pushHandlers nanopush.HTTPHandlers
+	{
+		e := nanopush.Endpoints{
+			PushEndpoint: nanopush.MakePushEndpoint(sm.pushService),
+		}
+		opts := []httptransport.ServerOption{
+			httptransport.ServerErrorLogger(httpLogger),
+			httptransport.ServerErrorEncoder(checkin.EncodeError),
+		}
+		pushHandlers = nanopush.MakeHTTPHandlers(ctx, e, opts...)
 	}
-	checkinHandlers := checkin.MakeHTTPHandlers(ctx, checkinEndpoints, checkinOpts...)
 
-	pushEndpoints := nanopush.Endpoints{
-		PushEndpoint: nanopush.MakePushEndpoint(sm.pushService),
-	}
+	var commandHandlers command.HTTPHandlers
+	{
+		e := command.Endpoints{
+			NewCommandEndpoint: command.MakeNewCommandEndpoint(sm.commandService),
+		}
 
-	commandEndpoints := command.Endpoints{
-		NewCommandEndpoint: command.MakeNewCommandEndpoint(sm.commandService),
+		opts := []httptransport.ServerOption{
+			httptransport.ServerErrorLogger(httpLogger),
+			httptransport.ServerErrorEncoder(connect.EncodeError),
+		}
+		commandHandlers = command.MakeHTTPHandlers(ctx, e, opts...)
 	}
 
 	connectOpts := []httptransport.ServerOption{
 		httptransport.ServerErrorLogger(httpLogger),
 		httptransport.ServerErrorEncoder(connect.EncodeError),
 	}
-	commandHandlers := command.MakeHTTPHandlers(ctx, commandEndpoints, connectOpts...)
 
 	var connectEndpoint endpoint.Endpoint
 	{
@@ -301,7 +328,6 @@ func serve(args []string) error {
 
 	connectHandlers := connect.MakeHTTPHandlers(ctx, connectEndpoints, connectOpts...)
 
-	pushHandlers := nanopush.MakeHTTPHandlers(ctx, pushEndpoints, checkinOpts...)
 	scepHandler := scep.ServiceHandler(ctx, sm.scepService, httpLogger)
 	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.enrollService, sm.scepDepot), httptransport.ServerErrorLogger(httpLogger))
 	r := mux.NewRouter()
@@ -334,6 +360,7 @@ func serve(args []string) error {
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DefineDEPProfileHandler)).Methods("POST")
 		r.Handle("/v1/apps", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.AppUploadHandler)).Methods("POST")
 		r.Handle("/v1/apps", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListAppsHandler)).Methods("GET")
+		r.Handle("/v1/config/certificate", apiAuthMiddleware(*flAPIKey, configHandlers.SavePushCertificateHandler)).Methods("PUT")
 	}
 
 	if *flRepoPath != "" {
@@ -429,6 +456,7 @@ type config struct {
 	tlsCertPath         string
 	scepDepot           *boltdepot.Depot
 	profileDB           *profile.DB
+	configDB            *configsvc.DB
 
 	// TODO: refactor enroll service and remove the need to reference
 	// this on-disk cert. but it might be useful to keep the PEM
@@ -442,6 +470,7 @@ type config struct {
 	enrollService  enroll.Service
 	scepService    scep.Service
 	commandService command.Service
+	configService  configsvc.Service
 
 	err error
 }
@@ -497,6 +526,10 @@ func (c *config) setupBolt() {
 }
 
 func (c *config) loadPushCerts() {
+	if c.APNSCertificatePath == "" && c.APNSPrivateKeyPass == "" && c.APNSPrivateKeyPath == "" {
+		// this is optional, config could also be provided with mdmctl
+		return
+	}
 	if c.err != nil {
 		return
 	}
@@ -554,31 +587,47 @@ type pushServiceCert struct {
 	PrivateKey interface{}
 }
 
-func (c *config) setupPushService() {
+func (c *config) setupConfigStore() {
 	if c.err != nil {
 		return
 	}
-	tlsCert := tls.Certificate{
-		Certificate: [][]byte{c.pushCert.Certificate.Raw},
-		PrivateKey:  c.pushCert.PrivateKey,
-		Leaf:        c.pushCert.Certificate,
-	}
-	client, err := push.NewClient(tlsCert)
+	db, err := configsvc.NewDB(c.db, c.pubclient)
 	if err != nil {
 		c.err = err
 		return
 	}
-	c.PushService = &push.Service{
-		Client: client,
-		Host:   push.Production,
+	c.configDB = db
+	c.configService = configsvc.NewService(db)
+
+}
+
+func (c *config) setupPushService() {
+	if c.err != nil {
+		return
 	}
+
+	var opts []nanopush.Option
+	{
+		cert, _ := c.configDB.PushCertificate()
+		if cert == nil {
+			goto after
+		}
+		client, err := push.NewClient(*cert)
+		if err != nil {
+			c.err = err
+			return
+		}
+		svc := push.NewService(client, push.Production)
+		opts = append(opts, nanopush.WithPushService(svc))
+	}
+after:
 
 	db, err := nanopush.NewDB(c.db, c.pubclient)
 	if err != nil {
 		c.err = err
 		return
 	}
-	c.pushService, err = nanopush.New(db, c.PushService, c.pubclient)
+	c.pushService, err = nanopush.New(db, c.configDB, c.pubclient, opts...)
 	if err != nil {
 		c.err = err
 		return
@@ -589,17 +638,13 @@ func (c *config) setupEnrollmentService() {
 	if c.err != nil {
 		return
 	}
-	pushTopic, err := topicFromCert(c.pushCert.Certificate)
-	if err != nil {
-		c.err = err
-		return
-	}
 
 	var SCEPCertificateSubject string
 	// TODO: clean up order of inputs. Maybe pass *SCEPConfig as an arg?
 	// but if you do, the packages are coupled, better not.
 	c.enrollService, c.err = enroll.NewService(
-		pushTopic,
+		c.configDB,
+		c.pubclient,
 		c.scepCACertPath,
 		c.ServerPublicURL+"/scep",
 		c.SCEPChallenge,
@@ -608,17 +653,6 @@ func (c *config) setupEnrollmentService() {
 		SCEPCertificateSubject,
 		c.profileDB,
 	)
-}
-
-func topicFromCert(cert *x509.Certificate) (string, error) {
-	var oidASN1UserID = asn1.ObjectIdentifier{0, 9, 2342, 19200300, 100, 1, 1}
-	for _, v := range cert.Subject.Names {
-		if v.Type.Equal(oidASN1UserID) {
-			return v.Value.(string), nil
-		}
-	}
-
-	return "", errors.New("could not find Push Topic (UserID OID) in certificate")
 }
 
 func (c *config) depClient() (dep.Client, error) {

@@ -1,5 +1,6 @@
 # TBD
 
+* Added `mdmctl mdmcert upload` command which uploads/replaces the servers push certificate.
 * Incorporated certhelper into mdmctl.
 * Added ENV variables for sensitive flags: `MICROMDM_APNS_KEY_PASSWORD`,`MICROMDM_API_KEY`
 * Removed the `-redir-addr` flag. Redirect to HTTPS is only enabled when the 443 port is used.

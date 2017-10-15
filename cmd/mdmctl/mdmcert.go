@@ -1,6 +1,10 @@
 package main
 
 import (
+	"context"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -8,8 +12,13 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/go-kit/kit/log"
+	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/pkg/errors"
+	"golang.org/x/crypto/pkcs12"
 
+	"github.com/micromdm/micromdm/config"
+	"github.com/micromdm/micromdm/crypto"
 	"github.com/micromdm/micromdm/crypto/mdmcertutil"
 )
 
@@ -40,6 +49,7 @@ Use the push private key and the push cert you got from identity.apple.com in yo
 Commands:
     vendor
     push
+    upload
 `
 	fmt.Println(usageText)
 	return nil
@@ -58,6 +68,8 @@ func (cmd *mdmcertCommand) Run(args []string) error {
 		run = cmd.runVendor
 	case "push":
 		run = cmd.runPush
+	case "upload":
+		run = cmd.runUpload
 	default:
 		cmd.Usage()
 		os.Exit(1)
@@ -171,6 +183,117 @@ func (cmd *mdmcertCommand) runPush(args []string) error {
 
 	err := mdmcertutil.CreateCSR(request)
 	return errors.Wrap(err, "creating MDM Push certificate request.")
+}
+
+func (cmd *mdmcertCommand) runUpload(args []string) error {
+	flagset := flag.NewFlagSet("upload", flag.ExitOnError)
+	flagset.Usage = usageFor(flagset, "mdmctl mdmcert upload [flags]")
+	var (
+		flKeyPass  = flagset.String("password", "", "Password to encrypt/read the RSA key.")
+		flKeyPath  = flagset.String("private-key", filepath.Join(mdmcertdir, pushCertificatePrivateKeyFilename), "Path to the push certificate private key.")
+		flCertPath = flagset.String("cert", "", "Path to the MDM Push Certificate.")
+	)
+	if err := flagset.Parse(args); err != nil {
+		return err
+	}
+
+	cfg, err := LoadClientConfig()
+	if err != nil {
+		return errors.Wrap(err, "load mdmctl client config")
+	}
+	logger := log.NewLogfmtLogger(os.Stderr)
+	configsvc, err := config.NewClient(
+		cfg.ServerURL,
+		logger,
+		cfg.APIToken,
+		httptransport.SetClient(skipVerifyHTTPClient(cfg.SkipVerify)),
+	)
+	if err != nil {
+		return errors.Wrap(err, "create config service from mdmctl config")
+	}
+
+	cert, key, err := loadPushCerts(*flCertPath, *flKeyPath, *flKeyPass)
+	if err != nil {
+		return errors.Wrap(err, "load push certificate")
+	}
+
+	if err := configsvc.SavePushCertificate(context.Background(), cert, key); err != nil {
+		return errors.Wrap(err, "upload push certificate and key to server")
+	}
+
+	return nil
+}
+
+func loadPushCerts(certPath, keyPath, keyPass string) (cert, key []byte, err error) {
+	isP12 := (keyPath == "" && keyPass != "")
+	if isP12 {
+		pkcs12Data, err := ioutil.ReadFile(certPath)
+		if err != nil {
+			return nil, nil, errors.Wrapf(err, "read p12 path %s", certPath)
+		}
+		pkeyi, certificate, err := pkcs12.Decode(pkcs12Data, keyPass)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "decode pkcs12 file")
+		}
+		pkey, ok := pkeyi.(*rsa.PrivateKey)
+		if !ok {
+			return nil, nil, errors.New("private key not a valid rsa key")
+		}
+
+		pemKey := pem.EncodeToMemory(&pem.Block{
+			Type:  "RSA PRIVATE KEY",
+			Bytes: x509.MarshalPKCS1PrivateKey(pkey),
+		})
+
+		pemCert := pem.EncodeToMemory(&pem.Block{
+			Type:  "CERTIFICATE",
+			Bytes: certificate.Raw,
+		})
+		return pemCert, pemKey, nil
+	}
+
+	keyData, err := ioutil.ReadFile(keyPath)
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, "read push certificate private key at path %s", keyPath)
+	}
+
+	keyDataBlock, _ := pem.Decode(keyData)
+	if keyDataBlock == nil {
+		return nil, nil, errors.Errorf("invalid PEM data for private key %s", keyPath)
+	}
+
+	var pemKeyData []byte
+	if x509.IsEncryptedPEMBlock(keyDataBlock) {
+		b, err := x509.DecryptPEMBlock(keyDataBlock, []byte(keyPass))
+		if err != nil {
+			return nil, nil, fmt.Errorf("decrypting DES private key %s", err)
+		}
+		pemKeyData = b
+	} else {
+		pemKeyData = keyDataBlock.Bytes
+	}
+
+	priv, err := x509.ParsePKCS1PrivateKey(pemKeyData)
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, "parse push certiificate private key %s", keyPath)
+	}
+
+	pemKey := pem.EncodeToMemory(&pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: x509.MarshalPKCS1PrivateKey(priv),
+	})
+
+	certificate, err := crypto.ReadPEMCertificateFile(certPath)
+	if err != nil {
+		return nil, nil, errors.Wrapf(err, "read push certificate from pem file %s", certPath)
+	}
+
+	pemCert := pem.EncodeToMemory(&pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: certificate.Raw,
+	})
+
+	return pemCert, pemKey, nil
 }
 
 func checkCSRFlags(cname, country, email string, password []byte) error {

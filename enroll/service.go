@@ -4,12 +4,17 @@ import (
 	"bytes"
 	"crypto/x509"
 	"io/ioutil"
+	"log"
 	"strings"
+	"sync"
 
 	"github.com/groob/plist"
+	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 
+	"github.com/micromdm/micromdm/config"
 	"github.com/micromdm/micromdm/profile"
+	"github.com/micromdm/micromdm/pubsub"
 )
 
 const (
@@ -24,7 +29,7 @@ type Service interface {
 	OTAPhase3(ctx context.Context) (profile.Mobileconfig, error)
 }
 
-func NewService(pushTopic, caCertPath, scepURL, scepChallenge, url, tlsCertPath, scepSubject string, profileDB *profile.DB) (Service, error) {
+func NewService(topic TopicProvider, sub pubsub.Subscriber, caCertPath, scepURL, scepChallenge, url, tlsCertPath, scepSubject string, profileDB *profile.DB) (Service, error) {
 	var caCert, tlsCert []byte
 	var err error
 
@@ -59,16 +64,49 @@ func NewService(pushTopic, caCertPath, scepURL, scepChallenge, url, tlsCertPath,
 		subject = append(subject, [][]string{[]string{subjectKeyValue[0], subjectKeyValue[1]}})
 	}
 
-	return &service{
+	svc := &service{
 		URL:           url,
 		SCEPURL:       scepURL,
 		SCEPSubject:   subject,
 		SCEPChallenge: scepChallenge,
-		Topic:         pushTopic,
 		CACert:        caCert,
 		TLSCert:       tlsCert,
 		ProfileDB:     profileDB,
-	}, nil
+		topicProvier:  topic,
+	}
+
+	if err := updateTopic(svc, sub); err != nil {
+		return nil, errors.Wrap(err, "enroll: start topic update goroutine")
+	}
+
+	return svc, nil
+}
+
+func updateTopic(svc *service, sub pubsub.Subscriber) error {
+	configEvents, err := sub.Subscribe(context.TODO(), "enroll-server-configs", config.ConfigTopic)
+	if err != nil {
+		return errors.Wrap(err, "update enrollment service")
+	}
+	go func() {
+		for {
+			select {
+			case <-configEvents:
+				topic, err := svc.topicProvier.PushTopic()
+				if err != nil {
+					log.Println("enroll: get push topic %s", topic)
+				}
+				svc.mu.Lock()
+				svc.Topic = topic
+				svc.mu.Unlock()
+
+				// terminate the loop here because the topic should never change
+				goto exit
+			}
+		}
+	exit:
+		return
+	}()
+	return nil
 }
 
 type service struct {
@@ -76,10 +114,18 @@ type service struct {
 	SCEPURL       string
 	SCEPChallenge string
 	SCEPSubject   [][][]string
-	Topic         string // APNS Topic for MDM notifications
 	CACert        []byte
 	TLSCert       []byte
 	ProfileDB     *profile.DB
+
+	topicProvier TopicProvider
+
+	mu    sync.RWMutex
+	Topic string // APNS Topic for MDM notifications
+}
+
+type TopicProvider interface {
+	PushTopic() (string, error)
 }
 
 func profileOrPayloadFromFunc(f interface{}) (interface{}, error) {
@@ -102,7 +148,7 @@ func profileOrPayloadToMobileconfig(in interface{}) (profile.Mobileconfig, error
 	return buf.Bytes(), err
 }
 
-func (svc service) findOrMakeMobileconfig(id string, f interface{}) (profile.Mobileconfig, error) {
+func (svc *service) findOrMakeMobileconfig(id string, f interface{}) (profile.Mobileconfig, error) {
 	p, err := svc.ProfileDB.ProfileById(id)
 	if err != nil {
 		if profile.IsNotFound(err) {
@@ -117,11 +163,11 @@ func (svc service) findOrMakeMobileconfig(id string, f interface{}) (profile.Mob
 	return p.Mobileconfig, nil
 }
 
-func (svc service) Enroll(ctx context.Context) (profile.Mobileconfig, error) {
+func (svc *service) Enroll(ctx context.Context) (profile.Mobileconfig, error) {
 	return svc.findOrMakeMobileconfig(EnrollmentProfileId, svc.MakeEnrollmentProfile)
 }
 
-func (svc service) MakeEnrollmentProfile() (Profile, error) {
+func (svc *service) MakeEnrollmentProfile() (Profile, error) {
 	profile := NewProfile()
 	profile.PayloadIdentifier = EnrollmentProfileId
 	profile.PayloadOrganization = "MicroMDM"
@@ -135,13 +181,17 @@ func (svc service) MakeEnrollmentProfile() (Profile, error) {
 	mdmPayload.PayloadIdentifier = EnrollmentProfileId + ".mdm"
 	mdmPayload.PayloadScope = "System"
 
+	svc.mu.Lock()
+	topic := svc.Topic
+	svc.mu.Unlock()
+
 	mdmPayloadContent := MDMPayloadContent{
 		Payload:             *mdmPayload,
 		AccessRights:        8191,
 		CheckInURL:          svc.URL + "/mdm/checkin",
 		CheckOutWhenRemoved: true,
 		ServerURL:           svc.URL + "/mdm/connect",
-		Topic:               svc.Topic,
+		Topic:               topic,
 		SignMessage:         true,
 		ServerCapabilities:  []string{"com.apple.mdm.per-user-connections"},
 	}
@@ -203,11 +253,11 @@ func (svc service) MakeEnrollmentProfile() (Profile, error) {
 }
 
 // OTAEnroll returns an Over-the-Air "Profile Service" Payload for enrollment.
-func (svc service) OTAEnroll(ctx context.Context) (profile.Mobileconfig, error) {
+func (svc *service) OTAEnroll(ctx context.Context) (profile.Mobileconfig, error) {
 	return svc.findOrMakeMobileconfig(OTAProfileId, svc.MakeOTAEnrollPayload)
 }
 
-func (svc service) MakeOTAEnrollPayload() (Payload, error) {
+func (svc *service) MakeOTAEnrollPayload() (Payload, error) {
 	payload := NewPayload("Profile Service")
 	payload.PayloadIdentifier = OTAProfileId
 	payload.PayloadDisplayName = "MicroMDM Profile Service"
@@ -224,11 +274,11 @@ func (svc service) MakeOTAEnrollPayload() (Payload, error) {
 }
 
 // OTAPhase2 returns a SCEP Profile for use in phase 2 of Over-the-Air enrollment.
-func (svc service) OTAPhase2(ctx context.Context) (profile.Mobileconfig, error) {
+func (svc *service) OTAPhase2(ctx context.Context) (profile.Mobileconfig, error) {
 	return svc.findOrMakeMobileconfig(OTAProfileId+".phase2", svc.MakeOTAPhase2Profile)
 }
 
-func (svc service) MakeOTAPhase2Profile() (Profile, error) {
+func (svc *service) MakeOTAPhase2Profile() (Profile, error) {
 	profile := NewProfile()
 	profile.PayloadIdentifier = OTAProfileId + ".phase2"
 	profile.PayloadOrganization = "MicroMDM"
@@ -267,6 +317,6 @@ func (svc service) MakeOTAPhase2Profile() (Profile, error) {
 // enrollment process. In our case this would probably be a device-specifc
 // MDM enrollment payload.
 // TODO: Not implemented.
-func (svc service) OTAPhase3(ctx context.Context) (profile.Mobileconfig, error) {
+func (svc *service) OTAPhase3(ctx context.Context) (profile.Mobileconfig, error) {
 	return profile.Mobileconfig{}, nil
 }
