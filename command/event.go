@@ -53,7 +53,8 @@ func MarshalEvent(e *Event) ([]byte, error) {
 		var updates []*commandproto.OSUpdate
 		for _, update := range p.Updates {
 			updates = append(updates, &commandproto.OSUpdate{
-				ProductKey: update.ProductKey,
+				ProductKey:    update.ProductKey,
+				InstallAction: update.InstallAction,
 			})
 		}
 		payload.Command.ScheduleOsUpdate = &commandproto.ScheduleOSUpdate{
