@@ -24,6 +24,7 @@ message Command {
     ScheduleOSUpdateScan schedule_os_update_scan = 7;
     RemoveProfile remove_profile = 8;
     DeleteUser delete_user = 9;
+    Settings settings = 10;
 }
 
 message ScheduleOSUpdate {
@@ -69,7 +70,6 @@ message DeleteUser {
     bool force_deletion = 2;
 }
 
-
 message InstallApplication {
 	int64 itunes_store_id = 1;
 	string identifier = 2;
@@ -77,4 +77,23 @@ message InstallApplication {
 	int64 management_flags = 4;
 	bool not_managed = 5;
 	string change_management_state = 6;
+}
+
+message Settings {
+    repeated Setting settings = 1;
+}
+
+message Setting {
+    string item = 1;
+    DeviceNameSetting device_name = 2;
+    HostnameSetting hostname = 3;
+}
+
+message DeviceNameSetting {
+        string device_name = 1;
+}
+
+
+message HostnameSetting {
+        string hostname = 1;
 }

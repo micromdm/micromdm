@@ -97,6 +97,27 @@ func MarshalEvent(e *Event) ([]byte, error) {
 			NotManaged:            cmd.NotManaged,
 			ChangeManagementState: cmd.ChangeManagementState,
 		}
+	case "Settings":
+		cmd := e.Payload.Command.Settings
+		var settings []*commandproto.Setting
+		for _, s := range cmd.Settings {
+			protoSetting := &commandproto.Setting{
+				Item: s.Item,
+			}
+			if s.DeviceName != nil {
+				protoSetting.DeviceName = &commandproto.DeviceNameSetting{
+					DeviceName: *s.DeviceName,
+				}
+			}
+
+			if s.HostName != nil {
+				protoSetting.Hostname = &commandproto.HostnameSetting{
+					Hostname: *s.HostName,
+				}
+			}
+			settings = append(settings, protoSetting)
+		}
+		payload.Command.Settings = &commandproto.Settings{Settings: settings}
 	}
 	return proto.Marshal(&commandproto.Event{
 		Id:         e.ID,
@@ -188,6 +209,33 @@ func UnmarshalEvent(data []byte, e *Event) error {
 			ManagementFlags:       int(cmd.GetManagementFlags()),
 			ChangeManagementState: cmd.GetChangeManagementState(),
 		}
+	case "Settings":
+		cmd := pb.Payload.Command.GetSettings()
+		var settings []mdm.Setting
+		for _, s := range cmd.GetSettings() {
+			mdmSetting := mdm.Setting{
+				Item: s.GetItem(),
+			}
+
+			if s.GetDeviceName() != nil {
+				mdmSetting.DeviceName = stringPtr(s.GetDeviceName().GetDeviceName())
+			}
+
+			if s.GetHostname() != nil {
+				mdmSetting.HostName = stringPtr(s.GetHostname().GetHostname())
+			}
+
+			settings = append(settings, mdmSetting)
+		}
+		e.Payload.Command.Settings = mdm.Settings{Settings: settings}
 	}
 	return nil
+}
+
+func stringPtr(s string) *string {
+	return &s
+}
+
+func boolPtr(b bool) *bool {
+	return &b
 }

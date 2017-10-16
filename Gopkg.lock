@@ -101,7 +101,7 @@
   branch = "master"
   name = "github.com/micromdm/mdm"
   packages = ["."]
-  revision = "97c19c7edf3498cf43b378042317d9d9caa84dc6"
+  revision = "adf70a87d7cc97f2dacd68033b8633611b57a569"
 
 [[projects]]
   name = "github.com/micromdm/scep"
@@ -154,6 +154,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f89bacfbc1e58f3f80d26c9b1a502920b10bf0d01b13718078e7bd967769982f"
+  inputs-digest = "783379f631fb5da2104405d76a8db595f3d54e4ee66d4181e0213303a3d84342"
   solver-name = "gps-cdcl"
   solver-version = 1

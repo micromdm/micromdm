@@ -16,6 +16,7 @@ var marshalTests = []string{
 	"DeviceInformation",
 	"DeviceInformation_empty_queries",
 	"InstallProfile",
+	"Settings_hostname_devicename",
 }
 
 func TestMarshalEvent(t *testing.T) {
