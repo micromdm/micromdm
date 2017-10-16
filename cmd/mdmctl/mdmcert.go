@@ -107,7 +107,7 @@ func (cmd *mdmcertCommand) runVendor(args []string) error {
 	}
 
 	if err := os.MkdirAll(filepath.Dir(*flCSRPath), 0755); err != nil {
-		errors.Wrapf(err, "create directory %s", filepath.Dir(*flCSRPath))
+		return errors.Wrapf(err, "create directory %s", filepath.Dir(*flCSRPath))
 	}
 
 	password := []byte(*flPKeyPass)

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/go-kit/kit/log"
@@ -147,19 +148,24 @@ func (cmd *applyCommand) applyBlueprint(args []string) error {
 func (cmd *applyCommand) applyDEPTokens(args []string) error {
 	flagset := flag.NewFlagSet("dep-tokens", flag.ExitOnError)
 	var (
-		flPublicKeyPath = flagset.String("import-token", "", "filename of p7m encrypted token file (downloaded from DEP portal)")
+		flTokenPath = flagset.String(
+			"import",
+			filepath.Join(defaultmdmctlFilesPath, "DEPOAuthToken.json"),
+			"Filename of p7m encrypted token file (downloaded from DEP portal)")
 	)
+
 	flagset.Usage = usageFor(flagset, "mdmctl apply dep-tokens [flags]")
 	if err := flagset.Parse(args); err != nil {
 		return err
 	}
-	if *flPublicKeyPath == "" {
+
+	if *flTokenPath == "" {
 		return errors.New("must provide -import-token parameter")
 	}
-	if _, err := os.Stat(*flPublicKeyPath); os.IsNotExist(err) {
+	if _, err := os.Stat(*flTokenPath); os.IsNotExist(err) {
 		return err
 	}
-	p7mBytes, err := ioutil.ReadFile(*flPublicKeyPath)
+	p7mBytes, err := ioutil.ReadFile(*flTokenPath)
 	if err != nil {
 		return err
 	}

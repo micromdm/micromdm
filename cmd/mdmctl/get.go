@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/tabwriter"
 
@@ -15,6 +16,7 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/micromdm/micromdm/core/list"
 	"github.com/micromdm/micromdm/crypto"
+	"github.com/pkg/errors"
 )
 
 type getCommand struct {
@@ -130,12 +132,21 @@ func (cmd *getCommand) getDevices(args []string) error {
 	return nil
 }
 
+const defaultmdmctlFilesPath = "mdm-files"
+
 func (cmd *getCommand) getDepTokens(args []string) error {
 	flagset := flag.NewFlagSet("dep-tokens", flag.ExitOnError)
 	var (
-		flFullCK        = flagset.Bool("v", false, "display full ConsumerKey in summary list")
-		flPublicKeyPath = flagset.String("export-public-key", "", "filename of public key to write (to be uploaded to deploy.apple.com)")
-		flTokenPath     = flagset.String("export-token", "", "filename to save decrypted oauth token (JSON)")
+		flFullCK        = flagset.Bool("v", false, "Display full ConsumerKey in summary list")
+		flPublicKeyPath = flagset.String(
+			"export-public-key",
+			filepath.Join(defaultmdmctlFilesPath, "DEPPublicKey"),
+			"Filename of public key to write (to be uploaded to deploy.apple.com)",
+		)
+		flTokenPath = flagset.String(
+			"export-token",
+			filepath.Join(defaultmdmctlFilesPath, "DEPOAuthToken.json"),
+			"Filename to save decrypted oauth token (JSON)")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl get dep-tokens [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -161,6 +172,11 @@ func (cmd *getCommand) getDepTokens(args []string) error {
 	w.Flush()
 
 	if *flPublicKeyPath != "" && certBytes != nil {
+
+		if err := os.MkdirAll(filepath.Dir(*flPublicKeyPath), 0755); err != nil {
+			return errors.Wrapf(err, "create directory %s", filepath.Dir(*flPublicKeyPath))
+		}
+
 		cert, err := x509.ParseCertificate(certBytes)
 		if err != nil {
 			return err
@@ -174,6 +190,10 @@ func (cmd *getCommand) getDepTokens(args []string) error {
 
 	if *flTokenPath != "" && len(tokens) > 0 {
 		t := tokens[0]
+
+		if err := os.MkdirAll(filepath.Dir(*flTokenPath), 0755); err != nil {
+			return errors.Wrapf(err, "create directory %s", filepath.Dir(*flTokenPath))
+		}
 
 		tokenFile, err := os.Create(*flTokenPath)
 		if err != nil {
