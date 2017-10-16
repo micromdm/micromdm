@@ -64,6 +64,9 @@ func NewService(topic TopicProvider, sub pubsub.Subscriber, caCertPath, scepURL,
 		subject = append(subject, [][]string{[]string{subjectKeyValue[0], subjectKeyValue[1]}})
 	}
 
+	// fetch the push topic from the db.
+	// will be "" if the push certificate hasn't been uploaded yet
+	pushTopic, _ := topic.PushTopic()
 	svc := &service{
 		URL:           url,
 		SCEPURL:       scepURL,
@@ -72,6 +75,7 @@ func NewService(topic TopicProvider, sub pubsub.Subscriber, caCertPath, scepURL,
 		CACert:        caCert,
 		TLSCert:       tlsCert,
 		ProfileDB:     profileDB,
+		Topic:         pushTopic,
 		topicProvier:  topic,
 	}
 
