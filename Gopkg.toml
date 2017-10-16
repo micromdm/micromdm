@@ -5,7 +5,7 @@
 
 [[constraint]]
   name = "github.com/go-kit/kit"
-  version = "v0.4.0"
+  version = "v0.6.0"
 
 [[constraint]]
   name = "github.com/gorilla/mux"

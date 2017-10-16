@@ -23,13 +23,13 @@
   branch = "master"
   name = "github.com/garyburd/go-oauth"
   packages = ["oauth"]
-  revision = "166ce8d672783fbb5a72247c3cf459267717e1ec"
+  revision = "4cff9ef7b7003713efa191899dbaab8fa75e3e73"
 
 [[projects]]
   name = "github.com/go-kit/kit"
   packages = ["endpoint","log","log/level","metrics","transport/http"]
-  revision = "fadad6fffe0466b19df9efd9acde5c9a52df5fa4"
-  version = "v0.4.0"
+  revision = "4dc7be5d2d12881735283bcab7352178e190fc71"
+  version = "v0.6.0"
 
 [[projects]]
   name = "github.com/go-logfmt/logfmt"
@@ -46,14 +46,14 @@
 [[projects]]
   name = "github.com/gogo/protobuf"
   packages = ["proto"]
-  revision = "100ba4e885062801d56799d78530b73b178a78f3"
-  version = "v0.4"
+  revision = "342cbe0a04158f6dcb03ca0079991a51a4248c02"
+  version = "v0.5"
 
 [[projects]]
   branch = "master"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
-  revision = "17ce1425424ab154092bbb43af630bd647f3bb0d"
+  revision = "130e6b02ab059e7b717a096f397c5b60111cae74"
 
 [[projects]]
   name = "github.com/gorilla/context"
@@ -64,8 +64,8 @@
 [[projects]]
   name = "github.com/gorilla/mux"
   packages = ["."]
-  revision = "bcd8bc72b08df0f70df986b97f95590779502d31"
-  version = "v1.4.0"
+  revision = "24fca303ac6da784b9e8269f724ddeb0b2eea5e7"
+  version = "v1.5.0"
 
 [[projects]]
   branch = "master"
@@ -77,7 +77,7 @@
   branch = "master"
   name = "github.com/groob/plist"
   packages = ["."]
-  revision = "cd4f0bb6166577d40876bd169683d481e8082502"
+  revision = "7b367e0aa692e62a223e823f3288c0c00f519a36"
 
 [[projects]]
   branch = "master"
@@ -94,7 +94,7 @@
 [[projects]]
   branch = "master"
   name = "github.com/micromdm/go4"
-  packages = ["httputil","version"]
+  packages = ["env","httputil","version"]
   revision = "486ea5f130c78a9c058374eb159df08296caea9d"
 
 [[projects]]
@@ -125,35 +125,35 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["acme","acme/autocert","pkcs12","pkcs12/internal/rc2"]
-  revision = "9ba3862cf6a5452ae579de98f9364dd2e544844c"
+  revision = "9419663f5a44be8b34ca85f08abc5fe1be11f8a3"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context","context/ctxhttp","http2","http2/hpack","idna","lex/httplex"]
-  revision = "66aacef3dd8a676686c7ae3716979581e8b03c47"
+  packages = ["context","http2","http2/hpack","idna","lex/httplex"]
+  revision = "a04bdaca5b32abe1c069418fb7088ae607de5bd0"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "a5054c7c1385fd50d9394475365355a87a7873ec"
+  revision = "686000749eaec0b8855b8eef5336cf63899fe51d"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
-  packages = ["internal/gen","internal/triegen","internal/ucd","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
-  revision = "bd91bbf73e9a4a801adbfb97133c992678533126"
+  packages = ["collate","collate/build","internal/colltab","internal/gen","internal/tag","internal/triegen","internal/ucd","language","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
+  revision = "c01e4764d870b77f8abe5096ee19ad20d80e8075"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/tools"
   packages = ["go/ast/astutil","imports"]
-  revision = "3b1faeda9afbcba128c2d794b38ffe7982141139"
+  revision = "9bd2f442688b66c5289262d70f537c2ecf81d7de"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "6ef27b152096e36c87702ca8c72c8fe0121399d323dc59d8b539dd4bc3ba4e9a"
+  inputs-digest = "f89bacfbc1e58f3f80d26c9b1a502920b10bf0d01b13718078e7bd967769982f"
   solver-name = "gps-cdcl"
   solver-version = 1
