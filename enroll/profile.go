@@ -1,8 +1,9 @@
 package enroll
 
 import (
-	"github.com/satori/go.uuid"
 	"time"
+
+	"github.com/satori/go.uuid"
 )
 
 type Payload struct {
@@ -65,10 +66,73 @@ type SCEPPayloadContent struct {
 	URL           string
 }
 
+// AccessRights define the management rights of the MDM server over the device.
+// May not be zero. If 2 is specified, 1 must also be specified. If 128 is specified, 64 must also be specified.
+type AccessRights int
+
+const (
+	// Allow inspection of installed configuration profiles.
+	ProfileInspection AccessRights = 1 << iota
+
+	// Allow installation and removal of configuration profiles.
+	ProfileInstallAndRemoval
+
+	// Allow device lock and passcode removal.
+	DeviceLock
+
+	// Allow device erase.
+	DeviceErase
+
+	// Allow query of Device Information (device capacity, serial number).
+	DeviceInformationQuery
+
+	// 	Allow query of Network Information (phone/SIM numbers, MAC addresses).
+	NetworkInformationQuery
+
+	// Allow inspection of installed provisioning profiles.
+	ProvisioningProfileInspection
+
+	//  Allow installation and removal of provisioning profiles.
+	ProvisioningProfileInstallAndRemoval
+
+	// Allow inspection of installed applications.
+	ApplicationInspection
+
+	// Allow restriction-related queries.
+	RestrictionQuery
+
+	// Allow security-related queries.
+	SecurityQuery
+
+	// Allow manipulation of settings.
+	// Availability: Available in iOS 5.0 and later. Available in macOS 10.9 for certain commands.
+	SettingsManipulation
+
+	// Allow app management.
+	// Availability: Available in iOS 5.0 and later. Available in macOS 10.9 for certain commands.
+	AppManagement
+)
+
+func allRights() AccessRights {
+	return ProfileInspection |
+		ProfileInstallAndRemoval |
+		DeviceLock |
+		DeviceErase |
+		DeviceInformationQuery |
+		NetworkInformationQuery |
+		ProvisioningProfileInspection |
+		ProvisioningProfileInstallAndRemoval |
+		ApplicationInspection |
+		RestrictionQuery |
+		SecurityQuery |
+		SettingsManipulation |
+		AppManagement
+}
+
 // TODO: Actually this is one of those non-nested payloads that doesnt respect the PayloadContent key.
 type MDMPayloadContent struct {
 	Payload
-	AccessRights            int
+	AccessRights            AccessRights
 	CheckInURL              string
 	CheckOutWhenRemoved     bool
 	IdentityCertificateUUID string

@@ -171,6 +171,8 @@ func (svc *service) Enroll(ctx context.Context) (profile.Mobileconfig, error) {
 	return svc.findOrMakeMobileconfig(EnrollmentProfileId, svc.MakeEnrollmentProfile)
 }
 
+const perUserConnections = "com.apple.mdm.per-user-connections"
+
 func (svc *service) MakeEnrollmentProfile() (Profile, error) {
 	profile := NewProfile()
 	profile.PayloadIdentifier = EnrollmentProfileId
@@ -191,13 +193,13 @@ func (svc *service) MakeEnrollmentProfile() (Profile, error) {
 
 	mdmPayloadContent := MDMPayloadContent{
 		Payload:             *mdmPayload,
-		AccessRights:        8191,
+		AccessRights:        allRights(),
 		CheckInURL:          svc.URL + "/mdm/checkin",
 		CheckOutWhenRemoved: true,
 		ServerURL:           svc.URL + "/mdm/connect",
 		Topic:               topic,
 		SignMessage:         true,
-		ServerCapabilities:  []string{"com.apple.mdm.per-user-connections"},
+		ServerCapabilities:  []string{perUserConnections},
 	}
 
 	payloadContent := []interface{}{}
