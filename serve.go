@@ -27,6 +27,7 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -142,7 +143,7 @@ func serve(args []string) error {
 	sm.setupCheckinService()
 	sm.setupPushService()
 	sm.setupCommandService()
-	sm.setupCommandQueue()
+	sm.setupCommandQueue(logger)
 	sm.setupDEPSync()
 	if sm.err != nil {
 		stdlog.Fatal(sm.err)
@@ -489,7 +490,7 @@ func (c *config) setupCommandService() {
 	c.commandService, c.err = command.New(c.db, c.pubclient)
 }
 
-func (c *config) setupCommandQueue() {
+func (c *config) setupCommandQueue(logger log.Logger) {
 	if c.err != nil {
 		return
 	}
@@ -499,12 +500,20 @@ func (c *config) setupCommandQueue() {
 		return
 	}
 
-	connSvc, err := connect.New(q, c.pubclient)
-	if err != nil {
-		c.err = err
-		return
+	var connectService connect.ConnectService
+	{
+		svc, err := connect.New(q, c.pubclient)
+		if err != nil {
+			c.err = err
+			return
+		}
+		svc = connect.NewLoggingService(
+			svc,
+			log.With(level.Info(logger), "component", "connect"),
+		)
+		connectService = svc
 	}
-	c.connectService = connSvc
+	c.connectService = connectService
 }
 
 func (c *config) setupCheckinService() {

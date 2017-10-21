@@ -2,7 +2,6 @@ package connect
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/micromdm/mdm"
 	"github.com/pkg/errors"
@@ -39,7 +38,6 @@ func New(queue Queue, pub pubsub.Publisher) (ConnectService, error) {
 }
 
 func (svc *connectSvc) Acknowledge(ctx context.Context, req mdm.Response) (payload []byte, err error) {
-	fmt.Printf("connected udid=%s type=%s, status=%s\n", req.UDID, req.RequestType, req.Status)
 	event := NewEvent(req)
 	msg, err := MarshalEvent(event)
 	if err != nil {
@@ -48,6 +46,7 @@ func (svc *connectSvc) Acknowledge(ctx context.Context, req mdm.Response) (paylo
 	if err := svc.pub.Publish(context.TODO(), ConnectTopic, msg); err != nil {
 		return nil, errors.Wrap(err, "publish connect Response on pubsub")
 	}
+
 	cmd, err := svc.queue.Next(ctx, req)
 	if err != nil {
 		return nil, errors.Wrap(err, "calling Next with mdm response")
