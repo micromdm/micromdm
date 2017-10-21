@@ -8,13 +8,15 @@ import (
 
 	"github.com/groob/plist"
 	"github.com/micromdm/dep"
+	"github.com/pkg/errors"
+
 	"github.com/micromdm/micromdm/appstore"
 	"github.com/micromdm/micromdm/blueprint"
 	"github.com/micromdm/micromdm/deptoken"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/profile"
 	"github.com/micromdm/micromdm/pubsub"
-	"github.com/pkg/errors"
+	"github.com/micromdm/micromdm/user"
 )
 
 type ListDevicesOption struct {
@@ -22,6 +24,14 @@ type ListDevicesOption struct {
 	PerPage int
 
 	FilterSerial []string
+	FilterUDID   []string
+}
+
+type ListUsersOption struct {
+	Page    int
+	PerPage int
+
+	FilterUserID []string
 	FilterUDID   []string
 }
 
@@ -39,6 +49,7 @@ type ListAppsOption struct {
 
 type Service interface {
 	ListDevices(ctx context.Context, opt ListDevicesOption) ([]DeviceDTO, error)
+	ListUsers(ctx context.Context, opt ListUsersOption) ([]user.User, error)
 	GetDEPTokens(ctx context.Context) ([]deptoken.DEPToken, []byte, error)
 	GetBlueprints(ctx context.Context, opt GetBlueprintsOption) ([]blueprint.Blueprint, error)
 	GetProfiles(ctx context.Context, opt GetProfilesOption) ([]profile.Profile, error)
@@ -55,6 +66,7 @@ type ListService struct {
 	Profiles   *profile.DB
 	Tokens     *deptoken.DB
 	Apps       appstore.AppStore
+	Users      *user.DB
 }
 
 func (svc *ListService) ListApplications(ctx context.Context, opts ListAppsOption) ([]AppDTO, error) {
@@ -124,6 +136,11 @@ func (svc *ListService) ListDevices(ctx context.Context, opt ListDevicesOption) 
 		})
 	}
 	return dto, err
+}
+
+func (svc *ListService) ListUsers(ctx context.Context, opts ListUsersOption) ([]user.User, error) {
+	u, err := svc.Users.List()
+	return u, errors.Wrap(err, "list users from api request")
 }
 
 func (svc *ListService) GetDEPTokens(ctx context.Context) ([]deptoken.DEPToken, []byte, error) {

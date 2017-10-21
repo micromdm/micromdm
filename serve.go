@@ -56,6 +56,7 @@ import (
 	"github.com/micromdm/micromdm/pubsub/inmem"
 	nanopush "github.com/micromdm/micromdm/push"
 	"github.com/micromdm/micromdm/queue"
+	"github.com/micromdm/micromdm/user"
 )
 
 const homePage = `<!doctype html>
@@ -154,6 +155,11 @@ func serve(args []string) error {
 		stdlog.Fatal(err)
 	}
 
+	userDB, err := user.NewDB(sm.db, sm.pubclient)
+	if err != nil {
+		stdlog.Fatal(err)
+	}
+
 	sm.profileDB, err = profile.NewDB(sm.db)
 	if err != nil {
 		stdlog.Fatal(err)
@@ -164,7 +170,7 @@ func serve(args []string) error {
 		stdlog.Fatalf("enrollment service: %s", sm.err)
 	}
 
-	bpDB, err := blueprint.NewDB(sm.db, sm.profileDB)
+	bpDB, err := blueprint.NewDB(sm.db, sm.profileDB, userDB)
 	if err != nil {
 		stdlog.Fatal(err)
 	}
@@ -245,6 +251,7 @@ func serve(args []string) error {
 	}
 	tokenDB := &deptoken.DB{DB: sm.db, Publisher: sm.pubclient}
 	appDB := &appstore.Repo{Path: *flRepoPath}
+
 	var listsvc list.Service
 	{
 		l := &list.ListService{
@@ -254,6 +261,7 @@ func serve(args []string) error {
 			Blueprints: bpDB,
 			Profiles:   sm.profileDB,
 			Apps:       appDB,
+			Users:      userDB,
 		}
 		listsvc = l
 
@@ -275,6 +283,7 @@ func serve(args []string) error {
 		GetDEPProfileEndpoint:     list.MakeGetDEPProfileEndpoint(listsvc),
 		GetDEPDeviceEndpoint:      list.MakeGetDEPDeviceDetailsEndpoint(listsvc),
 		ListAppsEndpont:           list.MakeListAppsEndpoint(listsvc),
+		ListUserEndpoint:          list.MakeListUsersEndpoint(listsvc),
 	}
 
 	var applysvc apply.Service
@@ -285,6 +294,7 @@ func serve(args []string) error {
 			Tokens:     tokenDB,
 			Profiles:   sm.profileDB,
 			Apps:       appDB,
+			Users:      userDB,
 		}
 		applysvc = l
 		if err := l.WatchTokenUpdates(sm.pubclient); err != nil {
@@ -312,12 +322,18 @@ func serve(args []string) error {
 		appUploadEndpoint = apply.MakeUploadAppEndpiont(applysvc)
 	}
 
+	var applyUserEndpoint endpoint.Endpoint
+	{
+		applyUserEndpoint = apply.MakeApplyUserEndpoint(applysvc)
+	}
+
 	applyEndpoints := apply.Endpoints{
 		ApplyBlueprintEndpoint:   applyBlueprintEndpoint,
 		ApplyDEPTokensEndpoint:   apply.MakeApplyDEPTokensEndpoint(applysvc),
 		ApplyProfileEndpoint:     applyProfileEndpoint,
 		DefineDEPProfileEndpoint: defineDEPProfileEndpoint,
 		AppUploadEndpoint:        appUploadEndpoint,
+		ApplyUserEndpoint:        applyUserEndpoint,
 	}
 
 	applyAPIHandlers := apply.MakeHTTPHandlers(ctx, applyEndpoints, connectOpts...)
@@ -361,6 +377,8 @@ func serve(args []string) error {
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DefineDEPProfileHandler)).Methods("POST")
 		r.Handle("/v1/apps", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.AppUploadHandler)).Methods("POST")
 		r.Handle("/v1/apps", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListAppsHandler)).Methods("GET")
+		r.Handle("/v1/users", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.ApplyUserhandler)).Methods("PUT")
+		r.Handle("/v1/users", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListUsersHander)).Methods("GET")
 		r.Handle("/v1/config/certificate", apiAuthMiddleware(*flAPIKey, configHandlers.SavePushCertificateHandler)).Methods("PUT")
 	}
 

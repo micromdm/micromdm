@@ -19,6 +19,7 @@ type HTTPHandlers struct {
 	ProfileHandler          http.Handler
 	DefineDEPProfileHandler http.Handler
 	AppUploadHandler        http.Handler
+	ApplyUserhandler        http.Handler
 }
 
 func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
@@ -50,6 +51,12 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 		AppUploadHandler: httptransport.NewServer(
 			endpoints.AppUploadEndpoint,
 			decodeAppUploadRequest,
+			encodeResponse,
+			opts...,
+		),
+		ApplyUserhandler: httptransport.NewServer(
+			endpoints.ApplyUserEndpoint,
+			decodeUserRequest,
 			encodeResponse,
 			opts...,
 		),
@@ -108,6 +115,15 @@ func decodeAppUploadRequest(ctx context.Context, r *http.Request) (interface{}, 
 		PKGFilename:  pkgFilename,
 		PKGFile:      pkgFile,
 	}, nil
+}
+
+func decodeUserRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	var req applyUserRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return nil, errors.Wrap(err, "decode user request")
+	}
+	defer r.Body.Close()
+	return req, nil
 }
 
 func EncodeUploadAppRequest(_ context.Context, r *http.Request, request interface{}) error {
@@ -233,6 +249,15 @@ func DecodeUploadAppResponse(_ context.Context, r *http.Response) (interface{}, 
 		return nil, errorDecoder(r)
 	}
 	var resp appUploadResponse
+	err := json.NewDecoder(r.Body).Decode(&resp)
+	return resp, err
+}
+
+func DecodeApplyUserResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	if r.StatusCode != http.StatusOK {
+		return nil, errorDecoder(r)
+	}
+	var resp applyUserResponse
 	err := json.NewDecoder(r.Body).Decode(&resp)
 	return resp, err
 }

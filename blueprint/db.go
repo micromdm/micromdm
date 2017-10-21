@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/profile"
+	"github.com/micromdm/micromdm/user"
 )
 
 const (
@@ -18,9 +19,14 @@ const (
 type DB struct {
 	*bolt.DB
 	profDB *profile.DB
+	userDB *user.DB
 }
 
-func NewDB(db *bolt.DB, pDB *profile.DB) (*DB, error) {
+func NewDB(
+	db *bolt.DB,
+	profileDB *profile.DB,
+	userDB *user.DB,
+) (*DB, error) {
 	err := db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(blueprintIndexBucket))
 		if err != nil {
@@ -34,7 +40,8 @@ func NewDB(db *bolt.DB, pDB *profile.DB) (*DB, error) {
 	}
 	datastore := &DB{
 		DB:     db,
-		profDB: pDB,
+		profDB: profileDB,
+		userDB: userDB,
 	}
 	return datastore, nil
 }

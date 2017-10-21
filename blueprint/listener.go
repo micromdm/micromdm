@@ -15,8 +15,34 @@ import (
 )
 
 func (db *DB) ApplyToDevice(ctx context.Context, svc command.Service, bp *Blueprint, udid string) error {
-
 	var requests []*mdm.CommandRequest
+	for _, uuid := range bp.UserUUID {
+		fmt.Println("Adding user to admin account")
+		u, err := db.userDB.User(uuid)
+		if err != nil {
+			fmt.Printf("User UUID %s in Blueprint %s not added \n", bp.UserUUID, bp.Name)
+			continue
+		}
+		requests = append(requests, &mdm.CommandRequest{
+			UDID: udid,
+			Command: mdm.Command{
+				RequestType: "AccountConfiguration",
+				AccountConfiguration: mdm.AccountConfiguration{
+					SkipPrimarySetupAccountCreation:     true,
+					SetPrimarySetupAccountAsRegularUser: false,
+					AutoSetupAdminAccounts: []mdm.AdminAccount{
+						mdm.AdminAccount{
+							ShortName:    u.UserShortname,
+							FullName:     u.UserLongname,
+							PasswordHash: u.PasswordHash,
+							Hidden:       u.Hidden,
+						},
+					},
+				},
+			},
+		})
+	}
+
 	for _, appURL := range bp.ApplicationURLs {
 		requests = append(requests, &mdm.CommandRequest{
 			UDID: udid,
@@ -55,7 +81,7 @@ func (db *DB) ApplyToDevice(ctx context.Context, svc command.Service, bp *Bluepr
 	for _, r := range requests {
 		_, err := svc.NewCommand(ctx, r)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "create new command from blueprint")
 		}
 	}
 	return nil

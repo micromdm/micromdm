@@ -21,6 +21,7 @@ type Blueprint struct {
 	Name               string   `json:"name"`
 	ApplicationURLs    []string `json:"install_application_manifest_urls"`
 	ProfileIdentifiers []string `json:"profile_ids"`
+	UserUUID           []string `json:"user_uuids"`
 	ApplyAt            []string `json:"apply_at"`
 }
 
@@ -37,6 +38,7 @@ func MarshalBlueprint(bp *Blueprint) ([]byte, error) {
 		Name:         bp.Name,
 		ManifestUrls: bp.ApplicationURLs,
 		ProfileIds:   bp.ProfileIdentifiers,
+		UserUuid:     bp.UserUUID,
 		ApplyAt:      bp.ApplyAt,
 	}
 	return proto.Marshal(&protobp)
@@ -52,5 +54,6 @@ func UnmarshalBlueprint(data []byte, bp *Blueprint) error {
 	bp.ApplicationURLs = pb.GetManifestUrls()
 	bp.ProfileIdentifiers = pb.GetProfileIds()
 	bp.ApplyAt = pb.GetApplyAt()
+	bp.UserUUID = pb.GetUserUuid()
 	return nil
 }

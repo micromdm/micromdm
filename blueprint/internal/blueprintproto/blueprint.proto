@@ -11,4 +11,5 @@ message Blueprint {
 	repeated string manifest_urls = 3;
 	repeated string profile_ids = 5;
 	repeated string apply_at = 6;
+    repeated string user_uuid = 7;
 }

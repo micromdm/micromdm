@@ -65,6 +65,8 @@ func (cmd *getCommand) Run(args []string) error {
 		run = cmd.getBlueprints
 	case "profiles":
 		run = cmd.getProfiles
+	case "users":
+		run = cmd.getUsers
 	case "apps":
 		run = cmd.getApps
 	default:
@@ -87,6 +89,7 @@ Valid resource types:
   * dep-devices
   * dep-account
   * dep-profiles
+  * users
   * profiles
   * apps
 

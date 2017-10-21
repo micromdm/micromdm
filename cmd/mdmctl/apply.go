@@ -59,6 +59,8 @@ func (cmd *applyCommand) Run(args []string) error {
 		run = cmd.applyProfile
 	case "app":
 		run = cmd.applyApp
+	case "users":
+		run = cmd.applyUser
 	default:
 		cmd.Usage()
 		os.Exit(1)
@@ -74,6 +76,7 @@ Valid resource types:
 
   * blueprints
   * profiles
+  * users
   * dep-tokens
   * dep-profiles
   * app
@@ -107,6 +110,7 @@ func (cmd *applyCommand) applyBlueprint(args []string) error {
 			UUID:               uuid.NewV4().String(),
 			ApplicationURLs:    []string{cmd.config.ServerURL + "repo/exampleAppManifest.plist"},
 			ProfileIdentifiers: []string{"com.example.my.profile"},
+			UserUUID:           []string{"your-admin-account-uuid"},
 			ApplyAt:            []string{"Enroll"},
 		}
 
