@@ -499,7 +499,7 @@ func (c *config) setupCommandQueue() {
 		return
 	}
 
-	connSvc, err := connect.New(q)
+	connSvc, err := connect.New(q, c.pubclient)
 	if err != nil {
 		c.err = err
 		return

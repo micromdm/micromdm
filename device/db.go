@@ -7,6 +7,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/micromdm/micromdm/checkin"
+	"github.com/micromdm/micromdm/connect"
 	"github.com/micromdm/micromdm/depsync"
 	"github.com/micromdm/micromdm/pubsub"
 	"github.com/pkg/errors"
@@ -186,6 +187,11 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 		return errors.Wrapf(err,
 			"subscribing devices to %s topic", depsync.SyncTopic)
 	}
+	connectEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", connect.ConnectTopic)
+	if err != nil {
+		return errors.Wrapf(err,
+			"subscribing devices to %s topic", connect.ConnectTopic)
+	}
 	go func() {
 		for {
 			select {
@@ -307,6 +313,22 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 						fmt.Println(err)
 						continue
 					}
+				}
+			case event := <-connectEvents:
+				var ev connect.Event
+				if err := connect.UnmarshalEvent(event.Message, &ev); err != nil {
+					fmt.Println(err)
+					continue
+				}
+				dev, err := db.DeviceByUDID(ev.Response.UDID)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+				dev.LastCheckin = time.Now()
+				if err := db.Save(dev); err != nil {
+					fmt.Println(err)
+					continue
 				}
 			case event := <-checkoutEvents:
 				var ev checkin.Event
