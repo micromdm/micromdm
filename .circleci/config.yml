@@ -1,8 +1,8 @@
 version: 2
 jobs:
-  build-go1.8:
+  build-go1.9:
     docker:
-        - image: golang:1.8
+        - image: golang:1.9
     working_directory: /go/src/github.com/micromdm/micromdm
     steps: &steps
       - checkout
@@ -10,17 +10,9 @@ jobs:
       - run: make test
       - run: make
 
-
-  build-go1.9:
-    docker:
-        - image: golang:1.9
-    working_directory: /go/src/github.com/micromdm/micromdm
-    steps: *steps
-
 workflows:
   version: 2
   build:
     jobs:
-      - build-go1.8
       - build-go1.9
 
