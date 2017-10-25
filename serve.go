@@ -142,7 +142,7 @@ func serve(args []string) error {
 	sm.loadPushCerts()
 	sm.setupSCEP(logger)
 	sm.setupCheckinService()
-	sm.setupPushService()
+	sm.setupPushService(logger)
 	sm.setupCommandService()
 	sm.setupCommandQueue(logger)
 	sm.setupDEPSync()
@@ -483,7 +483,7 @@ type config struct {
 	scepCACertPath string
 
 	PushService    *push.Service // bufford push
-	pushService    *nanopush.Push
+	pushService    nanopush.Service
 	checkinService checkin.Service
 	connectService connect.ConnectService
 	enrollService  enroll.Service
@@ -628,7 +628,7 @@ func (c *config) setupConfigStore() {
 
 }
 
-func (c *config) setupPushService() {
+func (c *config) setupPushService(logger log.Logger) {
 	if c.err != nil {
 		return
 	}
@@ -654,11 +654,16 @@ after:
 		c.err = err
 		return
 	}
-	c.pushService, err = nanopush.New(db, c.configDB, c.pubclient, opts...)
+
+	service, err := nanopush.New(db, c.configDB, c.pubclient, opts...)
 	if err != nil {
-		c.err = err
+		c.err = errors.Wrap(err, "starting micromdm push service")
 		return
 	}
+	c.pushService = nanopush.NewLoggingService(
+		service,
+		log.With(level.Info(logger), "component", "push"),
+	)
 }
 
 func (c *config) setupEnrollmentService() {
