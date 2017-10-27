@@ -39,6 +39,16 @@ func MarshalEvent(e *Event) ([]byte, error) {
 		}
 	}
 	switch e.Payload.Command.RequestType {
+	case "DeviceLock":
+		payload.Command.DeviceLock = &commandproto.DeviceLock{
+			Pin:         e.Payload.Command.DeviceLock.PIN,
+			Message:     e.Payload.Command.DeviceLock.Message,
+			PhoneNumber: e.Payload.Command.DeviceLock.PhoneNumber,
+		}
+	case "EraseDevice":
+		payload.Command.EraseDevice = &commandproto.EraseDevice{
+			Pin: e.Payload.Command.EraseDevice.PIN,
+		}
 	case "DeleteUser":
 		payload.Command.DeleteUser = &commandproto.DeleteUser{
 			Username:      e.Payload.Command.DeleteUser.UserName,
@@ -151,6 +161,18 @@ func UnmarshalEvent(data []byte, e *Event) error {
 		RequestType: pb.Payload.Command.RequestType,
 	}
 	switch pb.Payload.Command.RequestType {
+	case "DeviceLock":
+		cmd := pb.Payload.Command.GetDeviceLock()
+		e.Payload.Command.DeviceLock = mdm.DeviceLock{
+			PIN:         cmd.GetPin(),
+			Message:     cmd.GetMessage(),
+			PhoneNumber: cmd.GetPhoneNumber(),
+		}
+	case "EraseDevice":
+		cmd := pb.Payload.Command.GetEraseDevice()
+		e.Payload.Command.EraseDevice = mdm.EraseDevice{
+			PIN: cmd.GetPin(),
+		}
 	case "DeleteUser":
 		cmd := pb.Payload.Command.GetDeleteUser()
 		e.Payload.Command.DeleteUser = mdm.DeleteUser{

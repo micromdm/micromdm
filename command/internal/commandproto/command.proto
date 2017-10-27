@@ -25,6 +25,8 @@ message Command {
     RemoveProfile remove_profile = 8;
     DeleteUser delete_user = 9;
     Settings settings = 10;
+    EraseDevice erase_device = 11;
+    DeviceLock device_lock = 12;
 }
 
 message ScheduleOSUpdate {
@@ -77,6 +79,17 @@ message InstallApplication {
 	int64 management_flags = 4;
 	bool not_managed = 5;
 	string change_management_state = 6;
+}
+
+message EraseDevice {
+    string pin = 1;
+    bool preserve_data_plan = 2;
+}
+
+message DeviceLock {
+    string pin = 1;
+    string message = 2;
+    string phone_number = 3;
 }
 
 message Settings {
