@@ -28,8 +28,8 @@ func (db *DB) ApplyToDevice(ctx context.Context, svc command.Service, bp *Bluepr
 			Command: mdm.Command{
 				RequestType: "AccountConfiguration",
 				AccountConfiguration: mdm.AccountConfiguration{
-					SkipPrimarySetupAccountCreation:     true,
-					SetPrimarySetupAccountAsRegularUser: false,
+					SkipPrimarySetupAccountCreation:     bp.SkipPrimarySetupAccountCreation,
+					SetPrimarySetupAccountAsRegularUser: bp.SetPrimarySetupAccountAsRegularUser,
 					AutoSetupAdminAccounts: []mdm.AdminAccount{
 						mdm.AdminAccount{
 							ShortName:    u.UserShortname,

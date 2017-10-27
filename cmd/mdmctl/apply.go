@@ -137,6 +137,12 @@ func (cmd *applyCommand) applyBlueprint(args []string) error {
 		if err != nil {
 			return err
 		}
+
+		// validate the blueprint account rules
+		if len(blpt.UserUUID) == 0 && (blpt.SkipPrimarySetupAccountCreation || blpt.SetPrimarySetupAccountAsRegularUser) {
+			return errors.New("SkipPrimarySetupAccountCreation and SetPrimarySetupAccountAsRegularUser can only be true if there is an account in the UserUUID array.")
+		}
+
 		ctx := context.Background()
 		err = cmd.applysvc.ApplyBlueprint(ctx, &blpt)
 		if err != nil {
