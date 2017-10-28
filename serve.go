@@ -674,11 +674,23 @@ func (c *config) setupEnrollmentService() {
 		return
 	}
 
+	var topicProvider enroll.TopicProvider
+	if c.pushCert.Certificate != nil {
+		pushTopic, err := crypto.TopicFromCert(c.pushCert.Certificate)
+		if err != nil {
+			c.err = errors.Wrap(err, "get apns topic from certificate")
+			return
+		}
+		topicProvider = staticTopicProvider{topic: pushTopic}
+	} else {
+		topicProvider = c.configDB
+	}
+
 	var SCEPCertificateSubject string
 	// TODO: clean up order of inputs. Maybe pass *SCEPConfig as an arg?
 	// but if you do, the packages are coupled, better not.
 	c.enrollService, c.err = enroll.NewService(
-		c.configDB,
+		topicProvider,
 		c.pubclient,
 		c.scepCACertPath,
 		c.ServerPublicURL+"/scep",
@@ -688,6 +700,13 @@ func (c *config) setupEnrollmentService() {
 		SCEPCertificateSubject,
 		c.profileDB,
 	)
+}
+
+// if the apns-cert flags are specified this provider will be used in the enroll service.
+type staticTopicProvider struct{ topic string }
+
+func (p staticTopicProvider) PushTopic() (string, error) {
+	return p.topic, nil
 }
 
 func (c *config) depClient() (dep.Client, error) {
