@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"crypto/x509/pkix"
+	"encoding/asn1"
 	"encoding/pem"
 	"errors"
 	"io/ioutil"
@@ -113,4 +114,16 @@ func WritePEMRSAKeyFile(key *rsa.PrivateKey, path string) error {
 			Type:  "RSA PRIVATE KEY",
 			Bytes: x509.MarshalPKCS1PrivateKey(key),
 		})
+}
+
+// TopicFromCert extracts the push certificate topic from the provided certificate.
+func TopicFromCert(cert *x509.Certificate) (string, error) {
+	var oidASN1UserID = asn1.ObjectIdentifier{0, 9, 2342, 19200300, 100, 1, 1}
+	for _, v := range cert.Subject.Names {
+		if v.Type.Equal(oidASN1UserID) {
+			return v.Value.(string), nil
+		}
+	}
+
+	return "", errors.New("could not find Push Topic (UserID OID) in certificate")
 }

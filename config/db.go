@@ -5,11 +5,11 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/asn1"
 	"encoding/pem"
 	"fmt"
 
 	"github.com/boltdb/bolt"
+	"github.com/micromdm/micromdm/crypto"
 	"github.com/micromdm/micromdm/pubsub"
 	"github.com/pkg/errors"
 )
@@ -118,19 +118,8 @@ func (db *DB) PushTopic() (string, error) {
 	if err != nil {
 		return "", errors.Wrap(err, "get push certificate for topic")
 	}
-	topic, err := topicFromCert(cert.Leaf)
+	topic, err := crypto.TopicFromCert(cert.Leaf)
 	return topic, errors.Wrap(err, "get topic from push certificate")
-}
-
-func topicFromCert(cert *x509.Certificate) (string, error) {
-	var oidASN1UserID = asn1.ObjectIdentifier{0, 9, 2342, 19200300, 100, 1, 1}
-	for _, v := range cert.Subject.Names {
-		if v.Type.Equal(oidASN1UserID) {
-			return v.Value.(string), nil
-		}
-	}
-
-	return "", errors.New("could not find Push Topic (UserID OID) in certificate")
 }
 
 func isNotFound(err error) bool {
