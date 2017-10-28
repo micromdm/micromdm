@@ -16,6 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/fullsailor/pkcs7"
 	"github.com/groob/finalizer/logutil"
@@ -546,10 +547,12 @@ func (c *config) setupBolt() {
 		return
 	}
 	dbPath := filepath.Join(c.configPath, "micromdm.db")
-	c.db, c.err = bolt.Open(dbPath, 0644, nil)
-	if c.err != nil {
+	db, err := bolt.Open(dbPath, 0644, &bolt.Options{Timeout: time.Second})
+	if err != nil {
+		c.err = errors.Wrap(err, "opening boltdb")
 		return
 	}
+	c.db = db
 }
 
 func (c *config) loadPushCerts() {
