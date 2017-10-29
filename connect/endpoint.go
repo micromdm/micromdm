@@ -2,7 +2,6 @@ package connect
 
 import (
 	"context"
-	"errors"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/mdm"
@@ -18,9 +17,6 @@ type mdmConnectResponse struct {
 }
 
 func (r mdmConnectResponse) error() error { return r.Err }
-
-// errInvalidMessageType is an invalid checking command.
-var errInvalidMessageType = errors.New("invalid message type")
 
 type Endpoints struct {
 	ConnectEndpoint endpoint.Endpoint

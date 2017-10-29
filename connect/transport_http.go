@@ -29,10 +29,6 @@ type errorer interface {
 	error() error
 }
 
-type errorWrapper struct {
-	Error string `json:"error"`
-}
-
 func decodeRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req mdmConnectRequest
 	err := plist.NewDecoder(r.Body).Decode(&req)

@@ -882,12 +882,6 @@ func mdmAuthSignMessageMiddleware(db *boltdepot.Depot, next http.Handler) http.H
 	}
 }
 
-func basicAuth(password string) string {
-	const authUsername = "micromdm"
-	auth := authUsername + ":" + password
-	return base64.StdEncoding.EncodeToString([]byte(auth))
-}
-
 func apiAuthMiddleware(token string, next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		_, password, ok := r.BasicAuth()
@@ -897,7 +891,6 @@ func apiAuthMiddleware(token string, next http.Handler) http.HandlerFunc {
 			return
 		}
 		next.ServeHTTP(w, r)
-
 	}
 }
 

@@ -2,12 +2,9 @@ package push
 
 import (
 	"context"
-	"errors"
 
 	"github.com/go-kit/kit/endpoint"
 )
-
-var errEmptyRequest = errors.New("request must contain UDID of the device")
 
 type Endpoints struct {
 	PushEndpoint endpoint.Endpoint

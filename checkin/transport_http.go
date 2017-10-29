@@ -30,10 +30,6 @@ type errorer interface {
 	error() error
 }
 
-type errorWrapper struct {
-	Error string `json:"error"`
-}
-
 func decodeRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req checkinRequest
 	err := plist.NewDecoder(io.LimitReader(r.Body, 10000)).Decode(&req)
