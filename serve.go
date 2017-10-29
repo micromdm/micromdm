@@ -157,7 +157,7 @@ func serve(args []string) error {
 		stdlog.Fatal(err)
 	}
 
-	userDB, err := user.NewDB(sm.db, sm.pubclient)
+	userDB, err := user.NewDB(sm.db, sm.pubclient, log.With(logger, "component", "user db"))
 	if err != nil {
 		stdlog.Fatal(err)
 	}

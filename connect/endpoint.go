@@ -25,11 +25,7 @@ type Endpoints struct {
 func MakeConnectEndpoint(svc ConnectService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(mdmConnectRequest)
-		if req.UserID != nil {
-			// don't handle user
-			return mdmConnectResponse{}, nil
-		}
 		payload, err := svc.Acknowledge(ctx, req.Response)
-		return mdmConnectResponse{payload, err}, nil
+		return mdmConnectResponse{payload: payload, Err: err}, nil
 	}
 }

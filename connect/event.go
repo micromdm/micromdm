@@ -33,7 +33,7 @@ func MarshalEvent(e *Event) ([]byte, error) {
 		RequestType: e.Response.RequestType,
 	}
 	if e.Response.UserID != nil {
-		response.Udid = *e.Response.UserID
+		response.UserId = *e.Response.UserID
 	}
 
 	return proto.Marshal(&connectproto.Event{
@@ -65,5 +65,8 @@ func UnmarshalEvent(data []byte, e *Event) error {
 }
 
 func strPtr(s string) *string {
+	if s == "" {
+		return nil
+	}
 	return &s
 }
