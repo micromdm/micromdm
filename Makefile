@@ -78,6 +78,10 @@ install-local: $(INSTALL_STEPS)
 mdmctl: .pre-build .pre-mdmctl
 	go build -i -o build/$(CURRENT_PLATFORM)/mdmctl -ldflags ${BUILD_VERSION} ./cmd/mdmctl
 
+xp-mdmctl: .pre-build .pre-mdmctl
+	GOOS=darwin go build -i -o build/darwin/mdmctl -ldflags ${BUILD_VERSION} ./cmd/mdmctl
+	GOOS=linux CGO_ENABLED=0 go build -i -o build/linux/mdmctl  -ldflags ${BUILD_VERSION} ./cmd/mdmctl
+
 install-mdmctl: .pre-mdmctl
 	go install -ldflags ${BUILD_VERSION} ./cmd/mdmctl
 
@@ -96,5 +100,5 @@ xp-micromdm: .pre-build .pre-micromdm
 	GOOS=darwin go build -i -o build/darwin/micromdm -ldflags ${BUILD_VERSION}
 	GOOS=linux CGO_ENABLED=0 go build -i -o build/linux/micromdm  -ldflags ${BUILD_VERSION}
 
-release-zip: xp-micromdm mdmctl
+release-zip: xp-micromdm xp-mdmctl
 	zip -r micromdm_${VERSION}.zip build/
