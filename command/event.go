@@ -257,7 +257,3 @@ func UnmarshalEvent(data []byte, e *Event) error {
 func stringPtr(s string) *string {
 	return &s
 }
-
-func boolPtr(b bool) *bool {
-	return &b
-}

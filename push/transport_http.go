@@ -46,27 +46,6 @@ func EncodeError(ctx context.Context, err error, w http.ResponseWriter) {
 	})
 }
 
-func codeFromErr(err error) int {
-	switch err {
-	case errEmptyRequest:
-		return http.StatusBadRequest
-	default:
-		return http.StatusInternalServerError
-	}
-}
-
-func errorDecoder(r *http.Response) error {
-	var w errorWrapper
-	if err := json.NewDecoder(r.Body).Decode(&w); err != nil {
-		return err
-	}
-	return errors.New(w.Error)
-}
-
-type errorWrapper struct {
-	Error string `json:"error"`
-}
-
 func decodeRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var errBadRoute = errors.New("bad route")
 	var req pushRequest

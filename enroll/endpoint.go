@@ -55,11 +55,6 @@ type mdmOTAPhase2Phase3Request struct {
 	p7                   *pkcs7.PKCS7
 }
 
-type mdmOTAEnrollResponse struct {
-	Payload
-	Err error `plist:"error,omitempty"`
-}
-
 func MakeServerEndpoints(s Service, scepDepot *boltdepot.Depot) Endpoints {
 	return Endpoints{
 		GetEnrollEndpoint:       MakeGetEnrollEndpoint(s),

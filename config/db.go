@@ -122,13 +122,6 @@ func (db *DB) PushTopic() (string, error) {
 	return topic, errors.Wrap(err, "get topic from push certificate")
 }
 
-func isNotFound(err error) bool {
-	if _, ok := err.(*notFound); ok {
-		return true
-	}
-	return false
-}
-
 type notFound struct {
 	ResourceType string
 	Message      string
