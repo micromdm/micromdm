@@ -25,7 +25,12 @@ type Store struct {
 }
 
 func (db *Store) Next(ctx context.Context, resp mdm.Response) (*Command, error) {
-	dc, err := db.DeviceCommand(resp.UDID)
+	udid := resp.UDID
+	if resp.UserID != nil {
+		// use the user id for user level commands
+		udid = *resp.UserID
+	}
+	dc, err := db.DeviceCommand(udid)
 	if err != nil {
 		if isNotFound(err) {
 			return nil, nil
@@ -79,12 +84,12 @@ func (db *Store) Next(ctx context.Context, resp mdm.Response) (*Command, error) 
 	}
 
 	// pop the first command from the queue and add it to the end.
-	// If the regular queue is empty, send a command that got 
+	// If the regular queue is empty, send a command that got
 	// refused with NotNow before.
 	cmd, dc.Commands = popFirst(dc.Commands)
 	if cmd != nil {
 		dc.Commands = append(dc.Commands, *cmd)
-	} else if (resp.Status != "NotNow") {
+	} else if resp.Status != "NotNow" {
 		cmd, dc.NotNow = popFirst(dc.NotNow)
 		if cmd != nil {
 			dc.Commands = append(dc.Commands, *cmd)
