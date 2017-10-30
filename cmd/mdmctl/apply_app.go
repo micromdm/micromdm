@@ -169,7 +169,10 @@ func (cmd *applyCommand) serverRepoURL() (string, error) {
 }
 
 func pkgURL(repoURL, pkgPath string) string {
-	return path.Join(repoURL, filepath.Base(pkgPath))
+	u, _ := url.Parse(repoURL)
+	newPath := path.Join(u.Path, filepath.Base(pkgPath))
+	u.Path = newPath
+	return u.String()
 }
 
 func repoURL(server string) (string, error) {
