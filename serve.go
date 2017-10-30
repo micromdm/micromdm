@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/pem"
@@ -639,6 +640,13 @@ func (c *config) setupPushService(logger log.Logger) {
 	var opts []nanopush.Option
 	{
 		cert, _ := c.configDB.PushCertificate()
+		if c.pushCert.Certificate != nil && cert == nil {
+			cert = &tls.Certificate{
+				Certificate: [][]byte{c.pushCert.Certificate.Raw},
+				PrivateKey:  c.pushCert.PrivateKey,
+				Leaf:        c.pushCert.Certificate,
+			}
+		}
 		if cert == nil {
 			goto after
 		}

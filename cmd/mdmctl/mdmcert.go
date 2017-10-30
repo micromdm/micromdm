@@ -225,7 +225,7 @@ func (cmd *mdmcertCommand) runUpload(args []string) error {
 }
 
 func loadPushCerts(certPath, keyPath, keyPass string) (cert, key []byte, err error) {
-	isP12 := (keyPath == "" && keyPass != "")
+	isP12 := filepath.Ext(certPath) == ".p12"
 	if isP12 {
 		pkcs12Data, err := ioutil.ReadFile(certPath)
 		if err != nil {
