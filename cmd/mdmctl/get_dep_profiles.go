@@ -20,13 +20,27 @@ func (out *depProfilesTableOutput) BasicFooter() {
 	out.w.Flush()
 }
 
+const noUUIDText = `The DEP API does not support listing profiles. 
+A UUID flag must be specified. To get currently assigned profile UUIDs run
+	mdmctl get dep-devices -serials=serial1,serial2,serial3
+The output of the dep-devices response will contain the profile UUIDs.
+`
+
 func (cmd *getCommand) getDEPProfiles(args []string) error {
 	flagset := flag.NewFlagSet("dep-profiles", flag.ExitOnError)
-	flProfilePath := flagset.String("f", "", "filename of DEP profile to apply")
-	flUUID := flagset.String("uuid", "", "DEP Profile UUID")
+	var (
+		flProfilePath = flagset.String("f", "", "filename of DEP profile to apply")
+		flUUID        = flagset.String("uuid", "", "DEP Profile UUID(required)")
+	)
 	flagset.Usage = usageFor(flagset, "mdmctl get dep-profiles [flags]")
 	if err := flagset.Parse(args); err != nil {
 		return err
+	}
+
+	if *flUUID == "" {
+		fmt.Println(noUUIDText)
+		flagset.Usage()
+		os.Exit(1)
 	}
 
 	ctx := context.Background()
