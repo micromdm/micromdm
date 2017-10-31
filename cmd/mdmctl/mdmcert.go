@@ -197,7 +197,7 @@ func (cmd *mdmcertCommand) runUpload(args []string) error {
 		return err
 	}
 
-	cfg, err := LoadClientConfig()
+	cfg, err := LoadServerConfig()
 	if err != nil {
 		return errors.Wrap(err, "load mdmctl client config")
 	}

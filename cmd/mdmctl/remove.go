@@ -12,12 +12,12 @@ import (
 )
 
 type removeCommand struct {
-	config *ClientConfig
+	config *ServerConfig
 	remove remove.Service
 }
 
 func (cmd *removeCommand) setup() error {
-	cfg, err := LoadClientConfig()
+	cfg, err := LoadServerConfig()
 	if err != nil {
 		return err
 	}

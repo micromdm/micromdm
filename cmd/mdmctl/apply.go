@@ -20,12 +20,12 @@ import (
 )
 
 type applyCommand struct {
-	config   *ClientConfig
+	config   *ServerConfig
 	applysvc apply.Service
 }
 
 func (cmd *applyCommand) setup() error {
-	cfg, err := LoadClientConfig()
+	cfg, err := LoadServerConfig()
 	if err != nil {
 		return err
 	}

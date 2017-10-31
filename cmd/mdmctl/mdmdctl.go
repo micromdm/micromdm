@@ -15,6 +15,9 @@ func main() {
 		usage()
 		os.Exit(1)
 	}
+	if strings.ToLower(os.Args[1]) != "config" {
+		checkForOldConfig()
+	}
 	var run func([]string) error
 	switch strings.ToLower(os.Args[1]) {
 	case "version", "-version":

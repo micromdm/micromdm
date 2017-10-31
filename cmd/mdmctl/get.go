@@ -20,12 +20,12 @@ import (
 )
 
 type getCommand struct {
-	config *ClientConfig
+	config *ServerConfig
 	list   list.Service
 }
 
 func (cmd *getCommand) setup() error {
-	cfg, err := LoadClientConfig()
+	cfg, err := LoadServerConfig()
 	if err != nil {
 		return err
 	}
