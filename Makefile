@@ -15,6 +15,8 @@ USER = $(shell whoami)
 GOVERSION = $(shell go version | awk '{print $$3}')
 NOW	= $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 SHELL = /bin/bash
+DOCKER_IMAGE_NAME = micromdm/micromdm
+DOCKER_IMAGE_TAG = $(shell echo ${VERSION} | sed 's/^v//')
 
 ifneq ($(OS), Windows_NT)
 	CURRENT_PLATFORM = linux
@@ -102,3 +104,10 @@ xp-micromdm: .pre-build .pre-micromdm
 
 release-zip: xp-micromdm xp-mdmctl
 	zip -r micromdm_${VERSION}.zip build/
+
+docker-build:
+	GOOS=linux CGO_ENABLED=0 go build -o build/linux/micromdm  -ldflags ${BUILD_VERSION}
+	docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} .
+
+docker-tag: docker-build
+	docker tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} ${DOCKER_IMAGE_NAME}:latest
