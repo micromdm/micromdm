@@ -14,13 +14,15 @@ type Event struct {
 	ID       string
 	Time     time.Time
 	Response mdm.Response
+	Raw      []byte
 }
 
-func NewEvent(resp mdm.Response) *Event {
+func NewEvent(resp MDMConnectRequest) *Event {
 	event := Event{
 		ID:       uuid.NewV4().String(),
 		Time:     time.Now().UTC(),
-		Response: resp,
+		Response: resp.MDMResponse,
+		Raw:      resp.Raw,
 	}
 	return &event
 }
@@ -40,6 +42,7 @@ func MarshalEvent(e *Event) ([]byte, error) {
 		Id:       e.ID,
 		Time:     e.Time.UnixNano(),
 		Response: response,
+		Raw:      e.Raw,
 	})
 }
 
@@ -61,6 +64,7 @@ func UnmarshalEvent(data []byte, e *Event) error {
 		RequestType: r.GetRequestType(),
 		CommandUUID: r.GetCommandUuid(),
 	}
+	e.Raw = pb.Raw
 	return nil
 }
 

@@ -7,8 +7,9 @@ import (
 	"github.com/micromdm/mdm"
 )
 
-type mdmConnectRequest struct {
-	mdm.Response
+type MDMConnectRequest struct {
+	Raw         []byte
+	MDMResponse mdm.Response
 }
 
 type mdmConnectResponse struct {
@@ -24,8 +25,8 @@ type Endpoints struct {
 
 func MakeConnectEndpoint(svc ConnectService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		req := request.(mdmConnectRequest)
-		payload, err := svc.Acknowledge(ctx, req.Response)
+		req := request.(MDMConnectRequest)
+		payload, err := svc.Acknowledge(ctx, req)
 		return mdmConnectResponse{payload: payload, Err: err}, nil
 	}
 }

@@ -6,6 +6,7 @@ message Event {
     string  id = 1;
     int64   time = 2;
     Response response = 3;
+    bytes raw = 4;
 }
 
 message Response {

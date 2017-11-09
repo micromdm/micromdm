@@ -18,7 +18,7 @@ type ConnectService interface {
 
 	// Acknowledge acknowledges a response sent by a device and returns
 	// the next payload if one is available.
-	Acknowledge(ctx context.Context, req mdm.Response) (payload []byte, err error)
+	Acknowledge(ctx context.Context, req MDMConnectRequest) (payload []byte, err error)
 }
 
 type connectSvc struct {
@@ -37,7 +37,7 @@ func New(queue Queue, pub pubsub.Publisher) (ConnectService, error) {
 	}, nil
 }
 
-func (svc *connectSvc) Acknowledge(ctx context.Context, req mdm.Response) (payload []byte, err error) {
+func (svc *connectSvc) Acknowledge(ctx context.Context, req MDMConnectRequest) (payload []byte, err error) {
 	event := NewEvent(req)
 	msg, err := MarshalEvent(event)
 	if err != nil {
@@ -47,7 +47,7 @@ func (svc *connectSvc) Acknowledge(ctx context.Context, req mdm.Response) (paylo
 		return nil, errors.Wrap(err, "publish connect Response on pubsub")
 	}
 
-	cmd, err := svc.queue.Next(ctx, req)
+	cmd, err := svc.queue.Next(ctx, req.MDMResponse)
 	if err != nil {
 		return nil, errors.Wrap(err, "calling Next with mdm response")
 	}
