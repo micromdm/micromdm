@@ -2,6 +2,7 @@ all: build
 
 .PHONY: build
 
+USER = $(shell whoami)
 ifndef ($(GOPATH))
 	GOPATH = $(HOME)/go
 endif
@@ -11,7 +12,6 @@ VERSION = $(shell git describe --tags --always --dirty)
 BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 REVISION = $(shell git rev-parse HEAD)
 REVSHORT = $(shell git rev-parse --short HEAD)
-USER = $(shell whoami)
 GOVERSION = $(shell go version | awk '{print $$3}')
 NOW	= $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 SHELL = /bin/bash
