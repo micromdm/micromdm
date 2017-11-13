@@ -147,7 +147,7 @@ func serve(args []string) error {
 	sm.setupPushService(logger)
 	sm.setupCommandService()
 	sm.setupCommandQueue(logger)
-	sm.setupDEPSync()
+	sm.setupDEPSync(logger)
 	if sm.err != nil {
 		stdlog.Fatal(sm.err)
 	}
@@ -766,7 +766,7 @@ func (c *config) depClient() (dep.Client, error) {
 	return client, nil
 }
 
-func (c *config) setupDEPSync() {
+func (c *config) setupDEPSync(logger log.Logger) {
 	if c.err != nil {
 		return
 	}
@@ -780,7 +780,7 @@ func (c *config) setupDEPSync() {
 	if client != nil {
 		opts = append(opts, depsync.WithClient(client))
 	}
-	_, c.err = depsync.New(c.pubclient, c.db, opts...)
+	_, c.err = depsync.New(c.pubclient, c.db, log.With(logger, "component", "depsync"), opts...)
 	if err != nil {
 		return
 	}
