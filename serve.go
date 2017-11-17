@@ -778,7 +778,7 @@ func (c *config) setupDEPSync(logger log.Logger) {
 	}
 	var opts []depsync.Option
 	if client != nil {
-		opts = append(opts, depsync.WithClient(client))
+		opts = append(opts, depsync.WithClient(client), depsync.WithLogger(logger))
 	}
 	_, c.err = depsync.New(c.pubclient, c.db, log.With(logger, "component", "depsync"), opts...)
 	if err != nil {

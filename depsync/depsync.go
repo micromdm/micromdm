@@ -57,6 +57,12 @@ func WithClient(client dep.Client) Option {
 	}
 }
 
+func WithLogger(logger log.Logger) Option {
+	return func(w *watcher) {
+		w.logger = logger
+	}
+}
+
 func New(pub pubsub.PublishSubscriber, db *bolt.DB, logger log.Logger, opts ...Option) (Syncer, error) {
 	conf, err := LoadConfig(db)
 	if err != nil {
@@ -69,14 +75,19 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, logger log.Logger, opts ...O
 	}
 
 	sync := &watcher{
-		logger:    logger,
 		publisher: pub,
 		conf:      conf,
 		startSync: make(chan bool),
 	}
 
+	// apply our supplied options
 	for _, opt := range opts {
 		opt(sync)
+	}
+
+	// if no logger option has been set use the null logger
+	if sync.logger == nil {
+		sync.logger = log.NewNopLogger()
 	}
 
 	if err := sync.updateClient(pub); err != nil {
@@ -85,7 +96,7 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, logger log.Logger, opts ...O
 
 	saveCursor := func() {
 		if err := conf.Save(); err != nil {
-			level.Error(logger).Log("err", err, "msg", "saving cursor")
+			level.Info(logger).Log("err", err, "msg", "saving cursor")
 			return
 		}
 		level.Info(logger).Log("msg", "saved DEP config", "cursor", conf.Cursor.Value)
@@ -99,7 +110,7 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, logger log.Logger, opts ...O
 			<-sync.startSync
 		}
 		if err := sync.Run(); err != nil {
-			level.Error(logger).Log("err", err, "msg", "DEP watcher failed")
+			level.Info(logger).Log("err", err, "msg", "DEP watcher failed")
 		}
 	}()
 	return sync, nil
@@ -117,13 +128,13 @@ func (w *watcher) updateClient(pubsub pubsub.Subscriber) error {
 			case event := <-tokenAdded:
 				var token deptoken.DEPToken
 				if err := json.Unmarshal(event.Message, &token); err != nil {
-					level.Error(w.logger).Log("err", err, "msg", "unmarshalling tokenAdd to token")
+					level.Info(w.logger).Log("err", err, "msg", "unmarshalling tokenAdd to token")
 					continue
 				}
 
 				client, err := token.Client()
 				if err != nil {
-					level.Error(w.logger).Log("err", err, "msg", "creating new DEP client")
+					level.Info(w.logger).Log("err", err, "msg", "creating new DEP client")
 					continue
 				}
 
