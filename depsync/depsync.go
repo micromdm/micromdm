@@ -19,10 +19,11 @@ import (
 const (
 	SyncTopic    = "mdm.DepSync"
 	ConfigBucket = "mdm.DEPConfig"
+	syncDuration = 30 * time.Minute
 )
 
 type Syncer interface {
-	privateDEPSyncer() bool
+	SyncNow()
 }
 
 type watcher struct {
@@ -33,6 +34,7 @@ type watcher struct {
 	publisher pubsub.Publisher
 	conf      *config
 	startSync chan bool
+	syncNow   chan bool
 }
 
 type cursor struct {
@@ -78,6 +80,7 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, logger log.Logger, opts ...O
 		publisher: pub,
 		conf:      conf,
 		startSync: make(chan bool),
+		syncNow:   make(chan bool),
 	}
 
 	// apply our supplied options
@@ -148,9 +151,8 @@ func (w *watcher) updateClient(pubsub pubsub.Subscriber) error {
 	return nil
 }
 
-// TODO this is private temporarily until the interface can be defined
-func (w *watcher) privateDEPSyncer() bool {
-	return true
+func (w *watcher) SyncNow() {
+	w.syncNow <- true
 }
 
 // TODO this needs to be a proper error in the micromdm/dep package.
@@ -163,7 +165,7 @@ func isCursorExpired(err error) bool {
 }
 
 func (w *watcher) Run() error {
-	ticker := time.NewTicker(30 * time.Minute).C
+	ticker := time.NewTicker(syncDuration).C
 FETCH:
 	for {
 		resp, err := w.client.FetchDevices(dep.Limit(100), dep.Cursor(w.conf.Cursor.Value))
@@ -217,7 +219,11 @@ SYNC:
 			}
 		}
 		if !resp.MoreToFollow {
-			<-ticker
+			select {
+			case <-ticker:
+			case <-w.syncNow:
+				level.Info(w.logger).Log("msg", "explicit DEP sync requested")
+			}
 		}
 	}
 }
