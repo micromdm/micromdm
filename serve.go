@@ -59,6 +59,7 @@ import (
 	nanopush "github.com/micromdm/micromdm/push"
 	"github.com/micromdm/micromdm/queue"
 	"github.com/micromdm/micromdm/user"
+	"github.com/micromdm/micromdm/webhook"
 )
 
 const homePage = `<!doctype html>
@@ -97,6 +98,7 @@ func serve(args []string) error {
 		flRepoPath     = flagset.String("filerepo", "", "path to http file repo")
 		flDepSim       = flagset.String("depsim", "", "use depsim URL")
 		flExamples     = flagset.Bool("examples", false, "prints some example usage")
+    flCommandWebhookURL = flagset.String("command-webhook-url", "", "URL to send command responses as raw plists.")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -131,6 +133,9 @@ func serve(args []string) error {
 		APNSPrivateKeyPath:  *flAPNSKeyPath,
 		depsim:              *flDepSim,
 		tlsCertPath:         *flTLSCert,
+		CommandWebhookURL:   *flCommandWebhookURL,
+
+		webhooksHTTPClient: &http.Client{Timeout: time.Second * 30},
 
 		// TODO: we have a static SCEP challenge password here to prevent
 		// being prompted for the SCEP challenge which happens in a "normal"
@@ -146,6 +151,7 @@ func serve(args []string) error {
 	sm.setupCheckinService()
 	sm.setupPushService(logger)
 	sm.setupCommandService()
+	sm.setupWebhooks()
 	sm.setupCommandQueue(logger)
 	sm.setupDEPSync()
 	if sm.err != nil {
@@ -180,6 +186,8 @@ func serve(args []string) error {
 	if err := bpDB.StartListener(sm.pubclient, sm.commandService); err != nil {
 		stdlog.Fatal(err)
 	}
+
+	sm.startWebhooks()
 
 	ctx := context.Background()
 	httpLogger := log.With(logger, "transport", "http")
@@ -478,6 +486,7 @@ type config struct {
 	scepDepot           *boltdepot.Depot
 	profileDB           *profile.DB
 	configDB            *configsvc.DB
+	CommandWebhookURL   string
 
 	// TODO: refactor enroll service and remove the need to reference
 	// this on-disk cert. but it might be useful to keep the PEM
@@ -492,6 +501,9 @@ type config struct {
 	scepService    scep.Service
 	commandService command.Service
 	configService  configsvc.Service
+
+	responseWebhook    *webhook.CommandWebhook
+	webhooksHTTPClient *http.Client
 
 	err error
 }
@@ -508,6 +520,34 @@ func (c *config) setupCommandService() {
 		return
 	}
 	c.commandService, c.err = command.New(c.db, c.pubclient)
+}
+
+func (c *config) setupWebhooks() {
+	if c.err != nil {
+		return
+	}
+
+	if c.CommandWebhookURL == "" {
+		return
+	}
+
+	h, err := webhook.NewCommandWebhook(c.webhooksHTTPClient, connect.ConnectTopic, c.CommandWebhookURL)
+	if err != nil {
+		c.err = err
+		return
+	}
+
+	c.responseWebhook = h
+}
+
+func (c *config) startWebhooks() {
+	if c.err != nil {
+		return
+	}
+
+	if c.responseWebhook != nil {
+		c.responseWebhook.StartListener(c.pubclient)
+	}
 }
 
 func (c *config) setupCommandQueue(logger log.Logger) {
