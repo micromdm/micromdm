@@ -22,6 +22,7 @@ import (
 	"github.com/fullsailor/pkcs7"
 	"github.com/groob/finalizer/logutil"
 	"github.com/micromdm/go4/env"
+	"github.com/micromdm/go4/version"
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/crypto/pkcs12"
 
@@ -84,21 +85,21 @@ const homePage = `<!doctype html>
 func serve(args []string) error {
 	flagset := flag.NewFlagSet("serve", flag.ExitOnError)
 	var (
-		flConfigPath   = flagset.String("config-path", "/var/db/micromdm", "path to configuration directory")
-		flServerURL    = flagset.String("server-url", "", "public HTTPS url of your server")
-		flAPIKey       = flagset.String("api-key", env.String("MICROMDM_API_KEY", ""), "API Token for mdmctl command")
-		flAPNSCertPath = flagset.String("apns-cert", "", "path to APNS certificate")
-		flAPNSKeyPass  = flagset.String("apns-password", env.String("MICROMDM_APNS_KEY_PASSWORD", ""), "password for your p12 APNS cert file (if using)")
-		flAPNSKeyPath  = flagset.String("apns-key", "", "path to key file if using .pem push cert")
-		flTLS          = flagset.Bool("tls", true, "use https")
-		flTLSCert      = flagset.String("tls-cert", "", "path to TLS certificate")
-		flTLSKey       = flagset.String("tls-key", "", "path to TLS private key")
-		flHTTPAddr     = flagset.String("http-addr", ":https", "http(s) listen address of mdm server. defaults to :8080 if tls is false")
-		flHTTPDebug    = flagset.Bool("http-debug", false, "enable debug for http(dumps full request)")
-		flRepoPath     = flagset.String("filerepo", "", "path to http file repo")
-		flDepSim       = flagset.String("depsim", "", "use depsim URL")
-		flExamples     = flagset.Bool("examples", false, "prints some example usage")
-    flCommandWebhookURL = flagset.String("command-webhook-url", "", "URL to send command responses as raw plists.")
+		flConfigPath        = flagset.String("config-path", "/var/db/micromdm", "path to configuration directory")
+		flServerURL         = flagset.String("server-url", "", "public HTTPS url of your server")
+		flAPIKey            = flagset.String("api-key", env.String("MICROMDM_API_KEY", ""), "API Token for mdmctl command")
+		flAPNSCertPath      = flagset.String("apns-cert", "", "path to APNS certificate")
+		flAPNSKeyPass       = flagset.String("apns-password", env.String("MICROMDM_APNS_KEY_PASSWORD", ""), "password for your p12 APNS cert file (if using)")
+		flAPNSKeyPath       = flagset.String("apns-key", "", "path to key file if using .pem push cert")
+		flTLS               = flagset.Bool("tls", true, "use https")
+		flTLSCert           = flagset.String("tls-cert", "", "path to TLS certificate")
+		flTLSKey            = flagset.String("tls-key", "", "path to TLS private key")
+		flHTTPAddr          = flagset.String("http-addr", ":https", "http(s) listen address of mdm server. defaults to :8080 if tls is false")
+		flHTTPDebug         = flagset.Bool("http-debug", false, "enable debug for http(dumps full request)")
+		flRepoPath          = flagset.String("filerepo", "", "path to http file repo")
+		flDepSim            = flagset.String("depsim", "", "use depsim URL")
+		flExamples          = flagset.Bool("examples", false, "prints some example usage")
+		flCommandWebhookURL = flagset.String("command-webhook-url", "", "URL to send command responses as raw plists.")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -358,6 +359,7 @@ func serve(args []string) error {
 	scepHandler := scep.ServiceHandler(ctx, sm.scepService, httpLogger)
 	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.enrollService, sm.scepDepot), httptransport.ServerErrorLogger(httpLogger))
 	r := mux.NewRouter()
+	r.Handle("/version", version.Handler())
 	r.Handle("/mdm/checkin", mdmAuthSignMessageMiddleware(sm.scepDepot, checkinHandlers.CheckinHandler)).Methods("PUT")
 	r.Handle("/mdm/connect", mdmAuthSignMessageMiddleware(sm.scepDepot, connectHandlers.ConnectHandler)).Methods("PUT")
 	r.Handle("/mdm/enroll", enrollHandlers.EnrollHandler).Methods("GET", "POST")
