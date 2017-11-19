@@ -2,7 +2,6 @@ package depsync
 
 import (
 	"context"
-	"fmt"
 )
 
 type Service interface {

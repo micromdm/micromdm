@@ -285,33 +285,45 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 				}
 				fmt.Printf("got %d devices from DEP\n", len(ev.Devices))
 				for _, d := range ev.Devices {
-					newDevice := new(Device)
-					bySerial, err := db.DeviceBySerial(d.SerialNumber)
-					if err == nil && bySerial != nil { // must be a DEP device
-						fmt.Printf("existing device checked in from DEP: %s\n", d.SerialNumber)
-						newDevice = bySerial
-					}
-					if err != nil && !isNotFound(err) {
-						fmt.Println(err) // some other issue is going on
-						continue
-					}
-					if newDevice.UUID == "" { // previously unknown
-						newDevice.UUID = uuid.NewV4().String()
-					}
-					newDevice.SerialNumber = d.SerialNumber
-					newDevice.Model = d.Model
-					newDevice.Description = d.Description
-					newDevice.Color = d.Color
-					newDevice.AssetTag = d.AssetTag
-					newDevice.DEPProfileStatus = DEPProfileStatus(d.ProfileStatus)
-					newDevice.DEPProfileUUID = d.ProfileUUID
-					newDevice.DEPProfileAssignTime = d.ProfileAssignTime
-					newDevice.DEPProfileAssignedDate = d.DeviceAssignedDate
-					newDevice.DEPProfileAssignedBy = d.DeviceAssignedBy
-					// TODO: deal with sync fields OpType, OpDate
-					if err := db.Save(newDevice); err != nil {
-						fmt.Println(err)
-						continue
+					switch d.OpType {
+					case "":
+						// TODO: by depsim's operation it appears that when we get
+						// an empty op_type DEP is telling us about device
+						// profile status updates. for now treat it like
+						// being added
+						fallthrough
+					case "added":
+						newDevice := new(Device)
+						bySerial, err := db.DeviceBySerial(d.SerialNumber)
+						if err == nil && bySerial != nil { // must be a DEP device
+							if d.OpType != "" {
+								fmt.Printf("existing device re-added from DEP: %s\n", d.SerialNumber)
+							}
+							newDevice = bySerial
+						}
+						if err != nil && !isNotFound(err) {
+							fmt.Println(err) // some other issue is going on
+							continue
+						}
+						if newDevice.UUID == "" { // previously unknown
+							newDevice.UUID = uuid.NewV4().String()
+						}
+						newDevice.SerialNumber = d.SerialNumber
+						newDevice.Model = d.Model
+						newDevice.Description = d.Description
+						newDevice.Color = d.Color
+						newDevice.AssetTag = d.AssetTag
+						newDevice.DEPProfileStatus = DEPProfileStatus(d.ProfileStatus)
+						newDevice.DEPProfileUUID = d.ProfileUUID
+						newDevice.DEPProfileAssignTime = d.ProfileAssignTime
+						newDevice.DEPProfileAssignedDate = d.DeviceAssignedDate
+						newDevice.DEPProfileAssignedBy = d.DeviceAssignedBy
+						if err := db.Save(newDevice); err != nil {
+							fmt.Println(err)
+							continue
+						}
+					default:
+						fmt.Printf("unhandled DEP operation: op_type=%s, serial=%s\n", d.OpType, d.SerialNumber)
 					}
 				}
 			case event := <-connectEvents:

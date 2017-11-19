@@ -26,6 +26,11 @@ type Syncer interface {
 	SyncNow()
 }
 
+type autoassigner struct {
+	filter       string
+	profile_uuid string
+}
+
 type watcher struct {
 	mtx    sync.RWMutex
 	logger log.Logger
@@ -35,6 +40,8 @@ type watcher struct {
 	conf      *config
 	startSync chan bool
 	syncNow   chan bool
+
+	assigners []autoassigner
 }
 
 type cursor struct {
@@ -81,6 +88,9 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, logger log.Logger, opts ...O
 		conf:      conf,
 		startSync: make(chan bool),
 		syncNow:   make(chan bool),
+
+		// TODO: hard coded right now for initial testing
+		assigners: []autoassigner{autoassigner{filter: "*", profile_uuid: "95124484B114B710"}},
 	}
 
 	// apply our supplied options
@@ -164,6 +174,55 @@ func isCursorExpired(err error) bool {
 	return strings.Contains(err.Error(), "EXPIRED_CURSOR")
 }
 
+func (w *watcher) processAutoAssign(devices []dep.Device) error {
+	if len(w.assigners) < 1 {
+		return nil
+	}
+	newAssignments := make(map[string][]string)
+	for _, d := range devices {
+		if d.OpType == "added" {
+			// filter our devices by our assigner filters and get list of
+			// which devices are to be assigned to which profiles
+			for _, a := range w.assigners {
+				if a.filter == "*" { // only supported filter type right now
+					serials, ok := newAssignments[a.profile_uuid]
+					if ok {
+						newAssignments[a.profile_uuid] = append(serials, d.SerialNumber)
+					} else {
+						newAssignments[a.profile_uuid] = []string{d.SerialNumber}
+					}
+				}
+			}
+		}
+	}
+
+	for profile_uuid, serials := range newAssignments {
+		resp, err := w.client.AssignProfile(profile_uuid, serials)
+		if err != nil {
+			level.Info(w.logger).Log("err", err, "msg", "auto-assign-dep")
+			continue
+		}
+		// count our results for logging
+		resultCounts := map[string]int{
+			"SUCCESS":        0,
+			"NOT_ACCESSIBLE": 0,
+			"FAILED":         0,
+		}
+		for _, result := range resp.Devices {
+			resultCounts[result] = resultCounts[result] + 1
+		}
+		// TODO: alternate strategy is to log all failed devices
+		// TODO: handle/requeue failed devices?
+		level.Info(w.logger).Log(
+			"msg", "dep-assigned",
+			"profile_uuid", profile_uuid,
+			"success", resultCounts["SUCCESS"],
+			"not_accessible", resultCounts["NOT_ACCESSIBLE"],
+			"failed", resultCounts["FAILED"])
+	}
+	return nil
+}
+
 func (w *watcher) Run() error {
 	ticker := time.NewTicker(syncDuration).C
 FETCH:
@@ -174,18 +233,26 @@ FETCH:
 		} else if err != nil {
 			return err
 		}
-		level.Info(w.logger).Log("msg", "DEP fetch", "more", resp.MoreToFollow, "cursor", resp.Cursor, "fetched", resp.FetchedUntil)
+		level.Info(w.logger).Log("msg", "DEP fetch", "more", resp.MoreToFollow, "cursor", resp.Cursor, "fetched", resp.FetchedUntil, "devices", len(resp.Devices))
 		w.conf.Cursor = cursor{Value: resp.Cursor, CreatedAt: time.Now()}
 		if err := w.conf.Save(); err != nil {
 			return errors.Wrap(err, "saving cursor from fetch")
 		}
-		e := NewEvent(resp.Devices)
-		data, err := MarshalEvent(e)
-		if err != nil {
-			return err
-		}
-		if err := w.publisher.Publish(context.TODO(), SyncTopic, data); err != nil {
-			return err
+		if len(resp.Devices) > 0 {
+			e := NewEvent(resp.Devices)
+			data, err := MarshalEvent(e)
+			if err != nil {
+				return err
+			}
+			if err := w.publisher.Publish(context.TODO(), SyncTopic, data); err != nil {
+				return err
+			}
+			go func() {
+				err := w.processAutoAssign(resp.Devices)
+				if err != nil {
+					level.Info(w.logger).Log("err", err, "auto-assign")
+				}
+			}()
 		}
 		if !resp.MoreToFollow {
 			goto SYNC
@@ -201,9 +268,7 @@ SYNC:
 		} else if err != nil {
 			return err
 		}
-		if len(resp.Devices) != 0 {
-			level.Info(w.logger).Log("msg", "DEP sync", "more", resp.MoreToFollow, "cursor", resp.Cursor, "fetched", resp.FetchedUntil)
-		}
+		level.Info(w.logger).Log("msg", "DEP sync", "more", resp.MoreToFollow, "cursor", resp.Cursor, "fetched", resp.FetchedUntil, "devices", len(resp.Devices))
 		w.conf.Cursor = cursor{Value: resp.Cursor, CreatedAt: time.Now()}
 		if err := w.conf.Save(); err != nil {
 			return errors.Wrap(err, "saving cursor from sync")
@@ -217,6 +282,12 @@ SYNC:
 			if err := w.publisher.Publish(context.TODO(), SyncTopic, data); err != nil {
 				return err
 			}
+			go func() {
+				err := w.processAutoAssign(resp.Devices)
+				if err != nil {
+					level.Info(w.logger).Log("err", err, "auto-assign")
+				}
+			}()
 		}
 		if !resp.MoreToFollow {
 			select {
