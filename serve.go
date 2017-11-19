@@ -95,7 +95,7 @@ func serve(args []string) error {
 		flHTTPAddr     = flagset.String("http-addr", ":https", "http(s) listen address of mdm server. defaults to :8080 if tls is false")
 		flHTTPDebug    = flagset.Bool("http-debug", false, "enable debug for http(dumps full request)")
 		flRepoPath     = flagset.String("filerepo", "", "path to http file repo")
-		flDepSim       = flagset.Bool("depsim", false, "use depsim config")
+		flDepSim       = flagset.String("depsim", "", "use depsim URL")
 		flExamples     = flagset.Bool("examples", false, "prints some example usage")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
@@ -465,7 +465,7 @@ func printExamples() {
 
 type config struct {
 	configPath          string
-	depsim              bool
+	depsim              string
 	pubclient           pubsub.PublishSubscriber
 	db                  *bolt.DB
 	pushCert            pushServiceCert
@@ -741,7 +741,7 @@ func (c *config) depClient() (dep.Client, error) {
 	}
 
 	// override with depsim keys if specified on CLI
-	if depsim {
+	if depsim != "" {
 		conf = &dep.Config{
 			ConsumerKey:    "CK_48dd68d198350f51258e885ce9a5c37ab7f98543c4a697323d75682a6c10a32501cb247e3db08105db868f73f2c972bdb6ae77112aea803b9219eb52689d42e6",
 			ConsumerSecret: "CS_34c7b2b531a600d99a0e4edcf4a78ded79b86ef318118c2f5bcfee1b011108c32d5302df801adbe29d446eb78f02b13144e323eb9aad51c79f01e50cb45c3a68",
@@ -755,9 +755,8 @@ func (c *config) depClient() (dep.Client, error) {
 	}
 
 	depServerURL := "https://mdmenrollment.apple.com"
-	if depsim {
-		// TODO: support supplied depsim URL
-		depServerURL = "http://dep.micromdm.io:9000"
+	if depsim != "" {
+		depServerURL = depsim
 	}
 	client, err := dep.NewClient(conf, dep.ServerURL(depServerURL))
 	if err != nil {
