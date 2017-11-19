@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-kit/kit/log"
-	"github.com/micromdm/mdm"
 )
 
 type loggingMiddleware struct {
@@ -20,14 +19,14 @@ func NewLoggingService(svc ConnectService, logger log.Logger) loggingMiddleware 
 	}
 }
 
-func (mw loggingMiddleware) Acknowledge(ctx context.Context, req mdm.Response) (payload []byte, err error) {
+func (mw loggingMiddleware) Acknowledge(ctx context.Context, req MDMConnectRequest) (payload []byte, err error) {
 	defer func(begin time.Time) {
 		_ = mw.logger.Log(
 			"method", "Acknowledge",
-			"udid", req.UDID,
-			"command_uuid", req.CommandUUID,
-			"status", req.Status,
-			"request_type", req.RequestType,
+			"udid", req.MDMResponse.UDID,
+			"command_uuid", req.MDMResponse.CommandUUID,
+			"status", req.MDMResponse.Status,
+			"request_type", req.MDMResponse.RequestType,
 			"err", err,
 			"took", time.Since(begin),
 		)

@@ -3,10 +3,12 @@ package connect
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/groob/plist"
+	"github.com/micromdm/mdm"
 )
 
 type HTTPHandlers struct {
@@ -30,9 +32,21 @@ type errorer interface {
 }
 
 func decodeRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	var req mdmConnectRequest
-	err := plist.NewDecoder(r.Body).Decode(&req)
-	return req, err
+	var res mdm.Response
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer r.Body.Close()
+
+	err = plist.Unmarshal(body, &res)
+	if err != nil {
+		return nil, err
+	}
+
+	req := MDMConnectRequest{MDMResponse: res, Raw: body}
+	return req, nil
 }
 
 // According to the MDM Check-in protocol, the server must respond with 200 OK
