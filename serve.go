@@ -153,7 +153,7 @@ func serve(args []string) error {
 	sm.setupCommandService()
 	sm.setupWebhooks()
 	sm.setupCommandQueue(logger)
-	sm.setupDEPSync()
+	syncer := sm.setupDEPSync(logger)
 	if sm.err != nil {
 		stdlog.Fatal(sm.err)
 	}
@@ -357,6 +357,10 @@ func serve(args []string) error {
 
 	scepHandler := scep.ServiceHandler(ctx, sm.scepService, httpLogger)
 	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.enrollService, sm.scepDepot), httptransport.ServerErrorLogger(httpLogger))
+
+	syncNowEndpoint := depsync.MakeSyncNowEndpoint(depsync.NewRPC(syncer))
+	depsyncHandlers := depsync.MakeHTTPHandlers(ctx, depsync.Endpoints{SyncNowEndpoint: syncNowEndpoint}, connectOpts...)
+
 	r := mux.NewRouter()
 	r.Handle("/mdm/checkin", mdmAuthSignMessageMiddleware(sm.scepDepot, checkinHandlers.CheckinHandler)).Methods("PUT")
 	r.Handle("/mdm/connect", mdmAuthSignMessageMiddleware(sm.scepDepot, connectHandlers.ConnectHandler)).Methods("PUT")
@@ -385,6 +389,7 @@ func serve(args []string) error {
 		r.Handle("/v1/dep/account", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPAccountInfoHandler)).Methods("GET")
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPProfileHandler)).Methods("GET")
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DefineDEPProfileHandler)).Methods("POST")
+		r.Handle("/v1/dep/syncnow", apiAuthMiddleware(*flAPIKey, depsyncHandlers.SyncNowHandler)).Methods("POST")
 		r.Handle("/v1/apps", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.AppUploadHandler)).Methods("POST")
 		r.Handle("/v1/apps", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListAppsHandler)).Methods("GET")
 		r.Handle("/v1/users", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.ApplyUserhandler)).Methods("PUT")
@@ -806,24 +811,27 @@ func (c *config) depClient() (dep.Client, error) {
 	return client, nil
 }
 
-func (c *config) setupDEPSync() {
+func (c *config) setupDEPSync(logger log.Logger) depsync.Syncer {
 	if c.err != nil {
-		return
+		return nil
 	}
 
 	client, err := c.depClient()
 	if err != nil {
 		c.err = err
-		return
+		return nil
 	}
 	var opts []depsync.Option
+	logger = log.With(logger, "component", "depsync")
 	if client != nil {
-		opts = append(opts, depsync.WithClient(client))
+		opts = append(opts, depsync.WithClient(client), depsync.WithLogger(logger))
 	}
-	_, c.err = depsync.New(c.pubclient, c.db, opts...)
+	var syncer depsync.Syncer
+	syncer, c.err = depsync.New(c.pubclient, c.db, logger, opts...)
 	if err != nil {
-		return
+		return nil
 	}
+	return syncer
 }
 
 func (c *config) setupSCEP(logger log.Logger) {
