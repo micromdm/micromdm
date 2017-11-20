@@ -22,6 +22,7 @@ type Endpoints struct {
 	GetDEPProfileEndpoint     endpoint.Endpoint
 	ListAppsEndpont           endpoint.Endpoint
 	ListUserEndpoint          endpoint.Endpoint
+	BackupEndpoint            endpoint.Endpoint
 }
 
 func (e Endpoints) ListUsers(ctx context.Context, opts ListUsersOption) ([]user.User, error) {
@@ -31,6 +32,15 @@ func (e Endpoints) ListUsers(ctx context.Context, opts ListUsersOption) ([]user.
 		return nil, err
 	}
 	return response.(userResponse).Users, response.(userResponse).Err
+}
+
+func (e Endpoints) Backup() ([]byte, error) {
+	request := backupRequest{}
+	response, err := e.BackupEndpoint(context.Background(), request)
+	if err != nil {
+		return nil, err
+	}
+	return response.(backupResponse).Data, response.(backupResponse).Err
 }
 
 func (e Endpoints) ListDevices(ctx context.Context, opts ListDevicesOption) ([]DeviceDTO, error) {
@@ -191,6 +201,20 @@ func MakeGetDEPProfileEndpoint(svc Service) endpoint.Endpoint {
 		profile, err := svc.GetDEPProfile(ctx, req.UUID)
 		return depProfileResponse{Profile: profile, Err: err}, nil
 	}
+}
+
+func MakeBackupEndpoint(svc Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		data, err := svc.Backup()
+		return backupResponse{Data: data, Err: err}, nil
+	}
+}
+
+type backupRequest struct{}
+
+type backupResponse struct {
+	Data []byte `json:"data"`
+	Err  error  `json:"err"`
 }
 
 type DeviceDTO struct {

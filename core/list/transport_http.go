@@ -21,6 +21,7 @@ type HTTPHandlers struct {
 	GetDEPDeviceDetailsHandler http.Handler
 	ListAppsHandler            http.Handler
 	ListUsersHander            http.Handler
+	BackupHandler              http.Handler
 }
 
 func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
@@ -76,8 +77,18 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 			encodeResponse,
 			opts...,
 		),
+		BackupHandler: httptransport.NewServer(
+			endpoints.BackupEndpoint,
+			decodeBackupRequest,
+			encodeResponse,
+			opts...,
+		),
 	}
 	return h
+}
+
+func decodeBackupRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	return nil, nil
 }
 
 func decodeGetDEPTokensRequest(ctx context.Context, r *http.Request) (interface{}, error) {

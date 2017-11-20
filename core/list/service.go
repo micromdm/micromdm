@@ -1,6 +1,7 @@
 package list
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"log"
@@ -55,6 +56,11 @@ type Service interface {
 	GetProfiles(ctx context.Context, opt GetProfilesOption) ([]profile.Profile, error)
 	ListApplications(ctx context.Context, opt ListAppsOption) ([]AppDTO, error)
 	DEPService
+	Backup
+}
+
+type Backup interface {
+	Backup() ([]byte, error)
 }
 
 type ListService struct {
@@ -67,6 +73,13 @@ type ListService struct {
 	Tokens     *deptoken.DB
 	Apps       appstore.AppStore
 	Users      *user.DB
+}
+
+func (svc *ListService) Backup() ([]byte, error) {
+	// code here
+	var buf bytes.Buffer
+	buf.Write([]byte("hello world"))
+	return buf.Bytes(), nil
 }
 
 func (svc *ListService) ListApplications(ctx context.Context, opts ListAppsOption) ([]AppDTO, error) {
