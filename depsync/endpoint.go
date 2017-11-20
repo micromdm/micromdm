@@ -7,14 +7,14 @@ import (
 )
 
 type Endpoints struct {
-	SyncNowEndpoint endpoint.Endpoint
+	RefreshEndpoint endpoint.Endpoint
 }
 
-func MakeSyncNowEndpoint(s Service) endpoint.Endpoint {
+func MakeRefreshEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		s.SyncNow(ctx)
-		return syncNowResponse{}, nil
+		s.Refresh(ctx)
+		return refreshResponse{}, nil
 	}
 }
 
-type syncNowResponse struct{}
+type refreshResponse struct{}

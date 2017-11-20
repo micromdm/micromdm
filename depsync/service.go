@@ -5,18 +5,18 @@ import (
 )
 
 type Service interface {
-	SyncNow(ctx context.Context)
+	Refresh(ctx context.Context)
 }
 
-type syncNowService struct {
+type RefreshService struct {
 	syncer Syncer
 }
 
-func (s *syncNowService) SyncNow(_ context.Context) {
+func (s *RefreshService) Refresh(_ context.Context) {
 	s.syncer.SyncNow()
 	return
 }
 
-func NewRPC(syncer Syncer) *syncNowService {
-	return &syncNowService{syncer: syncer}
+func NewRPC(syncer Syncer) *RefreshService {
+	return &RefreshService{syncer: syncer}
 }

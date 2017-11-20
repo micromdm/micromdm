@@ -8,13 +8,13 @@ import (
 )
 
 type HTTPHandlers struct {
-	SyncNowHandler http.Handler
+	RefreshHandler http.Handler
 }
 
 func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
 	return HTTPHandlers{
-		SyncNowHandler: httptransport.NewServer(
-			endpoints.SyncNowEndpoint,
+		RefreshHandler: httptransport.NewServer(
+			endpoints.RefreshEndpoint,
 			decodeEmptyRequest,
 			encodeEmptyResponse,
 			opts...,

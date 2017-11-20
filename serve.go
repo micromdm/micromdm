@@ -350,8 +350,8 @@ func serve(args []string) error {
 	scepHandler := scep.ServiceHandler(ctx, sm.scepService, httpLogger)
 	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.enrollService, sm.scepDepot), httptransport.ServerErrorLogger(httpLogger))
 
-	syncNowEndpoint := depsync.MakeSyncNowEndpoint(depsync.NewRPC(syncer))
-	depsyncHandlers := depsync.MakeHTTPHandlers(ctx, depsync.Endpoints{SyncNowEndpoint: syncNowEndpoint}, connectOpts...)
+	refreshEndpoint := depsync.MakeRefreshEndpoint(depsync.NewRPC(syncer))
+	depsyncHandlers := depsync.MakeHTTPHandlers(ctx, depsync.Endpoints{RefreshEndpoint: refreshEndpoint}, connectOpts...)
 
 	r := mux.NewRouter()
 	r.Handle("/mdm/checkin", mdmAuthSignMessageMiddleware(sm.scepDepot, checkinHandlers.CheckinHandler)).Methods("PUT")
@@ -381,7 +381,7 @@ func serve(args []string) error {
 		r.Handle("/v1/dep/account", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPAccountInfoHandler)).Methods("GET")
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPProfileHandler)).Methods("GET")
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DefineDEPProfileHandler)).Methods("POST")
-		r.Handle("/v1/dep/syncnow", apiAuthMiddleware(*flAPIKey, depsyncHandlers.SyncNowHandler)).Methods("POST")
+		r.Handle("/v1/dep/refresh", apiAuthMiddleware(*flAPIKey, depsyncHandlers.RefreshHandler)).Methods("POST")
 		r.Handle("/v1/apps", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.AppUploadHandler)).Methods("POST")
 		r.Handle("/v1/apps", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListAppsHandler)).Methods("GET")
 		r.Handle("/v1/users", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.ApplyUserhandler)).Methods("PUT")
