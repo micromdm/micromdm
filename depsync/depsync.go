@@ -20,6 +20,7 @@ const (
 	SyncTopic    = "mdm.DepSync"
 	ConfigBucket = "mdm.DEPConfig"
 	syncDuration = 30 * time.Minute
+	fetchLimit   = 100
 )
 
 type Syncer interface {
@@ -88,6 +89,7 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, logger log.Logger, opts ...O
 		conf:      conf,
 		startSync: make(chan bool),
 		syncNow:   make(chan bool),
+		logger:    log.NewNopLogger(),
 
 		// TODO: hard coded right now for initial testing
 		assigners: []autoassigner{autoassigner{filter: "*", profile_uuid: "95124484B114B710"}},
@@ -96,11 +98,6 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, logger log.Logger, opts ...O
 	// apply our supplied options
 	for _, opt := range opts {
 		opt(sync)
-	}
-
-	// if no logger option has been set use the null logger
-	if sync.logger == nil {
-		sync.logger = log.NewNopLogger()
 	}
 
 	if err := sync.updateClient(pub); err != nil {
@@ -174,6 +171,34 @@ func isCursorExpired(err error) bool {
 	return strings.Contains(err.Error(), "EXPIRED_CURSOR")
 }
 
+// perform the actual DEP profile assignment
+func (w *watcher) depAssign(profile_uuid string, serials []string) error {
+	resp, err := w.client.AssignProfile(profile_uuid, serials)
+	if err != nil {
+		return err
+	}
+	// count our results for logging
+	resultCounts := map[string]int{
+		"SUCCESS":        0,
+		"NOT_ACCESSIBLE": 0,
+		"FAILED":         0,
+	}
+	for _, result := range resp.Devices {
+		resultCounts[result] = resultCounts[result] + 1
+	}
+	// TODO: alternate strategy is to log all failed devices
+	// TODO: handle/requeue failed devices? spec says "after 3 retries to
+	// contact apple support"
+	level.Info(w.logger).Log(
+		"msg", "dep-assigned",
+		"profile_uuid", profile_uuid,
+		"success", resultCounts["SUCCESS"],
+		"not_accessible", resultCounts["NOT_ACCESSIBLE"],
+		"failed", resultCounts["FAILED"],
+	)
+	return nil
+}
+
 func (w *watcher) processAutoAssign(devices []dep.Device) error {
 	if len(w.assigners) < 1 {
 		return nil
@@ -197,28 +222,10 @@ func (w *watcher) processAutoAssign(devices []dep.Device) error {
 	}
 
 	for profile_uuid, serials := range newAssignments {
-		resp, err := w.client.AssignProfile(profile_uuid, serials)
+		err := w.depAssign(profile_uuid, serials)
 		if err != nil {
 			level.Info(w.logger).Log("err", err, "msg", "auto-assign-dep")
-			continue
 		}
-		// count our results for logging
-		resultCounts := map[string]int{
-			"SUCCESS":        0,
-			"NOT_ACCESSIBLE": 0,
-			"FAILED":         0,
-		}
-		for _, result := range resp.Devices {
-			resultCounts[result] = resultCounts[result] + 1
-		}
-		// TODO: alternate strategy is to log all failed devices
-		// TODO: handle/requeue failed devices?
-		level.Info(w.logger).Log(
-			"msg", "dep-assigned",
-			"profile_uuid", profile_uuid,
-			"success", resultCounts["SUCCESS"],
-			"not_accessible", resultCounts["NOT_ACCESSIBLE"],
-			"failed", resultCounts["FAILED"])
 	}
 	return nil
 }
@@ -227,13 +234,19 @@ func (w *watcher) Run() error {
 	ticker := time.NewTicker(syncDuration).C
 FETCH:
 	for {
-		resp, err := w.client.FetchDevices(dep.Limit(100), dep.Cursor(w.conf.Cursor.Value))
+		resp, err := w.client.FetchDevices(dep.Limit(fetchLimit), dep.Cursor(w.conf.Cursor.Value))
 		if err != nil && isCursorExhausted(err) {
 			goto SYNC
 		} else if err != nil {
 			return err
 		}
-		level.Info(w.logger).Log("msg", "DEP fetch", "more", resp.MoreToFollow, "cursor", resp.Cursor, "fetched", resp.FetchedUntil, "devices", len(resp.Devices))
+		level.Info(w.logger).Log(
+			"msg", "DEP fetch",
+			"more", resp.MoreToFollow,
+			"cursor", resp.Cursor,
+			"fetched", resp.FetchedUntil,
+			"devices", len(resp.Devices),
+		)
 		w.conf.Cursor = cursor{Value: resp.Cursor, CreatedAt: time.Now()}
 		if err := w.conf.Save(); err != nil {
 			return errors.Wrap(err, "saving cursor from fetch")
@@ -242,7 +255,7 @@ FETCH:
 			e := NewEvent(resp.Devices)
 			data, err := MarshalEvent(e)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "error marshalling event")
 			}
 			if err := w.publisher.Publish(context.TODO(), SyncTopic, data); err != nil {
 				return err
@@ -268,7 +281,13 @@ SYNC:
 		} else if err != nil {
 			return err
 		}
-		level.Info(w.logger).Log("msg", "DEP sync", "more", resp.MoreToFollow, "cursor", resp.Cursor, "fetched", resp.FetchedUntil, "devices", len(resp.Devices))
+		level.Info(w.logger).Log(
+			"msg", "DEP sync",
+			"more", resp.MoreToFollow,
+			"cursor", resp.Cursor,
+			"fetched", resp.FetchedUntil,
+			"devices", len(resp.Devices),
+		)
 		w.conf.Cursor = cursor{Value: resp.Cursor, CreatedAt: time.Now()}
 		if err := w.conf.Save(); err != nil {
 			return errors.Wrap(err, "saving cursor from sync")
@@ -277,7 +296,7 @@ SYNC:
 			e := NewEvent(resp.Devices)
 			data, err := MarshalEvent(e)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "error marshalling event")
 			}
 			if err := w.publisher.Publish(context.TODO(), SyncTopic, data); err != nil {
 				return err

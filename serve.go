@@ -788,7 +788,7 @@ func (c *config) setupDEPSync(logger log.Logger) depsync.Syncer {
 	}
 	var syncer depsync.Syncer
 	syncer, c.err = depsync.New(c.pubclient, c.db, logger, opts...)
-	if err != nil {
+	if c.err != nil {
 		return nil
 	}
 	return syncer
