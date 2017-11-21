@@ -40,7 +40,7 @@ BUILD_VERSION = "\
 WORKSPACE = ${GOPATH}/src/github.com/micromdm/micromdm
 check-deps:
 ifneq ($(shell test -e ${WORKSPACE}/Gopkg.lock && echo -n yes), yes)
-	@echo "folder is clonded in the wrong place, copying to a Go Workspace"
+	@echo "folder is cloned in the wrong place, copying to a Go Workspace"
 	@echo "See: https://golang.org/doc/code.html#Workspaces"
 	@git clone git@github.com:micromdm/micromdm ${WORKSPACE}
 	@echo "cd to ${WORKSPACE} and run make deps again."
