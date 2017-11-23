@@ -7,7 +7,7 @@ import (
 	"github.com/micromdm/mdm"
 	uuid "github.com/satori/go.uuid"
 
-	"github.com/micromdm/micromdm/connect/internal/connectproto"
+	"github.com/micromdm/micromdm/mdm/connect/internal/connectproto"
 )
 
 type Event struct {

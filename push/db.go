@@ -5,9 +5,10 @@ import (
 	"fmt"
 
 	"github.com/boltdb/bolt"
-	"github.com/micromdm/micromdm/checkin"
-	"github.com/micromdm/micromdm/pubsub"
 	"github.com/pkg/errors"
+
+	"github.com/micromdm/micromdm/mdm/checkin"
+	"github.com/micromdm/micromdm/pubsub"
 )
 
 const PushBucket = "mdm.PushInfo"

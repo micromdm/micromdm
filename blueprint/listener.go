@@ -7,9 +7,9 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/mdm"
-	"github.com/micromdm/micromdm/checkin"
 	"github.com/micromdm/micromdm/command"
 	"github.com/micromdm/micromdm/device"
+	"github.com/micromdm/micromdm/mdm/checkin"
 	"github.com/micromdm/micromdm/profile"
 	"github.com/micromdm/micromdm/pubsub"
 )
