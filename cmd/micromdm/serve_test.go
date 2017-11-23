@@ -8,7 +8,7 @@ func TestLoadPushCerts(t *testing.T) {
 	p12path := "testdata/pushcert.p12"
 	keysecret := "secret"
 
-	cfg := &config{
+	cfg := &server{
 		APNSPrivateKeyPath:  keypath,
 		APNSCertificatePath: certpath,
 		APNSPrivateKeyPass:  keysecret,

@@ -12,11 +12,12 @@ import (
 
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/micromdm/micromdm/blueprint"
-	"github.com/micromdm/micromdm/core/apply"
-	"github.com/micromdm/micromdm/profile"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
+
+	"github.com/micromdm/micromdm/platform/apiserver/apply"
+	"github.com/micromdm/micromdm/platform/blueprint"
+	"github.com/micromdm/micromdm/platform/profile"
 )
 
 type applyCommand struct {

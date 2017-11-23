@@ -11,8 +11,9 @@ import (
 	"os"
 
 	"github.com/micromdm/dep"
-	"github.com/micromdm/micromdm/crypto"
 	"github.com/pkg/errors"
+
+	"github.com/micromdm/micromdm/pkg/crypto"
 )
 
 func certificatesFromURL(serverURL string, insecure bool) ([]*x509.Certificate, error) {

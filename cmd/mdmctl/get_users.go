@@ -9,7 +9,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/micromdm/micromdm/core/list"
+	"github.com/micromdm/micromdm/platform/apiserver/list"
 )
 
 type usersTableOutput struct{ w *tabwriter.Writer }

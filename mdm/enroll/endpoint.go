@@ -5,13 +5,13 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/micromdm/micromdm/crypto"
-	"github.com/micromdm/micromdm/profile"
-	boltdepot "github.com/micromdm/scep/depot/bolt"
-
 	"github.com/fullsailor/pkcs7"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/mdm"
+	boltdepot "github.com/micromdm/scep/depot/bolt"
+
+	"github.com/micromdm/micromdm/pkg/crypto"
+	"github.com/micromdm/micromdm/platform/profile"
 )
 
 type Endpoints struct {

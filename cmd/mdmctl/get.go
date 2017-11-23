@@ -14,9 +14,10 @@ import (
 
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/micromdm/micromdm/core/list"
-	"github.com/micromdm/micromdm/crypto"
 	"github.com/pkg/errors"
+
+	"github.com/micromdm/micromdm/pkg/crypto"
+	"github.com/micromdm/micromdm/platform/apiserver/list"
 )
 
 type getCommand struct {
