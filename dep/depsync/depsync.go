@@ -11,9 +11,10 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/micromdm/dep"
-	"github.com/micromdm/micromdm/deptoken"
-	"github.com/micromdm/micromdm/pubsub"
 	"github.com/pkg/errors"
+
+	"github.com/micromdm/micromdm/dep/deptoken"
+	"github.com/micromdm/micromdm/pubsub"
 )
 
 const (
