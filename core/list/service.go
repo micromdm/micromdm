@@ -12,7 +12,7 @@ import (
 
 	"github.com/micromdm/micromdm/appstore"
 	"github.com/micromdm/micromdm/blueprint"
-	"github.com/micromdm/micromdm/deptoken"
+	"github.com/micromdm/micromdm/dep/deptoken"
 	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/profile"
 	"github.com/micromdm/micromdm/pubsub"

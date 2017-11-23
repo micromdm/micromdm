@@ -7,7 +7,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/dep"
 	"github.com/micromdm/micromdm/blueprint"
-	"github.com/micromdm/micromdm/deptoken"
+	"github.com/micromdm/micromdm/dep/deptoken"
 	"github.com/micromdm/micromdm/profile"
 	"github.com/micromdm/micromdm/user"
 )
