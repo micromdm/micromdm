@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/micromdm/micromdm/connect"
+	"github.com/micromdm/micromdm/mdm/connect"
 	"github.com/micromdm/micromdm/pubsub"
 	"github.com/pkg/errors"
 )

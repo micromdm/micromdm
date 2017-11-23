@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 
-	"github.com/micromdm/micromdm/checkin"
+	"github.com/micromdm/micromdm/mdm/checkin"
 	"github.com/micromdm/micromdm/pubsub"
 )
 
