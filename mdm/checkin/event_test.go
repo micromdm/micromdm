@@ -8,7 +8,7 @@ import (
 	"github.com/groob/plist"
 	"github.com/micromdm/mdm"
 
-	"github.com/micromdm/micromdm/checkin"
+	"github.com/micromdm/micromdm/mdm/checkin"
 )
 
 var marshalTests = []string{
