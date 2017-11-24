@@ -1,0 +1,157 @@
+syntax = "proto3";
+
+package mdmproto;
+
+message CommandPayload {
+    string command_uuid = 1;
+    Command command = 2;
+}
+
+message Command {
+    string request_type = 1;
+    /*
+       Request Types that do not have additional fields:
+       - ProfileList
+       - ProvisioningProfileList
+       - CertificateList",
+       - SecurityInfo
+       - RestartDevice
+       - ShutDownDevice
+       - StopMirroring
+       - ClearRestrictionsPassword
+       - UserList
+       - LogOutUser
+       - PlayLostModeSound
+       - DisableLostMode
+       - DeviceLocation
+     */
+    oneof request {
+        InstallProfile install_profile = 2;
+        RemoveProfile remove_profile = 3;
+        InstallProvisioningProfile install_provisioning_profile = 4;
+        RemoveProvisioningProfile remove_profisioning_profile = 5;
+        InstalledApplicationList installed_application_list = 6;
+        DeviceInformation device_information = 7;
+        DeviceLock device_lock = 8;
+        ClearPasscode clear_passcode = 9;
+        EraseDevice erase_device = 10;
+        RequestMirroring request_mirroring = 11;
+        Restrictions restrictions = 12;
+        UnlockUserAccount unlock_user_account = 13;
+        DeleteUser delete_user = 14;
+        EnableLostMode enable_lost_mode = 15;
+        InstallApplication install_application = 16;
+    }
+}
+
+message InstallProfile {
+    bytes payload = 1; // The mobileconfig data.
+}
+
+message RemoveProfile {
+    string identifier = 1;
+}
+
+message InstallProvisioningProfile {
+    bytes provisioning_profile = 1;
+}
+
+message RemoveProvisioningProfile {
+    string uuid = 1;
+}
+
+message InstalledApplicationList {
+    repeated string identifiers = 1;
+    bool managed_apps_only = 2;
+}
+
+message DeviceInformation {
+    repeated string queries = 1;
+}
+
+message ClearPasscode {
+    bytes unlock_token = 1;
+}
+
+message DeviceLock {
+    string pin = 1;
+    string message = 2;
+    string phone_number = 3;
+}
+
+message EraseDevice {
+    string pin = 1;
+    bool preserve_data_plan = 2;
+}
+
+message RequestMirroring {
+    string destination_name = 1;
+    string destination_device_id = 2;
+    string scan_time = 3;
+    string password = 4;
+}
+
+message Restrictions {
+    bool profile_restrictions = 1;
+}
+
+message UnlockUserAccount {
+    string username = 1;
+}
+
+message DeleteUser {
+    string username = 1;
+    bool force_deletion = 2;
+}
+
+message EnableLostMode {
+    string message = 1;
+    string phone_number = 2;
+    string footnote = 3;
+}
+
+message InstallApplication {
+    int64 itunes_store_id = 1;
+    string identifier = 2;
+    InstallApplicationOptions options = 3; 
+    string manifest_url = 4;
+    int64 management_flags = 5; // bitwise OR
+    InstallApplicationConfiguration configuration = 6;
+    InstallApplicationAttributes attributes = 7;
+    string change_management_state = 8;
+}
+
+message InstallApplicationOptions {
+    int64 purchase_method = 1;
+}
+
+message InstallApplicationConfiguration {
+}
+
+
+message InstallApplicationAttributes {
+}
+
+message ResultPayload {
+    enum Status {
+        Acknowledged = 0;
+        Error = 1;
+        CommandFormatError = 2;
+        Idle = 3;
+        NotNow = 4;
+    }
+    string udid = 1;
+    string command_uuid = 2;
+    repeated ErrorChain error_chain = 3;
+}
+
+message ErrorChain {
+    string localized_description = 1;
+    string us_english_description = 2;
+
+    // The ErrorDomain and ErrorCode keys contain internal codes used by Apple 
+    // that may be useful for diagnostics. Your host should not rely on these 
+    // values, as they may change between software releases.
+    string error_domain = 3;
+    int32  error_code = 4;
+}
