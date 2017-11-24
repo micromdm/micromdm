@@ -1,7 +1,7 @@
 FROM alpine:3.6
 
-RUN apk --update add ca-certificates && \
-	update-ca-certificates
+RUN apk --update add ca-certificates
+	
 
 COPY ./build/linux/micromdm /usr/bin
 
