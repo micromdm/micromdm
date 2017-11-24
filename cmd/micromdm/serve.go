@@ -39,7 +39,6 @@ import (
 	"golang.org/x/crypto/pkcs12"
 
 	"github.com/micromdm/micromdm/dep/depsync"
-	"github.com/micromdm/micromdm/dep/deptoken"
 	"github.com/micromdm/micromdm/mdm/checkin"
 	"github.com/micromdm/micromdm/mdm/connect"
 	"github.com/micromdm/micromdm/mdm/enroll"
@@ -52,6 +51,7 @@ import (
 	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/config"
+	"github.com/micromdm/micromdm/platform/deptoken"
 	"github.com/micromdm/micromdm/platform/device"
 	"github.com/micromdm/micromdm/platform/profile"
 	"github.com/micromdm/micromdm/platform/pubsub"
