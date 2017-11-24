@@ -9,7 +9,8 @@ import (
 	"github.com/fullsailor/pkcs7"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/groob/plist"
-	"github.com/micromdm/micromdm/crypto"
+
+	"github.com/micromdm/micromdm/pkg/crypto"
 )
 
 type HTTPHandlers struct {

@@ -14,7 +14,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/dep/deptoken"
-	"github.com/micromdm/micromdm/pubsub"
+	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
 const (
