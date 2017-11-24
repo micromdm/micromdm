@@ -13,7 +13,7 @@ import (
 	"github.com/micromdm/dep"
 	"github.com/pkg/errors"
 
-	"github.com/micromdm/micromdm/dep/deptoken"
+	"github.com/micromdm/micromdm/platform/deptoken"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
 

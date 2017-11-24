@@ -16,9 +16,9 @@ import (
 	"github.com/micromdm/dep"
 	"github.com/pkg/errors"
 
-	"github.com/micromdm/micromdm/dep/deptoken"
 	"github.com/micromdm/micromdm/platform/appstore"
 	"github.com/micromdm/micromdm/platform/blueprint"
+	"github.com/micromdm/micromdm/platform/deptoken"
 	"github.com/micromdm/micromdm/platform/profile"
 	"github.com/micromdm/micromdm/platform/pubsub"
 	"github.com/micromdm/micromdm/platform/user"
