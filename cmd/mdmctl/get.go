@@ -17,7 +17,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/pkg/crypto"
-	"github.com/micromdm/micromdm/platform/apiserver/list"
+	"github.com/micromdm/micromdm/platform/api/server/list"
 )
 
 type getCommand struct {
