@@ -12,9 +12,9 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 
-	"github.com/micromdm/micromdm/config"
-	"github.com/micromdm/micromdm/profile"
-	"github.com/micromdm/micromdm/pubsub"
+	"github.com/micromdm/micromdm/platform/config"
+	"github.com/micromdm/micromdm/platform/profile"
+	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
 const (

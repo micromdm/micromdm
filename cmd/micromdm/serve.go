@@ -19,48 +19,46 @@ import (
 	"strings"
 	"time"
 
-	"github.com/fullsailor/pkcs7"
-	"github.com/groob/finalizer/logutil"
-	"github.com/micromdm/go4/env"
-	"github.com/micromdm/go4/version"
-	"golang.org/x/crypto/acme/autocert"
-	"golang.org/x/crypto/pkcs12"
-
 	"github.com/RobotsAndPencils/buford/push"
 	"github.com/boltdb/bolt"
+	"github.com/fullsailor/pkcs7"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
-	"github.com/pkg/errors"
-
+	"github.com/groob/finalizer/logutil"
 	"github.com/micromdm/dep"
+	"github.com/micromdm/go4/env"
 	"github.com/micromdm/go4/httputil"
+	"github.com/micromdm/go4/version"
 	boltdepot "github.com/micromdm/scep/depot/bolt"
 	scep "github.com/micromdm/scep/server"
+	"github.com/pkg/errors"
+	"golang.org/x/crypto/acme/autocert"
+	"golang.org/x/crypto/pkcs12"
 
-	"github.com/micromdm/micromdm/appstore"
-	"github.com/micromdm/micromdm/blueprint"
-	"github.com/micromdm/micromdm/command"
-	configsvc "github.com/micromdm/micromdm/config"
-	"github.com/micromdm/micromdm/core/apply"
-	"github.com/micromdm/micromdm/core/list"
-	"github.com/micromdm/micromdm/core/remove"
-	"github.com/micromdm/micromdm/crypto"
 	"github.com/micromdm/micromdm/dep/depsync"
 	"github.com/micromdm/micromdm/dep/deptoken"
-	"github.com/micromdm/micromdm/device"
 	"github.com/micromdm/micromdm/mdm/checkin"
 	"github.com/micromdm/micromdm/mdm/connect"
 	"github.com/micromdm/micromdm/mdm/enroll"
-	"github.com/micromdm/micromdm/profile"
-	"github.com/micromdm/micromdm/pubsub"
-	"github.com/micromdm/micromdm/pubsub/inmem"
-	nanopush "github.com/micromdm/micromdm/push"
-	"github.com/micromdm/micromdm/queue"
-	"github.com/micromdm/micromdm/user"
-	"github.com/micromdm/micromdm/webhook"
+	"github.com/micromdm/micromdm/pkg/crypto"
+	"github.com/micromdm/micromdm/platform/apiserver/apply"
+	"github.com/micromdm/micromdm/platform/apiserver/list"
+	"github.com/micromdm/micromdm/platform/apiserver/remove"
+	"github.com/micromdm/micromdm/platform/apns"
+	"github.com/micromdm/micromdm/platform/appstore"
+	"github.com/micromdm/micromdm/platform/blueprint"
+	"github.com/micromdm/micromdm/platform/command"
+	"github.com/micromdm/micromdm/platform/config"
+	"github.com/micromdm/micromdm/platform/device"
+	"github.com/micromdm/micromdm/platform/profile"
+	"github.com/micromdm/micromdm/platform/pubsub"
+	"github.com/micromdm/micromdm/platform/pubsub/inmem"
+	"github.com/micromdm/micromdm/platform/queue"
+	"github.com/micromdm/micromdm/platform/user"
+	"github.com/micromdm/micromdm/workflow/webhook"
 )
 
 const homePage = `<!doctype html>
@@ -126,7 +124,7 @@ func serve(args []string) error {
 	if err := os.MkdirAll(*flConfigPath, 0755); err != nil {
 		return errors.Wrapf(err, "creating config directory %s", *flConfigPath)
 	}
-	sm := &config{
+	sm := &server{
 		configPath:          *flConfigPath,
 		ServerPublicURL:     strings.TrimRight(*flServerURL, "/"),
 		APNSCertificatePath: *flAPNSCertPath,
@@ -193,17 +191,17 @@ func serve(args []string) error {
 	ctx := context.Background()
 	httpLogger := log.With(logger, "transport", "http")
 
-	var configHandlers configsvc.HTTPHandlers
+	var configHandlers config.HTTPHandlers
 	{
-		pushCertEndpoint := configsvc.MakeSavePushCertificateEndpoint(sm.configService)
-		configEndpoints := configsvc.Endpoints{
+		pushCertEndpoint := config.MakeSavePushCertificateEndpoint(sm.configService)
+		configEndpoints := config.Endpoints{
 			SavePushCertificateEndpoint: pushCertEndpoint,
 		}
 		configOpts := []httptransport.ServerOption{
 			httptransport.ServerErrorLogger(httpLogger),
 			httptransport.ServerErrorEncoder(checkin.EncodeError),
 		}
-		configHandlers = configsvc.MakeHTTPHandlers(ctx, configEndpoints, configOpts...)
+		configHandlers = config.MakeHTTPHandlers(ctx, configEndpoints, configOpts...)
 	}
 
 	var checkinHandlers checkin.HTTPHandlers
@@ -218,16 +216,16 @@ func serve(args []string) error {
 		checkinHandlers = checkin.MakeHTTPHandlers(ctx, e, opts...)
 	}
 
-	var pushHandlers nanopush.HTTPHandlers
+	var pushHandlers apns.HTTPHandlers
 	{
-		e := nanopush.Endpoints{
-			PushEndpoint: nanopush.MakePushEndpoint(sm.pushService),
+		e := apns.Endpoints{
+			PushEndpoint: apns.MakePushEndpoint(sm.pushService),
 		}
 		opts := []httptransport.ServerOption{
 			httptransport.ServerErrorLogger(httpLogger),
 			httptransport.ServerErrorEncoder(checkin.EncodeError),
 		}
-		pushHandlers = nanopush.MakeHTTPHandlers(ctx, e, opts...)
+		pushHandlers = apns.MakeHTTPHandlers(ctx, e, opts...)
 	}
 
 	var commandHandlers command.HTTPHandlers
@@ -473,7 +471,7 @@ func printExamples() {
 	fmt.Println(exampleText)
 }
 
-type config struct {
+type server struct {
 	configPath          string
 	depsim              string
 	pubclient           pubsub.PublishSubscriber
@@ -487,7 +485,7 @@ type config struct {
 	tlsCertPath         string
 	scepDepot           *boltdepot.Depot
 	profileDB           *profile.DB
-	configDB            *configsvc.DB
+	configDB            *config.DB
 	CommandWebhookURL   string
 
 	// TODO: refactor enroll service and remove the need to reference
@@ -496,13 +494,13 @@ type config struct {
 	scepCACertPath string
 
 	PushService    *push.Service // bufford push
-	pushService    nanopush.Service
+	pushService    apns.Service
 	checkinService checkin.Service
 	connectService connect.ConnectService
 	enrollService  enroll.Service
 	scepService    scep.Service
 	commandService command.Service
-	configService  configsvc.Service
+	configService  config.Service
 
 	responseWebhook    *webhook.CommandWebhook
 	webhooksHTTPClient *http.Client
@@ -510,21 +508,21 @@ type config struct {
 	err error
 }
 
-func (c *config) setupPubSub() {
+func (c *server) setupPubSub() {
 	if c.err != nil {
 		return
 	}
 	c.pubclient = inmem.NewPubSub()
 }
 
-func (c *config) setupCommandService() {
+func (c *server) setupCommandService() {
 	if c.err != nil {
 		return
 	}
 	c.commandService, c.err = command.New(c.db, c.pubclient)
 }
 
-func (c *config) setupWebhooks() {
+func (c *server) setupWebhooks() {
 	if c.err != nil {
 		return
 	}
@@ -542,7 +540,7 @@ func (c *config) setupWebhooks() {
 	c.responseWebhook = h
 }
 
-func (c *config) startWebhooks() {
+func (c *server) startWebhooks() {
 	if c.err != nil {
 		return
 	}
@@ -552,7 +550,7 @@ func (c *config) startWebhooks() {
 	}
 }
 
-func (c *config) setupCommandQueue(logger log.Logger) {
+func (c *server) setupCommandQueue(logger log.Logger) {
 	if c.err != nil {
 		return
 	}
@@ -578,14 +576,14 @@ func (c *config) setupCommandQueue(logger log.Logger) {
 	c.connectService = connectService
 }
 
-func (c *config) setupCheckinService() {
+func (c *server) setupCheckinService() {
 	if c.err != nil {
 		return
 	}
 	c.checkinService, c.err = checkin.New(c.db, c.pubclient)
 }
 
-func (c *config) setupBolt() {
+func (c *server) setupBolt() {
 	if c.err != nil {
 		return
 	}
@@ -598,7 +596,7 @@ func (c *config) setupBolt() {
 	c.db = db
 }
 
-func (c *config) loadPushCerts() {
+func (c *server) loadPushCerts() {
 	if c.APNSCertificatePath == "" && c.APNSPrivateKeyPass == "" && c.APNSPrivateKeyPath == "" {
 		// this is optional, config could also be provided with mdmctl
 		return
@@ -660,26 +658,26 @@ type pushServiceCert struct {
 	PrivateKey interface{}
 }
 
-func (c *config) setupConfigStore() {
+func (c *server) setupConfigStore() {
 	if c.err != nil {
 		return
 	}
-	db, err := configsvc.NewDB(c.db, c.pubclient)
+	db, err := config.NewDB(c.db, c.pubclient)
 	if err != nil {
 		c.err = err
 		return
 	}
 	c.configDB = db
-	c.configService = configsvc.NewService(db)
+	c.configService = config.NewService(db)
 
 }
 
-func (c *config) setupPushService(logger log.Logger) {
+func (c *server) setupPushService(logger log.Logger) {
 	if c.err != nil {
 		return
 	}
 
-	var opts []nanopush.Option
+	var opts []apns.Option
 	{
 		cert, _ := c.configDB.PushCertificate()
 		if c.pushCert.Certificate != nil && cert == nil {
@@ -698,28 +696,28 @@ func (c *config) setupPushService(logger log.Logger) {
 			return
 		}
 		svc := push.NewService(client, push.Production)
-		opts = append(opts, nanopush.WithPushService(svc))
+		opts = append(opts, apns.WithPushService(svc))
 	}
 after:
 
-	db, err := nanopush.NewDB(c.db, c.pubclient)
+	db, err := apns.NewDB(c.db, c.pubclient)
 	if err != nil {
 		c.err = err
 		return
 	}
 
-	service, err := nanopush.New(db, c.configDB, c.pubclient, opts...)
+	service, err := apns.New(db, c.configDB, c.pubclient, opts...)
 	if err != nil {
 		c.err = errors.Wrap(err, "starting micromdm push service")
 		return
 	}
-	c.pushService = nanopush.NewLoggingService(
+	c.pushService = apns.NewLoggingService(
 		service,
 		log.With(level.Info(logger), "component", "push"),
 	)
 }
 
-func (c *config) setupEnrollmentService() {
+func (c *server) setupEnrollmentService() {
 	if c.err != nil {
 		return
 	}
@@ -759,7 +757,7 @@ func (p staticTopicProvider) PushTopic() (string, error) {
 	return p.topic, nil
 }
 
-func (c *config) depClient() (dep.Client, error) {
+func (c *server) depClient() (dep.Client, error) {
 	if c.err != nil {
 		return nil, c.err
 	}
@@ -808,7 +806,7 @@ func (c *config) depClient() (dep.Client, error) {
 	return client, nil
 }
 
-func (c *config) setupDEPSync() {
+func (c *server) setupDEPSync() {
 	if c.err != nil {
 		return
 	}
@@ -828,7 +826,7 @@ func (c *config) setupDEPSync() {
 	}
 }
 
-func (c *config) setupSCEP(logger log.Logger) {
+func (c *server) setupSCEP(logger log.Logger) {
 	if c.err != nil {
 		return
 	}

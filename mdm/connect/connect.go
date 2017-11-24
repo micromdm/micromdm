@@ -6,8 +6,8 @@ import (
 	"github.com/micromdm/mdm"
 	"github.com/pkg/errors"
 
-	"github.com/micromdm/micromdm/pubsub"
-	"github.com/micromdm/micromdm/queue"
+	"github.com/micromdm/micromdm/platform/pubsub"
+	"github.com/micromdm/micromdm/platform/queue"
 )
 
 const ConnectTopic = "mdm.Connect"

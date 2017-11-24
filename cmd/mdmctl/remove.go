@@ -8,7 +8,8 @@ import (
 	"github.com/go-kit/kit/log"
 
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/micromdm/micromdm/core/remove"
+
+	"github.com/micromdm/micromdm/platform/apiserver/remove"
 )
 
 type removeCommand struct {

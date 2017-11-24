@@ -8,7 +8,7 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/micromdm/micromdm/core/list"
+	"github.com/micromdm/micromdm/platform/apiserver/list"
 )
 
 type appsTableOutput struct{ w *tabwriter.Writer }

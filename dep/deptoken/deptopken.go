@@ -10,8 +10,9 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/micromdm/dep"
-	"github.com/micromdm/micromdm/crypto"
-	"github.com/micromdm/micromdm/pubsub"
+
+	"github.com/micromdm/micromdm/pkg/crypto"
+	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
 const (
