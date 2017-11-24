@@ -15,7 +15,7 @@ import (
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 
-	"github.com/micromdm/micromdm/platform/apiserver/apply"
+	"github.com/micromdm/micromdm/platform/api/server/apply"
 	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/profile"
 )
