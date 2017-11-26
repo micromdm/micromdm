@@ -496,7 +496,7 @@ type server struct {
 	PushService    *push.Service // bufford push
 	pushService    apns.Service
 	checkinService checkin.Service
-	connectService connect.ConnectService
+	connectService connect.Service
 	enrollService  enroll.Service
 	scepService    scep.Service
 	commandService command.Service
@@ -560,18 +560,15 @@ func (c *server) setupCommandQueue(logger log.Logger) {
 		return
 	}
 
-	var connectService connect.ConnectService
+	var connectService connect.Service
 	{
 		svc, err := connect.New(q, c.pubclient)
 		if err != nil {
 			c.err = err
 			return
 		}
-		svc = connect.NewLoggingService(
-			svc,
-			log.With(level.Info(logger), "component", "connect"),
-		)
 		connectService = svc
+		connectService = connect.LoggingMiddleware(log.With(level.Info(logger), "component", "connect"))(svc)
 	}
 	c.connectService = connectService
 }
