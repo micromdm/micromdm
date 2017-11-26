@@ -7,13 +7,16 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/gorilla/mux"
 )
 
 type HTTPHandlers struct {
-	BlueprintHandler http.Handler
-	ProfileHandler   http.Handler
+	BlueprintHandler     http.Handler
+	ProfileHandler       http.Handler
+	UnblockDeviceHandler http.Handler
 }
 
 func MakeHTTPHandlers(ctx context.Context, endpoint Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
@@ -27,6 +30,12 @@ func MakeHTTPHandlers(ctx context.Context, endpoint Endpoints, opts ...httptrans
 		ProfileHandler: httptransport.NewServer(
 			endpoint.RemoveProfilesEndpoint,
 			decodeProfileRequest,
+			encodeResponse,
+			opts...,
+		),
+		UnblockDeviceHandler: httptransport.NewServer(
+			endpoint.UnblockDeviceEndpoint,
+			decodeUnblockDeviceRequest,
 			encodeResponse,
 			opts...,
 		),
@@ -47,6 +56,18 @@ func decodeProfileRequest(ctx context.Context, r *http.Request) (interface{}, er
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return nil, err
 	}
+	return req, nil
+}
+
+func decodeUnblockDeviceRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	var errBadRoute = errors.New("bad route")
+	var req unblockDeviceRequest
+	vars := mux.Vars(r)
+	udid, ok := vars["udid"]
+	if !ok {
+		return 0, errBadRoute
+	}
+	req.UDID = udid
 	return req, nil
 }
 
@@ -95,6 +116,13 @@ func EncodeHTTPGenericRequest(_ context.Context, r *http.Request, request interf
 	return nil
 }
 
+func encodeUnblockDeviceRequest(_ context.Context, r *http.Request, request interface{}) error {
+	req := request.(unblockDeviceRequest)
+	udid := url.QueryEscape(req.UDID)
+	r.Method, r.URL.Path = "POST", "/devices/"+udid+"/unblock"
+	return nil
+}
+
 func DecodeBlueprintResponse(_ context.Context, r *http.Response) (interface{}, error) {
 	if r.StatusCode != http.StatusOK {
 		return nil, errorDecoder(r)
@@ -109,6 +137,15 @@ func DecodeProfileResponse(_ context.Context, r *http.Response) (interface{}, er
 		return nil, errorDecoder(r)
 	}
 	var resp profileResponse
+	err := json.NewDecoder(r.Body).Decode(&resp)
+	return resp, err
+}
+
+func DecodeUnblockDeviceResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	if r.StatusCode != http.StatusOK {
+		return nil, errorDecoder(r)
+	}
+	var resp unblockDeviceResponse
 	err := json.NewDecoder(r.Body).Decode(&resp)
 	return resp, err
 }

@@ -57,6 +57,7 @@ import (
 	"github.com/micromdm/micromdm/platform/pubsub"
 	"github.com/micromdm/micromdm/platform/pubsub/inmem"
 	"github.com/micromdm/micromdm/platform/queue"
+	block "github.com/micromdm/micromdm/platform/remove"
 	"github.com/micromdm/micromdm/platform/user"
 	"github.com/micromdm/micromdm/workflow/webhook"
 )
@@ -155,6 +156,16 @@ func serve(args []string) error {
 	sm.setupDEPSync()
 	if sm.err != nil {
 		stdlog.Fatal(sm.err)
+	}
+
+	removeDB, err := block.NewDB(sm.db)
+	if err != nil {
+		stdlog.Fatal(err)
+	}
+
+	removeService, err := block.NewService(removeDB)
+	if err != nil {
+		stdlog.Fatal(err)
 	}
 
 	devDB, err := device.NewDB(sm.db, sm.pubclient)
@@ -298,12 +309,13 @@ func serve(args []string) error {
 	var applysvc apply.Service
 	{
 		l := &apply.ApplyService{
-			DEPClient:  dc,
-			Blueprints: bpDB,
-			Tokens:     tokenDB,
-			Profiles:   sm.profileDB,
-			Apps:       appDB,
-			Users:      userDB,
+			DEPClient:     dc,
+			Blueprints:    bpDB,
+			Tokens:        tokenDB,
+			Profiles:      sm.profileDB,
+			Apps:          appDB,
+			Users:         userDB,
+			RemoveService: removeService,
 		}
 		applysvc = l
 		if err := l.WatchTokenUpdates(sm.pubclient); err != nil {
@@ -343,13 +355,14 @@ func serve(args []string) error {
 		DefineDEPProfileEndpoint: defineDEPProfileEndpoint,
 		AppUploadEndpoint:        appUploadEndpoint,
 		ApplyUserEndpoint:        applyUserEndpoint,
+		BlockDeviceEndpoint:      apply.MakeBlockDeviceEndpoint(applysvc),
 	}
 
 	applyAPIHandlers := apply.MakeHTTPHandlers(ctx, applyEndpoints, connectOpts...)
 
 	listAPIHandlers := list.MakeHTTPHandlers(ctx, listEndpoints, connectOpts...)
 
-	rmsvc := &remove.RemoveService{Blueprints: bpDB, Profiles: sm.profileDB}
+	rmsvc := &remove.RemoveService{Blueprints: bpDB, Profiles: sm.profileDB, RemoveService: removeService}
 	removeAPIHandlers := remove.MakeHTTPHandlers(ctx, remove.MakeEndpoints(rmsvc), connectOpts...)
 
 	connectHandlers := connect.MakeHTTPHandlers(ctx, connectEndpoints, connectOpts...)
@@ -373,6 +386,8 @@ func serve(args []string) error {
 		r.Handle("/push/{udid}", apiAuthMiddleware(*flAPIKey, pushHandlers.PushHandler))
 		r.Handle("/v1/commands", apiAuthMiddleware(*flAPIKey, commandHandlers.NewCommandHandler)).Methods("POST")
 		r.Handle("/v1/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListDevicesHandler)).Methods("GET")
+		r.Handle("/v1/devices/{udid}/block", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.BlockDeviceHandler)).Methods("POST")
+		r.Handle("/v1/devices/{udid}/unblock", apiAuthMiddleware(*flAPIKey, removeAPIHandlers.UnblockDeviceHandler)).Methods("POST")
 		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPTokensHandler)).Methods("GET")
 		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DEPTokensHandler)).Methods("PUT")
 		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetBlueprintsHandler)).Methods("GET")

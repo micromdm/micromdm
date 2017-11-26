@@ -8,8 +8,10 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 )
 
@@ -20,6 +22,7 @@ type HTTPHandlers struct {
 	DefineDEPProfileHandler http.Handler
 	AppUploadHandler        http.Handler
 	ApplyUserhandler        http.Handler
+	BlockDeviceHandler      http.Handler
 }
 
 func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
@@ -60,8 +63,26 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 			encodeResponse,
 			opts...,
 		),
+		BlockDeviceHandler: httptransport.NewServer(
+			endpoints.BlockDeviceEndpoint,
+			decodeBlockDeviceRequest,
+			encodeResponse,
+			opts...,
+		),
 	}
 	return h
+}
+
+func decodeBlockDeviceRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	var errBadRoute = errors.New("bad route")
+	var req blockDeviceRequest
+	vars := mux.Vars(r)
+	udid, ok := vars["udid"]
+	if !ok {
+		return 0, errBadRoute
+	}
+	req.UDID = udid
+	return req, nil
 }
 
 func decodeDEPTokensRequest(ctx context.Context, r *http.Request) (interface{}, error) {
@@ -208,6 +229,13 @@ func EncodeHTTPGenericRequest(_ context.Context, r *http.Request, request interf
 	return nil
 }
 
+func encodeBlockDeviceRequest(_ context.Context, r *http.Request, request interface{}) error {
+	req := request.(blockDeviceRequest)
+	udid := url.QueryEscape(req.UDID)
+	r.Method, r.URL.Path = "POST", "/devices/"+udid+"/block"
+	return nil
+}
+
 func DecodeBlueprintResponse(_ context.Context, r *http.Response) (interface{}, error) {
 	if r.StatusCode != http.StatusOK {
 		return nil, errorDecoder(r)
@@ -258,6 +286,15 @@ func DecodeApplyUserResponse(_ context.Context, r *http.Response) (interface{}, 
 		return nil, errorDecoder(r)
 	}
 	var resp applyUserResponse
+	err := json.NewDecoder(r.Body).Decode(&resp)
+	return resp, err
+}
+
+func DecodeBlockDeviceResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	if r.StatusCode != http.StatusOK {
+		return nil, errorDecoder(r)
+	}
+	var resp blockDeviceResponse
 	err := json.NewDecoder(r.Body).Decode(&resp)
 	return resp, err
 }

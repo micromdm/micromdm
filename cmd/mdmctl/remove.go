@@ -48,6 +48,8 @@ func (cmd *removeCommand) Run(args []string) error {
 		run = cmd.removeBlueprints
 	case "profiles":
 		run = cmd.removeProfiles
+	case "block":
+		run = cmd.removeBlock
 	default:
 		cmd.Usage()
 		os.Exit(1)
@@ -63,7 +65,9 @@ Display one or many resources.
 Valid resource types:
 
   * blueprints
-  * profiles`
+  * profiles
+  * block
+`
 
 	fmt.Println(getUsage)
 	return nil

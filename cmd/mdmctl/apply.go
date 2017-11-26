@@ -60,6 +60,8 @@ func (cmd *applyCommand) Run(args []string) error {
 		run = cmd.applyProfile
 	case "app":
 		run = cmd.applyApp
+	case "block":
+		run = cmd.applyBlock
 	case "users":
 		run = cmd.applyUser
 	default:
@@ -81,6 +83,7 @@ Valid resource types:
   * dep-tokens
   * dep-profiles
   * app
+  * block
 
 Examples:
   # Apply a Blueprint.
@@ -186,6 +189,25 @@ func (cmd *applyCommand) applyDEPTokens(args []string) error {
 		return err
 	}
 	fmt.Println("imported DEP token")
+	return nil
+}
+
+func (cmd *applyCommand) applyBlock(args []string) error {
+	flagset := flag.NewFlagSet("block", flag.ExitOnError)
+	var (
+		flUDID = flagset.String("udid", "", "UDID of a device to block.")
+	)
+	flagset.Usage = usageFor(flagset, "mdmctl apply block [flags]")
+	if err := flagset.Parse(args); err != nil {
+		return err
+	}
+	if *flUDID == "" {
+		flagset.Usage()
+		return errors.New("bad input: must provide a device UDID to block.")
+	}
+	if err := cmd.applysvc.BlockDevice(context.Background(), *flUDID); err != nil {
+		return err
+	}
 	return nil
 }
 
