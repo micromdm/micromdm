@@ -6,6 +6,8 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -208,6 +210,21 @@ func (cmd *applyCommand) applyBlock(args []string) error {
 	if err := cmd.applysvc.BlockDevice(context.Background(), *flUDID); err != nil {
 		return err
 	}
+
+	// trigger a push
+	u, err := url.Parse(cmd.config.ServerURL)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	u.Path = "/push/" + url.QueryEscape(*flUDID)
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	req.SetBasicAuth("micromdm", cmd.config.APIToken)
+	http.DefaultClient.Do(req)
 	return nil
 }
 

@@ -2,8 +2,8 @@ package connect
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	httptransport "github.com/go-kit/kit/transport/http"
@@ -68,6 +68,17 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, response interfa
 // The EncodeError should be passed to the Go-Kit httptransport as the
 // ServerErrorEncoder to encode error responses.
 func EncodeError(ctx context.Context, err error, w http.ResponseWriter) {
-	fmt.Printf("connect error: %s\n", err)
+	type checkoutErr interface {
+		error
+		Checkout() bool
+	}
+	if e, ok := err.(checkoutErr); ok {
+		if e.Checkout() {
+			log.Printf("connect: forced checkout error: %s\n", err)
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+	}
+	log.Printf("connect error: %s\n", err)
 	w.WriteHeader(http.StatusInternalServerError)
 }

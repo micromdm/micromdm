@@ -6,6 +6,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
 
+	"github.com/micromdm/micromdm/mdm/connect"
 	"github.com/micromdm/micromdm/platform/remove/internal/removeproto"
 )
 
@@ -48,4 +49,42 @@ func UnmarshalDevice(data []byte, dev *Device) error {
 	}
 	dev.UDID = pb.GetUdid()
 	return nil
+}
+
+func RemoveMiddleware(db *DB) connect.Middleware {
+	return func(next connect.Service) connect.Service {
+		return &removeMiddleware{
+			db:   db,
+			next: next,
+		}
+	}
+}
+
+type removeMiddleware struct {
+	db   *DB
+	next connect.Service
+}
+
+func (mw removeMiddleware) Acknowledge(ctx context.Context, req connect.MDMConnectRequest) ([]byte, error) {
+	udid := req.MDMResponse.UDID
+	_, err := mw.db.DeviceByUDID(udid)
+	if err != nil {
+		if !isNotFound(err) {
+			return nil, errors.Wrapf(err, "remove: get device by udid %s", udid)
+		}
+	}
+	if err == nil {
+		return nil, checkoutErr{}
+	}
+	return mw.next.Acknowledge(ctx, req)
+}
+
+type checkoutErr struct{}
+
+func (checkoutErr) Error() string {
+	return "checkout forced by device block"
+}
+
+func (checkoutErr) Checkout() bool {
+	return true
 }

@@ -143,8 +143,10 @@ func serve(args []string) error {
 		// no less secure and prevents a useless dialog from showing.
 		SCEPChallenge: "micromdm",
 	}
+
 	sm.setupPubSub()
 	sm.setupBolt()
+	sm.setupRemoveService()
 	sm.setupConfigStore()
 	sm.loadPushCerts()
 	sm.setupSCEP(logger)
@@ -158,12 +160,7 @@ func serve(args []string) error {
 		stdlog.Fatal(sm.err)
 	}
 
-	removeDB, err := block.NewDB(sm.db)
-	if err != nil {
-		stdlog.Fatal(err)
-	}
-
-	removeService, err := block.NewService(removeDB)
+	removeService, err := block.NewService(sm.removeDB)
 	if err != nil {
 		stdlog.Fatal(err)
 	}
@@ -501,6 +498,7 @@ type server struct {
 	scepDepot           *boltdepot.Depot
 	profileDB           *profile.DB
 	configDB            *config.DB
+	removeDB            *block.DB
 	CommandWebhookURL   string
 
 	// TODO: refactor enroll service and remove the need to reference
@@ -565,6 +563,18 @@ func (c *server) startWebhooks() {
 	}
 }
 
+func (c *server) setupRemoveService() {
+	if c.err != nil {
+		return
+	}
+	removeDB, err := block.NewDB(c.db)
+	if err != nil {
+		c.err = err
+		return
+	}
+	c.removeDB = removeDB
+}
+
 func (c *server) setupCommandQueue(logger log.Logger) {
 	if c.err != nil {
 		return
@@ -584,6 +594,7 @@ func (c *server) setupCommandQueue(logger log.Logger) {
 		}
 		connectService = svc
 		connectService = connect.LoggingMiddleware(log.With(level.Info(logger), "component", "connect"))(svc)
+		connectService = block.RemoveMiddleware(c.removeDB)(connectService)
 	}
 	c.connectService = connectService
 }
