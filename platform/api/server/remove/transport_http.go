@@ -119,7 +119,7 @@ func EncodeHTTPGenericRequest(_ context.Context, r *http.Request, request interf
 func encodeUnblockDeviceRequest(_ context.Context, r *http.Request, request interface{}) error {
 	req := request.(unblockDeviceRequest)
 	udid := url.QueryEscape(req.UDID)
-	r.Method, r.URL.Path = "POST", "/devices/"+udid+"/unblock"
+	r.Method, r.URL.Path = "POST", "/v1/devices/"+udid+"/unblock"
 	return nil
 }
 
