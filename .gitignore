@@ -1,3 +1,6 @@
 vendor/
 build/
 *.zip
+*.exe
+*.db
+*.lock
