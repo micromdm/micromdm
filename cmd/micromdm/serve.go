@@ -293,6 +293,7 @@ func serve(args []string) error {
 		GetDEPDeviceEndpoint:      list.MakeGetDEPDeviceDetailsEndpoint(listsvc),
 		ListAppsEndpont:           list.MakeListAppsEndpoint(listsvc),
 		ListUserEndpoint:          list.MakeListUsersEndpoint(listsvc),
+		BackupEndpoint:            list.MakeBackupEndpoint(listsvc),
 	}
 
 	var applysvc apply.Service
@@ -390,6 +391,7 @@ func serve(args []string) error {
 		r.Handle("/v1/users", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.ApplyUserhandler)).Methods("PUT")
 		r.Handle("/v1/users", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListUsersHander)).Methods("GET")
 		r.Handle("/v1/config/certificate", apiAuthMiddleware(*flAPIKey, configHandlers.SavePushCertificateHandler)).Methods("PUT")
+		r.Handle("/v1/backup", listAPIHandlers.BackupHandler).Methods("GET")
 	}
 
 	if *flRepoPath != "" {
