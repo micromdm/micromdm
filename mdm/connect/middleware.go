@@ -7,16 +7,20 @@ import (
 	"github.com/go-kit/kit/log"
 )
 
-type loggingMiddleware struct {
-	logger log.Logger
-	next   ConnectService
+type Middleware func(Service) Service
+
+func LoggingMiddleware(logger log.Logger) Middleware {
+	return func(next Service) Service {
+		return &loggingMiddleware{
+			next:   next,
+			logger: logger,
+		}
+	}
 }
 
-func NewLoggingService(svc ConnectService, logger log.Logger) loggingMiddleware {
-	return loggingMiddleware{
-		next:   svc,
-		logger: logger,
-	}
+type loggingMiddleware struct {
+	next   Service
+	logger log.Logger
 }
 
 func (mw loggingMiddleware) Acknowledge(ctx context.Context, req MDMConnectRequest) (payload []byte, err error) {

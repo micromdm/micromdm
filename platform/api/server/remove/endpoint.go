@@ -9,14 +9,25 @@ import (
 type Endpoints struct {
 	RemoveBlueprintsEndpoint endpoint.Endpoint
 	RemoveProfilesEndpoint   endpoint.Endpoint
+	UnblockDeviceEndpoint    endpoint.Endpoint
 }
 
 func MakeEndpoints(svc Service) Endpoints {
 	e := Endpoints{
 		RemoveBlueprintsEndpoint: MakeRemoveBlueprintsEndpoint(svc),
 		RemoveProfilesEndpoint:   MakeRemoveProfilesEndpoint(svc),
+		UnblockDeviceEndpoint:    MakeUnblockDeviceEndpoint(svc),
 	}
 	return e
+}
+
+func (e Endpoints) UnblockDevice(ctx context.Context, udid string) error {
+	request := unblockDeviceRequest{UDID: udid}
+	resp, err := e.UnblockDeviceEndpoint(ctx, request)
+	if err != nil {
+		return err
+	}
+	return resp.(unblockDeviceResponse).Err
 }
 
 func (e Endpoints) RemoveBlueprints(ctx context.Context, names []string) error {
@@ -56,6 +67,26 @@ func MakeRemoveProfilesEndpoint(svc Service) endpoint.Endpoint {
 		}, nil
 	}
 }
+
+func MakeUnblockDeviceEndpoint(svc Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
+		req := request.(unblockDeviceRequest)
+		err = svc.UnblockDevice(ctx, req.UDID)
+		return unblockDeviceResponse{
+			Err: err,
+		}, nil
+	}
+}
+
+type unblockDeviceRequest struct {
+	UDID string
+}
+
+type unblockDeviceResponse struct {
+	Err error `json:"err,omitempty"`
+}
+
+func (r unblockDeviceResponse) error() error { return r.Err }
 
 type blueprintRequest struct {
 	Names []string `json:"names"`

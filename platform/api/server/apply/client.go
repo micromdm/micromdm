@@ -80,6 +80,17 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 		).Endpoint()
 	}
 
+	var blockDeviceEndpoint endpoint.Endpoint
+	{
+		blockDeviceEndpoint = httptransport.NewClient(
+			"POST",
+			copyURL(u, ""), // empty path, modified by the encodeRequest func
+			encodeRequestWithToken(token, encodeBlockDeviceRequest),
+			DecodeBlockDeviceResponse,
+			opts...,
+		).Endpoint()
+	}
+
 	return Endpoints{
 		ApplyBlueprintEndpoint:   applyBlueprintEndpoint,
 		ApplyDEPTokensEndpoint:   applyDEPTokensEndpoint,
@@ -87,6 +98,7 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 		DefineDEPProfileEndpoint: defineDEPProfileEndpoint,
 		AppUploadEndpoint:        uploadAppEndpoint,
 		ApplyUserEndpoint:        applyUserEndpoint,
+		BlockDeviceEndpoint:      blockDeviceEndpoint,
 	}, nil
 }
 

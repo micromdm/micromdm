@@ -37,9 +37,21 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 		).Endpoint()
 	}
 
+	var unblockDeviceEndpoint endpoint.Endpoint
+	{
+		unblockDeviceEndpoint = httptransport.NewClient(
+			"POST",
+			copyURL(u, ""), //modified by encodeRequestFunc
+			encodeRequestWithToken(token, encodeUnblockDeviceRequest),
+			DecodeUnblockDeviceResponse,
+			opts...,
+		).Endpoint()
+	}
+
 	return Endpoints{
 		RemoveBlueprintsEndpoint: removeBlueprintsEndpoint,
 		RemoveProfilesEndpoint:   removeProfilesEndpoint,
+		UnblockDeviceEndpoint:    unblockDeviceEndpoint,
 	}, nil
 }
 

@@ -23,7 +23,7 @@ type Endpoints struct {
 	ConnectEndpoint endpoint.Endpoint
 }
 
-func MakeConnectEndpoint(svc ConnectService) endpoint.Endpoint {
+func MakeConnectEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(MDMConnectRequest)
 		payload, err := svc.Acknowledge(ctx, req)
