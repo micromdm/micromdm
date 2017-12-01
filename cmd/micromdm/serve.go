@@ -15,8 +15,10 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/RobotsAndPencils/buford/push"
@@ -38,6 +40,7 @@ import (
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/crypto/pkcs12"
 
+	"github.com/micromdm/micromdm/backup"
 	"github.com/micromdm/micromdm/dep/depsync"
 	"github.com/micromdm/micromdm/mdm/checkin"
 	"github.com/micromdm/micromdm/mdm/connect"
@@ -156,6 +159,17 @@ func serve(args []string) error {
 	if sm.err != nil {
 		stdlog.Fatal(sm.err)
 	}
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGUSR1)
+	svc := backup.NewDB(sm.db)
+	go func() {
+		for {
+			<-sigChan // block until signal
+			if err := svc.Backup(context.Background()); err != nil {
+				stdlog.Println(err)
+			}
+		}
+	}()
 
 	devDB, err := device.NewDB(sm.db, sm.pubclient)
 	if err != nil {

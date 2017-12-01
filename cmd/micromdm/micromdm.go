@@ -21,6 +21,7 @@ func main() {
 		usage()
 		os.Exit(1)
 	}
+
 	var run func([]string) error
 	switch strings.ToLower(os.Args[1]) {
 	case "version", "-version":
