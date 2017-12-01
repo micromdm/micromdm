@@ -57,6 +57,7 @@ import (
 	"github.com/micromdm/micromdm/platform/pubsub"
 	"github.com/micromdm/micromdm/platform/pubsub/inmem"
 	"github.com/micromdm/micromdm/platform/queue"
+	block "github.com/micromdm/micromdm/platform/remove"
 	"github.com/micromdm/micromdm/platform/user"
 	"github.com/micromdm/micromdm/workflow/webhook"
 )
@@ -142,8 +143,10 @@ func serve(args []string) error {
 		// no less secure and prevents a useless dialog from showing.
 		SCEPChallenge: "micromdm",
 	}
+
 	sm.setupPubSub()
 	sm.setupBolt()
+	sm.setupRemoveService()
 	sm.setupConfigStore()
 	sm.loadPushCerts()
 	sm.setupSCEP(logger)
@@ -155,6 +158,11 @@ func serve(args []string) error {
 	sm.setupDEPSync()
 	if sm.err != nil {
 		stdlog.Fatal(sm.err)
+	}
+
+	removeService, err := block.NewService(sm.removeDB)
+	if err != nil {
+		stdlog.Fatal(err)
 	}
 
 	devDB, err := device.NewDB(sm.db, sm.pubclient)
@@ -298,12 +306,13 @@ func serve(args []string) error {
 	var applysvc apply.Service
 	{
 		l := &apply.ApplyService{
-			DEPClient:  dc,
-			Blueprints: bpDB,
-			Tokens:     tokenDB,
-			Profiles:   sm.profileDB,
-			Apps:       appDB,
-			Users:      userDB,
+			DEPClient:     dc,
+			Blueprints:    bpDB,
+			Tokens:        tokenDB,
+			Profiles:      sm.profileDB,
+			Apps:          appDB,
+			Users:         userDB,
+			RemoveService: removeService,
 		}
 		applysvc = l
 		if err := l.WatchTokenUpdates(sm.pubclient); err != nil {
@@ -343,13 +352,14 @@ func serve(args []string) error {
 		DefineDEPProfileEndpoint: defineDEPProfileEndpoint,
 		AppUploadEndpoint:        appUploadEndpoint,
 		ApplyUserEndpoint:        applyUserEndpoint,
+		BlockDeviceEndpoint:      apply.MakeBlockDeviceEndpoint(applysvc),
 	}
 
 	applyAPIHandlers := apply.MakeHTTPHandlers(ctx, applyEndpoints, connectOpts...)
 
 	listAPIHandlers := list.MakeHTTPHandlers(ctx, listEndpoints, connectOpts...)
 
-	rmsvc := &remove.RemoveService{Blueprints: bpDB, Profiles: sm.profileDB}
+	rmsvc := &remove.RemoveService{Blueprints: bpDB, Profiles: sm.profileDB, RemoveService: removeService}
 	removeAPIHandlers := remove.MakeHTTPHandlers(ctx, remove.MakeEndpoints(rmsvc), connectOpts...)
 
 	connectHandlers := connect.MakeHTTPHandlers(ctx, connectEndpoints, connectOpts...)
@@ -373,6 +383,8 @@ func serve(args []string) error {
 		r.Handle("/push/{udid}", apiAuthMiddleware(*flAPIKey, pushHandlers.PushHandler))
 		r.Handle("/v1/commands", apiAuthMiddleware(*flAPIKey, commandHandlers.NewCommandHandler)).Methods("POST")
 		r.Handle("/v1/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListDevicesHandler)).Methods("GET")
+		r.Handle("/v1/devices/{udid}/block", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.BlockDeviceHandler)).Methods("POST")
+		r.Handle("/v1/devices/{udid}/unblock", apiAuthMiddleware(*flAPIKey, removeAPIHandlers.UnblockDeviceHandler)).Methods("POST")
 		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPTokensHandler)).Methods("GET")
 		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DEPTokensHandler)).Methods("PUT")
 		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetBlueprintsHandler)).Methods("GET")
@@ -486,6 +498,7 @@ type server struct {
 	scepDepot           *boltdepot.Depot
 	profileDB           *profile.DB
 	configDB            *config.DB
+	removeDB            *block.DB
 	CommandWebhookURL   string
 
 	// TODO: refactor enroll service and remove the need to reference
@@ -496,7 +509,7 @@ type server struct {
 	PushService    *push.Service // bufford push
 	pushService    apns.Service
 	checkinService checkin.Service
-	connectService connect.ConnectService
+	connectService connect.Service
 	enrollService  enroll.Service
 	scepService    scep.Service
 	commandService command.Service
@@ -550,6 +563,18 @@ func (c *server) startWebhooks() {
 	}
 }
 
+func (c *server) setupRemoveService() {
+	if c.err != nil {
+		return
+	}
+	removeDB, err := block.NewDB(c.db)
+	if err != nil {
+		c.err = err
+		return
+	}
+	c.removeDB = removeDB
+}
+
 func (c *server) setupCommandQueue(logger log.Logger) {
 	if c.err != nil {
 		return
@@ -560,18 +585,16 @@ func (c *server) setupCommandQueue(logger log.Logger) {
 		return
 	}
 
-	var connectService connect.ConnectService
+	var connectService connect.Service
 	{
 		svc, err := connect.New(q, c.pubclient)
 		if err != nil {
 			c.err = err
 			return
 		}
-		svc = connect.NewLoggingService(
-			svc,
-			log.With(level.Info(logger), "component", "connect"),
-		)
 		connectService = svc
+		connectService = connect.LoggingMiddleware(log.With(level.Info(logger), "component", "connect"))(svc)
+		connectService = block.RemoveMiddleware(c.removeDB)(connectService)
 	}
 	c.connectService = connectService
 }

@@ -5,16 +5,19 @@ import (
 
 	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/profile"
+	"github.com/micromdm/micromdm/platform/remove"
 )
 
 type Service interface {
 	RemoveBlueprints(ctx context.Context, names []string) error
 	RemoveProfiles(ctx context.Context, ids []string) error
+	UnblockDevice(ctx context.Context, udid string) error
 }
 
 type RemoveService struct {
 	Blueprints *blueprint.DB
 	Profiles   *profile.DB
+	*remove.RemoveService
 }
 
 func (svc *RemoveService) RemoveBlueprints(ctx context.Context, names []string) error {
