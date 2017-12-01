@@ -161,7 +161,7 @@ func serve(args []string) error {
 	}
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGUSR1)
-	svc := backup.NewDB(sm.db)
+	svc := backup.NewDB(sm.db, "path")
 	go func() {
 		for {
 			<-sigChan // block until signal
