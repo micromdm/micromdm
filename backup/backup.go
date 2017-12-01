@@ -33,6 +33,13 @@ func (svc *BackupService) Backup(ctx context.Context) error {
 	if err != nil {
 		stdlog.Println(err)
 	}
+	defer file.Close()
+
+	svc.db.View(func(tx *bolt.Tx) error {
+		_, err := tx.WriteTo(file)
+		return err
+	})
+
 	if err := file.Close(); err != nil {
 		stdlog.Println(err)
 	}
