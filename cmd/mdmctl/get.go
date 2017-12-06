@@ -70,12 +70,37 @@ func (cmd *getCommand) Run(args []string) error {
 		run = cmd.getUsers
 	case "apps":
 		run = cmd.getApps
+	case "backup":
+		run = cmd.getBackup
 	default:
 		cmd.Usage()
 		os.Exit(1)
 	}
 
 	return run(args[1:])
+}
+
+func (cmd *getCommand) getBackup(args []string) error {
+	flagset := flag.NewFlagSet("backup", flag.ExitOnError)
+	var (
+		flPath = flagset.String("path", "micromdm.db", "Path to boltdb backup")
+	)
+	flagset.Usage = usageFor(flagset, "mdmctl get backup [flags]")
+	if err := flagset.Parse(args); err != nil {
+		return err
+	}
+	backup, err := cmd.list.Backup(context.Background())
+	if err != nil {
+		return err
+	}
+	os.Remove(*flPath)
+	f, err := os.Create(*flPath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = f.Write(backup)
+	return err
 }
 
 func (cmd *getCommand) Usage() error {
@@ -93,6 +118,7 @@ Valid resource types:
   * users
   * profiles
   * apps
+	* backup
 
 Examples:
   # Get a list of devices

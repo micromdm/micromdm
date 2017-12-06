@@ -211,6 +211,15 @@ func DecodeDevicesResponse(_ context.Context, r *http.Response) (interface{}, er
 	return resp, err
 }
 
+func DecodeBackupResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	if r.StatusCode != http.StatusOK {
+		return nil, errorDecoder(r)
+	}
+	var resp backupResponse
+	err := json.NewDecoder(r.Body).Decode(&resp)
+	return resp, err
+}
+
 func DecodeGetDEPTokensResponse(_ context.Context, r *http.Response) (interface{}, error) {
 	if r.StatusCode != http.StatusOK {
 		return nil, errorDecoder(r)
