@@ -1,11 +1,8 @@
 package backup
 
 import (
+	"bytes"
 	"context"
-	"fmt"
-	stdlog "log"
-	"os"
-	"time"
 
 	"github.com/boltdb/bolt"
 )
@@ -26,22 +23,16 @@ type BackupService struct {
 	path string
 }
 
-func (svc *BackupService) Backup(ctx context.Context) error {
-	fmt.Println("backing up")
-	fileName := fmt.Sprintf("/var/db/micromdm/micromdm-backup-%v", time.Now().Unix())
-	file, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE, 0755)
-	if err != nil {
-		stdlog.Println(err)
-	}
-	defer file.Close()
+func (svc *BackupService) Backup(ctx context.Context) ([]byte, error) {
+	var buf bytes.Buffer
 
-	svc.db.View(func(tx *bolt.Tx) error {
-		_, err := tx.WriteTo(file)
+	err := svc.db.View(func(tx *bolt.Tx) error {
+		_, err := tx.WriteTo(&buf)
 		return err
 	})
-
-	if err := file.Close(); err != nil {
-		stdlog.Println(err)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+
+	return buf.Bytes(), nil
 }

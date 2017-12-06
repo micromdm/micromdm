@@ -15,10 +15,8 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"strings"
-	"syscall"
 	"time"
 
 	"github.com/RobotsAndPencils/buford/push"
@@ -159,17 +157,8 @@ func serve(args []string) error {
 	if sm.err != nil {
 		stdlog.Fatal(sm.err)
 	}
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGUSR1)
-	svc := backup.NewDB(sm.db, "path")
-	go func() {
-		for {
-			<-sigChan // block until signal
-			if err := svc.Backup(context.Background()); err != nil {
-				stdlog.Println(err)
-			}
-		}
-	}()
+
+	backupsvc := backup.NewDB(sm.db, "path")
 
 	devDB, err := device.NewDB(sm.db, sm.pubclient)
 	if err != nil {
@@ -278,13 +267,14 @@ func serve(args []string) error {
 	var listsvc list.Service
 	{
 		l := &list.ListService{
-			DEPClient:  dc,
-			Devices:    devDB,
-			Tokens:     tokenDB,
-			Blueprints: bpDB,
-			Profiles:   sm.profileDB,
-			Apps:       appDB,
-			Users:      userDB,
+			DEPClient:     dc,
+			Devices:       devDB,
+			Tokens:        tokenDB,
+			Blueprints:    bpDB,
+			Profiles:      sm.profileDB,
+			Apps:          appDB,
+			Users:         userDB,
+			BackupService: backupsvc,
 		}
 		listsvc = l
 

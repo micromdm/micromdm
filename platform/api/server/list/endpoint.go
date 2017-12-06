@@ -35,9 +35,9 @@ func (e Endpoints) ListUsers(ctx context.Context, opts ListUsersOption) ([]user.
 	return response.(userResponse).Users, response.(userResponse).Err
 }
 
-func (e Endpoints) Backup() ([]byte, error) {
+func (e Endpoints) Backup(ctx context.Context) ([]byte, error) {
 	request := backupRequest{}
-	response, err := e.BackupEndpoint(context.Background(), request)
+	response, err := e.BackupEndpoint(ctx, request)
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +206,7 @@ func MakeGetDEPProfileEndpoint(svc Service) endpoint.Endpoint {
 
 func MakeBackupEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		data, err := svc.Backup()
+		data, err := svc.Backup(ctx)
 		return backupResponse{Data: data, Err: err}, nil
 	}
 }

@@ -1,7 +1,6 @@
 package list
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"log"
@@ -11,6 +10,7 @@ import (
 	"github.com/micromdm/dep"
 	"github.com/pkg/errors"
 
+	"github.com/micromdm/micromdm/backup"
 	"github.com/micromdm/micromdm/platform/appstore"
 	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/deptoken"
@@ -60,7 +60,7 @@ type Service interface {
 }
 
 type Backup interface {
-	Backup() ([]byte, error)
+	Backup(ctx context.Context) ([]byte, error)
 }
 
 type ListService struct {
@@ -73,13 +73,7 @@ type ListService struct {
 	Tokens     *deptoken.DB
 	Apps       appstore.AppStore
 	Users      *user.DB
-}
-
-func (svc *ListService) Backup() ([]byte, error) {
-	// code here
-	var buf bytes.Buffer
-	buf.Write([]byte("hello world"))
-	return buf.Bytes(), nil
+	*backup.BackupService
 }
 
 func (svc *ListService) ListApplications(ctx context.Context, opts ListAppsOption) ([]AppDTO, error) {
