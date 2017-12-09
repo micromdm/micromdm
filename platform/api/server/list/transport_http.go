@@ -15,7 +15,6 @@ type HTTPHandlers struct {
 	ListDevicesHandler         http.Handler
 	GetDEPTokensHandler        http.Handler
 	GetBlueprintsHandler       http.Handler
-	GetProfilesHandler         http.Handler
 	GetDEPAccountInfoHandler   http.Handler
 	GetDEPProfileHandler       http.Handler
 	GetDEPDeviceDetailsHandler http.Handler
@@ -39,11 +38,6 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 		GetBlueprintsHandler: httptransport.NewServer(
 			endpoints.GetBlueprintsEndpoint,
 			decodeGetBlueprintsRequest,
-			encodeResponse,
-			opts...),
-		GetProfilesHandler: httptransport.NewServer(
-			endpoints.GetProfilesEndpoint,
-			decodeGetProfilesRequest,
 			encodeResponse,
 			opts...),
 		GetDEPAccountInfoHandler: httptransport.NewServer(
@@ -102,17 +96,6 @@ func decodeGetBlueprintsRequest(ctx context.Context, r *http.Request) (interface
 		return nil, err
 	}
 	req := blueprintsRequest{
-		Opts: opts,
-	}
-	return req, nil
-}
-
-func decodeGetProfilesRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	var opts GetProfilesOption
-	if err := json.NewDecoder(r.Body).Decode(&opts); err != nil {
-		return nil, err
-	}
-	req := profilesRequest{
 		Opts: opts,
 	}
 	return req, nil
@@ -214,15 +197,6 @@ func DecodeGetBlueprintsResponse(_ context.Context, r *http.Response) (interface
 		return nil, errorDecoder(r)
 	}
 	var resp blueprintsResponse
-	err := json.NewDecoder(r.Body).Decode(&resp)
-	return resp, err
-}
-
-func DecodeGetProfilesResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	if r.StatusCode != http.StatusOK {
-		return nil, errorDecoder(r)
-	}
-	var resp profilesResponse
 	err := json.NewDecoder(r.Body).Decode(&resp)
 	return resp, err
 }

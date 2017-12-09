@@ -54,6 +54,7 @@ import (
 	"github.com/micromdm/micromdm/platform/deptoken"
 	"github.com/micromdm/micromdm/platform/device"
 	"github.com/micromdm/micromdm/platform/profile"
+	profilebuiltin "github.com/micromdm/micromdm/platform/profile/builtin"
 	"github.com/micromdm/micromdm/platform/pubsub"
 	"github.com/micromdm/micromdm/platform/pubsub/inmem"
 	"github.com/micromdm/micromdm/platform/queue"
@@ -175,7 +176,7 @@ func serve(args []string) error {
 		stdlog.Fatal(err)
 	}
 
-	sm.profileDB, err = profile.NewDB(sm.db)
+	sm.profileDB, err = profilebuiltin.NewDB(sm.db)
 	if err != nil {
 		stdlog.Fatal(err)
 	}
@@ -269,6 +270,13 @@ func serve(args []string) error {
 	tokenDB := &deptoken.DB{DB: sm.db, Publisher: sm.pubclient}
 	appDB := &appstore.Repo{Path: *flRepoPath}
 
+	var profilesvc profile.Service
+	{
+		profilesvc = profile.New(sm.profileDB)
+	}
+
+	profileEndpoints := profile.MakeServerEndpoints(profilesvc)
+
 	var listsvc list.Service
 	{
 		l := &list.ListService{
@@ -276,7 +284,6 @@ func serve(args []string) error {
 			Devices:    devDB,
 			Tokens:     tokenDB,
 			Blueprints: bpDB,
-			Profiles:   sm.profileDB,
 			Apps:       appDB,
 			Users:      userDB,
 		}
@@ -295,7 +302,6 @@ func serve(args []string) error {
 		ListDevicesEndpoint:       listDevicesEndpoint,
 		GetDEPTokensEndpoint:      list.MakeGetDEPTokensEndpoint(listsvc),
 		GetBlueprintsEndpoint:     list.MakeGetBlueprintsEndpoint(listsvc),
-		GetProfilesEndpoint:       list.MakeGetProfilesEndpoint(listsvc),
 		GetDEPAccountInfoEndpoint: list.MakeGetDEPAccountInfoEndpoint(listsvc),
 		GetDEPProfileEndpoint:     list.MakeGetDEPProfileEndpoint(listsvc),
 		GetDEPDeviceEndpoint:      list.MakeGetDEPDeviceDetailsEndpoint(listsvc),
@@ -309,7 +315,6 @@ func serve(args []string) error {
 			DEPClient:     dc,
 			Blueprints:    bpDB,
 			Tokens:        tokenDB,
-			Profiles:      sm.profileDB,
 			Apps:          appDB,
 			Users:         userDB,
 			RemoveService: removeService,
@@ -323,11 +328,6 @@ func serve(args []string) error {
 	var applyBlueprintEndpoint endpoint.Endpoint
 	{
 		applyBlueprintEndpoint = apply.MakeApplyBlueprintEndpoint(applysvc)
-	}
-
-	var applyProfileEndpoint endpoint.Endpoint
-	{
-		applyProfileEndpoint = apply.MakeApplyProfileEndpoint(applysvc)
 	}
 
 	var defineDEPProfileEndpoint endpoint.Endpoint
@@ -348,7 +348,6 @@ func serve(args []string) error {
 	applyEndpoints := apply.Endpoints{
 		ApplyBlueprintEndpoint:   applyBlueprintEndpoint,
 		ApplyDEPTokensEndpoint:   apply.MakeApplyDEPTokensEndpoint(applysvc),
-		ApplyProfileEndpoint:     applyProfileEndpoint,
 		DefineDEPProfileEndpoint: defineDEPProfileEndpoint,
 		AppUploadEndpoint:        appUploadEndpoint,
 		ApplyUserEndpoint:        applyUserEndpoint,
@@ -359,7 +358,7 @@ func serve(args []string) error {
 
 	listAPIHandlers := list.MakeHTTPHandlers(ctx, listEndpoints, connectOpts...)
 
-	rmsvc := &remove.RemoveService{Blueprints: bpDB, Profiles: sm.profileDB, RemoveService: removeService}
+	rmsvc := &remove.RemoveService{Blueprints: bpDB, RemoveService: removeService}
 	removeAPIHandlers := remove.MakeHTTPHandlers(ctx, remove.MakeEndpoints(rmsvc), connectOpts...)
 
 	connectHandlers := connect.MakeHTTPHandlers(ctx, connectEndpoints, connectOpts...)
@@ -378,8 +377,11 @@ func serve(args []string) error {
 		io.WriteString(w, homePage)
 	})
 
+	profilesHandler := profile.MakeHTTPHandler(profileEndpoints, logger)
+
 	// API commands. Only handled if the user provides an api key.
 	if *flAPIKey != "" {
+		r.Handle("/v1/profiles", apiAuthMiddleware(*flAPIKey, profilesHandler))
 		r.Handle("/push/{udid}", apiAuthMiddleware(*flAPIKey, pushHandlers.PushHandler))
 		r.Handle("/v1/commands", apiAuthMiddleware(*flAPIKey, commandHandlers.NewCommandHandler)).Methods("POST")
 		r.Handle("/v1/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListDevicesHandler)).Methods("GET")
@@ -390,9 +392,6 @@ func serve(args []string) error {
 		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetBlueprintsHandler)).Methods("GET")
 		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.BlueprintHandler)).Methods("PUT")
 		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, removeAPIHandlers.BlueprintHandler)).Methods("DELETE")
-		r.Handle("/v1/profiles", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetProfilesHandler)).Methods("GET")
-		r.Handle("/v1/profiles", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.ProfileHandler)).Methods("PUT")
-		r.Handle("/v1/profiles", apiAuthMiddleware(*flAPIKey, removeAPIHandlers.ProfileHandler)).Methods("DELETE")
 		r.Handle("/v1/dep/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPDeviceDetailsHandler)).Methods("GET")
 		r.Handle("/v1/dep/account", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPAccountInfoHandler)).Methods("GET")
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPProfileHandler)).Methods("GET")
@@ -496,7 +495,7 @@ type server struct {
 	APNSPrivateKeyPass  string
 	tlsCertPath         string
 	scepDepot           *boltdepot.Depot
-	profileDB           *profile.DB
+	profileDB           profile.Store
 	configDB            *config.DB
 	removeDB            *block.DB
 	CommandWebhookURL   string

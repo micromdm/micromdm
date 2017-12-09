@@ -19,7 +19,6 @@ import (
 	"github.com/micromdm/micromdm/platform/appstore"
 	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/deptoken"
-	"github.com/micromdm/micromdm/platform/profile"
 	"github.com/micromdm/micromdm/platform/pubsub"
 	"github.com/micromdm/micromdm/platform/remove"
 	"github.com/micromdm/micromdm/platform/user"
@@ -28,7 +27,6 @@ import (
 type Service interface {
 	ApplyBlueprint(ctx context.Context, bp *blueprint.Blueprint) error
 	ApplyDEPToken(ctx context.Context, P7MContent []byte) error
-	ApplyProfile(ctx context.Context, p *profile.Profile) error
 	UploadApp(ctx context.Context, manifestName string, manifest io.Reader, pkgName string, pkg io.Reader) error
 	ApplyUser(ctx context.Context, u user.User) (*user.User, error)
 	DEPService
@@ -40,7 +38,6 @@ type ApplyService struct {
 	DEPClient dep.Client
 
 	Blueprints *blueprint.DB
-	Profiles   *profile.DB
 	Tokens     *deptoken.DB
 	Apps       appstore.AppStore
 	Users      *user.DB
@@ -179,8 +176,4 @@ func (svc *ApplyService) ApplyDEPToken(ctx context.Context, P7MContent []byte) e
 	}
 	log.Println("stored DEP token with ck", depToken.ConsumerKey)
 	return nil
-}
-
-func (svc *ApplyService) ApplyProfile(ctx context.Context, p *profile.Profile) error {
-	return svc.Profiles.Save(p)
 }

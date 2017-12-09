@@ -8,14 +8,12 @@ import (
 	"github.com/micromdm/dep"
 
 	"github.com/micromdm/micromdm/platform/blueprint"
-	"github.com/micromdm/micromdm/platform/profile"
 	"github.com/micromdm/micromdm/platform/user"
 )
 
 type Endpoints struct {
 	ApplyBlueprintEndpoint   endpoint.Endpoint
 	ApplyDEPTokensEndpoint   endpoint.Endpoint
-	ApplyProfileEndpoint     endpoint.Endpoint
 	DefineDEPProfileEndpoint endpoint.Endpoint
 	AppUploadEndpoint        endpoint.Endpoint
 	ApplyUserEndpoint        endpoint.Endpoint
@@ -87,15 +85,6 @@ func (e Endpoints) ApplyDEPToken(ctx context.Context, P7MContent []byte) error {
 	return resp.(depTokensResponse).Err
 }
 
-func (e Endpoints) ApplyProfile(ctx context.Context, p *profile.Profile) error {
-	request := profileRequest{Profile: p}
-	resp, err := e.ApplyProfileEndpoint(ctx, request)
-	if err != nil {
-		return err
-	}
-	return resp.(profileResponse).Err
-}
-
 func MakeApplyBlueprintEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(blueprintRequest)
@@ -111,16 +100,6 @@ func MakeApplyDEPTokensEndpoint(svc Service) endpoint.Endpoint {
 		req := request.(depTokensRequest)
 		err = svc.ApplyDEPToken(ctx, req.P7MContent)
 		return depTokensResponse{
-			Err: err,
-		}, nil
-	}
-}
-
-func MakeApplyProfileEndpoint(svc Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(profileRequest)
-		err = svc.ApplyProfile(ctx, req.Profile)
-		return profileResponse{
 			Err: err,
 		}, nil
 	}
@@ -191,16 +170,6 @@ type blueprintResponse struct {
 }
 
 func (r blueprintResponse) error() error { return r.Err }
-
-type profileRequest struct {
-	Profile *profile.Profile `json:"profile"`
-}
-
-type profileResponse struct {
-	Err error `json:"err,omitempty"`
-}
-
-func (r profileResponse) error() error { return r.Err }
 
 type depTokensRequest struct {
 	P7MContent []byte `json:"p7m_content"`
