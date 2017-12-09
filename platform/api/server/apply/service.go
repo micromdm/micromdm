@@ -17,7 +17,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/platform/appstore"
-	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/deptoken"
 	"github.com/micromdm/micromdm/platform/pubsub"
 	"github.com/micromdm/micromdm/platform/remove"
@@ -25,7 +24,6 @@ import (
 )
 
 type Service interface {
-	ApplyBlueprint(ctx context.Context, bp *blueprint.Blueprint) error
 	ApplyDEPToken(ctx context.Context, P7MContent []byte) error
 	UploadApp(ctx context.Context, manifestName string, manifest io.Reader, pkgName string, pkg io.Reader) error
 	ApplyUser(ctx context.Context, u user.User) (*user.User, error)
@@ -37,10 +35,9 @@ type ApplyService struct {
 	mtx       sync.RWMutex
 	DEPClient dep.Client
 
-	Blueprints *blueprint.DB
-	Tokens     *deptoken.DB
-	Apps       appstore.AppStore
-	Users      *user.DB
+	Tokens *deptoken.DB
+	Apps   appstore.AppStore
+	Users  *user.DB
 	*remove.RemoveService
 }
 
@@ -103,10 +100,6 @@ func (svc *ApplyService) WatchTokenUpdates(pubsub pubsub.Subscriber) error {
 	}()
 
 	return nil
-}
-
-func (svc *ApplyService) ApplyBlueprint(ctx context.Context, bp *blueprint.Blueprint) error {
-	return svc.Blueprints.Save(bp)
 }
 
 // unwrapSMIME removes the S/MIME-like wrapper around raw CMS/PKCS7 data

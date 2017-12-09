@@ -7,7 +7,6 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/dep"
 
-	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/deptoken"
 	"github.com/micromdm/micromdm/platform/user"
 )
@@ -15,7 +14,6 @@ import (
 type Endpoints struct {
 	ListDevicesEndpoint       endpoint.Endpoint
 	GetDEPTokensEndpoint      endpoint.Endpoint
-	GetBlueprintsEndpoint     endpoint.Endpoint
 	GetDEPAccountInfoEndpoint endpoint.Endpoint
 	GetDEPDeviceEndpoint      endpoint.Endpoint
 	GetDEPProfileEndpoint     endpoint.Endpoint
@@ -56,15 +54,6 @@ func (e Endpoints) GetDEPTokens(ctx context.Context) ([]deptoken.DEPToken, []byt
 		return nil, nil, err
 	}
 	return resp.(depTokenResponse).DEPTokens, resp.(depTokenResponse).DEPPubKey, nil
-}
-
-func (e Endpoints) GetBlueprints(ctx context.Context, opt GetBlueprintsOption) ([]blueprint.Blueprint, error) {
-	request := blueprintsRequest{opt}
-	response, err := e.GetBlueprintsEndpoint(ctx, request.Opts)
-	if err != nil {
-		return nil, err
-	}
-	return response.(blueprintsResponse).Blueprints, response.(blueprintsResponse).Err
 }
 
 func (e Endpoints) GetDEPAccountInfo(ctx context.Context) (*dep.Account, error) {
@@ -138,17 +127,6 @@ func MakeGetDEPTokensEndpoint(svc Service) endpoint.Endpoint {
 	}
 }
 
-func MakeGetBlueprintsEndpoint(svc Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(blueprintsRequest)
-		blueprints, err := svc.GetBlueprints(ctx, req.Opts)
-		return blueprintsResponse{
-			Blueprints: blueprints,
-			Err:        err,
-		}, nil
-	}
-}
-
 func MakeGetDEPAccountInfoEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		account, err := svc.GetDEPAccountInfo(ctx)
@@ -198,14 +176,6 @@ type depTokenResponse struct {
 	DEPPubKey []byte              `json:"public_key"`
 	Err       error               `json:"err,omitempty"`
 }
-
-type blueprintsRequest struct{ Opts GetBlueprintsOption }
-type blueprintsResponse struct {
-	Blueprints []blueprint.Blueprint `json:"blueprints"`
-	Err        error                 `json:"err,omitempty"`
-}
-
-func (r blueprintsResponse) error() error { return r.Err }
 
 type depAccountInforequest struct{}
 type depAccountInfoResponse struct {

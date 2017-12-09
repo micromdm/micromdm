@@ -7,12 +7,10 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/dep"
 
-	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/user"
 )
 
 type Endpoints struct {
-	ApplyBlueprintEndpoint   endpoint.Endpoint
 	ApplyDEPTokensEndpoint   endpoint.Endpoint
 	DefineDEPProfileEndpoint endpoint.Endpoint
 	AppUploadEndpoint        endpoint.Endpoint
@@ -67,15 +65,6 @@ func (e Endpoints) DefineDEPProfile(ctx context.Context, p *dep.Profile) (*dep.P
 	return response.ProfileResponse, response.Err
 }
 
-func (e Endpoints) ApplyBlueprint(ctx context.Context, bp *blueprint.Blueprint) error {
-	request := blueprintRequest{Blueprint: bp}
-	resp, err := e.ApplyBlueprintEndpoint(ctx, request)
-	if err != nil {
-		return err
-	}
-	return resp.(blueprintResponse).Err
-}
-
 func (e Endpoints) ApplyDEPToken(ctx context.Context, P7MContent []byte) error {
 	req := depTokensRequest{P7MContent: P7MContent}
 	resp, err := e.ApplyDEPTokensEndpoint(ctx, req)
@@ -83,16 +72,6 @@ func (e Endpoints) ApplyDEPToken(ctx context.Context, P7MContent []byte) error {
 		return err
 	}
 	return resp.(depTokensResponse).Err
-}
-
-func MakeApplyBlueprintEndpoint(svc Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(blueprintRequest)
-		err = svc.ApplyBlueprint(ctx, req.Blueprint)
-		return blueprintResponse{
-			Err: err,
-		}, nil
-	}
 }
 
 func MakeApplyDEPTokensEndpoint(svc Service) endpoint.Endpoint {
@@ -160,16 +139,6 @@ type appUploadResponse struct {
 }
 
 func (r appUploadResponse) error() error { return r.Err }
-
-type blueprintRequest struct {
-	Blueprint *blueprint.Blueprint `json:"blueprint"`
-}
-
-type blueprintResponse struct {
-	Err error `json:"err,omitempty"`
-}
-
-func (r blueprintResponse) error() error { return r.Err }
 
 type depTokensRequest struct {
 	P7MContent []byte `json:"p7m_content"`

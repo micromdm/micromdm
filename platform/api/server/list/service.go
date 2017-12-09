@@ -11,10 +11,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/platform/appstore"
-	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/deptoken"
 	"github.com/micromdm/micromdm/platform/device"
-	"github.com/micromdm/micromdm/platform/profile"
 	"github.com/micromdm/micromdm/platform/pubsub"
 	"github.com/micromdm/micromdm/platform/user"
 )
@@ -35,10 +33,6 @@ type ListUsersOption struct {
 	FilterUDID   []string
 }
 
-type GetBlueprintsOption struct {
-	FilterName string
-}
-
 type ListAppsOption struct {
 	FilterName []string `json:"filter_name"`
 }
@@ -47,7 +41,6 @@ type Service interface {
 	ListDevices(ctx context.Context, opt ListDevicesOption) ([]DeviceDTO, error)
 	ListUsers(ctx context.Context, opt ListUsersOption) ([]user.User, error)
 	GetDEPTokens(ctx context.Context) ([]deptoken.DEPToken, []byte, error)
-	GetBlueprints(ctx context.Context, opt GetBlueprintsOption) ([]blueprint.Blueprint, error)
 	ListApplications(ctx context.Context, opt ListAppsOption) ([]AppDTO, error)
 	DEPService
 }
@@ -56,12 +49,10 @@ type ListService struct {
 	mtx       sync.RWMutex
 	DEPClient dep.Client
 
-	Devices    *device.DB
-	Blueprints *blueprint.DB
-	Profiles   profile.Store
-	Tokens     *deptoken.DB
-	Apps       appstore.AppStore
-	Users      *user.DB
+	Devices *device.DB
+	Tokens  *deptoken.DB
+	Apps    appstore.AppStore
+	Users   *user.DB
 }
 
 func (svc *ListService) ListApplications(ctx context.Context, opts ListAppsOption) ([]AppDTO, error) {
@@ -154,20 +145,4 @@ func (svc *ListService) GetDEPTokens(ctx context.Context) ([]deptoken.DEPToken, 
 	}
 
 	return tokens, certBytes, nil
-}
-
-func (svc *ListService) GetBlueprints(ctx context.Context, opt GetBlueprintsOption) ([]blueprint.Blueprint, error) {
-	if opt.FilterName != "" {
-		bp, err := svc.Blueprints.BlueprintByName(opt.FilterName)
-		if err != nil {
-			return nil, err
-		}
-		return []blueprint.Blueprint{*bp}, err
-	} else {
-		bps, err := svc.Blueprints.List()
-		if err != nil {
-			return nil, err
-		}
-		return bps, nil
-	}
 }
