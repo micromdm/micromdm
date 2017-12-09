@@ -10,27 +10,6 @@ import (
 	"github.com/micromdm/micromdm/platform/remove/internal/removeproto"
 )
 
-type Service interface {
-	BlockDevice(ctx context.Context, udid string) error
-	UnblockDevice(ctx context.Context, udid string) error
-}
-
-type RemoveService struct {
-	db *DB
-}
-
-func NewService(db *DB) (*RemoveService, error) {
-	return &RemoveService{db: db}, nil
-}
-
-func (svc *RemoveService) BlockDevice(ctx context.Context, udid string) error {
-	return svc.db.Save(&Device{UDID: udid})
-}
-
-func (svc *RemoveService) UnblockDevice(ctx context.Context, udid string) error {
-	return svc.db.Delete(udid)
-}
-
 type Device struct {
 	UDID string `json:"udid"`
 }
@@ -51,23 +30,23 @@ func UnmarshalDevice(data []byte, dev *Device) error {
 	return nil
 }
 
-func RemoveMiddleware(db *DB) connect.Middleware {
+func RemoveMiddleware(store Store) connect.Middleware {
 	return func(next connect.Service) connect.Service {
 		return &removeMiddleware{
-			db:   db,
-			next: next,
+			store: store,
+			next:  next,
 		}
 	}
 }
 
 type removeMiddleware struct {
-	db   *DB
-	next connect.Service
+	store Store
+	next  connect.Service
 }
 
 func (mw removeMiddleware) Acknowledge(ctx context.Context, req connect.MDMConnectRequest) ([]byte, error) {
 	udid := req.MDMResponse.UDID
-	_, err := mw.db.DeviceByUDID(udid)
+	_, err := mw.store.DeviceByUDID(udid)
 	if err != nil {
 		if !isNotFound(err) {
 			return nil, errors.Wrapf(err, "remove: get device by udid %s", udid)
@@ -87,4 +66,14 @@ func (checkoutErr) Error() string {
 
 func (checkoutErr) Checkout() bool {
 	return true
+}
+
+func isNotFound(err error) bool {
+	type notFoundError interface {
+		error
+		NotFound() bool
+	}
+
+	_, ok := err.(notFoundError)
+	return ok
 }
