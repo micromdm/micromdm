@@ -49,6 +49,7 @@ import (
 	"github.com/micromdm/micromdm/platform/apns"
 	"github.com/micromdm/micromdm/platform/appstore"
 	"github.com/micromdm/micromdm/platform/blueprint"
+	blueprintbuiltin "github.com/micromdm/micromdm/platform/blueprint/builtin"
 	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/config"
 	"github.com/micromdm/micromdm/platform/deptoken"
@@ -186,7 +187,7 @@ func serve(args []string) error {
 		stdlog.Fatalf("enrollment service: %s", sm.err)
 	}
 
-	bpDB, err := blueprint.NewDB(sm.db, sm.profileDB, userDB)
+	bpDB, err := blueprintbuiltin.NewDB(sm.db, sm.profileDB, userDB)
 	if err != nil {
 		stdlog.Fatal(err)
 	}
@@ -277,15 +278,21 @@ func serve(args []string) error {
 
 	profileEndpoints := profile.MakeServerEndpoints(profilesvc)
 
+	var blueprintsvc blueprint.Service
+	{
+		blueprintsvc = blueprint.New(bpDB)
+	}
+
+	blueprintEndpoints := blueprint.MakeServerEndpoints(blueprintsvc)
+
 	var listsvc list.Service
 	{
 		l := &list.ListService{
-			DEPClient:  dc,
-			Devices:    devDB,
-			Tokens:     tokenDB,
-			Blueprints: bpDB,
-			Apps:       appDB,
-			Users:      userDB,
+			DEPClient: dc,
+			Devices:   devDB,
+			Tokens:    tokenDB,
+			Apps:      appDB,
+			Users:     userDB,
 		}
 		listsvc = l
 
@@ -301,7 +308,6 @@ func serve(args []string) error {
 	listEndpoints := list.Endpoints{
 		ListDevicesEndpoint:       listDevicesEndpoint,
 		GetDEPTokensEndpoint:      list.MakeGetDEPTokensEndpoint(listsvc),
-		GetBlueprintsEndpoint:     list.MakeGetBlueprintsEndpoint(listsvc),
 		GetDEPAccountInfoEndpoint: list.MakeGetDEPAccountInfoEndpoint(listsvc),
 		GetDEPProfileEndpoint:     list.MakeGetDEPProfileEndpoint(listsvc),
 		GetDEPDeviceEndpoint:      list.MakeGetDEPDeviceDetailsEndpoint(listsvc),
@@ -313,7 +319,6 @@ func serve(args []string) error {
 	{
 		l := &apply.ApplyService{
 			DEPClient:     dc,
-			Blueprints:    bpDB,
 			Tokens:        tokenDB,
 			Apps:          appDB,
 			Users:         userDB,
@@ -323,11 +328,6 @@ func serve(args []string) error {
 		if err := l.WatchTokenUpdates(sm.pubclient); err != nil {
 			stdlog.Fatal(err)
 		}
-	}
-
-	var applyBlueprintEndpoint endpoint.Endpoint
-	{
-		applyBlueprintEndpoint = apply.MakeApplyBlueprintEndpoint(applysvc)
 	}
 
 	var defineDEPProfileEndpoint endpoint.Endpoint
@@ -346,7 +346,6 @@ func serve(args []string) error {
 	}
 
 	applyEndpoints := apply.Endpoints{
-		ApplyBlueprintEndpoint:   applyBlueprintEndpoint,
 		ApplyDEPTokensEndpoint:   apply.MakeApplyDEPTokensEndpoint(applysvc),
 		DefineDEPProfileEndpoint: defineDEPProfileEndpoint,
 		AppUploadEndpoint:        appUploadEndpoint,
@@ -358,7 +357,7 @@ func serve(args []string) error {
 
 	listAPIHandlers := list.MakeHTTPHandlers(ctx, listEndpoints, connectOpts...)
 
-	rmsvc := &remove.RemoveService{Blueprints: bpDB, RemoveService: removeService}
+	rmsvc := &remove.RemoveService{RemoveService: removeService}
 	removeAPIHandlers := remove.MakeHTTPHandlers(ctx, remove.MakeEndpoints(rmsvc), connectOpts...)
 
 	connectHandlers := connect.MakeHTTPHandlers(ctx, connectEndpoints, connectOpts...)
@@ -378,10 +377,12 @@ func serve(args []string) error {
 	})
 
 	profilesHandler := profile.MakeHTTPHandler(profileEndpoints, logger)
+	blueprintsHandler := blueprint.MakeHTTPHandler(blueprintEndpoints, logger)
 
 	// API commands. Only handled if the user provides an api key.
 	if *flAPIKey != "" {
 		r.Handle("/v1/profiles", apiAuthMiddleware(*flAPIKey, profilesHandler))
+		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, blueprintsHandler))
 		r.Handle("/push/{udid}", apiAuthMiddleware(*flAPIKey, pushHandlers.PushHandler))
 		r.Handle("/v1/commands", apiAuthMiddleware(*flAPIKey, commandHandlers.NewCommandHandler)).Methods("POST")
 		r.Handle("/v1/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListDevicesHandler)).Methods("GET")
@@ -389,9 +390,6 @@ func serve(args []string) error {
 		r.Handle("/v1/devices/{udid}/unblock", apiAuthMiddleware(*flAPIKey, removeAPIHandlers.UnblockDeviceHandler)).Methods("POST")
 		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPTokensHandler)).Methods("GET")
 		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DEPTokensHandler)).Methods("PUT")
-		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetBlueprintsHandler)).Methods("GET")
-		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.BlueprintHandler)).Methods("PUT")
-		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, removeAPIHandlers.BlueprintHandler)).Methods("DELETE")
 		r.Handle("/v1/dep/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPDeviceDetailsHandler)).Methods("GET")
 		r.Handle("/v1/dep/account", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPAccountInfoHandler)).Methods("GET")
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPProfileHandler)).Methods("GET")

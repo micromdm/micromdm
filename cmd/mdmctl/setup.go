@@ -7,14 +7,16 @@ import (
 	"github.com/micromdm/micromdm/platform/api/server/apply"
 	"github.com/micromdm/micromdm/platform/api/server/list"
 	"github.com/micromdm/micromdm/platform/api/server/remove"
+	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/profile"
 )
 
 type remoteServices struct {
-	profilesvc profile.Service
-	applysvc   apply.Service
-	list       list.Service
-	remove     remove.Service
+	profilesvc   profile.Service
+	blueprintsvc blueprint.Service
+	applysvc     apply.Service
+	list         list.Service
+	remove       remove.Service
 }
 
 func setupClient(logger log.Logger) (*remoteServices, error) {
@@ -22,15 +24,23 @@ func setupClient(logger log.Logger) (*remoteServices, error) {
 	if err != nil {
 		return nil, err
 	}
-	applysvc, err := apply.NewClient(
-		cfg.ServerURL, logger, cfg.APIToken,
+
+	profilesvc, err := profile.NewHTTPClient(
+		cfg.ServerURL, cfg.APIToken, logger,
 		httptransport.SetClient(skipVerifyHTTPClient(cfg.SkipVerify)))
 	if err != nil {
 		return nil, err
 	}
 
-	profilesvc, err := profile.NewHTTPClient(
+	blueprintsvc, err := blueprint.NewHTTPClient(
 		cfg.ServerURL, cfg.APIToken, logger,
+		httptransport.SetClient(skipVerifyHTTPClient(cfg.SkipVerify)))
+	if err != nil {
+		return nil, err
+	}
+
+	applysvc, err := apply.NewClient(
+		cfg.ServerURL, logger, cfg.APIToken,
 		httptransport.SetClient(skipVerifyHTTPClient(cfg.SkipVerify)))
 	if err != nil {
 		return nil, err
@@ -51,9 +61,10 @@ func setupClient(logger log.Logger) (*remoteServices, error) {
 	}
 
 	return &remoteServices{
-		profilesvc: profilesvc,
-		applysvc:   applysvc,
-		list:       listsvc,
-		remove:     rmsvc,
+		profilesvc:   profilesvc,
+		blueprintsvc: blueprintsvc,
+		applysvc:     applysvc,
+		list:         listsvc,
+		remove:       rmsvc,
 	}, nil
 }

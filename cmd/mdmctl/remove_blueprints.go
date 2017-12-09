@@ -18,7 +18,7 @@ func (cmd *removeCommand) removeBlueprints(args []string) error {
 	}
 
 	ctx := context.Background()
-	err := cmd.remove.RemoveBlueprints(ctx, strings.Split(*flBlueprintName, ","))
+	err := cmd.blueprintsvc.RemoveBlueprints(ctx, strings.Split(*flBlueprintName, ","))
 	if err != nil {
 		return err
 	}
