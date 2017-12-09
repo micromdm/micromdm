@@ -18,13 +18,13 @@ const (
 
 type DB struct {
 	*bolt.DB
-	profDB *profile.DB
+	profDB profile.Store
 	userDB *user.DB
 }
 
 func NewDB(
 	db *bolt.DB,
-	profileDB *profile.DB,
+	profileDB profile.Store,
 	userDB *user.DB,
 ) (*DB, error) {
 	err := db.Update(func(tx *bolt.Tx) error {

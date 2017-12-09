@@ -39,10 +39,6 @@ type GetBlueprintsOption struct {
 	FilterName string
 }
 
-type GetProfilesOption struct {
-	Identifier string `json:"id"`
-}
-
 type ListAppsOption struct {
 	FilterName []string `json:"filter_name"`
 }
@@ -52,7 +48,6 @@ type Service interface {
 	ListUsers(ctx context.Context, opt ListUsersOption) ([]user.User, error)
 	GetDEPTokens(ctx context.Context) ([]deptoken.DEPToken, []byte, error)
 	GetBlueprints(ctx context.Context, opt GetBlueprintsOption) ([]blueprint.Blueprint, error)
-	GetProfiles(ctx context.Context, opt GetProfilesOption) ([]profile.Profile, error)
 	ListApplications(ctx context.Context, opt ListAppsOption) ([]AppDTO, error)
 	DEPService
 }
@@ -63,7 +58,7 @@ type ListService struct {
 
 	Devices    *device.DB
 	Blueprints *blueprint.DB
-	Profiles   *profile.DB
+	Profiles   profile.Store
 	Tokens     *deptoken.DB
 	Apps       appstore.AppStore
 	Users      *user.DB
@@ -174,17 +169,5 @@ func (svc *ListService) GetBlueprints(ctx context.Context, opt GetBlueprintsOpti
 			return nil, err
 		}
 		return bps, nil
-	}
-}
-
-func (svc *ListService) GetProfiles(ctx context.Context, opt GetProfilesOption) ([]profile.Profile, error) {
-	if opt.Identifier != "" {
-		foundProf, err := svc.Profiles.ProfileById(opt.Identifier)
-		if err != nil {
-			return nil, err
-		}
-		return []profile.Profile{*foundProf}, nil
-	} else {
-		return svc.Profiles.List()
 	}
 }

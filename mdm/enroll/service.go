@@ -29,7 +29,7 @@ type Service interface {
 	OTAPhase3(ctx context.Context) (profile.Mobileconfig, error)
 }
 
-func NewService(topic TopicProvider, sub pubsub.Subscriber, caCertPath, scepURL, scepChallenge, url, tlsCertPath, scepSubject string, profileDB *profile.DB) (Service, error) {
+func NewService(topic TopicProvider, sub pubsub.Subscriber, caCertPath, scepURL, scepChallenge, url, tlsCertPath, scepSubject string, profileDB profile.Store) (Service, error) {
 	var caCert, tlsCert []byte
 	var err error
 
@@ -120,7 +120,7 @@ type service struct {
 	SCEPSubject   [][][]string
 	CACert        []byte
 	TLSCert       []byte
-	ProfileDB     *profile.DB
+	ProfileDB     profile.Store
 
 	topicProvier TopicProvider
 

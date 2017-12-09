@@ -6,15 +6,11 @@ import (
 	"strings"
 
 	"github.com/go-kit/kit/log"
-
-	httptransport "github.com/go-kit/kit/transport/http"
-
-	"github.com/micromdm/micromdm/platform/api/server/remove"
 )
 
 type removeCommand struct {
 	config *ServerConfig
-	remove remove.Service
+	*remoteServices
 }
 
 func (cmd *removeCommand) setup() error {
@@ -24,11 +20,11 @@ func (cmd *removeCommand) setup() error {
 	}
 	cmd.config = cfg
 	logger := log.NewLogfmtLogger(os.Stderr)
-	rmsvc, err := remove.NewClient(cfg.ServerURL, logger, cfg.APIToken, httptransport.SetClient(skipVerifyHTTPClient(cmd.config.SkipVerify)))
+	remote, err := setupClient(logger)
 	if err != nil {
 		return err
 	}
-	cmd.remove = rmsvc
+	cmd.remoteServices = remote
 	return nil
 }
 

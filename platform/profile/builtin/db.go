@@ -1,9 +1,10 @@
-package profile
+package builtin
 
 import (
 	"fmt"
 
 	"github.com/boltdb/bolt"
+	"github.com/micromdm/micromdm/platform/profile"
 	"github.com/pkg/errors"
 )
 
@@ -29,15 +30,15 @@ func NewDB(db *bolt.DB) (*DB, error) {
 	return datastore, nil
 }
 
-func (db *DB) List() ([]Profile, error) {
+func (db *DB) List() ([]profile.Profile, error) {
 	// TODO add filter/limit with ForEach
-	var list []Profile
+	var list []profile.Profile
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(ProfileBucket))
 		c := b.Cursor()
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			var p Profile
-			if err := UnmarshalProfile(v, &p); err != nil {
+			var p profile.Profile
+			if err := profile.UnmarshalProfile(v, &p); err != nil {
 				return err
 			}
 			list = append(list, p)
@@ -47,7 +48,7 @@ func (db *DB) List() ([]Profile, error) {
 	return list, err
 }
 
-func (db *DB) Save(p *Profile) error {
+func (db *DB) Save(p *profile.Profile) error {
 	err := p.Validate()
 	if err != nil {
 		return err
@@ -60,7 +61,7 @@ func (db *DB) Save(p *Profile) error {
 	if bkt == nil {
 		return fmt.Errorf("bucket %q not found!", ProfileBucket)
 	}
-	pproto, err := MarshalProfile(p)
+	pproto, err := profile.MarshalProfile(p)
 	if err != nil {
 		return errors.Wrap(err, "marshalling profile")
 	}
@@ -70,15 +71,15 @@ func (db *DB) Save(p *Profile) error {
 	return tx.Commit()
 }
 
-func (db *DB) ProfileById(id string) (*Profile, error) {
-	var p Profile
+func (db *DB) ProfileById(id string) (*profile.Profile, error) {
+	var p profile.Profile
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(ProfileBucket))
 		v := b.Get([]byte(id))
 		if v == nil {
 			return &notFound{"Profile", fmt.Sprintf("id %s", id)}
 		}
-		return UnmarshalProfile(v, &p)
+		return profile.UnmarshalProfile(v, &p)
 	})
 	return &p, err
 }
@@ -104,9 +105,6 @@ func (e *notFound) Error() string {
 	return fmt.Sprintf("not found: %s %s", e.ResourceType, e.Message)
 }
 
-func IsNotFound(err error) bool {
-	if _, ok := err.(*notFound); ok {
-		return true
-	}
-	return false
+func (e *notFound) NotFound() bool {
+	return true
 }

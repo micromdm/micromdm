@@ -27,12 +27,6 @@ func MakeHTTPHandlers(ctx context.Context, endpoint Endpoints, opts ...httptrans
 			encodeResponse,
 			opts...,
 		),
-		ProfileHandler: httptransport.NewServer(
-			endpoint.RemoveProfilesEndpoint,
-			decodeProfileRequest,
-			encodeResponse,
-			opts...,
-		),
 		UnblockDeviceHandler: httptransport.NewServer(
 			endpoint.UnblockDeviceEndpoint,
 			decodeUnblockDeviceRequest,

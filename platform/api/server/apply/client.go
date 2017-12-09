@@ -36,16 +36,6 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 			opts...,
 		).Endpoint()
 	}
-	var applyProfileEndpoint endpoint.Endpoint
-	{
-		applyProfileEndpoint = httptransport.NewClient(
-			"PUT",
-			copyURL(u, "/v1/profiles"),
-			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
-			DecodeProfileResponse,
-			opts...,
-		).Endpoint()
-	}
 
 	var defineDEPProfileEndpoint endpoint.Endpoint
 	{
@@ -94,7 +84,6 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 	return Endpoints{
 		ApplyBlueprintEndpoint:   applyBlueprintEndpoint,
 		ApplyDEPTokensEndpoint:   applyDEPTokensEndpoint,
-		ApplyProfileEndpoint:     applyProfileEndpoint,
 		DefineDEPProfileEndpoint: defineDEPProfileEndpoint,
 		AppUploadEndpoint:        uploadAppEndpoint,
 		ApplyUserEndpoint:        applyUserEndpoint,
