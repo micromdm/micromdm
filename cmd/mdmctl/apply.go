@@ -148,7 +148,7 @@ func (cmd *applyCommand) applyBlueprint(args []string) error {
 		}
 
 		ctx := context.Background()
-		err = cmd.applysvc.ApplyBlueprint(ctx, &blpt)
+		err = cmd.blueprintsvc.ApplyBlueprint(ctx, &blpt)
 		if err != nil {
 			return err
 		}

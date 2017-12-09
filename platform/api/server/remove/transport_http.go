@@ -14,19 +14,11 @@ import (
 )
 
 type HTTPHandlers struct {
-	BlueprintHandler     http.Handler
-	ProfileHandler       http.Handler
 	UnblockDeviceHandler http.Handler
 }
 
 func MakeHTTPHandlers(ctx context.Context, endpoint Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
 	h := HTTPHandlers{
-		BlueprintHandler: httptransport.NewServer(
-			endpoint.RemoveBlueprintsEndpoint,
-			decodeBlueprintRequest,
-			encodeResponse,
-			opts...,
-		),
 		UnblockDeviceHandler: httptransport.NewServer(
 			endpoint.UnblockDeviceEndpoint,
 			decodeUnblockDeviceRequest,
@@ -35,22 +27,6 @@ func MakeHTTPHandlers(ctx context.Context, endpoint Endpoints, opts ...httptrans
 		),
 	}
 	return h
-}
-
-func decodeBlueprintRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	var bpReq blueprintRequest
-	if err := json.NewDecoder(r.Body).Decode(&bpReq); err != nil {
-		return nil, err
-	}
-	return bpReq, nil
-}
-
-func decodeProfileRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	var req profileRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, err
-	}
-	return req, nil
 }
 
 func decodeUnblockDeviceRequest(ctx context.Context, r *http.Request) (interface{}, error) {
@@ -115,24 +91,6 @@ func encodeUnblockDeviceRequest(_ context.Context, r *http.Request, request inte
 	udid := url.QueryEscape(req.UDID)
 	r.Method, r.URL.Path = "POST", "/v1/devices/"+udid+"/unblock"
 	return nil
-}
-
-func DecodeBlueprintResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	if r.StatusCode != http.StatusOK {
-		return nil, errorDecoder(r)
-	}
-	var resp blueprintResponse
-	err := json.NewDecoder(r.Body).Decode(&resp)
-	return resp, err
-}
-
-func DecodeProfileResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	if r.StatusCode != http.StatusOK {
-		return nil, errorDecoder(r)
-	}
-	var resp profileResponse
-	err := json.NewDecoder(r.Body).Decode(&resp)
-	return resp, err
 }
 
 func DecodeUnblockDeviceResponse(_ context.Context, r *http.Response) (interface{}, error) {

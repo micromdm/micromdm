@@ -7,14 +7,12 @@ import (
 )
 
 type Endpoints struct {
-	RemoveBlueprintsEndpoint endpoint.Endpoint
-	UnblockDeviceEndpoint    endpoint.Endpoint
+	UnblockDeviceEndpoint endpoint.Endpoint
 }
 
 func MakeEndpoints(svc Service) Endpoints {
 	e := Endpoints{
-		RemoveBlueprintsEndpoint: MakeRemoveBlueprintsEndpoint(svc),
-		UnblockDeviceEndpoint:    MakeUnblockDeviceEndpoint(svc),
+		UnblockDeviceEndpoint: MakeUnblockDeviceEndpoint(svc),
 	}
 	return e
 }
@@ -26,25 +24,6 @@ func (e Endpoints) UnblockDevice(ctx context.Context, udid string) error {
 		return err
 	}
 	return resp.(unblockDeviceResponse).Err
-}
-
-func (e Endpoints) RemoveBlueprints(ctx context.Context, names []string) error {
-	request := blueprintRequest{Names: names}
-	resp, err := e.RemoveBlueprintsEndpoint(ctx, request)
-	if err != nil {
-		return err
-	}
-	return resp.(blueprintResponse).Err
-}
-
-func MakeRemoveBlueprintsEndpoint(svc Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(blueprintRequest)
-		err = svc.RemoveBlueprints(ctx, req.Names)
-		return blueprintResponse{
-			Err: err,
-		}, nil
-	}
 }
 
 func MakeUnblockDeviceEndpoint(svc Service) endpoint.Endpoint {

@@ -16,7 +16,6 @@ import (
 )
 
 type HTTPHandlers struct {
-	BlueprintHandler        http.Handler
 	DEPTokensHandler        http.Handler
 	DefineDEPProfileHandler http.Handler
 	AppUploadHandler        http.Handler
@@ -26,12 +25,6 @@ type HTTPHandlers struct {
 
 func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
 	h := HTTPHandlers{
-		BlueprintHandler: httptransport.NewServer(
-			endpoints.ApplyBlueprintEndpoint,
-			decodeBlueprintRequest,
-			encodeResponse,
-			opts...,
-		),
 		DEPTokensHandler: httptransport.NewServer(
 			endpoints.ApplyDEPTokensEndpoint,
 			decodeDEPTokensRequest,
@@ -84,14 +77,6 @@ func decodeDEPTokensRequest(ctx context.Context, r *http.Request) (interface{}, 
 		return nil, err
 	}
 	return req, nil
-}
-
-func decodeBlueprintRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	var bpReq blueprintRequest
-	if err := json.NewDecoder(r.Body).Decode(&bpReq); err != nil {
-		return nil, err
-	}
-	return bpReq, nil
 }
 
 func decodeDEPProfileRequest(ctx context.Context, r *http.Request) (interface{}, error) {
@@ -219,15 +204,6 @@ func encodeBlockDeviceRequest(_ context.Context, r *http.Request, request interf
 	udid := url.QueryEscape(req.UDID)
 	r.Method, r.URL.Path = "POST", "/v1/devices/"+udid+"/block"
 	return nil
-}
-
-func DecodeBlueprintResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	if r.StatusCode != http.StatusOK {
-		return nil, errorDecoder(r)
-	}
-	var resp blueprintResponse
-	err := json.NewDecoder(r.Body).Decode(&resp)
-	return resp, err
 }
 
 func DecodeDEPTokensResponse(_ context.Context, r *http.Response) (interface{}, error) {

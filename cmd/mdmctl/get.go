@@ -17,6 +17,7 @@ import (
 
 	"github.com/micromdm/micromdm/pkg/crypto"
 	"github.com/micromdm/micromdm/platform/api/server/list"
+	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/profile"
 )
 
@@ -232,7 +233,7 @@ func (cmd *getCommand) getBlueprints(args []string) error {
 	}
 
 	ctx := context.Background()
-	blueprints, err := cmd.list.GetBlueprints(ctx, list.GetBlueprintsOption{FilterName: *flBlueprintName})
+	blueprints, err := cmd.blueprintsvc.GetBlueprints(ctx, blueprint.GetBlueprintsOption{FilterName: *flBlueprintName})
 	if err != nil {
 		return err
 	}
