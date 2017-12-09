@@ -26,16 +26,6 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 			opts...,
 		).Endpoint()
 	}
-	var removeProfilesEndpoint endpoint.Endpoint
-	{
-		removeProfilesEndpoint = httptransport.NewClient(
-			"DELETE",
-			copyURL(u, "/v1/profiles"),
-			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
-			DecodeProfileResponse,
-			opts...,
-		).Endpoint()
-	}
 
 	var unblockDeviceEndpoint endpoint.Endpoint
 	{
@@ -50,7 +40,6 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 
 	return Endpoints{
 		RemoveBlueprintsEndpoint: removeBlueprintsEndpoint,
-		RemoveProfilesEndpoint:   removeProfilesEndpoint,
 		UnblockDeviceEndpoint:    unblockDeviceEndpoint,
 	}, nil
 }

@@ -13,18 +13,16 @@ import (
 	"strings"
 
 	"github.com/go-kit/kit/log"
-	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 
-	"github.com/micromdm/micromdm/platform/api/server/apply"
 	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/profile"
 )
 
 type applyCommand struct {
-	config   *ServerConfig
-	applysvc apply.Service
+	config *ServerConfig
+	*remoteServices
 }
 
 func (cmd *applyCommand) setup() error {
@@ -34,11 +32,11 @@ func (cmd *applyCommand) setup() error {
 	}
 	cmd.config = cfg
 	logger := log.NewLogfmtLogger(os.Stderr)
-	applysvc, err := apply.NewClient(cfg.ServerURL, logger, cfg.APIToken, httptransport.SetClient(skipVerifyHTTPClient(cmd.config.SkipVerify)))
+	remote, err := setupClient(logger)
 	if err != nil {
 		return err
 	}
-	cmd.applysvc = applysvc
+	cmd.remoteServices = remote
 	return nil
 }
 
@@ -256,7 +254,7 @@ func (cmd *applyCommand) applyProfile(args []string) error {
 	}
 
 	ctx := context.Background()
-	err = cmd.applysvc.ApplyProfile(ctx, &p)
+	err = cmd.profilesvc.ApplyProfile(ctx, &p)
 	if err != nil {
 		return err
 	}

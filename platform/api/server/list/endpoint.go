@@ -9,7 +9,6 @@ import (
 
 	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/deptoken"
-	"github.com/micromdm/micromdm/platform/profile"
 	"github.com/micromdm/micromdm/platform/user"
 )
 
@@ -17,7 +16,6 @@ type Endpoints struct {
 	ListDevicesEndpoint       endpoint.Endpoint
 	GetDEPTokensEndpoint      endpoint.Endpoint
 	GetBlueprintsEndpoint     endpoint.Endpoint
-	GetProfilesEndpoint       endpoint.Endpoint
 	GetDEPAccountInfoEndpoint endpoint.Endpoint
 	GetDEPDeviceEndpoint      endpoint.Endpoint
 	GetDEPProfileEndpoint     endpoint.Endpoint
@@ -67,15 +65,6 @@ func (e Endpoints) GetBlueprints(ctx context.Context, opt GetBlueprintsOption) (
 		return nil, err
 	}
 	return response.(blueprintsResponse).Blueprints, response.(blueprintsResponse).Err
-}
-
-func (e Endpoints) GetProfiles(ctx context.Context, opt GetProfilesOption) ([]profile.Profile, error) {
-	request := profilesRequest{opt}
-	response, err := e.GetProfilesEndpoint(ctx, request.Opts)
-	if err != nil {
-		return nil, err
-	}
-	return response.(profilesResponse).Profiles, response.(profilesResponse).Err
 }
 
 func (e Endpoints) GetDEPAccountInfo(ctx context.Context) (*dep.Account, error) {
@@ -160,17 +149,6 @@ func MakeGetBlueprintsEndpoint(svc Service) endpoint.Endpoint {
 	}
 }
 
-func MakeGetProfilesEndpoint(svc Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(profilesRequest)
-		profiles, err := svc.GetProfiles(ctx, req.Opts)
-		return profilesResponse{
-			Profiles: profiles,
-			Err:      err,
-		}, nil
-	}
-}
-
 func MakeGetDEPAccountInfoEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		account, err := svc.GetDEPAccountInfo(ctx)
@@ -228,14 +206,6 @@ type blueprintsResponse struct {
 }
 
 func (r blueprintsResponse) error() error { return r.Err }
-
-type profilesRequest struct{ Opts GetProfilesOption }
-type profilesResponse struct {
-	Profiles []profile.Profile `json:"profiles"`
-	Err      error             `json:"err,omitempty"`
-}
-
-func (r profilesResponse) error() error { return r.Err }
 
 type depAccountInforequest struct{}
 type depAccountInfoResponse struct {

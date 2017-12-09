@@ -18,7 +18,6 @@ import (
 type HTTPHandlers struct {
 	BlueprintHandler        http.Handler
 	DEPTokensHandler        http.Handler
-	ProfileHandler          http.Handler
 	DefineDEPProfileHandler http.Handler
 	AppUploadHandler        http.Handler
 	ApplyUserhandler        http.Handler
@@ -36,12 +35,6 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 		DEPTokensHandler: httptransport.NewServer(
 			endpoints.ApplyDEPTokensEndpoint,
 			decodeDEPTokensRequest,
-			encodeResponse,
-			opts...,
-		),
-		ProfileHandler: httptransport.NewServer(
-			endpoints.ApplyProfileEndpoint,
-			decodeProfileRequest,
 			encodeResponse,
 			opts...,
 		),
@@ -99,14 +92,6 @@ func decodeBlueprintRequest(ctx context.Context, r *http.Request) (interface{}, 
 		return nil, err
 	}
 	return bpReq, nil
-}
-
-func decodeProfileRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	var req profileRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, err
-	}
-	return req, nil
 }
 
 func decodeDEPProfileRequest(ctx context.Context, r *http.Request) (interface{}, error) {
@@ -250,15 +235,6 @@ func DecodeDEPTokensResponse(_ context.Context, r *http.Response) (interface{}, 
 		return nil, errorDecoder(r)
 	}
 	var resp depTokensResponse
-	err := json.NewDecoder(r.Body).Decode(&resp)
-	return resp, err
-}
-
-func DecodeProfileResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	if r.StatusCode != http.StatusOK {
-		return nil, errorDecoder(r)
-	}
-	var resp profileResponse
 	err := json.NewDecoder(r.Body).Decode(&resp)
 	return resp, err
 }

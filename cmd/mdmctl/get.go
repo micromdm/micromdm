@@ -13,16 +13,16 @@ import (
 	"crypto/x509"
 
 	"github.com/go-kit/kit/log"
-	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/pkg/crypto"
 	"github.com/micromdm/micromdm/platform/api/server/list"
+	"github.com/micromdm/micromdm/platform/profile"
 )
 
 type getCommand struct {
 	config *ServerConfig
-	list   list.Service
+	*remoteServices
 }
 
 func (cmd *getCommand) setup() error {
@@ -32,11 +32,12 @@ func (cmd *getCommand) setup() error {
 	}
 	cmd.config = cfg
 	logger := log.NewLogfmtLogger(os.Stderr)
-	listsvc, err := list.NewClient(cfg.ServerURL, logger, cfg.APIToken, httptransport.SetClient(skipVerifyHTTPClient(cmd.config.SkipVerify)))
+
+	remote, err := setupClient(logger)
 	if err != nil {
 		return err
 	}
-	cmd.list = listsvc
+	cmd.remoteServices = remote
 	return nil
 }
 
@@ -304,7 +305,7 @@ func (cmd *getCommand) getProfiles(args []string) error {
 	}
 
 	ctx := context.Background()
-	profiles, err := cmd.list.GetProfiles(ctx, list.GetProfilesOption{Identifier: *flIdentifier})
+	profiles, err := cmd.profilesvc.GetProfiles(ctx, profile.GetProfilesOption{Identifier: *flIdentifier})
 	if err != nil {
 		return err
 	}

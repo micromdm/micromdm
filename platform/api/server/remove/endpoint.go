@@ -8,14 +8,12 @@ import (
 
 type Endpoints struct {
 	RemoveBlueprintsEndpoint endpoint.Endpoint
-	RemoveProfilesEndpoint   endpoint.Endpoint
 	UnblockDeviceEndpoint    endpoint.Endpoint
 }
 
 func MakeEndpoints(svc Service) Endpoints {
 	e := Endpoints{
 		RemoveBlueprintsEndpoint: MakeRemoveBlueprintsEndpoint(svc),
-		RemoveProfilesEndpoint:   MakeRemoveProfilesEndpoint(svc),
 		UnblockDeviceEndpoint:    MakeUnblockDeviceEndpoint(svc),
 	}
 	return e
@@ -39,30 +37,11 @@ func (e Endpoints) RemoveBlueprints(ctx context.Context, names []string) error {
 	return resp.(blueprintResponse).Err
 }
 
-func (e Endpoints) RemoveProfiles(ctx context.Context, ids []string) error {
-	request := profileRequest{Identifiers: ids}
-	resp, err := e.RemoveProfilesEndpoint(ctx, request)
-	if err != nil {
-		return err
-	}
-	return resp.(profileResponse).Err
-}
-
 func MakeRemoveBlueprintsEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(blueprintRequest)
 		err = svc.RemoveBlueprints(ctx, req.Names)
 		return blueprintResponse{
-			Err: err,
-		}, nil
-	}
-}
-
-func MakeRemoveProfilesEndpoint(svc Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(profileRequest)
-		err = svc.RemoveProfiles(ctx, req.Identifiers)
-		return profileResponse{
 			Err: err,
 		}, nil
 	}
