@@ -45,7 +45,6 @@ import (
 	"github.com/micromdm/micromdm/pkg/crypto"
 	"github.com/micromdm/micromdm/platform/api/server/apply"
 	"github.com/micromdm/micromdm/platform/api/server/list"
-	"github.com/micromdm/micromdm/platform/api/server/remove"
 	"github.com/micromdm/micromdm/platform/apns"
 	"github.com/micromdm/micromdm/platform/appstore"
 	"github.com/micromdm/micromdm/platform/blueprint"
@@ -60,6 +59,7 @@ import (
 	"github.com/micromdm/micromdm/platform/pubsub/inmem"
 	"github.com/micromdm/micromdm/platform/queue"
 	block "github.com/micromdm/micromdm/platform/remove"
+	blockbuiltin "github.com/micromdm/micromdm/platform/remove/builtin"
 	"github.com/micromdm/micromdm/platform/user"
 	"github.com/micromdm/micromdm/workflow/webhook"
 )
@@ -162,7 +162,7 @@ func serve(args []string) error {
 		stdlog.Fatal(sm.err)
 	}
 
-	removeService, err := block.NewService(sm.removeDB)
+	removeService, err := block.New(sm.removeDB)
 	if err != nil {
 		stdlog.Fatal(err)
 	}
@@ -285,6 +285,7 @@ func serve(args []string) error {
 
 	blueprintEndpoints := blueprint.MakeServerEndpoints(blueprintsvc)
 
+	blockEndpoints := block.MakeServerEndpoints(removeService)
 	var listsvc list.Service
 	{
 		l := &list.ListService{
@@ -318,11 +319,10 @@ func serve(args []string) error {
 	var applysvc apply.Service
 	{
 		l := &apply.ApplyService{
-			DEPClient:     dc,
-			Tokens:        tokenDB,
-			Apps:          appDB,
-			Users:         userDB,
-			RemoveService: removeService,
+			DEPClient: dc,
+			Tokens:    tokenDB,
+			Apps:      appDB,
+			Users:     userDB,
 		}
 		applysvc = l
 		if err := l.WatchTokenUpdates(sm.pubclient); err != nil {
@@ -350,15 +350,11 @@ func serve(args []string) error {
 		DefineDEPProfileEndpoint: defineDEPProfileEndpoint,
 		AppUploadEndpoint:        appUploadEndpoint,
 		ApplyUserEndpoint:        applyUserEndpoint,
-		BlockDeviceEndpoint:      apply.MakeBlockDeviceEndpoint(applysvc),
 	}
 
 	applyAPIHandlers := apply.MakeHTTPHandlers(ctx, applyEndpoints, connectOpts...)
 
 	listAPIHandlers := list.MakeHTTPHandlers(ctx, listEndpoints, connectOpts...)
-
-	rmsvc := &remove.RemoveService{RemoveService: removeService}
-	removeAPIHandlers := remove.MakeHTTPHandlers(ctx, remove.MakeEndpoints(rmsvc), connectOpts...)
 
 	connectHandlers := connect.MakeHTTPHandlers(ctx, connectEndpoints, connectOpts...)
 
@@ -378,16 +374,17 @@ func serve(args []string) error {
 
 	profilesHandler := profile.MakeHTTPHandler(profileEndpoints, logger)
 	blueprintsHandler := blueprint.MakeHTTPHandler(blueprintEndpoints, logger)
+	blockhandler := block.MakeHTTPHandler(blockEndpoints, logger)
 
 	// API commands. Only handled if the user provides an api key.
 	if *flAPIKey != "" {
 		r.Handle("/v1/profiles", apiAuthMiddleware(*flAPIKey, profilesHandler))
 		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, blueprintsHandler))
+		r.Handle("/v1/devices/{udid}/block", apiAuthMiddleware(*flAPIKey, blockhandler))
+		r.Handle("/v1/devices/{udid}/unblock", apiAuthMiddleware(*flAPIKey, blockhandler))
 		r.Handle("/push/{udid}", apiAuthMiddleware(*flAPIKey, pushHandlers.PushHandler))
 		r.Handle("/v1/commands", apiAuthMiddleware(*flAPIKey, commandHandlers.NewCommandHandler)).Methods("POST")
 		r.Handle("/v1/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListDevicesHandler)).Methods("GET")
-		r.Handle("/v1/devices/{udid}/block", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.BlockDeviceHandler)).Methods("POST")
-		r.Handle("/v1/devices/{udid}/unblock", apiAuthMiddleware(*flAPIKey, removeAPIHandlers.UnblockDeviceHandler)).Methods("POST")
 		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPTokensHandler)).Methods("GET")
 		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DEPTokensHandler)).Methods("PUT")
 		r.Handle("/v1/dep/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPDeviceDetailsHandler)).Methods("GET")
@@ -495,7 +492,7 @@ type server struct {
 	scepDepot           *boltdepot.Depot
 	profileDB           profile.Store
 	configDB            *config.DB
-	removeDB            *block.DB
+	removeDB            block.Store
 	CommandWebhookURL   string
 
 	// TODO: refactor enroll service and remove the need to reference
@@ -564,7 +561,7 @@ func (c *server) setupRemoveService() {
 	if c.err != nil {
 		return
 	}
-	removeDB, err := block.NewDB(c.db)
+	removeDB, err := blockbuiltin.NewDB(c.db)
 	if err != nil {
 		c.err = err
 		return

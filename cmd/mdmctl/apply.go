@@ -205,7 +205,7 @@ func (cmd *applyCommand) applyBlock(args []string) error {
 		flagset.Usage()
 		return errors.New("bad input: must provide a device UDID to block.")
 	}
-	if err := cmd.applysvc.BlockDevice(context.Background(), *flUDID); err != nil {
+	if err := cmd.blocksvc.BlockDevice(context.Background(), *flUDID); err != nil {
 		return err
 	}
 

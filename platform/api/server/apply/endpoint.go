@@ -15,7 +15,6 @@ type Endpoints struct {
 	DefineDEPProfileEndpoint endpoint.Endpoint
 	AppUploadEndpoint        endpoint.Endpoint
 	ApplyUserEndpoint        endpoint.Endpoint
-	BlockDeviceEndpoint      endpoint.Endpoint
 }
 
 func (e Endpoints) ApplyUser(ctx context.Context, u user.User) (*user.User, error) {
@@ -28,17 +27,6 @@ func (e Endpoints) ApplyUser(ctx context.Context, u user.User) (*user.User, erro
 	}
 	usr := resp.(applyUserResponse).User
 	return &usr, resp.(applyUserResponse).Err
-}
-
-func (e Endpoints) BlockDevice(ctx context.Context, udid string) error {
-	request := blockDeviceRequest{
-		UDID: udid,
-	}
-	resp, err := e.BlockDeviceEndpoint(ctx, request)
-	if err != nil {
-		return err
-	}
-	return resp.(blockDeviceResponse).Err
 }
 
 func (e Endpoints) UploadApp(ctx context.Context, manifestName string, manifest io.Reader, pkgName string, pkg io.Reader) error {
@@ -116,16 +104,6 @@ func MakeUploadAppEndpiont(svc Service) endpoint.Endpoint {
 	}
 }
 
-func MakeBlockDeviceEndpoint(svc Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(blockDeviceRequest)
-		err = svc.BlockDevice(ctx, req.UDID)
-		return &blockDeviceResponse{
-			Err: err,
-		}, nil
-	}
-}
-
 type appUploadRequest struct {
 	ManifestName string
 	ManifestFile io.Reader
@@ -168,13 +146,3 @@ type applyUserResponse struct {
 }
 
 func (r applyUserResponse) error() error { return r.Err }
-
-type blockDeviceRequest struct {
-	UDID string
-}
-
-type blockDeviceResponse struct {
-	Err error `json:"err,omitempty"`
-}
-
-func (r blockDeviceResponse) error() error { return r.Err }
