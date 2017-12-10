@@ -16,8 +16,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/pkg/crypto"
-	"github.com/micromdm/micromdm/platform/api/server/list"
 	"github.com/micromdm/micromdm/platform/blueprint"
+	"github.com/micromdm/micromdm/platform/device"
 	"github.com/micromdm/micromdm/platform/profile"
 )
 
@@ -128,7 +128,7 @@ func (cmd *getCommand) getDevices(args []string) error {
 	out.BasicHeader()
 	defer out.BasicFooter()
 	ctx := context.Background()
-	devices, err := cmd.list.ListDevices(ctx, list.ListDevicesOption{})
+	devices, err := cmd.devicesvc.ListDevices(ctx, device.ListDevicesOption{})
 	if err != nil {
 		return err
 	}

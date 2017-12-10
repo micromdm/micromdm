@@ -9,6 +9,8 @@ import (
 	"github.com/micromdm/micromdm/platform/device/internal/deviceproto"
 )
 
+const DeviceEnrolledTopic = "mdm.DeviceEnrolled"
+
 type Device struct {
 	UUID                   string
 	UDID                   string

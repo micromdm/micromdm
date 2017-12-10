@@ -1,4 +1,4 @@
-package device
+package builtin
 
 import (
 	"io/ioutil"
@@ -6,11 +6,13 @@ import (
 	"testing"
 
 	"github.com/boltdb/bolt"
+
+	"github.com/micromdm/micromdm/platform/device"
 )
 
 func TestSave(t *testing.T) {
 	db := setupDB(t)
-	dev := &Device{
+	dev := &device.Device{
 		UUID:         "a-b-c-d",
 		UDID:         "UDID-FOO-BAR-BAZ",
 		SerialNumber: "foobarbaz",
@@ -32,7 +34,7 @@ func TestSave(t *testing.T) {
 	}
 
 	// test helper that verifies that the retrieved device is the same
-	tf := func(haveDev *Device) func(t *testing.T) {
+	tf := func(haveDev *device.Device) func(t *testing.T) {
 		return func(t *testing.T) {
 			if have, want := haveDev.UDID, dev.UDID; have != want {
 				t.Errorf("have %s, want %s", have, want)
