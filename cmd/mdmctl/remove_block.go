@@ -24,7 +24,7 @@ func (cmd *removeCommand) removeBlock(args []string) error {
 	}
 
 	ctx := context.Background()
-	if err := cmd.remove.UnblockDevice(ctx, *flUDID); err != nil {
+	if err := cmd.blocksvc.UnblockDevice(ctx, *flUDID); err != nil {
 		return err
 	}
 

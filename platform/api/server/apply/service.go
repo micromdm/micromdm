@@ -19,7 +19,6 @@ import (
 	"github.com/micromdm/micromdm/platform/appstore"
 	"github.com/micromdm/micromdm/platform/deptoken"
 	"github.com/micromdm/micromdm/platform/pubsub"
-	"github.com/micromdm/micromdm/platform/remove"
 	"github.com/micromdm/micromdm/platform/user"
 )
 
@@ -28,7 +27,6 @@ type Service interface {
 	UploadApp(ctx context.Context, manifestName string, manifest io.Reader, pkgName string, pkg io.Reader) error
 	ApplyUser(ctx context.Context, u user.User) (*user.User, error)
 	DEPService
-	BlockDevice(ctx context.Context, udid string) error
 }
 
 type ApplyService struct {
@@ -38,7 +36,6 @@ type ApplyService struct {
 	Tokens *deptoken.DB
 	Apps   appstore.AppStore
 	Users  *user.DB
-	*remove.RemoveService
 }
 
 func (svc *ApplyService) ApplyUser(ctx context.Context, u user.User) (*user.User, error) {
