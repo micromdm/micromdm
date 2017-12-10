@@ -9,6 +9,7 @@ import (
 	"github.com/micromdm/micromdm/platform/appstore"
 	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/config"
+	"github.com/micromdm/micromdm/platform/device"
 	"github.com/micromdm/micromdm/platform/profile"
 	"github.com/micromdm/micromdm/platform/remove"
 	"github.com/micromdm/micromdm/platform/user"
@@ -19,6 +20,7 @@ type remoteServices struct {
 	blueprintsvc blueprint.Service
 	blocksvc     remove.Service
 	usersvc      user.Service
+	devicesvc    device.Service
 	configsvc    config.Service
 	appsvc       appstore.Service
 	applysvc     apply.Service
@@ -59,6 +61,13 @@ func setupClient(logger log.Logger) (*remoteServices, error) {
 		return nil, err
 	}
 
+	devicesvc, err := device.NewHTTPClient(
+		cfg.ServerURL, cfg.APIToken, logger,
+		httptransport.SetClient(skipVerifyHTTPClient(cfg.SkipVerify)))
+	if err != nil {
+		return nil, err
+	}
+
 	configsvc, err := config.NewHTTPClient(
 		cfg.ServerURL, cfg.APIToken, logger,
 		httptransport.SetClient(skipVerifyHTTPClient(cfg.SkipVerify)))
@@ -92,6 +101,7 @@ func setupClient(logger log.Logger) (*remoteServices, error) {
 		blueprintsvc: blueprintsvc,
 		blocksvc:     blocksvc,
 		usersvc:      usersvc,
+		devicesvc:    devicesvc,
 		configsvc:    configsvc,
 		appsvc:       appsvc,
 		applysvc:     applysvc,

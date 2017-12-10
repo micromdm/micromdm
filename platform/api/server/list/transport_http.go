@@ -12,7 +12,6 @@ import (
 )
 
 type HTTPHandlers struct {
-	ListDevicesHandler         http.Handler
 	GetDEPAccountInfoHandler   http.Handler
 	GetDEPProfileHandler       http.Handler
 	GetDEPDeviceDetailsHandler http.Handler
@@ -20,12 +19,6 @@ type HTTPHandlers struct {
 
 func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
 	h := HTTPHandlers{
-		ListDevicesHandler: httptransport.NewServer(
-			endpoints.ListDevicesEndpoint,
-			decodeListDevicesRequest,
-			encodeResponse,
-			opts...,
-		),
 		GetDEPAccountInfoHandler: httptransport.NewServer(
 			endpoints.GetDEPAccountInfoEndpoint,
 			decodeDepAccountInfoRequest,
@@ -46,13 +39,6 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 		),
 	}
 	return h
-}
-
-func decodeListDevicesRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	req := devicesRequest{
-		Opts: ListDevicesOption{},
-	}
-	return req, nil
 }
 
 func decodeDepAccountInfoRequest(ctx context.Context, r *http.Request) (interface{}, error) {
@@ -118,15 +104,6 @@ func EncodeHTTPGenericRequest(_ context.Context, r *http.Request, request interf
 	}
 	r.Body = ioutil.NopCloser(&buf)
 	return nil
-}
-
-func DecodeDevicesResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	if r.StatusCode != http.StatusOK {
-		return nil, errorDecoder(r)
-	}
-	var resp devicesResponse
-	err := json.NewDecoder(r.Body).Decode(&resp)
-	return resp, err
 }
 
 func DecodeDEPAccountInfoResponse(_ context.Context, r *http.Response) (interface{}, error) {
