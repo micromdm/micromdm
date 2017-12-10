@@ -8,7 +8,6 @@ import (
 	"github.com/micromdm/dep"
 
 	"github.com/micromdm/micromdm/platform/deptoken"
-	"github.com/micromdm/micromdm/platform/user"
 )
 
 type Endpoints struct {
@@ -18,16 +17,6 @@ type Endpoints struct {
 	GetDEPDeviceEndpoint      endpoint.Endpoint
 	GetDEPProfileEndpoint     endpoint.Endpoint
 	ListAppsEndpont           endpoint.Endpoint
-	ListUserEndpoint          endpoint.Endpoint
-}
-
-func (e Endpoints) ListUsers(ctx context.Context, opts ListUsersOption) ([]user.User, error) {
-	request := userRequest{opts}
-	response, err := e.ListUserEndpoint(ctx, request.Opts)
-	if err != nil {
-		return nil, err
-	}
-	return response.(userResponse).Users, response.(userResponse).Err
 }
 
 func (e Endpoints) ListDevices(ctx context.Context, opts ListDevicesOption) ([]DeviceDTO, error) {
@@ -72,17 +61,6 @@ func (e Endpoints) GetDEPDevice(ctx context.Context, serials []string) (*dep.Dev
 		return nil, err
 	}
 	return response.(depDeviceDetailsResponse).DeviceDetailsResponse, response.(depDeviceDetailsResponse).Err
-}
-
-func MakeListUsersEndpoint(svc Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(userRequest)
-		dto, err := svc.ListUsers(ctx, req.Opts)
-		return userResponse{
-			Users: dto,
-			Err:   err,
-		}, nil
-	}
 }
 
 func MakeListDevicesEndpoint(svc Service) endpoint.Endpoint {
@@ -156,14 +134,6 @@ type DeviceDTO struct {
 	EnrollmentStatus bool      `json:"enrollment_status"`
 	LastSeen         time.Time `json:"last_seen"`
 }
-
-type userRequest struct{ Opts ListUsersOption }
-type userResponse struct {
-	Users []user.User `json:"users"`
-	Err   error       `json:"err,omitempty"`
-}
-
-func (r userResponse) error() error { return r.Err }
 
 type devicesRequest struct{ Opts ListDevicesOption }
 type devicesResponse struct {

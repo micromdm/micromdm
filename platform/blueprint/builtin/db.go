@@ -20,13 +20,13 @@ const (
 type DB struct {
 	*bolt.DB
 	profDB profile.Store
-	userDB *user.DB
+	userDB user.Store
 }
 
 func NewDB(
 	db *bolt.DB,
 	profileDB profile.Store,
-	userDB *user.DB,
+	userDB user.Store,
 ) (*DB, error) {
 	err := db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(blueprintIndexBucket))
