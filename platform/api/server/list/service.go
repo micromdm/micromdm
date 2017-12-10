@@ -6,11 +6,8 @@ import (
 	"log"
 	"sync"
 
-	"github.com/groob/plist"
 	"github.com/micromdm/dep"
-	"github.com/pkg/errors"
 
-	"github.com/micromdm/micromdm/platform/appstore"
 	"github.com/micromdm/micromdm/platform/config"
 	"github.com/micromdm/micromdm/platform/device"
 	"github.com/micromdm/micromdm/platform/pubsub"
@@ -24,13 +21,8 @@ type ListDevicesOption struct {
 	FilterUDID   []string
 }
 
-type ListAppsOption struct {
-	FilterName []string `json:"filter_name"`
-}
-
 type Service interface {
 	ListDevices(ctx context.Context, opt ListDevicesOption) ([]DeviceDTO, error)
-	ListApplications(ctx context.Context, opt ListAppsOption) ([]AppDTO, error)
 	DEPService
 }
 
@@ -39,30 +31,6 @@ type ListService struct {
 	DEPClient dep.Client
 
 	Devices *device.DB
-	Apps    appstore.AppStore
-}
-
-func (svc *ListService) ListApplications(ctx context.Context, opts ListAppsOption) ([]AppDTO, error) {
-	var filter string
-	if len(opts.FilterName) == 1 {
-		filter = opts.FilterName[0]
-	}
-	apps, err := svc.Apps.Apps(filter)
-	if err != nil {
-		return nil, err
-	}
-	var appList []AppDTO
-	for name, app := range apps {
-		payload, err := plist.MarshalIndent(&app, "  ")
-		if err != nil {
-			return nil, errors.Wrap(err, "create dto payload")
-		}
-		appList = append(appList, AppDTO{
-			Name:    name,
-			Payload: payload,
-		})
-	}
-	return appList, nil
 }
 
 func (svc *ListService) WatchTokenUpdates(pubsub pubsub.Subscriber) error {
