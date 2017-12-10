@@ -2,10 +2,10 @@ package profile
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
 func (svc *ProfileService) ApplyProfile(ctx context.Context, p *Profile) error {
@@ -20,22 +20,17 @@ type applyProfileResponse struct {
 	Err error `json:"err,omitempty"`
 }
 
-func (r applyProfileResponse) error() error { return r.Err }
+func (r applyProfileResponse) Failed() error { return r.Err }
 
 func decodeApplyProfileRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req applyProfileRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, err
-	}
-	return req, nil
+	err := httputil.DecodeJSONRequest(r, &req)
+	return req, err
 }
 
 func decodeApplyProfileResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	if r.StatusCode != http.StatusOK {
-		return nil, errorDecoder(r)
-	}
 	var resp applyProfileResponse
-	err := json.NewDecoder(r.Body).Decode(&resp)
+	err := httputil.DecodeJSONResponse(r, &resp)
 	return resp, err
 }
 

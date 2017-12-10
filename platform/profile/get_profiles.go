@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
 func (svc *ProfileService) GetProfiles(ctx context.Context, opt GetProfilesOption) ([]Profile, error) {
@@ -27,7 +28,7 @@ type getProfilesResponse struct {
 	Err      error     `json:"err,omitempty"`
 }
 
-func (r getProfilesResponse) error() error { return r.Err }
+func (r getProfilesResponse) Failed() error { return r.Err }
 
 func decodeGetProfilesRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var opts GetProfilesOption
@@ -41,11 +42,8 @@ func decodeGetProfilesRequest(ctx context.Context, r *http.Request) (interface{}
 }
 
 func decodeGetProfilesResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	if r.StatusCode != http.StatusOK {
-		return nil, errorDecoder(r)
-	}
 	var resp getProfilesResponse
-	err := json.NewDecoder(r.Body).Decode(&resp)
+	err := httputil.DecodeJSONResponse(r, &resp)
 	return resp, err
 }
 
