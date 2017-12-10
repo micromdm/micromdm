@@ -1,11 +1,10 @@
 package remove
 
 import (
-	"net/http"
-
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/gorilla/mux"
 	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
@@ -21,7 +20,7 @@ func MakeServerEndpoints(s Service) Endpoints {
 	}
 }
 
-func MakeHTTPHandler(e Endpoints, logger log.Logger) http.Handler {
+func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
 	r, options := httputil.NewRouter(logger)
 
 	// POST		/v1/devices/:udid/block			force a device to unenroll next time it connects

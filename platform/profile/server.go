@@ -1,11 +1,10 @@
 package profile
 
 import (
-	"net/http"
-
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/gorilla/mux"
 	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
@@ -23,7 +22,7 @@ func MakeServerEndpoints(s Service) Endpoints {
 	}
 }
 
-func MakeHTTPHandler(e Endpoints, logger log.Logger) http.Handler {
+func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
 	r, options := httputil.NewRouter(logger)
 
 	// GET     /v1/profiles		get a list of profiles managed by the server

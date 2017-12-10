@@ -6,27 +6,12 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/dep"
-
-	"github.com/micromdm/micromdm/platform/user"
 )
 
 type Endpoints struct {
 	ApplyDEPTokensEndpoint   endpoint.Endpoint
 	DefineDEPProfileEndpoint endpoint.Endpoint
 	AppUploadEndpoint        endpoint.Endpoint
-	ApplyUserEndpoint        endpoint.Endpoint
-}
-
-func (e Endpoints) ApplyUser(ctx context.Context, u user.User) (*user.User, error) {
-	request := applyUserRequest{
-		User: u,
-	}
-	resp, err := e.ApplyUserEndpoint(ctx, request)
-	if err != nil {
-		return nil, err
-	}
-	usr := resp.(applyUserResponse).User
-	return &usr, resp.(applyUserResponse).Err
 }
 
 func (e Endpoints) UploadApp(ctx context.Context, manifestName string, manifest io.Reader, pkgName string, pkg io.Reader) error {
@@ -83,17 +68,6 @@ func MakeDefineDEPProfile(svc Service) endpoint.Endpoint {
 	}
 }
 
-func MakeApplyUserEndpoint(svc Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(applyUserRequest)
-		u, err := svc.ApplyUser(ctx, req.User)
-		return applyUserResponse{
-			User: *u,
-			Err:  err,
-		}, nil
-	}
-}
-
 func MakeUploadAppEndpiont(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(appUploadRequest)
@@ -135,14 +109,3 @@ type depProfileResponse struct {
 }
 
 func (r *depProfileResponse) error() error { return r.Err }
-
-type applyUserRequest struct {
-	User user.User `json:"user"`
-}
-
-type applyUserResponse struct {
-	Err  error     `json:"err"`
-	User user.User `json:"user"`
-}
-
-func (r applyUserResponse) error() error { return r.Err }

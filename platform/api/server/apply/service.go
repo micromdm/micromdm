@@ -14,18 +14,15 @@ import (
 
 	"github.com/fullsailor/pkcs7"
 	"github.com/micromdm/dep"
-	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/platform/appstore"
 	"github.com/micromdm/micromdm/platform/deptoken"
 	"github.com/micromdm/micromdm/platform/pubsub"
-	"github.com/micromdm/micromdm/platform/user"
 )
 
 type Service interface {
 	ApplyDEPToken(ctx context.Context, P7MContent []byte) error
 	UploadApp(ctx context.Context, manifestName string, manifest io.Reader, pkgName string, pkg io.Reader) error
-	ApplyUser(ctx context.Context, u user.User) (*user.User, error)
 	DEPService
 }
 
@@ -35,20 +32,6 @@ type ApplyService struct {
 
 	Tokens *deptoken.DB
 	Apps   appstore.AppStore
-	Users  *user.DB
-}
-
-func (svc *ApplyService) ApplyUser(ctx context.Context, u user.User) (*user.User, error) {
-	toSave := &u
-	if u.UUID == "" { //newUser
-		usr, err := user.NewFromRequest(u)
-		if err != nil {
-			return nil, errors.Wrap(err, "create user from request")
-		}
-		toSave = usr
-	}
-	err := svc.Users.Save(toSave)
-	return toSave, errors.Wrap(err, "apply user")
 }
 
 func (svc *ApplyService) UploadApp(ctx context.Context, manifestName string, manifest io.Reader, pkgName string, pkg io.Reader) error {

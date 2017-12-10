@@ -63,7 +63,7 @@ func (cmd *applyCommand) applyUser(args []string) error {
 		manifest.PasswordHash = hashPlist
 	}
 
-	usr, err := cmd.applysvc.ApplyUser(context.TODO(), manifest)
+	usr, err := cmd.usersvc.ApplyUser(context.TODO(), manifest)
 	if err != nil {
 		return errors.Wrap(err, "apply user with mdmctl")
 	}

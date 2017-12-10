@@ -1,4 +1,4 @@
-package user
+package builtin
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 
 	"github.com/micromdm/micromdm/mdm/checkin"
 	"github.com/micromdm/micromdm/platform/pubsub"
+	"github.com/micromdm/micromdm/platform/user"
 )
 
 const (
@@ -51,14 +52,14 @@ func NewDB(db *bolt.DB, pubsubSvc pubsub.PublishSubscriber, logger log.Logger) (
 	return datastore, nil
 }
 
-func (db *DB) List() ([]User, error) {
-	var users []User
+func (db *DB) List() ([]user.User, error) {
+	var users []user.User
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(UserBucket))
 		c := b.Cursor()
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			var u User
-			if err := UnmarshalUser(v, &u); err != nil {
+			var u user.User
+			if err := user.UnmarshalUser(v, &u); err != nil {
 				return err
 			}
 			users = append(users, u)
@@ -68,7 +69,7 @@ func (db *DB) List() ([]User, error) {
 	return users, errors.Wrap(err, "list users")
 }
 
-func (db *DB) Save(u *User) error {
+func (db *DB) Save(u *user.User) error {
 	tx, err := db.DB.Begin(true)
 	if err != nil {
 		return errors.Wrap(err, "begin transaction")
@@ -77,7 +78,7 @@ func (db *DB) Save(u *User) error {
 	if bkt == nil {
 		return fmt.Errorf("bucket %q not found!", UserBucket)
 	}
-	userpb, err := MarshalUser(u)
+	userpb, err := user.MarshalUser(u)
 	if err != nil {
 		return errors.Wrap(err, "marshalling user")
 	}
@@ -106,15 +107,15 @@ func (db *DB) Save(u *User) error {
 	return tx.Commit()
 }
 
-func (db *DB) User(uuid string) (*User, error) {
-	var u User
+func (db *DB) User(uuid string) (*user.User, error) {
+	var u user.User
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(UserBucket))
 		v := b.Get([]byte(uuid))
 		if v == nil {
 			return &notFound{"User", fmt.Sprintf("uuid %s", uuid)}
 		}
-		return UnmarshalUser(v, &u)
+		return user.UnmarshalUser(v, &u)
 	})
 	if err != nil {
 		return nil, errors.Wrap(err, "get user by uuid from bolt")
@@ -122,8 +123,8 @@ func (db *DB) User(uuid string) (*User, error) {
 	return &u, nil
 }
 
-func (db *DB) UserByUserID(userID string) (*User, error) {
-	var u User
+func (db *DB) UserByUserID(userID string) (*user.User, error) {
+	var u user.User
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(UserBucket))
 		ib := tx.Bucket([]byte(userIndexBucket))
@@ -135,7 +136,7 @@ func (db *DB) UserByUserID(userID string) (*User, error) {
 		if idx == nil {
 			return &notFound{"User", fmt.Sprintf("uuid %s", string(idx))}
 		}
-		return UnmarshalUser(v, &u)
+		return user.UnmarshalUser(v, &u)
 	})
 	if err != nil {
 		return nil, errors.Wrap(err, "get user by user id from bolt")
@@ -143,14 +144,14 @@ func (db *DB) UserByUserID(userID string) (*User, error) {
 	return &u, nil
 }
 
-func (db *DB) DeviceUsers(udid string) ([]User, error) {
-	var users []User
+func (db *DB) DeviceUsers(udid string) ([]user.User, error) {
+	var users []user.User
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(UserBucket))
 		c := b.Cursor()
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			var u User
-			if err := UnmarshalUser(v, &u); err != nil {
+			var u user.User
+			if err := user.UnmarshalUser(v, &u); err != nil {
 				return errors.Wrap(err, "unmarshal user for DeviceUsers")
 			}
 			if u.UDID == udid {
@@ -170,8 +171,8 @@ func (db *DB) DeleteDeviceUsers(udid string) error {
 		b := tx.Bucket([]byte(UserBucket))
 		c := b.Cursor()
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			var u User
-			if err := UnmarshalUser(v, &u); err != nil {
+			var u user.User
+			if err := user.UnmarshalUser(v, &u); err != nil {
 				return errors.Wrap(err, "unmarshal user for DeviceUsers")
 			}
 			if u.UDID != udid {
@@ -195,6 +196,10 @@ func (e *notFound) Error() string {
 	return fmt.Sprintf("not found: %s %s", e.ResourceType, e.Message)
 }
 
+func (e *notFound) NotFound() bool {
+	return true
+}
+
 func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 	tokenUpdateEvents, err := pubsubSvc.Subscribe(context.TODO(), "users", checkin.TokenUpdateTopic)
 	if err != nil {
@@ -213,7 +218,7 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 				if event.Command.UserID == "" {
 					break // only interested in user commands
 				}
-				newUser := new(User)
+				newUser := new(user.User)
 				byGUID, err := db.UserByUserID(event.Command.UserID)
 				if err != nil && !isNotFound(err) {
 					level.Info(db.logger).Log("err", err, "msg", "get user from DB")
