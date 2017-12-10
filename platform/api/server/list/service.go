@@ -14,7 +14,6 @@ import (
 	"github.com/micromdm/micromdm/platform/deptoken"
 	"github.com/micromdm/micromdm/platform/device"
 	"github.com/micromdm/micromdm/platform/pubsub"
-	"github.com/micromdm/micromdm/platform/user"
 )
 
 type ListDevicesOption struct {
@@ -25,21 +24,12 @@ type ListDevicesOption struct {
 	FilterUDID   []string
 }
 
-type ListUsersOption struct {
-	Page    int
-	PerPage int
-
-	FilterUserID []string
-	FilterUDID   []string
-}
-
 type ListAppsOption struct {
 	FilterName []string `json:"filter_name"`
 }
 
 type Service interface {
 	ListDevices(ctx context.Context, opt ListDevicesOption) ([]DeviceDTO, error)
-	ListUsers(ctx context.Context, opt ListUsersOption) ([]user.User, error)
 	GetDEPTokens(ctx context.Context) ([]deptoken.DEPToken, []byte, error)
 	ListApplications(ctx context.Context, opt ListAppsOption) ([]AppDTO, error)
 	DEPService
@@ -52,7 +42,6 @@ type ListService struct {
 	Devices *device.DB
 	Tokens  *deptoken.DB
 	Apps    appstore.AppStore
-	Users   *user.DB
 }
 
 func (svc *ListService) ListApplications(ctx context.Context, opts ListAppsOption) ([]AppDTO, error) {
@@ -122,11 +111,6 @@ func (svc *ListService) ListDevices(ctx context.Context, opt ListDevicesOption) 
 		})
 	}
 	return dto, err
-}
-
-func (svc *ListService) ListUsers(ctx context.Context, opts ListUsersOption) ([]user.User, error) {
-	u, err := svc.Users.List()
-	return u, errors.Wrap(err, "list users from api request")
 }
 
 func (svc *ListService) GetDEPTokens(ctx context.Context) ([]deptoken.DEPToken, []byte, error) {

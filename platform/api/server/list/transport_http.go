@@ -18,7 +18,6 @@ type HTTPHandlers struct {
 	GetDEPProfileHandler       http.Handler
 	GetDEPDeviceDetailsHandler http.Handler
 	ListAppsHandler            http.Handler
-	ListUsersHander            http.Handler
 }
 
 func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
@@ -58,12 +57,6 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 			encodeResponse,
 			opts...,
 		),
-		ListUsersHander: httptransport.NewServer(
-			endpoints.ListUserEndpoint,
-			decodeListUsersRequest,
-			encodeResponse,
-			opts...,
-		),
 	}
 	return h
 }
@@ -76,11 +69,6 @@ func decodeListDevicesRequest(ctx context.Context, r *http.Request) (interface{}
 	req := devicesRequest{
 		Opts: ListDevicesOption{},
 	}
-	return req, nil
-}
-
-func decodeListUsersRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	req := userRequest{}
 	return req, nil
 }
 
@@ -209,13 +197,4 @@ func DecodeListAppsResponse(_ context.Context, r *http.Response) (interface{}, e
 	var resp appListResponse
 	err := json.NewDecoder(r.Body).Decode(&resp)
 	return resp, err
-}
-
-func DecodeListUsersResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	if r.StatusCode != http.StatusOK {
-		return nil, errorDecoder(r)
-	}
-	var resp userResponse
-	err := json.NewDecoder(r.Body).Decode(&resp)
-	return resp, errors.Wrap(err, "decode user response")
 }

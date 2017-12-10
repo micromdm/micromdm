@@ -7,9 +7,8 @@ import (
 	"os"
 	"text/tabwriter"
 
+	"github.com/micromdm/micromdm/platform/user"
 	"github.com/pkg/errors"
-
-	"github.com/micromdm/micromdm/platform/api/server/list"
 )
 
 type usersTableOutput struct{ w *tabwriter.Writer }
@@ -34,7 +33,7 @@ func (cmd *getCommand) getUsers(args []string) error {
 	out.BasicHeader()
 	defer out.BasicFooter()
 
-	users, err := cmd.list.ListUsers(context.TODO(), list.ListUsersOption{})
+	users, err := cmd.usersvc.ListUsers(context.TODO(), user.ListUsersOption{})
 	if err != nil {
 		return errors.Wrap(err, "list users")
 	}
