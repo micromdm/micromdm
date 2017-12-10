@@ -46,6 +46,8 @@ type getDevicesResponse struct {
 	Err     error       `json:"err,omitempty"`
 }
 
+func (r getDevicesResponse) Failed() error { return r.Err }
+
 func decodeListDevicesRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	defer r.Body.Close()
 	var opts ListDevicesOption
