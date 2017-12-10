@@ -14,19 +14,12 @@ import (
 )
 
 type HTTPHandlers struct {
-	DEPTokensHandler        http.Handler
 	DefineDEPProfileHandler http.Handler
 	AppUploadHandler        http.Handler
 }
 
 func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
 	h := HTTPHandlers{
-		DEPTokensHandler: httptransport.NewServer(
-			endpoints.ApplyDEPTokensEndpoint,
-			decodeDEPTokensRequest,
-			encodeResponse,
-			opts...,
-		),
 		DefineDEPProfileHandler: httptransport.NewServer(
 			endpoints.DefineDEPProfileEndpoint,
 			decodeDEPProfileRequest,
@@ -41,14 +34,6 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 		),
 	}
 	return h
-}
-
-func decodeDEPTokensRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	var req depTokensRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, err
-	}
-	return req, nil
 }
 
 func decodeDEPProfileRequest(ctx context.Context, r *http.Request) (interface{}, error) {
@@ -160,15 +145,6 @@ func EncodeHTTPGenericRequest(_ context.Context, r *http.Request, request interf
 	}
 	r.Body = ioutil.NopCloser(&buf)
 	return nil
-}
-
-func DecodeDEPTokensResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	if r.StatusCode != http.StatusOK {
-		return nil, errorDecoder(r)
-	}
-	var resp depTokensResponse
-	err := json.NewDecoder(r.Body).Decode(&resp)
-	return resp, err
 }
 
 func DecodeDEPProfileResponse(_ context.Context, r *http.Response) (interface{}, error) {

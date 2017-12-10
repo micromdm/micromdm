@@ -1,5 +1,4 @@
-// Package config provides an internal store for the configuration of the MDM server.
-package config
+package builtin
 
 import (
 	"context"
@@ -12,12 +11,12 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/pkg/crypto"
+	"github.com/micromdm/micromdm/platform/config"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
 const (
 	ConfigBucket = "mdm.ServerConfig"
-	ConfigTopic  = "mdm.ServerConfigUpdated"
 )
 
 // DB stores server configuration in BoltDB
@@ -44,7 +43,7 @@ func (db *DB) SavePushCertificate(cert, key []byte) error {
 	if bkt == nil {
 		return fmt.Errorf("config: bucket %q not found", ConfigBucket)
 	}
-	pb, err := MarshalServerConfig(&ServerConfig{
+	pb, err := config.MarshalServerConfig(&config.ServerConfig{
 		PushCertificate: cert,
 		PrivateKey:      key,
 	})
@@ -59,21 +58,21 @@ func (db *DB) SavePushCertificate(cert, key []byte) error {
 		return err
 	}
 
-	if err := db.Publisher.Publish(context.TODO(), ConfigTopic, []byte("updated")); err != nil {
+	if err := db.Publisher.Publish(context.TODO(), config.ConfigTopic, []byte("updated")); err != nil {
 		return err
 	}
 	return err
 }
 
-func (db *DB) serverConfig() (*ServerConfig, error) {
-	var conf ServerConfig
+func (db *DB) serverConfig() (*config.ServerConfig, error) {
+	var conf config.ServerConfig
 	err := db.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket([]byte(ConfigBucket))
 		data := bkt.Get([]byte("config"))
 		if data == nil {
 			return &notFound{"ServerConfig", "no config found in boltdb"}
 		}
-		return UnmarshalServerConfig(data, &conf)
+		return config.UnmarshalServerConfig(data, &conf)
 	})
 	return &conf, errors.Wrap(err, "get server config from bolt")
 }

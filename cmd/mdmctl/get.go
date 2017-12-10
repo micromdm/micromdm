@@ -162,7 +162,7 @@ func (cmd *getCommand) getDepTokens(args []string) error {
 	w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
 	fmt.Fprintf(w, "ConsumerKey\tAccessTokenExpiry\n")
 	ctx := context.Background()
-	tokens, certBytes, err := cmd.list.GetDEPTokens(ctx)
+	tokens, certBytes, err := cmd.configsvc.GetDEPTokens(ctx)
 	if err != nil {
 		return err
 	}
