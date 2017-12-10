@@ -6,13 +6,10 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/dep"
-
-	"github.com/micromdm/micromdm/platform/deptoken"
 )
 
 type Endpoints struct {
 	ListDevicesEndpoint       endpoint.Endpoint
-	GetDEPTokensEndpoint      endpoint.Endpoint
 	GetDEPAccountInfoEndpoint endpoint.Endpoint
 	GetDEPDeviceEndpoint      endpoint.Endpoint
 	GetDEPProfileEndpoint     endpoint.Endpoint
@@ -35,14 +32,6 @@ func (e Endpoints) ListApplications(ctx context.Context, opts ListAppsOption) ([
 		return nil, err
 	}
 	return response.(appListResponse).Apps, response.(appListResponse).Err
-}
-
-func (e Endpoints) GetDEPTokens(ctx context.Context) ([]deptoken.DEPToken, []byte, error) {
-	resp, err := e.GetDEPTokensEndpoint(ctx, nil)
-	if err != nil {
-		return nil, nil, err
-	}
-	return resp.(depTokenResponse).DEPTokens, resp.(depTokenResponse).DEPPubKey, nil
 }
 
 func (e Endpoints) GetDEPAccountInfo(ctx context.Context) (*dep.Account, error) {
@@ -94,17 +83,6 @@ func (e Endpoints) GetDEPProfile(ctx context.Context, uuid string) (*dep.Profile
 	return response.(depProfileResponse).Profile, response.(depProfileResponse).Err
 }
 
-func MakeGetDEPTokensEndpoint(svc Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		tokens, pubkey, err := svc.GetDEPTokens(ctx)
-		return depTokenResponse{
-			DEPTokens: tokens,
-			DEPPubKey: pubkey,
-			Err:       err,
-		}, nil
-	}
-}
-
 func MakeGetDEPAccountInfoEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		account, err := svc.GetDEPAccountInfo(ctx)
@@ -139,12 +117,6 @@ type devicesRequest struct{ Opts ListDevicesOption }
 type devicesResponse struct {
 	Devices []DeviceDTO `json:"devices"`
 	Err     error       `json:"err,omitempty"`
-}
-
-type depTokenResponse struct {
-	DEPTokens []deptoken.DEPToken `json:"dep_tokens"`
-	DEPPubKey []byte              `json:"public_key"`
-	Err       error               `json:"err,omitempty"`
 }
 
 type depAccountInforequest struct{}

@@ -184,7 +184,7 @@ func (cmd *applyCommand) applyDEPTokens(args []string) error {
 		return err
 	}
 	ctx := context.Background()
-	err = cmd.applysvc.ApplyDEPToken(ctx, p7mBytes)
+	err = cmd.configsvc.ApplyDEPToken(ctx, p7mBytes)
 	if err != nil {
 		return err
 	}

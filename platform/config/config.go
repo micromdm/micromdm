@@ -7,6 +7,8 @@ import (
 	"github.com/micromdm/micromdm/platform/config/internal/configproto"
 )
 
+const ConfigTopic = "mdm.ServerConfigUpdated"
+
 // ServerConfig holds the configuration of the MDM Server.
 type ServerConfig struct {
 	PushCertificate []byte

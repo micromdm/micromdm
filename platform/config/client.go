@@ -1,16 +1,15 @@
 package config
 
 import (
-	"context"
-	"net/http"
 	"net/url"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
-func NewClient(instance string, logger log.Logger, token string, opts ...httptransport.ClientOption) (Service, error) {
+func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransport.ClientOption) (Service, error) {
 	u, err := url.Parse(instance)
 	if err != nil {
 		return nil, err
@@ -18,31 +17,40 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 
 	var saveEndpoint endpoint.Endpoint
 	{
-
 		saveEndpoint = httptransport.NewClient(
 			"PUT",
-			copyURL(u, "/v1/config/certificate"),
-			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
-			DecodeSavePushCertificateResponse,
+			httputil.CopyURL(u, "/v1/config/certificate"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			decodeSavePushCertificateResponse,
 			opts...,
 		).Endpoint()
+	}
 
+	var applyDEPTokensEndpoint endpoint.Endpoint
+	{
+		applyDEPTokensEndpoint = httptransport.NewClient(
+			"PUT",
+			httputil.CopyURL(u, "/v1/dep-tokens"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			decodeApplyDEPTokensResponse,
+			opts...,
+		).Endpoint()
+	}
+
+	var getDEPTokensEndpoint endpoint.Endpoint
+	{
+		getDEPTokensEndpoint = httptransport.NewClient(
+			"GET",
+			httputil.CopyURL(u, "/v1/dep-tokens"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			decodeGetDEPTokensResponse,
+			opts...,
+		).Endpoint()
 	}
 
 	return Endpoints{
 		SavePushCertificateEndpoint: saveEndpoint,
+		ApplyDEPTokensEndpoint:      applyDEPTokensEndpoint,
+		GetDEPTokensEndpoint:        getDEPTokensEndpoint,
 	}, nil
-}
-
-func encodeRequestWithToken(token string, next httptransport.EncodeRequestFunc) httptransport.EncodeRequestFunc {
-	return func(ctx context.Context, r *http.Request, request interface{}) error {
-		r.SetBasicAuth("micromdm", token)
-		return next(ctx, r, request)
-	}
-}
-
-func copyURL(base *url.URL, path string) *url.URL {
-	next := *base
-	next.Path = path
-	return &next
 }

@@ -13,16 +13,26 @@ import (
 	"strings"
 
 	"github.com/go-kit/kit/log"
-	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/pkcs12"
 
 	"github.com/micromdm/micromdm/pkg/crypto"
 	"github.com/micromdm/micromdm/pkg/crypto/mdmcertutil"
-	"github.com/micromdm/micromdm/platform/config"
 )
 
-type mdmcertCommand struct{}
+type mdmcertCommand struct {
+	*remoteServices
+}
+
+func (cmd *mdmcertCommand) setup() error {
+	logger := log.NewLogfmtLogger(os.Stderr)
+	remote, err := setupClient(logger)
+	if err != nil {
+		return err
+	}
+	cmd.remoteServices = remote
+	return nil
+}
 
 func (cmd *mdmcertCommand) Usage() error {
 	const usageText = `
@@ -60,6 +70,10 @@ func (cmd *mdmcertCommand) Run(args []string) error {
 	if len(args) < 1 {
 		cmd.Usage()
 		os.Exit(1)
+	}
+
+	if err := cmd.setup(); err != nil {
+		return err
 	}
 
 	var run func([]string) error
@@ -197,27 +211,12 @@ func (cmd *mdmcertCommand) runUpload(args []string) error {
 		return err
 	}
 
-	cfg, err := LoadServerConfig()
-	if err != nil {
-		return errors.Wrap(err, "load mdmctl client config")
-	}
-	logger := log.NewLogfmtLogger(os.Stderr)
-	configsvc, err := config.NewClient(
-		cfg.ServerURL,
-		logger,
-		cfg.APIToken,
-		httptransport.SetClient(skipVerifyHTTPClient(cfg.SkipVerify)),
-	)
-	if err != nil {
-		return errors.Wrap(err, "create config service from mdmctl config")
-	}
-
 	cert, key, err := loadPushCerts(*flCertPath, *flKeyPath, *flKeyPass)
 	if err != nil {
 		return errors.Wrap(err, "load push certificate")
 	}
 
-	if err := configsvc.SavePushCertificate(context.Background(), cert, key); err != nil {
+	if err := cmd.configsvc.SavePushCertificate(context.Background(), cert, key); err != nil {
 		return errors.Wrap(err, "upload push certificate and key to server")
 	}
 

@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/platform/appstore"
-	"github.com/micromdm/micromdm/platform/deptoken"
+	"github.com/micromdm/micromdm/platform/config"
 	"github.com/micromdm/micromdm/platform/device"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
@@ -30,7 +30,6 @@ type ListAppsOption struct {
 
 type Service interface {
 	ListDevices(ctx context.Context, opt ListDevicesOption) ([]DeviceDTO, error)
-	GetDEPTokens(ctx context.Context) ([]deptoken.DEPToken, []byte, error)
 	ListApplications(ctx context.Context, opt ListAppsOption) ([]AppDTO, error)
 	DEPService
 }
@@ -40,7 +39,6 @@ type ListService struct {
 	DEPClient dep.Client
 
 	Devices *device.DB
-	Tokens  *deptoken.DB
 	Apps    appstore.AppStore
 }
 
@@ -68,7 +66,7 @@ func (svc *ListService) ListApplications(ctx context.Context, opts ListAppsOptio
 }
 
 func (svc *ListService) WatchTokenUpdates(pubsub pubsub.Subscriber) error {
-	tokenAdded, err := pubsub.Subscribe(context.TODO(), "list-token-events", deptoken.DEPTokenTopic)
+	tokenAdded, err := pubsub.Subscribe(context.TODO(), "list-token-events", config.DEPTokenTopic)
 	if err != nil {
 		return err
 	}
@@ -77,7 +75,7 @@ func (svc *ListService) WatchTokenUpdates(pubsub pubsub.Subscriber) error {
 		for {
 			select {
 			case event := <-tokenAdded:
-				var token deptoken.DEPToken
+				var token config.DEPToken
 				if err := json.Unmarshal(event.Message, &token); err != nil {
 					log.Printf("unmarshalling tokenAdded to token: %s\n", err)
 					continue
@@ -111,22 +109,4 @@ func (svc *ListService) ListDevices(ctx context.Context, opt ListDevicesOption) 
 		})
 	}
 	return dto, err
-}
-
-func (svc *ListService) GetDEPTokens(ctx context.Context) ([]deptoken.DEPToken, []byte, error) {
-	_, cert, err := svc.Tokens.DEPKeypair()
-	if err != nil {
-		return nil, nil, err
-	}
-	var certBytes []byte
-	if cert != nil {
-		certBytes = cert.Raw
-	}
-
-	tokens, err := svc.Tokens.DEPTokens()
-	if err != nil {
-		return nil, certBytes, err
-	}
-
-	return tokens, certBytes, nil
 }

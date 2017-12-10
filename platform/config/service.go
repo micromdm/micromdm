@@ -2,23 +2,30 @@ package config
 
 import (
 	"context"
-
-	"github.com/pkg/errors"
+	"crypto/rsa"
+	"crypto/tls"
+	"crypto/x509"
 )
 
 type Service interface {
 	SavePushCertificate(ctx context.Context, cert, key []byte) error
+	ApplyDEPToken(ctx context.Context, P7MContent []byte) error
+	GetDEPTokens(ctx context.Context) ([]DEPToken, []byte, error)
+}
+
+type Store interface {
+	SavePushCertificate(cert, key []byte) error
+	PushCertificate() (*tls.Certificate, error)
+	PushTopic() (string, error)
+	DEPKeypair() (key *rsa.PrivateKey, cert *x509.Certificate, err error)
+	AddToken(consumerKey string, json []byte) error
+	DEPTokens() ([]DEPToken, error)
 }
 
 type ConfigService struct {
-	store *DB
+	store Store
 }
 
-func NewService(db *DB) *ConfigService {
-	return &ConfigService{store: db}
-}
-
-func (svc *ConfigService) SavePushCertificate(ctx context.Context, cert, key []byte) error {
-	err := svc.store.SavePushCertificate(cert, key)
-	return errors.Wrap(err, "save push certificate")
+func New(store Store) *ConfigService {
+	return &ConfigService{store: store}
 }
