@@ -1,6 +1,6 @@
-// package appstore provides an abstraction for uploading files and manifests
-// to a repository.
-package appstore
+// package builtin provides an abstraction for uploading files and manifests
+// to a file repository.
+package builtin
 
 import (
 	"io"
@@ -14,12 +14,6 @@ import (
 
 	"github.com/micromdm/micromdm/mdm/appmanifest"
 )
-
-type AppStore interface {
-	SaveFile(name string, f io.Reader) error
-	Manifest(name string) (*appmanifest.Manifest, error)
-	Apps(name string) (map[string]appmanifest.Manifest, error)
-}
 
 type Repo struct {
 	Path string
