@@ -1,4 +1,4 @@
-package apply
+package appstore
 
 import (
 	"bytes"
