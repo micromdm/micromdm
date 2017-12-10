@@ -2,13 +2,13 @@ package remove
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"net/http"
 	"net/url"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/gorilla/mux"
+	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
 func (svc *RemoveService) UnblockDevice(ctx context.Context, udid string) error {
@@ -23,7 +23,7 @@ type unblockDeviceResponse struct {
 	Err error `json:"err,omitempty"`
 }
 
-func (r unblockDeviceResponse) error() error { return r.Err }
+func (r unblockDeviceResponse) Failed() error { return r.Err }
 
 func decodeUnblockDeviceRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var errBadRoute = errors.New("bad route")
@@ -45,11 +45,8 @@ func encodeUnblockDeviceRequest(_ context.Context, r *http.Request, request inte
 }
 
 func decodeUnblockDeviceResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	if r.StatusCode != http.StatusOK {
-		return nil, errorDecoder(r)
-	}
 	var resp unblockDeviceResponse
-	err := json.NewDecoder(r.Body).Decode(&resp)
+	err := httputil.DecodeJSONResponse(r, &resp)
 	return resp, err
 }
 

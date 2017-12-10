@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
 func (svc *BlueprintService) GetBlueprints(ctx context.Context, opt GetBlueprintsOption) ([]Blueprint, error) {
@@ -30,7 +31,7 @@ type getBlueprintsResponse struct {
 	Err        error       `json:"err,omitempty"`
 }
 
-func (r getBlueprintsResponse) error() error { return r.Err }
+func (r getBlueprintsResponse) Failed() error { return r.Err }
 
 func decodeGetBlueprintsRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var opts GetBlueprintsOption
@@ -44,11 +45,8 @@ func decodeGetBlueprintsRequest(ctx context.Context, r *http.Request) (interface
 }
 
 func decodeGetBlueprintsResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	if r.StatusCode != http.StatusOK {
-		return nil, errorDecoder(r)
-	}
 	var resp getBlueprintsResponse
-	err := json.NewDecoder(r.Body).Decode(&resp)
+	err := httputil.DecodeJSONResponse(r, &resp)
 	return resp, err
 }
 

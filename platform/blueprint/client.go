@@ -1,13 +1,12 @@
 package blueprint
 
 import (
-	"context"
-	"net/http"
 	"net/url"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
 func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransport.ClientOption) (Service, error) {
@@ -20,8 +19,8 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	{
 		applyBlueprintEndpoint = httptransport.NewClient(
 			"PUT",
-			copyURL(u, "/v1/blueprints"),
-			encodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			httputil.CopyURL(u, "/v1/blueprints"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
 			decodeApplyBlueprintResponse,
 			opts...,
 		).Endpoint()
@@ -31,8 +30,8 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	{
 		getBlueprintsEndpoint = httptransport.NewClient(
 			"GET",
-			copyURL(u, "/v1/blueprints"),
-			encodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			httputil.CopyURL(u, "/v1/blueprints"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
 			decodeGetBlueprintsResponse,
 			opts...,
 		).Endpoint()
@@ -42,8 +41,8 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	{
 		removeBlueprintsEndpoint = httptransport.NewClient(
 			"DELETE",
-			copyURL(u, "/v1/blueprints"),
-			encodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			httputil.CopyURL(u, "/v1/blueprints"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
 			decodeRemoveBlueprintsResponse,
 			opts...,
 		).Endpoint()
@@ -54,17 +53,4 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 		GetBlueprintsEndpoint:    getBlueprintsEndpoint,
 		RemoveBlueprintsEndpoint: removeBlueprintsEndpoint,
 	}, nil
-}
-
-func encodeRequestWithToken(token string, next httptransport.EncodeRequestFunc) httptransport.EncodeRequestFunc {
-	return func(ctx context.Context, r *http.Request, request interface{}) error {
-		r.SetBasicAuth("micromdm", token)
-		return next(ctx, r, request)
-	}
-}
-
-func copyURL(base *url.URL, path string) *url.URL {
-	next := *base
-	next.Path = path
-	return &next
 }
