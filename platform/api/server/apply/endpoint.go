@@ -9,7 +9,6 @@ import (
 )
 
 type Endpoints struct {
-	ApplyDEPTokensEndpoint   endpoint.Endpoint
 	DefineDEPProfileEndpoint endpoint.Endpoint
 	AppUploadEndpoint        endpoint.Endpoint
 }
@@ -36,25 +35,6 @@ func (e Endpoints) DefineDEPProfile(ctx context.Context, p *dep.Profile) (*dep.P
 	}
 	response := resp.(depProfileResponse)
 	return response.ProfileResponse, response.Err
-}
-
-func (e Endpoints) ApplyDEPToken(ctx context.Context, P7MContent []byte) error {
-	req := depTokensRequest{P7MContent: P7MContent}
-	resp, err := e.ApplyDEPTokensEndpoint(ctx, req)
-	if err != nil {
-		return err
-	}
-	return resp.(depTokensResponse).Err
-}
-
-func MakeApplyDEPTokensEndpoint(svc Service) endpoint.Endpoint {
-	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(depTokensRequest)
-		err = svc.ApplyDEPToken(ctx, req.P7MContent)
-		return depTokensResponse{
-			Err: err,
-		}, nil
-	}
 }
 
 func MakeDefineDEPProfile(svc Service) endpoint.Endpoint {
@@ -91,16 +71,6 @@ type appUploadResponse struct {
 }
 
 func (r appUploadResponse) error() error { return r.Err }
-
-type depTokensRequest struct {
-	P7MContent []byte `json:"p7m_content"`
-}
-
-type depTokensResponse struct {
-	Err error `json:"err,omitempty"`
-}
-
-func (r depTokensResponse) error() error { return r.Err }
 
 type depProfileRequest struct{ *dep.Profile }
 type depProfileResponse struct {

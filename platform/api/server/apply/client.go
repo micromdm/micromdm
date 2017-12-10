@@ -16,17 +16,6 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 		return nil, err
 	}
 
-	var applyDEPTokensEndpoint endpoint.Endpoint
-	{
-		applyDEPTokensEndpoint = httptransport.NewClient(
-			"PUT",
-			copyURL(u, "/v1/dep-tokens"),
-			encodeRequestWithToken(token, EncodeHTTPGenericRequest),
-			DecodeDEPTokensResponse,
-			opts...,
-		).Endpoint()
-	}
-
 	var defineDEPProfileEndpoint endpoint.Endpoint
 	{
 		defineDEPProfileEndpoint = httptransport.NewClient(
@@ -50,7 +39,6 @@ func NewClient(instance string, logger log.Logger, token string, opts ...httptra
 	}
 
 	return Endpoints{
-		ApplyDEPTokensEndpoint:   applyDEPTokensEndpoint,
 		DefineDEPProfileEndpoint: defineDEPProfileEndpoint,
 		AppUploadEndpoint:        uploadAppEndpoint,
 	}, nil

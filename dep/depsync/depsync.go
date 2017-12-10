@@ -13,7 +13,7 @@ import (
 	"github.com/micromdm/dep"
 	"github.com/pkg/errors"
 
-	"github.com/micromdm/micromdm/platform/deptoken"
+	conf "github.com/micromdm/micromdm/platform/config"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
@@ -105,7 +105,7 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, opts ...Option) (Syncer, err
 }
 
 func (w *watcher) updateClient(pubsub pubsub.Subscriber) error {
-	tokenAdded, err := pubsub.Subscribe(context.TODO(), "token-events", deptoken.DEPTokenTopic)
+	tokenAdded, err := pubsub.Subscribe(context.TODO(), "token-events", conf.DEPTokenTopic)
 	if err != nil {
 		return err
 	}
@@ -114,7 +114,7 @@ func (w *watcher) updateClient(pubsub pubsub.Subscriber) error {
 		for {
 			select {
 			case event := <-tokenAdded:
-				var token deptoken.DEPToken
+				var token conf.DEPToken
 				if err := json.Unmarshal(event.Message, &token); err != nil {
 					log.Printf("unmarshalling tokenAdded to token: %s\n", err)
 					continue

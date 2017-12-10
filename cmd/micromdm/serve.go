@@ -51,7 +51,7 @@ import (
 	blueprintbuiltin "github.com/micromdm/micromdm/platform/blueprint/builtin"
 	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/config"
-	"github.com/micromdm/micromdm/platform/deptoken"
+	configbuiltin "github.com/micromdm/micromdm/platform/config/builtin"
 	"github.com/micromdm/micromdm/platform/device"
 	"github.com/micromdm/micromdm/platform/profile"
 	profilebuiltin "github.com/micromdm/micromdm/platform/profile/builtin"
@@ -202,19 +202,6 @@ func serve(args []string) error {
 	ctx := context.Background()
 	httpLogger := log.With(logger, "transport", "http")
 
-	var configHandlers config.HTTPHandlers
-	{
-		pushCertEndpoint := config.MakeSavePushCertificateEndpoint(sm.configService)
-		configEndpoints := config.Endpoints{
-			SavePushCertificateEndpoint: pushCertEndpoint,
-		}
-		configOpts := []httptransport.ServerOption{
-			httptransport.ServerErrorLogger(httpLogger),
-			httptransport.ServerErrorEncoder(checkin.EncodeError),
-		}
-		configHandlers = config.MakeHTTPHandlers(ctx, configEndpoints, configOpts...)
-	}
-
 	var checkinHandlers checkin.HTTPHandlers
 	{
 		e := checkin.Endpoints{
@@ -269,7 +256,6 @@ func serve(args []string) error {
 	if err != nil {
 		stdlog.Fatalf("creating DEP client: %s\n", err)
 	}
-	tokenDB := &deptoken.DB{DB: sm.db, Publisher: sm.pubclient}
 	appDB := &appstore.Repo{Path: *flRepoPath}
 
 	var profilesvc profile.Service
@@ -294,12 +280,18 @@ func serve(args []string) error {
 
 	userEndpoints := user.MakeServerEndpoints(usersvc)
 
+	var configsvc config.Service
+	{
+		configsvc = config.New(sm.configDB)
+	}
+
+	configEndpoints := config.MakeServerEndpoints(configsvc)
+
 	var listsvc list.Service
 	{
 		l := &list.ListService{
 			DEPClient: dc,
 			Devices:   devDB,
-			Tokens:    tokenDB,
 			Apps:      appDB,
 		}
 		listsvc = l
@@ -315,7 +307,6 @@ func serve(args []string) error {
 	}
 	listEndpoints := list.Endpoints{
 		ListDevicesEndpoint:       listDevicesEndpoint,
-		GetDEPTokensEndpoint:      list.MakeGetDEPTokensEndpoint(listsvc),
 		GetDEPAccountInfoEndpoint: list.MakeGetDEPAccountInfoEndpoint(listsvc),
 		GetDEPProfileEndpoint:     list.MakeGetDEPProfileEndpoint(listsvc),
 		GetDEPDeviceEndpoint:      list.MakeGetDEPDeviceDetailsEndpoint(listsvc),
@@ -326,7 +317,6 @@ func serve(args []string) error {
 	{
 		l := &apply.ApplyService{
 			DEPClient: dc,
-			Tokens:    tokenDB,
 			Apps:      appDB,
 		}
 		applysvc = l
@@ -346,7 +336,6 @@ func serve(args []string) error {
 	}
 
 	applyEndpoints := apply.Endpoints{
-		ApplyDEPTokensEndpoint:   apply.MakeApplyDEPTokensEndpoint(applysvc),
 		DefineDEPProfileEndpoint: defineDEPProfileEndpoint,
 		AppUploadEndpoint:        appUploadEndpoint,
 	}
@@ -375,6 +364,7 @@ func serve(args []string) error {
 	blueprintsHandler := blueprint.MakeHTTPHandler(blueprintEndpoints, logger)
 	blockhandler := block.MakeHTTPHandler(blockEndpoints, logger)
 	userHandler := user.MakeHTTPHandler(userEndpoints, logger)
+	configHandler := config.MakeHTTPHandler(configEndpoints, logger)
 
 	// API commands. Only handled if the user provides an api key.
 	if *flAPIKey != "" {
@@ -383,18 +373,18 @@ func serve(args []string) error {
 		r.Handle("/v1/users", apiAuthMiddleware(*flAPIKey, userHandler))
 		r.Handle("/v1/devices/{udid}/block", apiAuthMiddleware(*flAPIKey, blockhandler))
 		r.Handle("/v1/devices/{udid}/unblock", apiAuthMiddleware(*flAPIKey, blockhandler))
+		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, configHandler))
+		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, configHandler))
+		r.Handle("/v1/config/certificate", apiAuthMiddleware(*flAPIKey, configHandler))
 		r.Handle("/push/{udid}", apiAuthMiddleware(*flAPIKey, pushHandlers.PushHandler))
 		r.Handle("/v1/commands", apiAuthMiddleware(*flAPIKey, commandHandlers.NewCommandHandler)).Methods("POST")
 		r.Handle("/v1/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListDevicesHandler)).Methods("GET")
-		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPTokensHandler)).Methods("GET")
-		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DEPTokensHandler)).Methods("PUT")
 		r.Handle("/v1/dep/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPDeviceDetailsHandler)).Methods("GET")
 		r.Handle("/v1/dep/account", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPAccountInfoHandler)).Methods("GET")
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPProfileHandler)).Methods("GET")
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DefineDEPProfileHandler)).Methods("POST")
 		r.Handle("/v1/apps", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.AppUploadHandler)).Methods("POST")
 		r.Handle("/v1/apps", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListAppsHandler)).Methods("GET")
-		r.Handle("/v1/config/certificate", apiAuthMiddleware(*flAPIKey, configHandlers.SavePushCertificateHandler)).Methods("PUT")
 	}
 
 	if *flRepoPath != "" {
@@ -490,7 +480,7 @@ type server struct {
 	tlsCertPath         string
 	scepDepot           *boltdepot.Depot
 	profileDB           profile.Store
-	configDB            *config.DB
+	configDB            config.Store
 	removeDB            block.Store
 	CommandWebhookURL   string
 
@@ -678,13 +668,13 @@ func (c *server) setupConfigStore() {
 	if c.err != nil {
 		return
 	}
-	db, err := config.NewDB(c.db, c.pubclient)
+	db, err := configbuiltin.NewDB(c.db, c.pubclient)
 	if err != nil {
 		c.err = err
 		return
 	}
 	c.configDB = db
-	c.configService = config.NewService(db)
+	c.configService = config.New(db)
 
 }
 
@@ -781,9 +771,8 @@ func (c *server) depClient() (dep.Client, error) {
 	depsim := c.depsim
 	var conf *dep.Config
 
-	tokenDB := &deptoken.DB{DB: c.db}
 	// try getting the oauth config from bolt
-	tokens, err := tokenDB.DEPTokens()
+	tokens, err := c.configDB.DEPTokens()
 	if err != nil {
 		return nil, err
 	}

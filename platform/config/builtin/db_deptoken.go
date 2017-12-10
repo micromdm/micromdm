@@ -1,4 +1,4 @@
-package deptoken
+package builtin
 
 import (
 	"bytes"
@@ -6,46 +6,15 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/json"
-	"time"
 
 	"github.com/boltdb/bolt"
-	"github.com/micromdm/dep"
-
 	"github.com/micromdm/micromdm/pkg/crypto"
-	"github.com/micromdm/micromdm/platform/pubsub"
+	"github.com/micromdm/micromdm/platform/config"
 )
 
 const (
 	depTokenBucket = "mdm.DEPToken"
-
-	DEPTokenTopic = "mdm.TokenAdded"
 )
-
-type DB struct {
-	*bolt.DB
-	Publisher pubsub.Publisher
-}
-
-type DEPToken struct {
-	ConsumerKey       string    `json:"consumer_key"`
-	ConsumerSecret    string    `json:"consumer_secret"`
-	AccessToken       string    `json:"access_token"`
-	AccessSecret      string    `json:"access_secret"`
-	AccessTokenExpiry time.Time `json:"access_token_expiry"`
-}
-
-// create a DEP client from token.
-func (tok DEPToken) Client() (dep.Client, error) {
-	conf := &dep.Config{
-		ConsumerKey:    tok.ConsumerKey,
-		ConsumerSecret: tok.ConsumerSecret,
-		AccessSecret:   tok.AccessSecret,
-		AccessToken:    tok.AccessToken,
-	}
-	depServerURL := "https://mdmenrollment.apple.com"
-	client, err := dep.NewClient(conf, dep.ServerURL(depServerURL))
-	return client, err
-}
 
 func (db *DB) AddToken(consumerKey string, json []byte) error {
 	err := db.Update(func(tx *bolt.Tx) error {
@@ -58,14 +27,14 @@ func (db *DB) AddToken(consumerKey string, json []byte) error {
 	if err != nil {
 		return err
 	}
-	if err := db.Publisher.Publish(context.TODO(), DEPTokenTopic, json); err != nil {
+	if err := db.Publisher.Publish(context.TODO(), config.DEPTokenTopic, json); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (db *DB) DEPTokens() ([]DEPToken, error) {
-	var result []DEPToken
+func (db *DB) DEPTokens() ([]config.DEPToken, error) {
+	var result []config.DEPToken
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(depTokenBucket))
 		if b == nil {
@@ -75,7 +44,7 @@ func (db *DB) DEPTokens() ([]DEPToken, error) {
 
 		prefix := []byte("CK_")
 		for k, v := c.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = c.Next() {
-			var depToken DEPToken
+			var depToken config.DEPToken
 			err := json.Unmarshal(v, &depToken)
 			if err != nil {
 				// TODO: log problematic DEP token, or remove altogether?
