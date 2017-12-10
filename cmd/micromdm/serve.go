@@ -54,6 +54,7 @@ import (
 	"github.com/micromdm/micromdm/platform/config"
 	configbuiltin "github.com/micromdm/micromdm/platform/config/builtin"
 	"github.com/micromdm/micromdm/platform/device"
+	devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
 	"github.com/micromdm/micromdm/platform/profile"
 	profilebuiltin "github.com/micromdm/micromdm/platform/profile/builtin"
 	"github.com/micromdm/micromdm/platform/pubsub"
@@ -169,7 +170,7 @@ func serve(args []string) error {
 		stdlog.Fatal(err)
 	}
 
-	devDB, err := device.NewDB(sm.db, sm.pubclient)
+	devDB, err := devicebuiltin.NewDB(sm.db, sm.pubclient)
 	if err != nil {
 		stdlog.Fatal(err)
 	}
@@ -295,11 +296,16 @@ func serve(args []string) error {
 
 	appEndpoints := appstore.MakeServerEndpoints(appsvc)
 
+	var devicesvc device.Service
+	{
+		devicesvc = device.New(devDB)
+	}
+	deviceEndpoints := device.MakeServerEndpoints(devicesvc)
+
 	var listsvc list.Service
 	{
 		l := &list.ListService{
 			DEPClient: dc,
-			Devices:   devDB,
 		}
 		listsvc = l
 
@@ -307,13 +313,7 @@ func serve(args []string) error {
 			stdlog.Fatal(err)
 		}
 	}
-	var listDevicesEndpoint endpoint.Endpoint
-	{
-		listDevicesEndpoint = list.MakeListDevicesEndpoint(listsvc)
-
-	}
 	listEndpoints := list.Endpoints{
-		ListDevicesEndpoint:       listDevicesEndpoint,
 		GetDEPAccountInfoEndpoint: list.MakeGetDEPAccountInfoEndpoint(listsvc),
 		GetDEPProfileEndpoint:     list.MakeGetDEPProfileEndpoint(listsvc),
 		GetDEPDeviceEndpoint:      list.MakeGetDEPDeviceDetailsEndpoint(listsvc),
@@ -365,6 +365,7 @@ func serve(args []string) error {
 	userHandler := user.MakeHTTPHandler(userEndpoints, logger)
 	configHandler := config.MakeHTTPHandler(configEndpoints, logger)
 	appsHandler := appstore.MakeHTTPHandler(appEndpoints, logger)
+	deviceHandler := device.MakeHTTPHandler(deviceEndpoints, logger)
 
 	// API commands. Only handled if the user provides an api key.
 	if *flAPIKey != "" {
@@ -374,12 +375,12 @@ func serve(args []string) error {
 		r.Handle("/v1/apps", apiAuthMiddleware(*flAPIKey, appsHandler))
 		r.Handle("/v1/devices/{udid}/block", apiAuthMiddleware(*flAPIKey, blockhandler))
 		r.Handle("/v1/devices/{udid}/unblock", apiAuthMiddleware(*flAPIKey, blockhandler))
+		r.Handle("/v1/devices", apiAuthMiddleware(*flAPIKey, deviceHandler))
 		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, configHandler))
 		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, configHandler))
 		r.Handle("/v1/config/certificate", apiAuthMiddleware(*flAPIKey, configHandler))
 		r.Handle("/push/{udid}", apiAuthMiddleware(*flAPIKey, pushHandlers.PushHandler))
 		r.Handle("/v1/commands", apiAuthMiddleware(*flAPIKey, commandHandlers.NewCommandHandler)).Methods("POST")
-		r.Handle("/v1/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.ListDevicesHandler)).Methods("GET")
 		r.Handle("/v1/dep/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPDeviceDetailsHandler)).Methods("GET")
 		r.Handle("/v1/dep/account", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPAccountInfoHandler)).Methods("GET")
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPProfileHandler)).Methods("GET")

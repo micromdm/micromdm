@@ -1,4 +1,4 @@
-package device
+package builtin
 
 import (
 	"context"
@@ -12,6 +12,7 @@ import (
 	"github.com/micromdm/micromdm/dep/depsync"
 	"github.com/micromdm/micromdm/mdm/checkin"
 	"github.com/micromdm/micromdm/mdm/connect"
+	"github.com/micromdm/micromdm/platform/device"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
@@ -21,8 +22,6 @@ const (
 	// The deviceIndexBucket index bucket stores serial number and UDID references
 	// to the device uuid.
 	deviceIndexBucket = "mdm.DeviceIdx"
-
-	DeviceEnrolledTopic = "mdm.DeviceEnrolled"
 )
 
 type DB struct {
@@ -53,15 +52,15 @@ func NewDB(db *bolt.DB, pubsubSvc pubsub.PublishSubscriber) (*DB, error) {
 	return datastore, nil
 }
 
-func (db *DB) List() ([]Device, error) {
+func (db *DB) List() ([]device.Device, error) {
 	// TODO add filter/limit with ForEach
-	var devices []Device
+	var devices []device.Device
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(DeviceBucket))
 		c := b.Cursor()
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			var dev Device
-			if err := UnmarshalDevice(v, &dev); err != nil {
+			var dev device.Device
+			if err := device.UnmarshalDevice(v, &dev); err != nil {
 				return err
 			}
 			devices = append(devices, dev)
@@ -71,7 +70,7 @@ func (db *DB) List() ([]Device, error) {
 	return devices, err
 }
 
-func (db *DB) Save(dev *Device) error {
+func (db *DB) Save(dev *device.Device) error {
 	tx, err := db.DB.Begin(true)
 	if err != nil {
 		return errors.Wrap(err, "begin transaction")
@@ -80,7 +79,7 @@ func (db *DB) Save(dev *Device) error {
 	if bkt == nil {
 		return fmt.Errorf("bucket %q not found!", DeviceBucket)
 	}
-	devproto, err := MarshalDevice(dev)
+	devproto, err := device.MarshalDevice(dev)
 	if err != nil {
 		return errors.Wrap(err, "marshalling device")
 	}
@@ -118,8 +117,8 @@ func (e *notFound) Error() string {
 	return fmt.Sprintf("not found: %s %s", e.ResourceType, e.Message)
 }
 
-func (db *DB) DeviceByUDID(udid string) (*Device, error) {
-	var dev Device
+func (db *DB) DeviceByUDID(udid string) (*device.Device, error) {
+	var dev device.Device
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(DeviceBucket))
 		ib := tx.Bucket([]byte(deviceIndexBucket))
@@ -131,7 +130,7 @@ func (db *DB) DeviceByUDID(udid string) (*Device, error) {
 		if idx == nil {
 			return &notFound{"Device", fmt.Sprintf("uuid %s", string(idx))}
 		}
-		return UnmarshalDevice(v, &dev)
+		return device.UnmarshalDevice(v, &dev)
 	})
 	if err != nil {
 		return nil, err
@@ -139,8 +138,8 @@ func (db *DB) DeviceByUDID(udid string) (*Device, error) {
 	return &dev, nil
 }
 
-func (db *DB) DeviceBySerial(serial string) (*Device, error) {
-	var dev Device
+func (db *DB) DeviceBySerial(serial string) (*device.Device, error) {
+	var dev device.Device
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(DeviceBucket))
 		ib := tx.Bucket([]byte(deviceIndexBucket))
@@ -152,7 +151,7 @@ func (db *DB) DeviceBySerial(serial string) (*Device, error) {
 		if idx == nil {
 			return &notFound{"Device", fmt.Sprintf("uuid %s", string(idx))}
 		}
-		return UnmarshalDevice(v, &dev)
+		return device.UnmarshalDevice(v, &dev)
 	})
 	if err != nil {
 		return nil, err
@@ -202,7 +201,7 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 					fmt.Println(err)
 					continue
 				}
-				newDevice := new(Device)
+				newDevice := new(device.Device)
 				bySerial, err := db.DeviceBySerial(ev.Command.SerialNumber)
 				if err == nil && bySerial != nil { // must be a DEP device
 					newDevice = bySerial
@@ -273,7 +272,7 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 				}
 				if newlyEnrolled {
 					fmt.Printf("device %s enrolled\n", ev.Command.UDID)
-					err := pubsubSvc.Publish(context.TODO(), DeviceEnrolledTopic, event.Message)
+					err := pubsubSvc.Publish(context.TODO(), device.DeviceEnrolledTopic, event.Message)
 					if err != nil {
 						fmt.Println(err)
 					}
@@ -286,7 +285,7 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 				}
 				fmt.Printf("got %d devices from DEP\n", len(ev.Devices))
 				for _, d := range ev.Devices {
-					newDevice := new(Device)
+					newDevice := new(device.Device)
 					bySerial, err := db.DeviceBySerial(d.SerialNumber)
 					if err == nil && bySerial != nil { // must be a DEP device
 						fmt.Printf("existing device checked in from DEP: %s\n", d.SerialNumber)
@@ -304,7 +303,7 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 					newDevice.Description = d.Description
 					newDevice.Color = d.Color
 					newDevice.AssetTag = d.AssetTag
-					newDevice.DEPProfileStatus = DEPProfileStatus(d.ProfileStatus)
+					newDevice.DEPProfileStatus = device.DEPProfileStatus(d.ProfileStatus)
 					newDevice.DEPProfileUUID = d.ProfileUUID
 					newDevice.DEPProfileAssignTime = d.ProfileAssignTime
 					newDevice.DEPProfileAssignedDate = d.DeviceAssignedDate
