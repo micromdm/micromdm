@@ -1,3 +1,6 @@
 vendor/
 build/
 *.zip
+
+cmd/mdmctl/mdmdctl
+cmd/micromdm/micromdm
