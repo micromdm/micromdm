@@ -2,10 +2,10 @@ package profile
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
 func (svc *ProfileService) RemoveProfiles(ctx context.Context, ids []string) error {
@@ -26,22 +26,17 @@ type removeProfileResponse struct {
 	Err error `json:"err,omitempty"`
 }
 
-func (r removeProfileResponse) error() error { return r.Err }
+func (r removeProfileResponse) Failed() error { return r.Err }
 
 func decodeRemoveProfilesRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req removeProfileRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return nil, err
-	}
-	return req, nil
+	err := httputil.DecodeJSONRequest(r, &req)
+	return req, err
 }
 
 func decodeRemoveProfileResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	if r.StatusCode != http.StatusOK {
-		return nil, errorDecoder(r)
-	}
 	var resp removeProfileResponse
-	err := json.NewDecoder(r.Body).Decode(&resp)
+	err := httputil.DecodeJSONResponse(r, &resp)
 	return resp, err
 }
 

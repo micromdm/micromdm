@@ -1,13 +1,12 @@
 package profile
 
 import (
-	"context"
-	"net/http"
 	"net/url"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
 func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransport.ClientOption) (Service, error) {
@@ -20,8 +19,8 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	{
 		applyProfileEndpoint = httptransport.NewClient(
 			"PUT",
-			copyURL(u, "/v1/profiles"),
-			encodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			httputil.CopyURL(u, "/v1/profiles"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
 			decodeApplyProfileResponse,
 			opts...,
 		).Endpoint()
@@ -31,8 +30,8 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	{
 		getProfilesEndpoint = httptransport.NewClient(
 			"GET",
-			copyURL(u, "/v1/profiles"),
-			encodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			httputil.CopyURL(u, "/v1/profiles"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
 			decodeGetProfilesResponse,
 			opts...,
 		).Endpoint()
@@ -42,8 +41,8 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	{
 		removeProfilesEndpoint = httptransport.NewClient(
 			"DELETE",
-			copyURL(u, "/v1/profiles"),
-			encodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			httputil.CopyURL(u, "/v1/profiles"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
 			decodeRemoveProfileResponse,
 			opts...,
 		).Endpoint()
@@ -54,17 +53,4 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 		GetProfilesEndpoint:    getProfilesEndpoint,
 		RemoveProfilesEndpoint: removeProfilesEndpoint,
 	}, nil
-}
-
-func encodeRequestWithToken(token string, next httptransport.EncodeRequestFunc) httptransport.EncodeRequestFunc {
-	return func(ctx context.Context, r *http.Request, request interface{}) error {
-		r.SetBasicAuth("micromdm", token)
-		return next(ctx, r, request)
-	}
-}
-
-func copyURL(base *url.URL, path string) *url.URL {
-	next := *base
-	next.Path = path
-	return &next
 }

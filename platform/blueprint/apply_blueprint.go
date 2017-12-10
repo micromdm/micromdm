@@ -2,10 +2,10 @@ package blueprint
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
 func (svc *BlueprintService) ApplyBlueprint(ctx context.Context, bp *Blueprint) error {
@@ -20,22 +20,17 @@ type applyBlueprintResponse struct {
 	Err error `json:"err,omitempty"`
 }
 
-func (r applyBlueprintResponse) error() error { return r.Err }
+func (r applyBlueprintResponse) Failed() error { return r.Err }
 
 func decodeApplyBlueprintRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	var bpReq applyBlueprintRequest
-	if err := json.NewDecoder(r.Body).Decode(&bpReq); err != nil {
-		return nil, err
-	}
-	return bpReq, nil
+	var req applyBlueprintRequest
+	err := httputil.DecodeJSONRequest(r, &req)
+	return req, err
 }
 
 func decodeApplyBlueprintResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	if r.StatusCode != http.StatusOK {
-		return nil, errorDecoder(r)
-	}
 	var resp applyBlueprintResponse
-	err := json.NewDecoder(r.Body).Decode(&resp)
+	err := httputil.DecodeJSONResponse(r, &resp)
 	return resp, err
 }
 

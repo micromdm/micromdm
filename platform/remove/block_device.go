@@ -2,12 +2,12 @@ package remove
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"net/url"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/gorilla/mux"
+	"github.com/micromdm/micromdm/pkg/httputil"
 	"github.com/pkg/errors"
 )
 
@@ -23,7 +23,7 @@ type blockDeviceResponse struct {
 	Err error `json:"err,omitempty"`
 }
 
-func (r blockDeviceResponse) error() error { return r.Err }
+func (r blockDeviceResponse) Failed() error { return r.Err }
 
 func decodeBlockDeviceRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var errBadRoute = errors.New("bad route")
@@ -45,11 +45,8 @@ func encodeBlockDeviceRequest(_ context.Context, r *http.Request, request interf
 }
 
 func decodeBlockDeviceResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	if r.StatusCode != http.StatusOK {
-		return nil, errorDecoder(r)
-	}
 	var resp blockDeviceResponse
-	err := json.NewDecoder(r.Body).Decode(&resp)
+	err := httputil.DecodeJSONResponse(r, &resp)
 	return resp, err
 }
 

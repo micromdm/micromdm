@@ -1,13 +1,12 @@
 package remove
 
 import (
-	"context"
-	"net/http"
 	"net/url"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
 func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransport.ClientOption) (Service, error) {
@@ -20,8 +19,8 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	{
 		blockDeviceEndpoint = httptransport.NewClient(
 			"POST",
-			copyURL(u, ""), // empty path, modified by the encodeRequest func
-			encodeRequestWithToken(token, encodeBlockDeviceRequest),
+			httputil.CopyURL(u, ""), // empty path, modified by the encodeRequest func
+			httputil.EncodeRequestWithToken(token, encodeBlockDeviceRequest),
 			decodeBlockDeviceResponse,
 			opts...,
 		).Endpoint()
@@ -31,8 +30,8 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	{
 		unblockDeviceEndpoint = httptransport.NewClient(
 			"POST",
-			copyURL(u, ""), //modified by encodeRequestFunc
-			encodeRequestWithToken(token, encodeUnblockDeviceRequest),
+			httputil.CopyURL(u, ""), //modified by encodeRequestFunc
+			httputil.EncodeRequestWithToken(token, encodeUnblockDeviceRequest),
 			decodeUnblockDeviceResponse,
 			opts...,
 		).Endpoint()
@@ -42,17 +41,4 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 		BlockDeviceEndpoint:   blockDeviceEndpoint,
 		UnblockDeviceEndpoint: unblockDeviceEndpoint,
 	}, nil
-}
-
-func encodeRequestWithToken(token string, next httptransport.EncodeRequestFunc) httptransport.EncodeRequestFunc {
-	return func(ctx context.Context, r *http.Request, request interface{}) error {
-		r.SetBasicAuth("micromdm", token)
-		return next(ctx, r, request)
-	}
-}
-
-func copyURL(base *url.URL, path string) *url.URL {
-	next := *base
-	next.Path = path
-	return &next
 }
