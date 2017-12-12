@@ -1,27 +1,15 @@
-package list
+package dep
 
 import (
 	"context"
 	"encoding/json"
 	"log"
-	"sync"
-
-	"github.com/micromdm/dep"
 
 	"github.com/micromdm/micromdm/platform/config"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
-type Service interface {
-	DEPService
-}
-
-type ListService struct {
-	mtx       sync.RWMutex
-	DEPClient dep.Client
-}
-
-func (svc *ListService) WatchTokenUpdates(pubsub pubsub.Subscriber) error {
+func (svc *DEPService) watchTokenUpdates(pubsub pubsub.Subscriber) error {
 	tokenAdded, err := pubsub.Subscribe(context.TODO(), "list-token-events", config.DEPTokenTopic)
 	if err != nil {
 		return err
@@ -44,7 +32,7 @@ func (svc *ListService) WatchTokenUpdates(pubsub pubsub.Subscriber) error {
 				}
 
 				svc.mtx.Lock()
-				svc.DEPClient = client
+				svc.client = client
 				svc.mtx.Unlock()
 			}
 		}
