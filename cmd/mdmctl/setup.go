@@ -4,11 +4,10 @@ import (
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 
-	"github.com/micromdm/micromdm/platform/api/server/apply"
-	"github.com/micromdm/micromdm/platform/api/server/list"
 	"github.com/micromdm/micromdm/platform/appstore"
 	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/config"
+	"github.com/micromdm/micromdm/platform/dep"
 	"github.com/micromdm/micromdm/platform/device"
 	"github.com/micromdm/micromdm/platform/profile"
 	"github.com/micromdm/micromdm/platform/remove"
@@ -23,8 +22,7 @@ type remoteServices struct {
 	devicesvc    device.Service
 	configsvc    config.Service
 	appsvc       appstore.Service
-	applysvc     apply.Service
-	list         list.Service
+	depsvc       dep.Service
 }
 
 func setupClient(logger log.Logger) (*remoteServices, error) {
@@ -82,15 +80,8 @@ func setupClient(logger log.Logger) (*remoteServices, error) {
 		return nil, err
 	}
 
-	applysvc, err := apply.NewClient(
-		cfg.ServerURL, logger, cfg.APIToken,
-		httptransport.SetClient(skipVerifyHTTPClient(cfg.SkipVerify)))
-	if err != nil {
-		return nil, err
-	}
-
-	listsvc, err := list.NewClient(
-		cfg.ServerURL, logger, cfg.APIToken,
+	depsvc, err := dep.NewHTTPClient(
+		cfg.ServerURL, cfg.APIToken, logger,
 		httptransport.SetClient(skipVerifyHTTPClient(cfg.SkipVerify)))
 	if err != nil {
 		return nil, err
@@ -104,7 +95,6 @@ func setupClient(logger log.Logger) (*remoteServices, error) {
 		devicesvc:    devicesvc,
 		configsvc:    configsvc,
 		appsvc:       appsvc,
-		applysvc:     applysvc,
-		list:         listsvc,
+		depsvc:       depsvc,
 	}, nil
 }

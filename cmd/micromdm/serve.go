@@ -43,8 +43,6 @@ import (
 	"github.com/micromdm/micromdm/mdm/connect"
 	"github.com/micromdm/micromdm/mdm/enroll"
 	"github.com/micromdm/micromdm/pkg/crypto"
-	"github.com/micromdm/micromdm/platform/api/server/apply"
-	"github.com/micromdm/micromdm/platform/api/server/list"
 	"github.com/micromdm/micromdm/platform/apns"
 	"github.com/micromdm/micromdm/platform/appstore"
 	appsbuiltin "github.com/micromdm/micromdm/platform/appstore/builtin"
@@ -53,6 +51,7 @@ import (
 	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/config"
 	configbuiltin "github.com/micromdm/micromdm/platform/config/builtin"
+	depapi "github.com/micromdm/micromdm/platform/dep"
 	"github.com/micromdm/micromdm/platform/device"
 	devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
 	"github.com/micromdm/micromdm/platform/profile"
@@ -160,6 +159,7 @@ func serve(args []string) error {
 	sm.setupCommandService()
 	sm.setupWebhooks()
 	sm.setupCommandQueue(logger)
+	sm.setupDepClient()
 	sm.setupDEPSync()
 	if sm.err != nil {
 		stdlog.Fatal(sm.err)
@@ -254,10 +254,7 @@ func serve(args []string) error {
 		ConnectEndpoint: connectEndpoint,
 	}
 
-	dc, err := sm.depClient()
-	if err != nil {
-		stdlog.Fatalf("creating DEP client: %s\n", err)
-	}
+	dc := sm.depClient
 	appDB := &appsbuiltin.Repo{Path: *flRepoPath}
 
 	var profilesvc profile.Service
@@ -302,46 +299,11 @@ func serve(args []string) error {
 	}
 	deviceEndpoints := device.MakeServerEndpoints(devicesvc)
 
-	var listsvc list.Service
+	var depsvc depapi.Service
 	{
-		l := &list.ListService{
-			DEPClient: dc,
-		}
-		listsvc = l
-
-		if err := l.WatchTokenUpdates(sm.pubclient); err != nil {
-			stdlog.Fatal(err)
-		}
+		depsvc = depapi.New(dc, sm.pubclient)
 	}
-	listEndpoints := list.Endpoints{
-		GetDEPAccountInfoEndpoint: list.MakeGetDEPAccountInfoEndpoint(listsvc),
-		GetDEPProfileEndpoint:     list.MakeGetDEPProfileEndpoint(listsvc),
-		GetDEPDeviceEndpoint:      list.MakeGetDEPDeviceDetailsEndpoint(listsvc),
-	}
-
-	var applysvc apply.Service
-	{
-		l := &apply.ApplyService{
-			DEPClient: dc,
-		}
-		applysvc = l
-		if err := l.WatchTokenUpdates(sm.pubclient); err != nil {
-			stdlog.Fatal(err)
-		}
-	}
-
-	var defineDEPProfileEndpoint endpoint.Endpoint
-	{
-		defineDEPProfileEndpoint = apply.MakeDefineDEPProfile(applysvc)
-	}
-
-	applyEndpoints := apply.Endpoints{
-		DefineDEPProfileEndpoint: defineDEPProfileEndpoint,
-	}
-
-	applyAPIHandlers := apply.MakeHTTPHandlers(ctx, applyEndpoints, connectOpts...)
-
-	listAPIHandlers := list.MakeHTTPHandlers(ctx, listEndpoints, connectOpts...)
+	depEndpoints := depapi.MakeServerEndpoints(depsvc)
 
 	connectHandlers := connect.MakeHTTPHandlers(ctx, connectEndpoints, connectOpts...)
 
@@ -366,6 +328,7 @@ func serve(args []string) error {
 	configHandler := config.MakeHTTPHandler(configEndpoints, logger)
 	appsHandler := appstore.MakeHTTPHandler(appEndpoints, logger)
 	deviceHandler := device.MakeHTTPHandler(deviceEndpoints, logger)
+	depHandlers := depapi.MakeHTTPHandler(depEndpoints, logger)
 
 	// API commands. Only handled if the user provides an api key.
 	if *flAPIKey != "" {
@@ -379,12 +342,11 @@ func serve(args []string) error {
 		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, configHandler))
 		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, configHandler))
 		r.Handle("/v1/config/certificate", apiAuthMiddleware(*flAPIKey, configHandler))
-		r.Handle("/push/{udid}", apiAuthMiddleware(*flAPIKey, pushHandlers.PushHandler))
+		r.Handle("/v1/dep/devices", apiAuthMiddleware(*flAPIKey, depHandlers))
+		r.Handle("/v1/dep/account", apiAuthMiddleware(*flAPIKey, depHandlers))
+		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, depHandlers))
 		r.Handle("/v1/commands", apiAuthMiddleware(*flAPIKey, commandHandlers.NewCommandHandler)).Methods("POST")
-		r.Handle("/v1/dep/devices", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPDeviceDetailsHandler)).Methods("GET")
-		r.Handle("/v1/dep/account", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPAccountInfoHandler)).Methods("GET")
-		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, listAPIHandlers.GetDEPProfileHandler)).Methods("GET")
-		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, applyAPIHandlers.DefineDEPProfileHandler)).Methods("POST")
+		r.Handle("/push/{udid}", apiAuthMiddleware(*flAPIKey, pushHandlers.PushHandler))
 	}
 
 	if *flRepoPath != "" {
@@ -483,6 +445,7 @@ type server struct {
 	configDB            config.Store
 	removeDB            block.Store
 	CommandWebhookURL   string
+	depClient           dep.Client
 
 	// TODO: refactor enroll service and remove the need to reference
 	// this on-disk cert. but it might be useful to keep the PEM
@@ -763,7 +726,7 @@ func (p staticTopicProvider) PushTopic() (string, error) {
 	return p.topic, nil
 }
 
-func (c *server) depClient() (dep.Client, error) {
+func (c *server) setupDepClient() (dep.Client, error) {
 	if c.err != nil {
 		return nil, c.err
 	}
@@ -808,6 +771,8 @@ func (c *server) depClient() (dep.Client, error) {
 		return nil, err
 	}
 
+	c.depClient = client
+
 	return client, nil
 }
 
@@ -816,17 +781,13 @@ func (c *server) setupDEPSync() {
 		return
 	}
 
-	client, err := c.depClient()
-	if err != nil {
-		c.err = err
-		return
-	}
+	client := c.depClient
 	var opts []depsync.Option
 	if client != nil {
 		opts = append(opts, depsync.WithClient(client))
 	}
 	_, c.err = depsync.New(c.pubclient, c.db, opts...)
-	if err != nil {
+	if c.err != nil {
 		return
 	}
 }
