@@ -44,6 +44,7 @@ import (
 	"github.com/micromdm/micromdm/mdm/enroll"
 	"github.com/micromdm/micromdm/pkg/crypto"
 	"github.com/micromdm/micromdm/platform/apns"
+	apnsbuiltin "github.com/micromdm/micromdm/platform/apns/builtin"
 	"github.com/micromdm/micromdm/platform/appstore"
 	appsbuiltin "github.com/micromdm/micromdm/platform/appstore/builtin"
 	"github.com/micromdm/micromdm/platform/blueprint"
@@ -216,18 +217,6 @@ func serve(args []string) error {
 		checkinHandlers = checkin.MakeHTTPHandlers(ctx, e, opts...)
 	}
 
-	var pushHandlers apns.HTTPHandlers
-	{
-		e := apns.Endpoints{
-			PushEndpoint: apns.MakePushEndpoint(sm.pushService),
-		}
-		opts := []httptransport.ServerOption{
-			httptransport.ServerErrorLogger(httpLogger),
-			httptransport.ServerErrorEncoder(checkin.EncodeError),
-		}
-		pushHandlers = apns.MakeHTTPHandlers(ctx, e, opts...)
-	}
-
 	var commandHandlers command.HTTPHandlers
 	{
 		e := command.Endpoints{
@@ -305,6 +294,8 @@ func serve(args []string) error {
 	}
 	depEndpoints := depapi.MakeServerEndpoints(depsvc)
 
+	apnsEndpoints := apns.MakeServerEndpoints(sm.pushService)
+
 	connectHandlers := connect.MakeHTTPHandlers(ctx, connectEndpoints, connectOpts...)
 
 	scepHandler := scep.ServiceHandler(ctx, sm.scepService, httpLogger)
@@ -329,6 +320,7 @@ func serve(args []string) error {
 	appsHandler := appstore.MakeHTTPHandler(appEndpoints, logger)
 	deviceHandler := device.MakeHTTPHandler(deviceEndpoints, logger)
 	depHandlers := depapi.MakeHTTPHandler(depEndpoints, logger)
+	apnsHandlers := apns.MakeHTTPHandler(apnsEndpoints, logger)
 
 	// API commands. Only handled if the user provides an api key.
 	if *flAPIKey != "" {
@@ -346,7 +338,7 @@ func serve(args []string) error {
 		r.Handle("/v1/dep/account", apiAuthMiddleware(*flAPIKey, depHandlers))
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, depHandlers))
 		r.Handle("/v1/commands", apiAuthMiddleware(*flAPIKey, commandHandlers.NewCommandHandler)).Methods("POST")
-		r.Handle("/push/{udid}", apiAuthMiddleware(*flAPIKey, pushHandlers.PushHandler))
+		r.Handle("/push/{udid}", apiAuthMiddleware(*flAPIKey, apnsHandlers))
 	}
 
 	if *flRepoPath != "" {
@@ -669,7 +661,7 @@ func (c *server) setupPushService(logger log.Logger) {
 	}
 after:
 
-	db, err := apns.NewDB(c.db, c.pubclient)
+	db, err := apnsbuiltin.NewDB(c.db, c.pubclient)
 	if err != nil {
 		c.err = err
 		return
@@ -680,10 +672,9 @@ after:
 		c.err = errors.Wrap(err, "starting micromdm push service")
 		return
 	}
-	c.pushService = apns.NewLoggingService(
-		service,
-		log.With(level.Info(logger), "component", "push"),
-	)
+	c.pushService = apns.LoggingMiddleware(
+		log.With(level.Info(logger), "component", "apns"),
+	)(service)
 }
 
 func (c *server) setupEnrollmentService() {
