@@ -31,7 +31,7 @@ func (cmd *applyCommand) setup() error {
 		return err
 	}
 	cmd.config = cfg
-	logger := log.NewLogfmtLogger(os.Stdout)
+	logger := log.NewLogfmtLogger(os.Stderr)
 	remote, err := setupClient(logger)
 	if err != nil {
 		return err
