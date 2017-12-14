@@ -121,7 +121,7 @@ func serve(args []string) error {
 		return errors.New("-server-url must begin with https://")
 	}
 
-	logger := log.NewLogfmtLogger(os.Stdout)
+	logger := log.NewLogfmtLogger(os.Stderr)
 	stdlog.SetOutput(log.NewStdlibAdapter(logger)) // force structured logs
 	mainLogger := log.With(logger, "component", "main")
 	mainLogger.Log("msg", "started")
