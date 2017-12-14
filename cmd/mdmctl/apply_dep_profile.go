@@ -11,8 +11,9 @@ import (
 	"os"
 
 	"github.com/micromdm/dep"
-	"github.com/micromdm/micromdm/crypto"
 	"github.com/pkg/errors"
+
+	"github.com/micromdm/micromdm/pkg/crypto"
 )
 
 func certificatesFromURL(serverURL string, insecure bool) ([]*x509.Certificate, error) {
@@ -88,7 +89,7 @@ func (cmd *applyCommand) applyDEPProfile(args []string) error {
 		return errors.Wrap(err, "decode DEP Profile JSON")
 	}
 
-	resp, err := cmd.applysvc.DefineDEPProfile(context.TODO(), &profile)
+	resp, err := cmd.depsvc.DefineProfile(context.TODO(), &profile)
 	if err != nil {
 		return errors.Wrap(err, "define dep profile")
 	}

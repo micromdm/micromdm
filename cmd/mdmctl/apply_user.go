@@ -11,8 +11,8 @@ import (
 	"github.com/groob/plist"
 	"github.com/pkg/errors"
 
-	"github.com/micromdm/micromdm/crypto/password"
-	"github.com/micromdm/micromdm/user"
+	"github.com/micromdm/micromdm/pkg/crypto/password"
+	"github.com/micromdm/micromdm/platform/user"
 )
 
 func (cmd *applyCommand) applyUser(args []string) error {
@@ -63,7 +63,7 @@ func (cmd *applyCommand) applyUser(args []string) error {
 		manifest.PasswordHash = hashPlist
 	}
 
-	usr, err := cmd.applysvc.ApplyUser(context.TODO(), manifest)
+	usr, err := cmd.usersvc.ApplyUser(context.TODO(), manifest)
 	if err != nil {
 		return errors.Wrap(err, "apply user with mdmctl")
 	}

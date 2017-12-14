@@ -37,7 +37,7 @@ func (cmd *getCommand) getDEPDevices(args []string) error {
 	defer out.BasicFooter()
 	ctx := context.Background()
 	serials := strings.Split(*flSerials, ",")
-	resp, err := cmd.list.GetDEPDevice(ctx, serials)
+	resp, err := cmd.depsvc.GetDeviceDetails(ctx, serials)
 	if err != nil {
 		return err
 	}

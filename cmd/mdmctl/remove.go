@@ -6,14 +6,11 @@ import (
 	"strings"
 
 	"github.com/go-kit/kit/log"
-
-	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/micromdm/micromdm/core/remove"
 )
 
 type removeCommand struct {
 	config *ServerConfig
-	remove remove.Service
+	*remoteServices
 }
 
 func (cmd *removeCommand) setup() error {
@@ -23,11 +20,11 @@ func (cmd *removeCommand) setup() error {
 	}
 	cmd.config = cfg
 	logger := log.NewLogfmtLogger(os.Stdout)
-	rmsvc, err := remove.NewClient(cfg.ServerURL, logger, cfg.APIToken, httptransport.SetClient(skipVerifyHTTPClient(cmd.config.SkipVerify)))
+	remote, err := setupClient(logger)
 	if err != nil {
 		return err
 	}
-	cmd.remove = rmsvc
+	cmd.remoteServices = remote
 	return nil
 }
 
@@ -47,6 +44,8 @@ func (cmd *removeCommand) Run(args []string) error {
 		run = cmd.removeBlueprints
 	case "profiles":
 		run = cmd.removeProfiles
+	case "block":
+		run = cmd.removeBlock
 	default:
 		cmd.Usage()
 		os.Exit(1)
@@ -62,7 +61,9 @@ Display one or many resources.
 Valid resource types:
 
   * blueprints
-  * profiles`
+  * profiles
+  * block
+`
 
 	fmt.Println(getUsage)
 	return nil

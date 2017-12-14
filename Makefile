@@ -15,6 +15,8 @@ USER = $(shell whoami)
 GOVERSION = $(shell go version | awk '{print $$3}')
 NOW	= $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 SHELL = /bin/bash
+DOCKER_IMAGE_NAME = micromdm/micromdm
+DOCKER_IMAGE_TAG = $(shell echo ${VERSION} | sed 's/^v//')
 
 ifneq ($(OS), Windows_NT)
 	CURRENT_PLATFORM = linux
@@ -38,7 +40,7 @@ BUILD_VERSION = "\
 WORKSPACE = ${GOPATH}/src/github.com/micromdm/micromdm
 check-deps:
 ifneq ($(shell test -e ${WORKSPACE}/Gopkg.lock && echo -n yes), yes)
-	@echo "folder is clonded in the wrong place, copying to a Go Workspace"
+	@echo "folder is cloned in the wrong place, copying to a Go Workspace"
 	@echo "See: https://golang.org/doc/code.html#Workspaces"
 	@git clone git@github.com:micromdm/micromdm ${WORKSPACE}
 	@echo "cd to ${WORKSPACE} and run make deps again."
@@ -91,14 +93,21 @@ APP_NAME = micromdm
 	$(eval APP_NAME = micromdm)
 
 micromdm: .pre-build .pre-micromdm
-	go build -i -o build/$(CURRENT_PLATFORM)/micromdm -ldflags ${BUILD_VERSION} ./
+	go build -i -o build/$(CURRENT_PLATFORM)/micromdm -ldflags ${BUILD_VERSION} ./cmd/micromdm
 
 install-micromdm: .pre-micromdm
-	go install -ldflags ${BUILD_VERSION}
+	go install -ldflags ${BUILD_VERSION} ./cmd/micromdm
 
 xp-micromdm: .pre-build .pre-micromdm
-	GOOS=darwin go build -i -o build/darwin/micromdm -ldflags ${BUILD_VERSION}
-	GOOS=linux CGO_ENABLED=0 go build -i -o build/linux/micromdm  -ldflags ${BUILD_VERSION}
+	GOOS=darwin go build -i -o build/darwin/micromdm -ldflags ${BUILD_VERSION} ./cmd/micromdm
+	GOOS=linux CGO_ENABLED=0 go build -i -o build/linux/micromdm  -ldflags ${BUILD_VERSION} ./cmd/micromdm
 
 release-zip: xp-micromdm xp-mdmctl
 	zip -r micromdm_${VERSION}.zip build/
+
+docker-build:
+	GOOS=linux CGO_ENABLED=0 go build -o build/linux/micromdm  -ldflags ${BUILD_VERSION} ./cmd/micromdm
+	docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} .
+
+docker-tag: docker-build
+	docker tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} ${DOCKER_IMAGE_NAME}:latest

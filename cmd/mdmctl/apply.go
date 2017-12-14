@@ -6,22 +6,23 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/go-kit/kit/log"
-	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/micromdm/micromdm/blueprint"
-	"github.com/micromdm/micromdm/core/apply"
-	"github.com/micromdm/micromdm/profile"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
+
+	"github.com/micromdm/micromdm/platform/blueprint"
+	"github.com/micromdm/micromdm/platform/profile"
 )
 
 type applyCommand struct {
-	config   *ServerConfig
-	applysvc apply.Service
+	config *ServerConfig
+	*remoteServices
 }
 
 func (cmd *applyCommand) setup() error {
@@ -31,11 +32,11 @@ func (cmd *applyCommand) setup() error {
 	}
 	cmd.config = cfg
 	logger := log.NewLogfmtLogger(os.Stdout)
-	applysvc, err := apply.NewClient(cfg.ServerURL, logger, cfg.APIToken, httptransport.SetClient(skipVerifyHTTPClient(cmd.config.SkipVerify)))
+	remote, err := setupClient(logger)
 	if err != nil {
 		return err
 	}
-	cmd.applysvc = applysvc
+	cmd.remoteServices = remote
 	return nil
 }
 
@@ -59,6 +60,8 @@ func (cmd *applyCommand) Run(args []string) error {
 		run = cmd.applyProfile
 	case "app":
 		run = cmd.applyApp
+	case "block":
+		run = cmd.applyBlock
 	case "users":
 		run = cmd.applyUser
 	default:
@@ -80,6 +83,7 @@ Valid resource types:
   * dep-tokens
   * dep-profiles
   * app
+  * block
 
 Examples:
   # Apply a Blueprint.
@@ -144,7 +148,7 @@ func (cmd *applyCommand) applyBlueprint(args []string) error {
 		}
 
 		ctx := context.Background()
-		err = cmd.applysvc.ApplyBlueprint(ctx, &blpt)
+		err = cmd.blueprintsvc.ApplyBlueprint(ctx, &blpt)
 		if err != nil {
 			return err
 		}
@@ -180,11 +184,45 @@ func (cmd *applyCommand) applyDEPTokens(args []string) error {
 		return err
 	}
 	ctx := context.Background()
-	err = cmd.applysvc.ApplyDEPToken(ctx, p7mBytes)
+	err = cmd.configsvc.ApplyDEPToken(ctx, p7mBytes)
 	if err != nil {
 		return err
 	}
 	fmt.Println("imported DEP token")
+	return nil
+}
+
+func (cmd *applyCommand) applyBlock(args []string) error {
+	flagset := flag.NewFlagSet("block", flag.ExitOnError)
+	var (
+		flUDID = flagset.String("udid", "", "UDID of a device to block.")
+	)
+	flagset.Usage = usageFor(flagset, "mdmctl apply block [flags]")
+	if err := flagset.Parse(args); err != nil {
+		return err
+	}
+	if *flUDID == "" {
+		flagset.Usage()
+		return errors.New("bad input: must provide a device UDID to block.")
+	}
+	if err := cmd.blocksvc.BlockDevice(context.Background(), *flUDID); err != nil {
+		return err
+	}
+
+	// trigger a push
+	u, err := url.Parse(cmd.config.ServerURL)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	u.Path = "/push/" + url.QueryEscape(*flUDID)
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+	req.SetBasicAuth("micromdm", cmd.config.APIToken)
+	http.DefaultClient.Do(req)
 	return nil
 }
 
@@ -216,7 +254,7 @@ func (cmd *applyCommand) applyProfile(args []string) error {
 	}
 
 	ctx := context.Background()
-	err = cmd.applysvc.ApplyProfile(ctx, &p)
+	err = cmd.profilesvc.ApplyProfile(ctx, &p)
 	if err != nil {
 		return err
 	}

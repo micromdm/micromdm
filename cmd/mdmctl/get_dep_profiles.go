@@ -44,7 +44,7 @@ func (cmd *getCommand) getDEPProfiles(args []string) error {
 	}
 
 	ctx := context.Background()
-	resp, err := cmd.list.GetDEPProfile(ctx, *flUUID)
+	resp, err := cmd.depsvc.FetchProfile(ctx, *flUUID)
 	if err != nil {
 		return err
 	}

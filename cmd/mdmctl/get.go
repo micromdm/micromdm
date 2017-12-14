@@ -13,15 +13,17 @@ import (
 	"crypto/x509"
 
 	"github.com/go-kit/kit/log"
-	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/micromdm/micromdm/core/list"
-	"github.com/micromdm/micromdm/crypto"
 	"github.com/pkg/errors"
+
+	"github.com/micromdm/micromdm/pkg/crypto"
+	"github.com/micromdm/micromdm/platform/blueprint"
+	"github.com/micromdm/micromdm/platform/device"
+	"github.com/micromdm/micromdm/platform/profile"
 )
 
 type getCommand struct {
 	config *ServerConfig
-	list   list.Service
+	*remoteServices
 }
 
 func (cmd *getCommand) setup() error {
@@ -31,11 +33,12 @@ func (cmd *getCommand) setup() error {
 	}
 	cmd.config = cfg
 	logger := log.NewLogfmtLogger(os.Stdout)
-	listsvc, err := list.NewClient(cfg.ServerURL, logger, cfg.APIToken, httptransport.SetClient(skipVerifyHTTPClient(cmd.config.SkipVerify)))
+
+	remote, err := setupClient(logger)
 	if err != nil {
 		return err
 	}
-	cmd.list = listsvc
+	cmd.remoteServices = remote
 	return nil
 }
 
@@ -125,7 +128,7 @@ func (cmd *getCommand) getDevices(args []string) error {
 	out.BasicHeader()
 	defer out.BasicFooter()
 	ctx := context.Background()
-	devices, err := cmd.list.ListDevices(ctx, list.ListDevicesOption{})
+	devices, err := cmd.devicesvc.ListDevices(ctx, device.ListDevicesOption{})
 	if err != nil {
 		return err
 	}
@@ -159,7 +162,7 @@ func (cmd *getCommand) getDepTokens(args []string) error {
 	w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
 	fmt.Fprintf(w, "ConsumerKey\tAccessTokenExpiry\n")
 	ctx := context.Background()
-	tokens, certBytes, err := cmd.list.GetDEPTokens(ctx)
+	tokens, certBytes, err := cmd.configsvc.GetDEPTokens(ctx)
 	if err != nil {
 		return err
 	}
@@ -230,7 +233,7 @@ func (cmd *getCommand) getBlueprints(args []string) error {
 	}
 
 	ctx := context.Background()
-	blueprints, err := cmd.list.GetBlueprints(ctx, list.GetBlueprintsOption{FilterName: *flBlueprintName})
+	blueprints, err := cmd.blueprintsvc.GetBlueprints(ctx, blueprint.GetBlueprintsOption{FilterName: *flBlueprintName})
 	if err != nil {
 		return err
 	}
@@ -303,7 +306,7 @@ func (cmd *getCommand) getProfiles(args []string) error {
 	}
 
 	ctx := context.Background()
-	profiles, err := cmd.list.GetProfiles(ctx, list.GetProfilesOption{Identifier: *flIdentifier})
+	profiles, err := cmd.profilesvc.GetProfiles(ctx, profile.GetProfilesOption{Identifier: *flIdentifier})
 	if err != nil {
 		return err
 	}

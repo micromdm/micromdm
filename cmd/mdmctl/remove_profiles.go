@@ -18,7 +18,7 @@ func (cmd *removeCommand) removeProfiles(args []string) error {
 	}
 
 	ctx := context.Background()
-	err := cmd.remove.RemoveProfiles(ctx, strings.Split(*flIdentifier, ","))
+	err := cmd.profilesvc.RemoveProfiles(ctx, strings.Split(*flIdentifier, ","))
 	if err != nil {
 		return err
 	}

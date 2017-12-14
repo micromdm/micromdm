@@ -16,8 +16,9 @@ import (
 	"strings"
 
 	"github.com/groob/plist"
-	"github.com/micromdm/micromdm/appmanifest"
 	"github.com/pkg/errors"
+
+	"github.com/micromdm/micromdm/mdm/appmanifest"
 )
 
 func (cmd *applyCommand) applyApp(args []string) error {
@@ -105,7 +106,7 @@ Please rebuild the package and re-run the command.
 		if _, err := f.Seek(0, 0); err != nil {
 			return errors.Wrap(err, "reset pkg file reader")
 		}
-		err := cmd.applysvc.UploadApp(context.TODO(), nameMannifest(f.Name()), &buf, filepath.Base(f.Name()), f)
+		err := cmd.appsvc.UploadApp(context.TODO(), nameMannifest(f.Name()), &buf, filepath.Base(f.Name()), f)
 		if err != nil {
 			return err
 		}

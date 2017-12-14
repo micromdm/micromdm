@@ -8,7 +8,7 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/micromdm/micromdm/core/list"
+	"github.com/micromdm/micromdm/platform/appstore"
 )
 
 type appsTableOutput struct{ w *tabwriter.Writer }
@@ -32,7 +32,7 @@ func (cmd *getCommand) getApps(args []string) error {
 		return err
 	}
 	ctx := context.Background()
-	apps, err := cmd.list.ListApplications(ctx, list.ListAppsOption{
+	apps, err := cmd.appsvc.ListApplications(ctx, appstore.ListAppsOption{
 		FilterName: []string{*flNameFilter},
 	})
 	if err != nil {

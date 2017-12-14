@@ -29,7 +29,7 @@ func (cmd *getCommand) getDEPAccount(args []string) error {
 	out.BasicHeader()
 	defer out.BasicFooter()
 	ctx := context.Background()
-	resp, err := cmd.list.GetDEPAccountInfo(ctx)
+	resp, err := cmd.depsvc.GetAccountInfo(ctx)
 	if err != nil {
 		return err
 	}
