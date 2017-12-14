@@ -50,7 +50,7 @@ func (cmd *getCommand) getDEPProfiles(args []string) error {
 	}
 
 	if *flProfilePath == "" {
-		w := tabwriter.NewWriter(os.Stderr, 0, 4, 2, ' ', 0)
+		w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
 		out := &depProfilesTableOutput{w}
 		out.BasicHeader()
 		defer out.BasicFooter()

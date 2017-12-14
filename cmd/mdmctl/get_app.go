@@ -50,7 +50,7 @@ func (cmd *getCommand) getApps(args []string) error {
 	if err != nil {
 		return err
 	}
-	w := tabwriter.NewWriter(os.Stderr, 0, 4, 2, ' ', 0)
+	w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
 	out := appsTableOutput{w}
 	out.BasicHeader()
 	defer out.BasicFooter()

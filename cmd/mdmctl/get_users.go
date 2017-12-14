@@ -28,7 +28,7 @@ func (cmd *getCommand) getUsers(args []string) error {
 		return err
 	}
 
-	w := tabwriter.NewWriter(os.Stderr, 0, 4, 2, ' ', 0)
+	w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
 	out := &usersTableOutput{w}
 	out.BasicHeader()
 	defer out.BasicFooter()
