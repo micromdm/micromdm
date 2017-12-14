@@ -201,7 +201,7 @@ func (cmd *mdmcertCommand) runUpload(args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "load mdmctl client config")
 	}
-	logger := log.NewLogfmtLogger(os.Stderr)
+	logger := log.NewLogfmtLogger(os.Stdout)
 	configsvc, err := config.NewClient(
 		cfg.ServerURL,
 		logger,

@@ -30,7 +30,7 @@ func (cmd *getCommand) setup() error {
 		return err
 	}
 	cmd.config = cfg
-	logger := log.NewLogfmtLogger(os.Stderr)
+	logger := log.NewLogfmtLogger(os.Stdout)
 	listsvc, err := list.NewClient(cfg.ServerURL, logger, cfg.APIToken, httptransport.SetClient(skipVerifyHTTPClient(cmd.config.SkipVerify)))
 	if err != nil {
 		return err
@@ -120,7 +120,7 @@ func (cmd *getCommand) getDevices(args []string) error {
 	if err := flagset.Parse(args); err != nil {
 		return err
 	}
-	w := tabwriter.NewWriter(os.Stderr, 0, 4, 2, ' ', 0)
+	w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
 	out := &devicesTableOutput{w}
 	out.BasicHeader()
 	defer out.BasicFooter()

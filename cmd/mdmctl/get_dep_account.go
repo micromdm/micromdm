@@ -24,7 +24,7 @@ func (cmd *getCommand) getDEPAccount(args []string) error {
 	if err := flagset.Parse(args); err != nil {
 		return err
 	}
-	w := tabwriter.NewWriter(os.Stderr, 0, 4, 2, ' ', 0)
+	w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
 	out := &depaccountTableOutput{w}
 	out.BasicHeader()
 	defer out.BasicFooter()

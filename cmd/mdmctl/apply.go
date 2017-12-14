@@ -30,7 +30,7 @@ func (cmd *applyCommand) setup() error {
 		return err
 	}
 	cmd.config = cfg
-	logger := log.NewLogfmtLogger(os.Stderr)
+	logger := log.NewLogfmtLogger(os.Stdout)
 	applysvc, err := apply.NewClient(cfg.ServerURL, logger, cfg.APIToken, httptransport.SetClient(skipVerifyHTTPClient(cmd.config.SkipVerify)))
 	if err != nil {
 		return err

@@ -22,7 +22,7 @@ func (cmd *removeCommand) setup() error {
 		return err
 	}
 	cmd.config = cfg
-	logger := log.NewLogfmtLogger(os.Stderr)
+	logger := log.NewLogfmtLogger(os.Stdout)
 	rmsvc, err := remove.NewClient(cfg.ServerURL, logger, cfg.APIToken, httptransport.SetClient(skipVerifyHTTPClient(cmd.config.SkipVerify)))
 	if err != nil {
 		return err

@@ -31,7 +31,7 @@ func (cmd *getCommand) getDEPDevices(args []string) error {
 		flagset.Usage()
 		return errors.New("bad input: must provide a comma separated list of DEP serials")
 	}
-	w := tabwriter.NewWriter(os.Stderr, 0, 4, 2, ' ', 0)
+	w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
 	out := &depDevicesTableOutput{w}
 	out.BasicHeader()
 	defer out.BasicFooter()
