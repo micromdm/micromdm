@@ -1,4 +1,4 @@
-package apns
+package builtin
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/mdm/checkin"
+	"github.com/micromdm/micromdm/platform/apns"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
@@ -43,15 +44,15 @@ func (e *notFound) Error() string {
 	return fmt.Sprintf("not found: %s %s", e.ResourceType, e.Message)
 }
 
-func (db *DB) PushInfo(udid string) (*PushInfo, error) {
-	var info PushInfo
+func (db *DB) PushInfo(udid string) (*apns.PushInfo, error) {
+	var info apns.PushInfo
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(PushBucket))
 		v := b.Get([]byte(udid))
 		if v == nil {
 			return &notFound{"PushInfo", fmt.Sprintf("udid %s", udid)}
 		}
-		return UnmarshalPushInfo(v, &info)
+		return apns.UnmarshalPushInfo(v, &info)
 	})
 	if err != nil {
 		return nil, err
@@ -59,7 +60,7 @@ func (db *DB) PushInfo(udid string) (*PushInfo, error) {
 	return &info, nil
 }
 
-func (db *DB) Save(info *PushInfo) error {
+func (db *DB) Save(info *apns.PushInfo) error {
 	tx, err := db.DB.Begin(true)
 	if err != nil {
 		return errors.Wrap(err, "begin transaction")
@@ -68,7 +69,7 @@ func (db *DB) Save(info *PushInfo) error {
 	if bkt == nil {
 		return fmt.Errorf("bucket %q not found!", PushBucket)
 	}
-	pushproto, err := MarshalPushInfo(info)
+	pushproto, err := apns.MarshalPushInfo(info)
 	if err != nil {
 		return errors.Wrap(err, "marshalling PushInfo")
 	}
@@ -94,7 +95,7 @@ func (db *DB) pollCheckin(sub pubsub.Subscriber) error {
 					fmt.Println(err)
 					continue
 				}
-				info := PushInfo{
+				info := apns.PushInfo{
 					UDID:      ev.Command.UDID,
 					Token:     ev.Command.Token.String(),
 					PushMagic: ev.Command.PushMagic,
