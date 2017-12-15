@@ -3,13 +3,10 @@ package apns
 import (
 	"context"
 	"crypto/tls"
-	"encoding/json"
 	"fmt"
 	"log"
-	"strings"
 	"sync"
 
-	"github.com/RobotsAndPencils/buford/payload"
 	"github.com/RobotsAndPencils/buford/push"
 	"github.com/pkg/errors"
 
@@ -18,8 +15,16 @@ import (
 	"github.com/micromdm/micromdm/platform/queue"
 )
 
-type Push struct {
-	db       *DB
+type Service interface {
+	Push(ctx context.Context, udid string) (string, error)
+}
+
+type Store interface {
+	PushInfo(udid string) (*PushInfo, error)
+}
+
+type PushService struct {
+	store    Store
 	start    chan struct{}
 	provider PushCertificateProvider
 
@@ -31,17 +36,17 @@ type PushCertificateProvider interface {
 	PushCertificate() (*tls.Certificate, error)
 }
 
-type Option func(*Push)
+type Option func(*PushService)
 
 func WithPushService(svc *push.Service) Option {
-	return func(p *Push) {
+	return func(p *PushService) {
 		p.pushsvc = svc
 	}
 }
 
-func New(db *DB, provider PushCertificateProvider, sub pubsub.Subscriber, opts ...Option) (*Push, error) {
-	pushSvc := Push{
-		db:       db,
+func New(db Store, provider PushCertificateProvider, sub pubsub.Subscriber, opts ...Option) (*PushService, error) {
+	pushSvc := PushService{
+		store:    db,
 		provider: provider,
 		start:    make(chan struct{}),
 	}
@@ -60,7 +65,7 @@ func New(db *DB, provider PushCertificateProvider, sub pubsub.Subscriber, opts .
 	return &pushSvc, nil
 }
 
-func (svc *Push) startQueuedSubscriber(sub pubsub.Subscriber) error {
+func (svc *PushService) startQueuedSubscriber(sub pubsub.Subscriber) error {
 	commandQueuedEvents, err := sub.Subscribe(context.TODO(), "push-info", queue.CommandQueuedTopic)
 	if err != nil {
 		return errors.Wrapf(err,
@@ -92,7 +97,7 @@ func (svc *Push) startQueuedSubscriber(sub pubsub.Subscriber) error {
 	return nil
 }
 
-func updateClient(svc *Push, sub pubsub.Subscriber) error {
+func updateClient(svc *PushService, sub pubsub.Subscriber) error {
 	configEvents, err := sub.Subscribe(context.TODO(), "push-server-configs", config.ConfigTopic)
 	if err != nil {
 		return errors.Wrap(err, "update push service client")
@@ -129,28 +134,4 @@ func NewPushService(provider PushCertificateProvider) (*push.Service, error) {
 
 	svc := push.NewService(client, push.Production)
 	return svc, nil
-}
-
-func (svc *Push) Push(ctx context.Context, deviceUDID string) (string, error) {
-	info, err := svc.db.PushInfo(deviceUDID)
-	if err != nil {
-		return "", errors.Wrap(err, "retrieving PushInfo by UDID")
-	}
-
-	p := payload.MDM{Token: info.PushMagic}
-	valid := push.IsDeviceTokenValid(info.Token)
-	if !valid {
-		return "", errors.New("invalid push token")
-	}
-	jsonPayload, err := json.Marshal(p)
-	if err != nil {
-		return "", errors.Wrap(err, "marshalling push notification payload")
-	}
-	result, err := svc.pushsvc.Push(info.Token, nil, jsonPayload)
-	if err != nil && strings.HasSuffix(err.Error(), "remote error: tls: internal error") {
-		// TODO: yuck, error substring searching. see:
-		// https://github.com/micromdm/micromdm/issues/150
-		return result, errors.Wrap(err, "push error: possibly expired or invalid APNs certificate")
-	}
-	return result, err
 }
