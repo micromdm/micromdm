@@ -119,6 +119,9 @@ func (out *devicesTableOutput) BasicFooter() {
 
 func (cmd *getCommand) getDevices(args []string) error {
 	flagset := flag.NewFlagSet("devices", flag.ExitOnError)
+	var (
+		flFilterSerial = flagset.String("serial", "", "serial number by which to filter")
+	)
 	flagset.Usage = usageFor(flagset, "mdmctl get devices [flags]")
 	if err := flagset.Parse(args); err != nil {
 		return err
@@ -131,6 +134,15 @@ func (cmd *getCommand) getDevices(args []string) error {
 	devices, err := cmd.devicesvc.ListDevices(ctx, device.ListDevicesOption{})
 	if err != nil {
 		return err
+	}
+	if *flFilterSerial != "" {
+		filter := *flFilterSerial
+		for _, d := range devices {
+			if filter == d.SerialNumber {
+				fmt.Fprintf(out.w, "%s\t%s\t%v\t%s\n", d.UDID, d.SerialNumber, d.EnrollmentStatus, d.LastSeen)
+			}
+		}
+		return nil
 	}
 	for _, d := range devices {
 		fmt.Fprintf(out.w, "%s\t%s\t%v\t%s\n", d.UDID, d.SerialNumber, d.EnrollmentStatus, d.LastSeen)
