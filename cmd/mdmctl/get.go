@@ -100,7 +100,7 @@ Examples:
   # Get a list of devices
   mdmctl get devices
 
-  # Get a device by serial (TODO implement filtering)
+	# Get a single device
   mdmctl get devices -serial=C02ABCDEF
 `
 	fmt.Println(getUsage)
@@ -140,6 +140,8 @@ func (cmd *getCommand) getDevices(args []string) error {
 		for _, d := range devices {
 			if filter == d.SerialNumber {
 				fmt.Fprintf(out.w, "%s\t%s\t%v\t%s\n", d.UDID, d.SerialNumber, d.EnrollmentStatus, d.LastSeen)
+			} else {
+				fmt.Fprintf(nil, "a serial was defined, but could not be found in the list")
 			}
 		}
 		return nil
