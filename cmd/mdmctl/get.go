@@ -100,7 +100,7 @@ Examples:
   # Get a list of devices
   mdmctl get devices
 
-  # Get a device by serial
+  # Get a device by serial (TODO implement filtering)
   mdmctl get devices -serial=C02ABCDEF
 `
 	fmt.Println(getUsage)

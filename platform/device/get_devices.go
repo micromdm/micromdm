@@ -27,7 +27,7 @@ type DeviceDTO struct {
 }
 
 func (svc *DeviceService) ListDevices(ctx context.Context, opt ListDevicesOption) ([]DeviceDTO, error) {
-	devices, err := svc.store.List()
+	devices, err := svc.store.List(opt)
 	var dto []DeviceDTO
 	for _, d := range devices {
 		dto = append(dto, DeviceDTO{

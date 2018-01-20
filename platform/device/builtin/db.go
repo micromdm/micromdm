@@ -26,6 +26,7 @@ const (
 
 type DB struct {
 	*bolt.DB
+	device.Store
 }
 
 func NewDB(db *bolt.DB, pubsubSvc pubsub.PublishSubscriber) (*DB, error) {
@@ -52,8 +53,9 @@ func NewDB(db *bolt.DB, pubsubSvc pubsub.PublishSubscriber) (*DB, error) {
 	return datastore, nil
 }
 
-func (db *DB) List() ([]device.Device, error) {
+func (db *DB) List(opt device.ListDevicesOption) ([]device.Device, error) {
 	// TODO add filter/limit with ForEach
+	fmt.Println(opt.FilterSerial)
 	var devices []device.Device
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(DeviceBucket))
