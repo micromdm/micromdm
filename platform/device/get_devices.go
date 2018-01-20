@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/gorilla/schema"
 
 	"github.com/micromdm/micromdm/pkg/httputil"
 )
@@ -49,7 +50,16 @@ func (r getDevicesResponse) Failed() error { return r.Err }
 
 func decodeListDevicesRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	defer r.Body.Close()
+	err := r.ParseForm()
+	if err != nil {
+		return nil, err
+	}
 	var opts ListDevicesOption
+	decoder := schema.NewDecoder()
+	err = decoder.Decode(&opts, r.Form)
+	if err != nil {
+		return nil, err
+	}
 	req := getDevicesRequest{Opts: opts}
 	return req, nil
 }
