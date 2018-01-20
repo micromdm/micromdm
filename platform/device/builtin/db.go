@@ -3,6 +3,7 @@ package builtin
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/boltdb/bolt"
@@ -62,7 +63,15 @@ func (db *DB) List(opt device.ListDevicesOption) ([]device.Device, error) {
 			if err := device.UnmarshalDevice(v, &dev); err != nil {
 				return err
 			}
-			devices = append(devices, dev)
+			if len(opt.FilterSerial) < 0 {
+				devices = append(devices, dev)
+			} else {
+				for _, fs := range strings.Split(opt.FilterSerial[0], ",") {
+					if fs == dev.SerialNumber {
+						devices = append(devices, dev)
+					}
+				}
+			}
 			return nil
 		})
 		return nil
