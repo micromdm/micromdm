@@ -74,6 +74,6 @@ func isNotFound(err error) bool {
 		NotFound() bool
 	}
 
-	_, ok := err.(notFoundError)
+	_, ok := errors.Cause(err).(notFoundError)
 	return ok
 }
