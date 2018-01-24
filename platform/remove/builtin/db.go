@@ -38,7 +38,7 @@ func (db *DB) DeviceByUDID(udid string) (*remove.Device, error) {
 		}
 		return remove.UnmarshalDevice(v, &dev)
 	})
-	return &dev, err
+	return &dev, errors.Wrap(err, "remove: get device by udid")
 }
 
 func (db *DB) Save(dev *remove.Device) error {
@@ -70,7 +70,7 @@ func (db *DB) Delete(udid string) error {
 		}
 		return b.Delete([]byte(udid))
 	})
-	return err
+	return errors.Wrapf(err, "delete device with udid %s", udid)
 }
 
 type notFound struct {
