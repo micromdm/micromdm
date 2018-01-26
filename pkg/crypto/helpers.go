@@ -12,6 +12,7 @@ import (
 	"math/big"
 	"os"
 	"time"
+	"strings"
 )
 
 func GenerateRandomCertificateSerialNumber() (*big.Int, error) {
@@ -121,7 +122,11 @@ func TopicFromCert(cert *x509.Certificate) (string, error) {
 	var oidASN1UserID = asn1.ObjectIdentifier{0, 9, 2342, 19200300, 100, 1, 1}
 	for _, v := range cert.Subject.Names {
 		if v.Type.Equal(oidASN1UserID) {
-			return v.Value.(string), nil
+			uid, ok := v.Value.(string)
+			if ok && strings.HasPrefix(uid, "com.apple.mgmt") {
+				return uid, nil
+			}
+			return "", errors.New("invalid Push Topic (UserID OID) in certificate. Must start with 'com.apple.mgmt', was: " + uid)
 		}
 	}
 
