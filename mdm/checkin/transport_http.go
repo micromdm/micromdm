@@ -53,6 +53,12 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, response interfa
 // ServerErrorEncoder to encode error responses.
 // According to the MDM Check-in protocol specification, the device only needs
 // a 401 (Unauthorized) response in case of failure.
+// In the case of a UserAuthenticate message we can also respond with 410 to
+// reject user authentication attempts
 func EncodeError(ctx context.Context, err error, w http.ResponseWriter) {
+	if isRejectedUserAuth(err) {
+		w.WriteHeader(http.StatusGone)
+		return
+	}
 	w.WriteHeader(http.StatusUnauthorized)
 }
