@@ -27,14 +27,12 @@ func MakeCheckinEndpoint(svc Service) endpoint.Endpoint {
 		case "CheckOut":
 			err = svc.CheckOut(ctx, req.CheckinCommand)
 		case "UserAuthenticate":
+			// TODO: to support per-user MDM. See #293
 			err = &rejectUserAuth{}
 		default:
 			err = errInvalidMessageType
 		}
-		if err != nil {
-			return checkinResponse{Err: err}, nil
-		}
-		return checkinResponse{}, nil
+		return checkinResponse{Err: err}, nil
 	}
 }
 
@@ -57,8 +55,6 @@ func (e *rejectUserAuth) Error() string {
 func (e *rejectUserAuth) UserAuthReject() bool {
 	return true
 }
-
-func (e *rejectUserAuth) error() error { return e }
 
 func isRejectedUserAuth(err error) bool {
 	type rejectUserAuthError interface {
