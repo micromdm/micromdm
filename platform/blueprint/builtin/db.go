@@ -82,18 +82,17 @@ func (db *DB) Save(bp *blueprint.Blueprint) error {
 		return err
 	}
 	check_bp, err := db.BlueprintByName(bp.Name)
-	if err != nil {
-		if !isNotFound(err) {
-			return err
-		}
-	} else if bp.UUID != check_bp.UUID {
-		return errors.New(fmt.Sprintf("Blueprint not saved: same name %s exists", bp.Name))
+	if err != nil && !isNotFound(err) {
+		return err
+	}
+	if bp.UUID != check_bp.UUID {
+		return fmt.Errorf("Blueprint not saved: same name %s exists", bp.Name)
 	}
 	// verify that each Profile ID represents a profile we know about
 	for _, p := range bp.ProfileIdentifiers {
 		if _, err := db.profDB.ProfileById(p); err != nil {
 			if profile.IsNotFound(err) {
-				return errors.New(fmt.Sprintf("Profile ID %s in Blueprint %s does not exist", p, bp.Name))
+				return fmt.Errorf("Profile ID %s in Blueprint %s does not exist", p, bp.Name)
 			}
 			return errors.Wrap(err, "fetching profile")
 		}
