@@ -3,7 +3,11 @@
 
 [[projects]]
   name = "github.com/RobotsAndPencils/buford"
-  packages = ["payload","payload/badge","push"]
+  packages = [
+    "payload",
+    "payload/badge",
+    "push"
+  ]
   revision = "1589c179b764ddceb204a439d9bf366f04c55f9b"
   version = "v0.12.0"
 
@@ -27,7 +31,13 @@
 
 [[projects]]
   name = "github.com/go-kit/kit"
-  packages = ["endpoint","log","log/level","metrics","transport/http"]
+  packages = [
+    "endpoint",
+    "log",
+    "log/level",
+    "metrics",
+    "transport/http"
+  ]
   revision = "4dc7be5d2d12881735283bcab7352178e190fc71"
   version = "v0.6.0"
 
@@ -70,7 +80,10 @@
 [[projects]]
   branch = "master"
   name = "github.com/groob/finalizer"
-  packages = [".","logutil"]
+  packages = [
+    ".",
+    "logutil"
+  ]
   revision = "4c2ed49aabdaa038f247d72d183e410757cdbe9c"
 
 [[projects]]
@@ -94,18 +107,28 @@
 [[projects]]
   branch = "master"
   name = "github.com/micromdm/go4"
-  packages = ["env","httputil","version"]
+  packages = [
+    "env",
+    "httputil",
+    "version"
+  ]
   revision = "486ea5f130c78a9c058374eb159df08296caea9d"
 
 [[projects]]
   branch = "master"
   name = "github.com/micromdm/mdm"
   packages = ["."]
-  revision = "adf70a87d7cc97f2dacd68033b8633611b57a569"
+  revision = "aab40a0d8858ffa58000166248e28525c82571de"
 
 [[projects]]
   name = "github.com/micromdm/scep"
-  packages = ["depot","depot/bolt","scep","scep/internal/pkcs7","server"]
+  packages = [
+    "depot",
+    "depot/bolt",
+    "scep",
+    "scep/internal/pkcs7",
+    "server"
+  ]
   revision = "a202afd5e358b857c95d048fc47432759db0d9bd"
   version = "v1.0.0"
 
@@ -124,13 +147,25 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
-  packages = ["acme","acme/autocert","pkcs12","pkcs12/internal/rc2"]
+  packages = [
+    "acme",
+    "acme/autocert",
+    "pbkdf2",
+    "pkcs12",
+    "pkcs12/internal/rc2"
+  ]
   revision = "9419663f5a44be8b34ca85f08abc5fe1be11f8a3"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context","http2","http2/hpack","idna","lex/httplex"]
+  packages = [
+    "context",
+    "http2",
+    "http2/hpack",
+    "idna",
+    "lex/httplex"
+  ]
   revision = "a04bdaca5b32abe1c069418fb7088ae607de5bd0"
 
 [[projects]]
@@ -142,18 +177,36 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/text"
-  packages = ["collate","collate/build","internal/colltab","internal/gen","internal/tag","internal/triegen","internal/ucd","language","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
+  packages = [
+    "collate",
+    "collate/build",
+    "internal/colltab",
+    "internal/gen",
+    "internal/tag",
+    "internal/triegen",
+    "internal/ucd",
+    "language",
+    "secure/bidirule",
+    "transform",
+    "unicode/bidi",
+    "unicode/cldr",
+    "unicode/norm",
+    "unicode/rangetable"
+  ]
   revision = "c01e4764d870b77f8abe5096ee19ad20d80e8075"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/tools"
-  packages = ["go/ast/astutil","imports"]
+  packages = [
+    "go/ast/astutil",
+    "imports"
+  ]
   revision = "9bd2f442688b66c5289262d70f537c2ecf81d7de"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "783379f631fb5da2104405d76a8db595f3d54e4ee66d4181e0213303a3d84342"
+  inputs-digest = "a0e142be45fe66d78df2a6361a72d52f1b5bce2f5c1f1fcb2489abca55a0daa5"
   solver-name = "gps-cdcl"
   solver-version = 1
