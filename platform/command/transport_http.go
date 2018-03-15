@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"github.com/pkg/errors"
 
 	httptransport "github.com/go-kit/kit/transport/http"
 )
