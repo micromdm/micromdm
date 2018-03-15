@@ -48,7 +48,7 @@ func EncodeError(ctx context.Context, err error, w http.ResponseWriter) {
 func decodeRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req newCommandRequest
 	err := json.NewDecoder(io.LimitReader(r.Body, 1000000)).Decode(&req)
-	return req, err
+	return req, errors.Wrap(err, "decoding command request")
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
