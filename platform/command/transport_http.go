@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"github.com/pkg/errors"
 
 	httptransport "github.com/go-kit/kit/transport/http"
 )
@@ -47,8 +48,8 @@ func EncodeError(ctx context.Context, err error, w http.ResponseWriter) {
 
 func decodeRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req newCommandRequest
-	err := json.NewDecoder(io.LimitReader(r.Body, 100000)).Decode(&req)
-	return req, err
+	err := json.NewDecoder(io.LimitReader(r.Body, 1000000)).Decode(&req)
+	return req, errors.Wrap(err, "decoding command request")
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {
