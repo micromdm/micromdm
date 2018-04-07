@@ -4,3 +4,7 @@ build/
 
 cmd/mdmctl/mdmdctl
 cmd/micromdm/micromdm
+
+tools/ngrok/config_root
+tools/ngrok/filerepo
+tools/ngrok/env
