@@ -1,0 +1,13 @@
+#!/bin/bash
+
+source $MICROMDM_ENV_PATH
+micromdm_go_path="$(go env GOPATH)/src/github.com/micromdm/micromdm"
+micromdm="$micromdm_go_path/build/$(uname |tr [:upper:] [:lower:])/micromdm"
+config_root="$micromdm_go_path/tools/ngrok/config_root"
+mkdir -p $config_root
+
+$micromdm serve \
+  -api-key $API_TOKEN \
+  -server-url=$SERVER_URL \
+  -config-path $config_root \
+  -tls=false "$@"
