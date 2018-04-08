@@ -2,7 +2,7 @@
 source $MICROMDM_ENV_PATH
 endpoint="v1/commands"
 jq -n \
-  --arg request_type "ProfileList" \
+  --arg request_type "ProvisioningProfileList" \
   --arg udid "$1" \
   '.udid = $udid
   |.request_type = $request_type
