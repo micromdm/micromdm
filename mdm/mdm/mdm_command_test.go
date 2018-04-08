@@ -14,6 +14,10 @@ import (
 
 /*
 Last Verified against PDF: April 7 2018
+Fully tested commands (with a 10.13.4 mac):
+ - ProfileList
+ - InstallProfile
+ - RemoveProfile
 */
 
 func TestMarshalCommand(t *testing.T) {

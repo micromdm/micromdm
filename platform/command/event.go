@@ -1,7 +1,6 @@
 package command
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gogo/protobuf/proto"
@@ -55,10 +54,6 @@ func UnmarshalEvent(data []byte, e *Event) error {
 	if err := mdm.UnmarshalCommandPayload(pb.PayloadBytes, &payload); err != nil {
 		return err
 	}
-	fmt.Println(string(pb.PayloadBytes))
-	fmt.Println("")
-	fmt.Println(payload.Command)
-
 	e.ID = pb.Id
 	e.DeviceUDID = pb.DeviceUdid
 	e.Time = time.Unix(0, pb.Time).UTC()
