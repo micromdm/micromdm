@@ -16,6 +16,12 @@ func commandToProto(cmd *Command) *mdmproto.Command {
 				Payload: cmd.InstallProfile.Payload,
 			},
 		}
+	case "RemoveProfile":
+		cmdproto.Request = &mdmproto.Command_RemoveProfile{
+			RemoveProfile: &mdmproto.RemoveProfile{
+				Identifier: cmd.RemoveProfile.Identifier,
+			},
+		}
 	}
 	return &cmdproto
 }
@@ -28,6 +34,10 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 	case "InstallProfile":
 		cmd.InstallProfile = &InstallProfile{
 			Payload: pb.GetInstallProfile().GetPayload(),
+		}
+	case "RemoveProfile":
+		cmd.RemoveProfile = &RemoveProfile{
+			Identifier: pb.GetRemoveProfile().GetIdentifier(),
 		}
 	}
 	return &cmd
