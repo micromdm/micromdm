@@ -1,3 +1,3 @@
 package mdmproto
 
-//go:generate protoc mdm.proto -I. --go_out=:.
+//go:generate protoc mdm.proto -I. --gofast_out=:.
