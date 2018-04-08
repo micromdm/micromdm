@@ -15,7 +15,10 @@ USER = $(shell whoami)
 GOVERSION = $(shell go version | awk '{print $$3}')
 NOW	= $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
 SHELL = /bin/bash
-DOCKER_IMAGE_NAME = micromdm/micromdm
+
+ifndef ($(DOCKER_IMAGE_NAME))
+	DOCKER_IMAGE_NAME = micromdm/micromdm
+endif
 DOCKER_IMAGE_TAG = $(shell echo ${VERSION} | sed 's/^v//')
 
 ifneq ($(OS), Windows_NT)
