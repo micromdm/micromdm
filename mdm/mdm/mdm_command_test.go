@@ -18,6 +18,12 @@ Fully tested commands (with a 10.13.4 mac):
  - ProfileList
  - InstallProfile
  - RemoveProfile
+ - ProvisioningProfileList
+
+--
+Not tested end to end but checked against pdf:
+  - InstallProvisioningProfile
+  - RemoveProvisioningProfile
 */
 
 func TestMarshalCommand(t *testing.T) {

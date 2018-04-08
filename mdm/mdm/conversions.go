@@ -22,6 +22,18 @@ func commandToProto(cmd *Command) *mdmproto.Command {
 				Identifier: cmd.RemoveProfile.Identifier,
 			},
 		}
+	case "InstallProvisioningProfile":
+		cmdproto.Request = &mdmproto.Command_InstallProvisioningProfile{
+			InstallProvisioningProfile: &mdmproto.InstallProvisioningProfile{
+				ProvisioningProfile: cmd.InstallProvisioningProfile.ProvisioningProfile,
+			},
+		}
+	case "RemoveProvisioningProfile":
+		cmdproto.Request = &mdmproto.Command_RemoveProfisioningProfile{
+			RemoveProfisioningProfile: &mdmproto.RemoveProvisioningProfile{
+				Uuid: cmd.RemoveProvisioningProfile.UUID,
+			},
+		}
 	}
 	return &cmdproto
 }
@@ -38,6 +50,14 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 	case "RemoveProfile":
 		cmd.RemoveProfile = &RemoveProfile{
 			Identifier: pb.GetRemoveProfile().GetIdentifier(),
+		}
+	case "InstallProvisioningProfile":
+		cmd.InstallProvisioningProfile = &InstallProvisioningProfile{
+			ProvisioningProfile: pb.GetInstallProvisioningProfile().GetProvisioningProfile(),
+		}
+	case "RemoveProvisioningProfile":
+		cmd.RemoveProvisioningProfile = &RemoveProvisioningProfile{
+			UUID: pb.GetRemoveProfisioningProfile().GetUuid(),
 		}
 	}
 	return &cmd
