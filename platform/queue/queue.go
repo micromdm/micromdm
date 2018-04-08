@@ -206,7 +206,7 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 				}
 				newPayload, err := plist.Marshal(&ev.Payload)
 				if err != nil {
-					fmt.Println(err)
+					fmt.Println(errors.Wrap(err, "marshal event payload"))
 					continue
 				}
 				newCmd := Command{

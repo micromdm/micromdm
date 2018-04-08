@@ -41,6 +41,7 @@ message Command {
         DeleteUser delete_user = 14;
         EnableLostMode enable_lost_mode = 15;
         InstallApplication install_application = 16;
+        AccountConfiguration account_configuration = 17;
     }
 }
 
@@ -130,6 +131,19 @@ message InstallApplicationConfiguration {
 
 
 message InstallApplicationAttributes {
+}
+
+message AccountConfiguration {
+  bool skip_primary_setup_account_creation = 1;
+  bool skip_primary_setup_account_as_regular_user = 2;
+  repeated AutoSetupAdminAccounts auto_setup_admin_accounts = 3;
+}
+
+message AutoSetupAdminAccounts {
+  string short_name = 1;
+  string full_name = 2;
+  bytes password_hash = 3;
+  bool hidden = 4;
 }
 
 message ResultPayload {

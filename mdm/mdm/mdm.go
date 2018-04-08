@@ -13,6 +13,21 @@ type CommandRequest struct {
 	*Command
 }
 
+func (c *CommandRequest) UnmarshalJSON(data []byte) error {
+	var request = struct {
+		UDID        string `json:"udid"`
+		RequestType string `json:"request_type"`
+	}{}
+	if err := json.Unmarshal(data, &request); err != nil {
+		return errors.Wrap(err, "mdm: unmarshal json command request")
+	}
+	c.UDID = request.UDID
+	c.Command = &Command{
+		RequestType: request.RequestType,
+	}
+	return c.Command.UnmarshalJSON(data)
+}
+
 type CommandPayload struct {
 	CommandUUID string   `json:"command_uuid"`
 	Command     *Command `json:"command"`
@@ -45,18 +60,11 @@ type Command struct {
 	DeleteUser                 *DeleteUser
 	EnableLostMode             *EnableLostMode
 	InstallApplication         *InstallApplication
+	AccountConfiguration       *AccountConfiguration
 }
 
 func (c *Command) UnmarshalJSON(data []byte) error {
-	var requestType = struct {
-		RequestType string `json:"request_type"`
-	}{}
-	if err := json.Unmarshal(data, &requestType); err != nil {
-		return errors.Wrap(err, "mdm: unmarshal json request type")
-	}
-	c.RequestType = requestType.RequestType
-
-	switch requestType.RequestType {
+	switch c.RequestType {
 	case "ProfileList",
 		"ProvisioningProfileList",
 		"CertificateList",
@@ -75,110 +83,117 @@ func (c *Command) UnmarshalJSON(data []byte) error {
 	case "InstallProfile":
 		var payload InstallProfile
 		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", requestType.RequestType)
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.InstallProfile = &payload
 		return nil
 	case "RemoveProfile":
 		var payload RemoveProfile
 		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", requestType.RequestType)
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.RemoveProfile = &payload
 		return nil
 	case "InstallProvisioningProfile":
 		var payload InstallProvisioningProfile
 		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", requestType.RequestType)
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.InstallProvisioningProfile = &payload
 		return nil
 	case "RemoveProvisioningProfile":
 		var payload RemoveProvisioningProfile
 		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", requestType.RequestType)
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.RemoveProvisioningProfile = &payload
 		return nil
 	case "InstalledApplicationList":
 		var payload InstalledApplicationList
 		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", requestType.RequestType)
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.InstalledApplicationList = &payload
 		return nil
 	case "DeviceInformation":
 		var payload DeviceInformation
 		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", requestType.RequestType)
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.DeviceInformation = &payload
 		return nil
 	case "DeviceLock":
 		var payload DeviceLock
 		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", requestType.RequestType)
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.DeviceLock = &payload
 		return nil
 	case "ClearPasscode":
 		var payload ClearPasscode
 		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", requestType.RequestType)
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.ClearPasscode = &payload
 		return nil
 	case "EraseDevice":
 		var payload EraseDevice
 		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", requestType.RequestType)
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.EraseDevice = &payload
 		return nil
 	case "RequestMirroring":
 		var payload RequestMirroring
 		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", requestType.RequestType)
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.RequestMirroring = &payload
 		return nil
 	case "Restrictions":
 		var payload Restrictions
 		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", requestType.RequestType)
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.Restrictions = &payload
 		return nil
 	case "UnlockUserAccount":
 		var payload UnlockUserAccount
 		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", requestType.RequestType)
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.UnlockUserAccount = &payload
 		return nil
 	case "DeleteUser":
 		var payload DeleteUser
 		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", requestType.RequestType)
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.DeleteUser = &payload
 		return nil
 	case "EnableLostMode":
 		var payload EnableLostMode
 		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", requestType.RequestType)
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.EnableLostMode = &payload
 		return nil
 	case "InstallApplication":
 		var payload InstallApplication
 		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", requestType.RequestType)
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.InstallApplication = &payload
 		return nil
+	case "AccountConfiguration":
+		var payload AccountConfiguration
+		if err := json.Unmarshal(data, &payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
+		}
+		c.AccountConfiguration = &payload
+		return nil
 	default:
-		return fmt.Errorf("mdm: unknown RequestType: %s", requestType.RequestType)
+		return fmt.Errorf("mdm: unknown RequestType: %s", c.RequestType)
 	}
 }
 
@@ -474,6 +489,15 @@ func (c *Command) MarshalJSON() ([]byte, error) {
 			InstallApplication: c.InstallApplication,
 		}
 		return json.Marshal(&x)
+	case "AccountConfiguration":
+		var x = struct {
+			RequestType string `json:"request_type"`
+			*AccountConfiguration
+		}{
+			RequestType:          c.RequestType,
+			AccountConfiguration: c.AccountConfiguration,
+		}
+		return json.Marshal(&x)
 	default:
 		return nil, fmt.Errorf("mdm: unknown RequestType: %s", c.RequestType)
 	}
@@ -621,6 +645,14 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 			RequestType:        c.RequestType,
 			InstallApplication: c.InstallApplication,
 		}, nil
+	case "AccountConfiguration":
+		return &struct {
+			RequestType string
+			*AccountConfiguration
+		}{
+			RequestType:          c.RequestType,
+			AccountConfiguration: c.AccountConfiguration,
+		}, nil
 	default:
 		return nil, fmt.Errorf("mdm: unknown command RequestType, %s", c.RequestType)
 	}
@@ -705,3 +737,16 @@ type InstallApplication struct {
 
 type InstallApplicationConfiguration struct{}
 type InstallApplicationOptions struct{}
+
+type AccountConfiguration struct {
+	SkipPrimarySetupAccountCreation     bool           `plist:",omitempty" json:"skip_primary_setup_account_creation,omitempty"`
+	SetPrimarySetupAccountAsRegularUser bool           `plist:",omitempty" json:"skip_primary_setup_account_as_regular_user,omitempty"`
+	AutoSetupAdminAccounts              []AdminAccount `plist:",omitempty" json:"auto_setup_admin_accounts,omitempty"`
+}
+
+type AdminAccount struct {
+	ShortName    string `plist:"shortName" json:"short_name"`
+	FullName     string `plist:"fullName,omitempty" json:"full_name,omitempty"`
+	PasswordHash []byte `plist:"passwordHash" json:"password_hash"`
+	Hidden       bool   `plist:"hidden,omitempty" json:"hidden,omitempty"`
+}
