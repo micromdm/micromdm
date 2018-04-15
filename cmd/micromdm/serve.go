@@ -118,6 +118,9 @@ func serve(args []string) error {
 	if *flServerURL == "" {
 		return errors.New("must supply -server-url")
 	}
+	if *flAPIKey == "" {
+		return errors.New("must supply -api-key")
+	}
 	if !strings.HasPrefix(*flServerURL, "https://") {
 		return errors.New("-server-url must begin with https://")
 	}
