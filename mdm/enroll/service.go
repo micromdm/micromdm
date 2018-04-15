@@ -15,21 +15,23 @@ import (
 	"github.com/micromdm/micromdm/platform/config"
 	"github.com/micromdm/micromdm/platform/profile"
 	"github.com/micromdm/micromdm/platform/pubsub"
+	"encoding/json"
 )
 
 const (
 	EnrollmentProfileId string = "com.github.micromdm.micromdm.enroll"
 	OTAProfileId        string = "com.github.micromdm.micromdm.ota"
+	EnrollTopic         string = "mdm.Enroll"
 )
 
 type Service interface {
 	Enroll(ctx context.Context) (profile.Mobileconfig, error)
-	OTAEnroll(ctx context.Context) (profile.Mobileconfig, error)
-	OTAPhase2(ctx context.Context) (profile.Mobileconfig, error)
+	OTAEnroll(ctx context.Context, challenge string) (profile.Mobileconfig, error)
+	OTAPhase2(ctx context.Context, challenge string, udid string) (profile.Mobileconfig, error)
 	OTAPhase3(ctx context.Context) (profile.Mobileconfig, error)
 }
 
-func NewService(topic TopicProvider, sub pubsub.Subscriber, caCertPath, scepURL, scepChallenge, url, tlsCertPath, scepSubject string, profileDB profile.Store) (Service, error) {
+func NewService(topic TopicProvider, pubsub pubsub.PublishSubscriber, caCertPath, scepURL, scepChallenge, url, tlsCertPath, scepSubject string, profileDB profile.Store) (Service, error) {
 	var caCert, tlsCert []byte
 	var err error
 
@@ -77,9 +79,10 @@ func NewService(topic TopicProvider, sub pubsub.Subscriber, caCertPath, scepURL,
 		ProfileDB:     profileDB,
 		Topic:         pushTopic,
 		topicProvier:  topic,
+		pubsub:        pubsub,
 	}
 
-	if err := updateTopic(svc, sub); err != nil {
+	if err := updateTopic(svc, pubsub); err != nil {
 		return nil, errors.Wrap(err, "enroll: start topic update goroutine")
 	}
 
@@ -123,6 +126,7 @@ type service struct {
 	ProfileDB     profile.Store
 
 	topicProvier TopicProvider
+	pubsub       pubsub.PublishSubscriber
 
 	mu    sync.RWMutex
 	Topic string // APNS Topic for MDM notifications
@@ -259,11 +263,16 @@ func (svc *service) MakeEnrollmentProfile() (Profile, error) {
 }
 
 // OTAEnroll returns an Over-the-Air "Profile Service" Payload for enrollment.
-func (svc *service) OTAEnroll(ctx context.Context) (profile.Mobileconfig, error) {
-	return svc.findOrMakeMobileconfig(OTAProfileId, svc.MakeOTAEnrollPayload)
+func (svc *service) OTAEnroll(ctx context.Context, challenge string) (profile.Mobileconfig, error) {
+
+	profile, err := svc.MakeOTAEnrollPayload(challenge)
+	if err != nil {
+		return nil, err
+	}
+	return profileOrPayloadToMobileconfig(profile)
 }
 
-func (svc *service) MakeOTAEnrollPayload() (Payload, error) {
+func (svc *service) MakeOTAEnrollPayload(challenge string) (Payload, error) {
 	payload := NewPayload("Profile Service")
 	payload.PayloadIdentifier = OTAProfileId
 	payload.PayloadDisplayName = "MicroMDM Profile Service"
@@ -271,7 +280,7 @@ func (svc *service) MakeOTAEnrollPayload() (Payload, error) {
 	payload.PayloadOrganization = "MicroMDM"
 	payload.PayloadContent = ProfileServicePayload{
 		URL:              svc.URL + "/ota/phase23",
-		Challenge:        "",
+		Challenge:        challenge,
 		DeviceAttributes: []string{"UDID", "VERSION", "PRODUCT", "SERIAL", "MEID", "IMEI"},
 	}
 
@@ -280,7 +289,12 @@ func (svc *service) MakeOTAEnrollPayload() (Payload, error) {
 }
 
 // OTAPhase2 returns a SCEP Profile for use in phase 2 of Over-the-Air enrollment.
-func (svc *service) OTAPhase2(ctx context.Context) (profile.Mobileconfig, error) {
+func (svc *service) OTAPhase2(ctx context.Context, challenge string, udid string) (profile.Mobileconfig, error) {
+	messageData := map[string]string{"event": "ota_phase1", "udid": udid, "challenge": challenge}
+	messageJson, _ := json.Marshal(messageData)
+	if err := svc.pubsub.Publish(context.TODO(), "mdm.Enroll", messageJson); err != nil {
+		return nil, err
+	}
 	return svc.findOrMakeMobileconfig(OTAProfileId+".phase2", svc.MakeOTAPhase2Profile)
 }
 

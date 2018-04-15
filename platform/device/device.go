@@ -10,6 +10,8 @@ import (
 )
 
 const DeviceEnrolledTopic = "mdm.DeviceEnrolled"
+const DeviceDisenrolledTopic = "mdm.DeviceDisenrolled"
+
 
 type Device struct {
 	UUID                   string

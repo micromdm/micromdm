@@ -347,6 +347,10 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 					fmt.Println(err)
 					continue
 				}
+				fmt.Printf("device %s checked out\n", ev.Command.UDID)
+				if err := pubsubSvc.Publish(context.TODO(), device.DeviceDisenrolledTopic, event.Message); err != nil {
+					fmt.Println(err)
+				}
 			}
 		}
 	}()
