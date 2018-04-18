@@ -19,6 +19,7 @@ Fully tested commands (with a 10.13.4 mac):
  - InstallProfile
  - RemoveProfile
  - ProvisioningProfileList
+ - CertificateList
 
 --
 Not tested end to end but checked against pdf:
