@@ -47,6 +47,7 @@ func (svc *Checkin) Authenticate(ctx context.Context, cmd mdm.CheckinCommand) er
 	if cmd.MessageType != "Authenticate" {
 		return fmt.Errorf("expected Authenticate, got %s MessageType", cmd.MessageType)
 	}
+	fmt.Println(cmd)
 	return svc.archiveAndPublish(AuthenticateTopic, cmd)
 }
 
@@ -54,6 +55,7 @@ func (svc *Checkin) TokenUpdate(ctx context.Context, cmd mdm.CheckinCommand) err
 	if cmd.MessageType != "TokenUpdate" {
 		return fmt.Errorf("expected TokenUpdate, got %s MessageType", cmd.MessageType)
 	}
+	fmt.Println(cmd)
 	return svc.archiveAndPublish(TokenUpdateTopic, cmd)
 }
 
@@ -61,6 +63,7 @@ func (svc *Checkin) CheckOut(ctx context.Context, cmd mdm.CheckinCommand) error 
 	if cmd.MessageType != "CheckOut" {
 		return fmt.Errorf("expected CheckOut, but got %s MessageType", cmd.MessageType)
 	}
+	fmt.Println(cmd)
 	return svc.archiveAndPublish(CheckoutTopic, cmd)
 }
 
@@ -86,6 +89,7 @@ func (svc *Checkin) archive(nano int64, msg []byte) error {
 func (svc *Checkin) archiveAndPublish(topic string, cmd mdm.CheckinCommand) error {
 	event := NewEvent(cmd)
 	msg, err := MarshalEvent(event)
+
 	if err != nil {
 		return errors.Wrap(err, "marshal checkin event")
 	}

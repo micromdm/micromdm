@@ -46,8 +46,11 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 	return h
 }
 
-func decodeEmptyRequest(_ context.Context, _ *http.Request) (interface{}, error) {
-	return nil, nil
+func decodeEmptyRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	challenge := r.URL.Query().Get("challenge")
+	request := otaInitialRequest{challenge: challenge}
+
+	return request, nil
 }
 
 func decodeMDMEnrollRequest(_ context.Context, r *http.Request) (interface{}, error) {

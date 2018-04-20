@@ -43,6 +43,10 @@ type otaEnrollmentRequest struct {
 	UserShortName string
 }
 
+type otaInitialRequest struct{
+	challenge string
+}
+
 type mdmEnrollRequest struct{}
 
 type mobileconfigResponse struct {
@@ -81,7 +85,7 @@ func MakeGetEnrollEndpoint(s Service) endpoint.Endpoint {
 
 func MakeOTAEnrollEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		mc, err := s.OTAEnroll(ctx)
+		mc, err := s.OTAEnroll(ctx, request.(otaInitialRequest).challenge)
 		return mobileconfigResponse{mc, err}, nil
 	}
 }
@@ -103,7 +107,7 @@ func MakeOTAPhase2Phase3Endpoint(s Service, scepDepot *boltdepot.Depot) endpoint
 			// signing certificate is signed by the Apple Device CA. this means
 			// we don't yet have a SCEP identity and thus are in Phase 2 of the
 			// OTA enrollment
-			mc, err := s.OTAPhase2(ctx)
+			mc, err := s.OTAPhase2(ctx, req.otaEnrollmentRequest.Challenge, req.otaEnrollmentRequest.UDID)
 			return mobileconfigResponse{mc, err}, nil
 		}
 
