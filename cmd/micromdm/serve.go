@@ -339,6 +339,8 @@ func serve(args []string) error {
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, depHandlers))
 		r.Handle("/v1/commands", apiAuthMiddleware(*flAPIKey, commandHandlers.NewCommandHandler)).Methods("POST")
 		r.Handle("/push/{udid}", apiAuthMiddleware(*flAPIKey, apnsHandlers))
+	} else {
+		mainLogger.Log("msg", "no api key specified")
 	}
 
 	if *flRepoPath != "" {
