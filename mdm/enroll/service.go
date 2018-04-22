@@ -23,7 +23,7 @@ const (
 )
 
 type Service interface {
-	Enroll(ctx context.Context) (profile.Mobileconfig, error)
+	Enroll(ctx context.Context, id string) (profile.Mobileconfig, error)
 	OTAEnroll(ctx context.Context) (profile.Mobileconfig, error)
 	OTAPhase2(ctx context.Context) (profile.Mobileconfig, error)
 	OTAPhase3(ctx context.Context) (profile.Mobileconfig, error)
@@ -167,13 +167,21 @@ func (svc *service) findOrMakeMobileconfig(id string, f interface{}) (profile.Mo
 	return p.Mobileconfig, nil
 }
 
-func (svc *service) Enroll(ctx context.Context) (profile.Mobileconfig, error) {
-	return svc.findOrMakeMobileconfig(EnrollmentProfileId, svc.MakeEnrollmentProfile)
+func (svc *service) Enroll(ctx context.Context, id string) (profile.Mobileconfig, error) {
+	if id == "" {
+		return svc.findOrMakeMobileconfig(EnrollmentProfileId, svc.MakeEnrollmentProfile)
+	}
+
+	profile, err := svc.MakeEnrollmentProfile(id)
+	if err != nil {
+		return nil, err
+	}
+	return profileOrPayloadToMobileconfig(profile)
 }
 
 const perUserConnections = "com.apple.mdm.per-user-connections"
 
-func (svc *service) MakeEnrollmentProfile() (Profile, error) {
+func (svc *service) MakeEnrollmentProfile(id string) (Profile, error) {
 	profile := NewProfile()
 	profile.PayloadIdentifier = EnrollmentProfileId
 	profile.PayloadOrganization = "MicroMDM"
@@ -191,10 +199,15 @@ func (svc *service) MakeEnrollmentProfile() (Profile, error) {
 	topic := svc.Topic
 	svc.mu.Unlock()
 
+	checkinUrlPostfix := ""
+	if id != "" {
+		checkinUrlPostfix = "?id=" + id
+	}
+
 	mdmPayloadContent := MDMPayloadContent{
 		Payload:             *mdmPayload,
 		AccessRights:        allRights(),
-		CheckInURL:          svc.URL + "/mdm/checkin",
+		CheckInURL:          svc.URL + "/mdm/checkin" + checkinUrlPostfix,
 		CheckOutWhenRemoved: true,
 		ServerURL:           svc.URL + "/mdm/connect",
 		Topic:               topic,

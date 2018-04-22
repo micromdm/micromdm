@@ -104,6 +104,7 @@ func serve(args []string) error {
 		flDepSim            = flagset.String("depsim", "", "use depsim URL")
 		flExamples          = flagset.Bool("examples", false, "prints some example usage")
 		flCommandWebhookURL = flagset.String("command-webhook-url", "", "URL to send command responses as raw plists.")
+		flCheckinWebhookURL = flagset.String("checkin-webhook-url", "", "URL to send id and UDID during checkin.")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -139,6 +140,7 @@ func serve(args []string) error {
 		depsim:              *flDepSim,
 		tlsCertPath:         *flTLSCert,
 		CommandWebhookURL:   *flCommandWebhookURL,
+		CheckinWebhookURL:   *flCheckinWebhookURL,
 
 		webhooksHTTPClient: &http.Client{Timeout: time.Second * 30},
 
@@ -158,7 +160,8 @@ func serve(args []string) error {
 	sm.setupCheckinService()
 	sm.setupPushService(logger)
 	sm.setupCommandService()
-	sm.setupWebhooks()
+	sm.setupCommandWebhook()
+	sm.setupCheckinWebhook()
 	sm.setupCommandQueue(logger)
 	sm.setupDepClient()
 	sm.setupDEPSync()
@@ -439,6 +442,7 @@ type server struct {
 	configDB            config.Store
 	removeDB            block.Store
 	CommandWebhookURL   string
+	CheckinWebhookURL   string
 	depClient           dep.Client
 
 	// TODO: refactor enroll service and remove the need to reference
@@ -456,6 +460,7 @@ type server struct {
 	configService  config.Service
 
 	responseWebhook    *webhook.CommandWebhook
+	checkinWebhook     *webhook.JSONWebhook
 	webhooksHTTPClient *http.Client
 
 	err error
@@ -475,7 +480,7 @@ func (c *server) setupCommandService() {
 	c.commandService, c.err = command.New(c.db, c.pubclient)
 }
 
-func (c *server) setupWebhooks() {
+func (c *server) setupCommandWebhook() {
 	if c.err != nil {
 		return
 	}
@@ -493,6 +498,24 @@ func (c *server) setupWebhooks() {
 	c.responseWebhook = h
 }
 
+func (c *server) setupCheckinWebhook() {
+	if c.err != nil {
+		return
+	}
+
+	if c.CheckinWebhookURL == "" {
+		return
+	}
+
+	h, err := webhook.NewJSONWebhook(c.webhooksHTTPClient, checkin.UdidIdMatchTopic, c.CheckinWebhookURL)
+	if err != nil {
+		c.err = err
+		return
+	}
+
+	c.checkinWebhook = h
+}
+
 func (c *server) startWebhooks() {
 	if c.err != nil {
 		return
@@ -500,6 +523,10 @@ func (c *server) startWebhooks() {
 
 	if c.responseWebhook != nil {
 		c.responseWebhook.StartListener(c.pubclient)
+	}
+
+	if c.checkinWebhook != nil {
+		c.checkinWebhook.StartListener(c.pubclient)
 	}
 }
 

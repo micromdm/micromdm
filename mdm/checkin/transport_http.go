@@ -32,6 +32,8 @@ type errorer interface {
 
 func decodeRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req checkinRequest
+	req.id = r.URL.Query().Get("id")
+
 	err := plist.NewDecoder(io.LimitReader(r.Body, 10000)).Decode(&req)
 	return req, err
 }
