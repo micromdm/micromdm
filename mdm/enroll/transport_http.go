@@ -53,7 +53,8 @@ func decodeEmptyRequest(_ context.Context, _ *http.Request) (interface{}, error)
 func decodeMDMEnrollRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	switch r.Method {
 	case "GET":
-		return mdmEnrollRequest{}, nil
+		id := r.URL.Query().Get("id")
+		return mdmEnrollRequest{id: id}, nil
 	case "POST": // DEP request
 		data, err := ioutil.ReadAll(r.Body)
 		if err != nil {

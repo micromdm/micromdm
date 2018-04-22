@@ -21,11 +21,11 @@ func MakeCheckinEndpoint(svc Service) endpoint.Endpoint {
 		var err error
 		switch req.MessageType {
 		case "Authenticate":
-			err = svc.Authenticate(ctx, req.CheckinCommand)
+			err = svc.Authenticate(ctx, req.CheckinCommand, req.id)
 		case "TokenUpdate":
-			err = svc.TokenUpdate(ctx, req.CheckinCommand)
+			err = svc.TokenUpdate(ctx, req.CheckinCommand, req.id)
 		case "CheckOut":
-			err = svc.CheckOut(ctx, req.CheckinCommand)
+			err = svc.CheckOut(ctx, req.CheckinCommand, req.id)
 		default:
 			return checkinResponse{Err: errInvalidMessageType}, nil
 		}
@@ -38,6 +38,7 @@ func MakeCheckinEndpoint(svc Service) endpoint.Endpoint {
 
 type checkinRequest struct {
 	mdm.CheckinCommand
+	id string
 }
 
 type checkinResponse struct {

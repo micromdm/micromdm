@@ -140,7 +140,7 @@ func TestService_Authenticate(t *testing.T) {
 			mock.PublishFn = tt.publisher
 			mock.Invoked = false
 			svc.archiveFn = tt.archiveFn
-			err := svc.Authenticate(context.Background(), tt.request)
+			err := svc.Authenticate(context.Background(), tt.request, "")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("%q. Authenticate error = %v, wantErr %v",
 					tt.name, err, tt.wantErr)
@@ -208,7 +208,7 @@ func TestService_TokenUpdate(t *testing.T) {
 			mock.PublishFn = tt.publisher
 			mock.Invoked = false
 			svc.archiveFn = tt.archiveFn
-			err := svc.TokenUpdate(context.Background(), tt.request)
+			err := svc.TokenUpdate(context.Background(), tt.request, "")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("%q. TokenUpdate error = %v, wantErr %v",
 					tt.name, err, tt.wantErr)
@@ -276,7 +276,7 @@ func TestService_CheckOut(t *testing.T) {
 			mock.PublishFn = tt.publisher
 			mock.Invoked = false
 			svc.archiveFn = tt.archiveFn
-			err := svc.CheckOut(context.Background(), tt.request)
+			err := svc.CheckOut(context.Background(), tt.request, "")
 			if (err != nil) != tt.wantErr {
 				t.Errorf("%q. CheckOut error = %v, wantErr %v",
 					tt.name, err, tt.wantErr)

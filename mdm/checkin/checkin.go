@@ -9,6 +9,7 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/micromdm/micromdm/platform/pubsub"
+	"encoding/json"
 )
 
 // CheckinBucket is the *bolt.DB bucket where checkins are archived.
@@ -19,6 +20,7 @@ const (
 	AuthenticateTopic = "mdm.Authenticate"
 	TokenUpdateTopic  = "mdm.TokenUpdate"
 	CheckoutTopic     = "mdm.CheckOut"
+	UdidIdMatchTopic  = "mdm.UdidIdMatch"
 )
 
 type Checkin struct {
@@ -43,25 +45,25 @@ func New(db *bolt.DB, pub pubsub.Publisher) (*Checkin, error) {
 	return &svc, nil
 }
 
-func (svc *Checkin) Authenticate(ctx context.Context, cmd mdm.CheckinCommand) error {
+func (svc *Checkin) Authenticate(ctx context.Context, cmd mdm.CheckinCommand, id string) error {
 	if cmd.MessageType != "Authenticate" {
 		return fmt.Errorf("expected Authenticate, got %s MessageType", cmd.MessageType)
 	}
-	return svc.archiveAndPublish(AuthenticateTopic, cmd)
+	return svc.archiveAndPublish(AuthenticateTopic, cmd, id)
 }
 
-func (svc *Checkin) TokenUpdate(ctx context.Context, cmd mdm.CheckinCommand) error {
+func (svc *Checkin) TokenUpdate(ctx context.Context, cmd mdm.CheckinCommand, id string) error {
 	if cmd.MessageType != "TokenUpdate" {
 		return fmt.Errorf("expected TokenUpdate, got %s MessageType", cmd.MessageType)
 	}
-	return svc.archiveAndPublish(TokenUpdateTopic, cmd)
+	return svc.archiveAndPublish(TokenUpdateTopic, cmd, id)
 }
 
-func (svc *Checkin) CheckOut(ctx context.Context, cmd mdm.CheckinCommand) error {
+func (svc *Checkin) CheckOut(ctx context.Context, cmd mdm.CheckinCommand, id string) error {
 	if cmd.MessageType != "CheckOut" {
 		return fmt.Errorf("expected CheckOut, but got %s MessageType", cmd.MessageType)
 	}
-	return svc.archiveAndPublish(CheckoutTopic, cmd)
+	return svc.archiveAndPublish(CheckoutTopic, cmd, id)
 }
 
 // archive events to BoltDB bucket using timestamp as key to preserve order.
@@ -83,7 +85,7 @@ func (svc *Checkin) archive(nano int64, msg []byte) error {
 	return tx.Commit()
 }
 
-func (svc *Checkin) archiveAndPublish(topic string, cmd mdm.CheckinCommand) error {
+func (svc *Checkin) archiveAndPublish(topic string, cmd mdm.CheckinCommand, id string) error {
 	event := NewEvent(cmd)
 	msg, err := MarshalEvent(event)
 	if err != nil {
@@ -95,5 +97,15 @@ func (svc *Checkin) archiveAndPublish(topic string, cmd mdm.CheckinCommand) erro
 	if err := svc.publisher.Publish(context.TODO(), topic, msg); err != nil {
 		return errors.Wrapf(err, "publish checkin on topic: %s", topic)
 	}
+
+	if id != "" {
+		messageData := map[string]string{"event": cmd.MessageType, "udid": cmd.UDID, "id": id}
+		messageJson, _ := json.Marshal(messageData)
+
+		if err := svc.publisher.Publish(context.TODO(), UdidIdMatchTopic, messageJson); err != nil {
+			return errors.Wrapf(err, "publish id and udid on topic: %s", UdidIdMatchTopic)
+		}
+	}
+
 	return nil
 }
