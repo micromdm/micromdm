@@ -28,8 +28,44 @@
 		InstallApplicationOptions
 		InstallApplicationConfiguration
 		InstallApplicationAttributes
+		ApplyRedemptionCode
+		ManagedApplicationList
+		RemoveApplication
+		InviteToProgram
+		ValidateApplications
 		AccountConfiguration
 		AutoSetupAdminAccounts
+		InstallMedia
+		RemoveMedia
+		Settings
+		Setting
+		VoiceRoamingSetting
+		PersonalHotspotSetting
+		WallpaperSetting
+		DataRoamingSetting
+		BluetoothSetting
+		ApplicationAttributesSetting
+		ApplicationAttributes
+		DeviceNameSetting
+		HostnameSetting
+		MDMOptionsSetting
+		MDMOptions
+		PasscodeLockGracePeriodSetting
+		MaximumResidentUsersSetting
+		DiagnosticSubmissionSetting
+		AppAnalyticsSetting
+		ManagedApplicationConfiguration
+		ManagedApplicationAttributes
+		ManagedApplicationFeedback
+		SetFirmwarePassword
+		VerifyFirmwarePassword
+		SetAutoAdminPassword
+		ScheduleOSUpdate
+		Update
+		ScheduleOSUpdateScan
+		ActiveNSExtensions
+		RotateFileVaultKey
+		FileVaultUnlock
 		ResultPayload
 		ErrorChain
 */
@@ -80,7 +116,7 @@ var ResultPayload_Status_value = map[string]int32{
 func (x ResultPayload_Status) String() string {
 	return proto.EnumName(ResultPayload_Status_name, int32(x))
 }
-func (ResultPayload_Status) EnumDescriptor() ([]byte, []int) { return fileDescriptorMdm, []int{22, 0} }
+func (ResultPayload_Status) EnumDescriptor() ([]byte, []int) { return fileDescriptorMdm, []int{58, 0} }
 
 type CommandPayload struct {
 	CommandUuid string   `protobuf:"bytes,1,opt,name=command_uuid,json=commandUuid,proto3" json:"command_uuid,omitempty"`
@@ -123,6 +159,10 @@ type Command struct {
 	// - PlayLostModeSound
 	// - DisableLostMode
 	// - DeviceLocation
+	// - ManagedMediaList
+	// - DeviceConfigured
+	// - AvailableOSUpdates
+	// - NSExtensionMappings
 	//
 	// Types that are valid to be assigned to Request:
 	//	*Command_InstallProfile
@@ -141,6 +181,24 @@ type Command struct {
 	//	*Command_EnableLostMode
 	//	*Command_InstallApplication
 	//	*Command_AccountConfiguration
+	//	*Command_ApplyRedemptionCode
+	//	*Command_ManagedApplicationList
+	//	*Command_RemoveApplication
+	//	*Command_InviteToProgram
+	//	*Command_ValidataApplications
+	//	*Command_InstallMedia
+	//	*Command_RemoveMedia
+	//	*Command_Settings
+	//	*Command_ManagedApplicationConfiguration
+	//	*Command_ManagedApplicationAttributes
+	//	*Command_ManagedApplicationFeedback
+	//	*Command_SetFirmwarePassword
+	//	*Command_VerifyFirmwarePassword
+	//	*Command_SetAutoAdminPassword
+	//	*Command_ScheduleOsUpdate
+	//	*Command_ScheduleOsUpdateScan
+	//	*Command_ActiveNsExtensions
+	//	*Command_RotateFilevaultKey
 	Request isCommand_Request `protobuf_oneof:"request"`
 }
 
@@ -203,23 +261,95 @@ type Command_InstallApplication struct {
 type Command_AccountConfiguration struct {
 	AccountConfiguration *AccountConfiguration `protobuf:"bytes,17,opt,name=account_configuration,json=accountConfiguration,oneof"`
 }
+type Command_ApplyRedemptionCode struct {
+	ApplyRedemptionCode *ApplyRedemptionCode `protobuf:"bytes,18,opt,name=apply_redemption_code,json=applyRedemptionCode,oneof"`
+}
+type Command_ManagedApplicationList struct {
+	ManagedApplicationList *ManagedApplicationList `protobuf:"bytes,19,opt,name=managed_application_list,json=managedApplicationList,oneof"`
+}
+type Command_RemoveApplication struct {
+	RemoveApplication *RemoveApplication `protobuf:"bytes,20,opt,name=remove_application,json=removeApplication,oneof"`
+}
+type Command_InviteToProgram struct {
+	InviteToProgram *InviteToProgram `protobuf:"bytes,21,opt,name=invite_to_program,json=inviteToProgram,oneof"`
+}
+type Command_ValidataApplications struct {
+	ValidataApplications *ValidateApplications `protobuf:"bytes,22,opt,name=validata_applications,json=validataApplications,oneof"`
+}
+type Command_InstallMedia struct {
+	InstallMedia *InstallMedia `protobuf:"bytes,23,opt,name=install_media,json=installMedia,oneof"`
+}
+type Command_RemoveMedia struct {
+	RemoveMedia *RemoveMedia `protobuf:"bytes,24,opt,name=remove_media,json=removeMedia,oneof"`
+}
+type Command_Settings struct {
+	Settings *Settings `protobuf:"bytes,25,opt,name=settings,oneof"`
+}
+type Command_ManagedApplicationConfiguration struct {
+	ManagedApplicationConfiguration *ManagedApplicationConfiguration `protobuf:"bytes,26,opt,name=managed_application_configuration,json=managedApplicationConfiguration,oneof"`
+}
+type Command_ManagedApplicationAttributes struct {
+	ManagedApplicationAttributes *ManagedApplicationAttributes `protobuf:"bytes,27,opt,name=managed_application_attributes,json=managedApplicationAttributes,oneof"`
+}
+type Command_ManagedApplicationFeedback struct {
+	ManagedApplicationFeedback *ManagedApplicationFeedback `protobuf:"bytes,28,opt,name=managed_application_feedback,json=managedApplicationFeedback,oneof"`
+}
+type Command_SetFirmwarePassword struct {
+	SetFirmwarePassword *SetFirmwarePassword `protobuf:"bytes,29,opt,name=set_firmware_password,json=setFirmwarePassword,oneof"`
+}
+type Command_VerifyFirmwarePassword struct {
+	VerifyFirmwarePassword *VerifyFirmwarePassword `protobuf:"bytes,30,opt,name=verify_firmware_password,json=verifyFirmwarePassword,oneof"`
+}
+type Command_SetAutoAdminPassword struct {
+	SetAutoAdminPassword *SetAutoAdminPassword `protobuf:"bytes,31,opt,name=set_auto_admin_password,json=setAutoAdminPassword,oneof"`
+}
+type Command_ScheduleOsUpdate struct {
+	ScheduleOsUpdate *ScheduleOSUpdate `protobuf:"bytes,32,opt,name=schedule_os_update,json=scheduleOsUpdate,oneof"`
+}
+type Command_ScheduleOsUpdateScan struct {
+	ScheduleOsUpdateScan *ScheduleOSUpdateScan `protobuf:"bytes,33,opt,name=schedule_os_update_scan,json=scheduleOsUpdateScan,oneof"`
+}
+type Command_ActiveNsExtensions struct {
+	ActiveNsExtensions *ActiveNSExtensions `protobuf:"bytes,34,opt,name=active_ns_extensions,json=activeNsExtensions,oneof"`
+}
+type Command_RotateFilevaultKey struct {
+	RotateFilevaultKey *RotateFileVaultKey `protobuf:"bytes,35,opt,name=rotate_filevault_key,json=rotateFilevaultKey,oneof"`
+}
 
-func (*Command_InstallProfile) isCommand_Request()             {}
-func (*Command_RemoveProfile) isCommand_Request()              {}
-func (*Command_InstallProvisioningProfile) isCommand_Request() {}
-func (*Command_RemoveProfisioningProfile) isCommand_Request()  {}
-func (*Command_InstalledApplicationList) isCommand_Request()   {}
-func (*Command_DeviceInformation) isCommand_Request()          {}
-func (*Command_DeviceLock) isCommand_Request()                 {}
-func (*Command_ClearPasscode) isCommand_Request()              {}
-func (*Command_EraseDevice) isCommand_Request()                {}
-func (*Command_RequestMirroring) isCommand_Request()           {}
-func (*Command_Restrictions) isCommand_Request()               {}
-func (*Command_UnlockUserAccount) isCommand_Request()          {}
-func (*Command_DeleteUser) isCommand_Request()                 {}
-func (*Command_EnableLostMode) isCommand_Request()             {}
-func (*Command_InstallApplication) isCommand_Request()         {}
-func (*Command_AccountConfiguration) isCommand_Request()       {}
+func (*Command_InstallProfile) isCommand_Request()                  {}
+func (*Command_RemoveProfile) isCommand_Request()                   {}
+func (*Command_InstallProvisioningProfile) isCommand_Request()      {}
+func (*Command_RemoveProfisioningProfile) isCommand_Request()       {}
+func (*Command_InstalledApplicationList) isCommand_Request()        {}
+func (*Command_DeviceInformation) isCommand_Request()               {}
+func (*Command_DeviceLock) isCommand_Request()                      {}
+func (*Command_ClearPasscode) isCommand_Request()                   {}
+func (*Command_EraseDevice) isCommand_Request()                     {}
+func (*Command_RequestMirroring) isCommand_Request()                {}
+func (*Command_Restrictions) isCommand_Request()                    {}
+func (*Command_UnlockUserAccount) isCommand_Request()               {}
+func (*Command_DeleteUser) isCommand_Request()                      {}
+func (*Command_EnableLostMode) isCommand_Request()                  {}
+func (*Command_InstallApplication) isCommand_Request()              {}
+func (*Command_AccountConfiguration) isCommand_Request()            {}
+func (*Command_ApplyRedemptionCode) isCommand_Request()             {}
+func (*Command_ManagedApplicationList) isCommand_Request()          {}
+func (*Command_RemoveApplication) isCommand_Request()               {}
+func (*Command_InviteToProgram) isCommand_Request()                 {}
+func (*Command_ValidataApplications) isCommand_Request()            {}
+func (*Command_InstallMedia) isCommand_Request()                    {}
+func (*Command_RemoveMedia) isCommand_Request()                     {}
+func (*Command_Settings) isCommand_Request()                        {}
+func (*Command_ManagedApplicationConfiguration) isCommand_Request() {}
+func (*Command_ManagedApplicationAttributes) isCommand_Request()    {}
+func (*Command_ManagedApplicationFeedback) isCommand_Request()      {}
+func (*Command_SetFirmwarePassword) isCommand_Request()             {}
+func (*Command_VerifyFirmwarePassword) isCommand_Request()          {}
+func (*Command_SetAutoAdminPassword) isCommand_Request()            {}
+func (*Command_ScheduleOsUpdate) isCommand_Request()                {}
+func (*Command_ScheduleOsUpdateScan) isCommand_Request()            {}
+func (*Command_ActiveNsExtensions) isCommand_Request()              {}
+func (*Command_RotateFilevaultKey) isCommand_Request()              {}
 
 func (m *Command) GetRequest() isCommand_Request {
 	if m != nil {
@@ -347,6 +477,132 @@ func (m *Command) GetAccountConfiguration() *AccountConfiguration {
 	return nil
 }
 
+func (m *Command) GetApplyRedemptionCode() *ApplyRedemptionCode {
+	if x, ok := m.GetRequest().(*Command_ApplyRedemptionCode); ok {
+		return x.ApplyRedemptionCode
+	}
+	return nil
+}
+
+func (m *Command) GetManagedApplicationList() *ManagedApplicationList {
+	if x, ok := m.GetRequest().(*Command_ManagedApplicationList); ok {
+		return x.ManagedApplicationList
+	}
+	return nil
+}
+
+func (m *Command) GetRemoveApplication() *RemoveApplication {
+	if x, ok := m.GetRequest().(*Command_RemoveApplication); ok {
+		return x.RemoveApplication
+	}
+	return nil
+}
+
+func (m *Command) GetInviteToProgram() *InviteToProgram {
+	if x, ok := m.GetRequest().(*Command_InviteToProgram); ok {
+		return x.InviteToProgram
+	}
+	return nil
+}
+
+func (m *Command) GetValidataApplications() *ValidateApplications {
+	if x, ok := m.GetRequest().(*Command_ValidataApplications); ok {
+		return x.ValidataApplications
+	}
+	return nil
+}
+
+func (m *Command) GetInstallMedia() *InstallMedia {
+	if x, ok := m.GetRequest().(*Command_InstallMedia); ok {
+		return x.InstallMedia
+	}
+	return nil
+}
+
+func (m *Command) GetRemoveMedia() *RemoveMedia {
+	if x, ok := m.GetRequest().(*Command_RemoveMedia); ok {
+		return x.RemoveMedia
+	}
+	return nil
+}
+
+func (m *Command) GetSettings() *Settings {
+	if x, ok := m.GetRequest().(*Command_Settings); ok {
+		return x.Settings
+	}
+	return nil
+}
+
+func (m *Command) GetManagedApplicationConfiguration() *ManagedApplicationConfiguration {
+	if x, ok := m.GetRequest().(*Command_ManagedApplicationConfiguration); ok {
+		return x.ManagedApplicationConfiguration
+	}
+	return nil
+}
+
+func (m *Command) GetManagedApplicationAttributes() *ManagedApplicationAttributes {
+	if x, ok := m.GetRequest().(*Command_ManagedApplicationAttributes); ok {
+		return x.ManagedApplicationAttributes
+	}
+	return nil
+}
+
+func (m *Command) GetManagedApplicationFeedback() *ManagedApplicationFeedback {
+	if x, ok := m.GetRequest().(*Command_ManagedApplicationFeedback); ok {
+		return x.ManagedApplicationFeedback
+	}
+	return nil
+}
+
+func (m *Command) GetSetFirmwarePassword() *SetFirmwarePassword {
+	if x, ok := m.GetRequest().(*Command_SetFirmwarePassword); ok {
+		return x.SetFirmwarePassword
+	}
+	return nil
+}
+
+func (m *Command) GetVerifyFirmwarePassword() *VerifyFirmwarePassword {
+	if x, ok := m.GetRequest().(*Command_VerifyFirmwarePassword); ok {
+		return x.VerifyFirmwarePassword
+	}
+	return nil
+}
+
+func (m *Command) GetSetAutoAdminPassword() *SetAutoAdminPassword {
+	if x, ok := m.GetRequest().(*Command_SetAutoAdminPassword); ok {
+		return x.SetAutoAdminPassword
+	}
+	return nil
+}
+
+func (m *Command) GetScheduleOsUpdate() *ScheduleOSUpdate {
+	if x, ok := m.GetRequest().(*Command_ScheduleOsUpdate); ok {
+		return x.ScheduleOsUpdate
+	}
+	return nil
+}
+
+func (m *Command) GetScheduleOsUpdateScan() *ScheduleOSUpdateScan {
+	if x, ok := m.GetRequest().(*Command_ScheduleOsUpdateScan); ok {
+		return x.ScheduleOsUpdateScan
+	}
+	return nil
+}
+
+func (m *Command) GetActiveNsExtensions() *ActiveNSExtensions {
+	if x, ok := m.GetRequest().(*Command_ActiveNsExtensions); ok {
+		return x.ActiveNsExtensions
+	}
+	return nil
+}
+
+func (m *Command) GetRotateFilevaultKey() *RotateFileVaultKey {
+	if x, ok := m.GetRequest().(*Command_RotateFilevaultKey); ok {
+		return x.RotateFilevaultKey
+	}
+	return nil
+}
+
 // XXX_OneofFuncs is for the internal use of the proto package.
 func (*Command) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
 	return _Command_OneofMarshaler, _Command_OneofUnmarshaler, _Command_OneofSizer, []interface{}{
@@ -366,6 +622,24 @@ func (*Command) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error
 		(*Command_EnableLostMode)(nil),
 		(*Command_InstallApplication)(nil),
 		(*Command_AccountConfiguration)(nil),
+		(*Command_ApplyRedemptionCode)(nil),
+		(*Command_ManagedApplicationList)(nil),
+		(*Command_RemoveApplication)(nil),
+		(*Command_InviteToProgram)(nil),
+		(*Command_ValidataApplications)(nil),
+		(*Command_InstallMedia)(nil),
+		(*Command_RemoveMedia)(nil),
+		(*Command_Settings)(nil),
+		(*Command_ManagedApplicationConfiguration)(nil),
+		(*Command_ManagedApplicationAttributes)(nil),
+		(*Command_ManagedApplicationFeedback)(nil),
+		(*Command_SetFirmwarePassword)(nil),
+		(*Command_VerifyFirmwarePassword)(nil),
+		(*Command_SetAutoAdminPassword)(nil),
+		(*Command_ScheduleOsUpdate)(nil),
+		(*Command_ScheduleOsUpdateScan)(nil),
+		(*Command_ActiveNsExtensions)(nil),
+		(*Command_RotateFilevaultKey)(nil),
 	}
 }
 
@@ -451,6 +725,96 @@ func _Command_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
 	case *Command_AccountConfiguration:
 		_ = b.EncodeVarint(17<<3 | proto.WireBytes)
 		if err := b.EncodeMessage(x.AccountConfiguration); err != nil {
+			return err
+		}
+	case *Command_ApplyRedemptionCode:
+		_ = b.EncodeVarint(18<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.ApplyRedemptionCode); err != nil {
+			return err
+		}
+	case *Command_ManagedApplicationList:
+		_ = b.EncodeVarint(19<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.ManagedApplicationList); err != nil {
+			return err
+		}
+	case *Command_RemoveApplication:
+		_ = b.EncodeVarint(20<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.RemoveApplication); err != nil {
+			return err
+		}
+	case *Command_InviteToProgram:
+		_ = b.EncodeVarint(21<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.InviteToProgram); err != nil {
+			return err
+		}
+	case *Command_ValidataApplications:
+		_ = b.EncodeVarint(22<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.ValidataApplications); err != nil {
+			return err
+		}
+	case *Command_InstallMedia:
+		_ = b.EncodeVarint(23<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.InstallMedia); err != nil {
+			return err
+		}
+	case *Command_RemoveMedia:
+		_ = b.EncodeVarint(24<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.RemoveMedia); err != nil {
+			return err
+		}
+	case *Command_Settings:
+		_ = b.EncodeVarint(25<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.Settings); err != nil {
+			return err
+		}
+	case *Command_ManagedApplicationConfiguration:
+		_ = b.EncodeVarint(26<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.ManagedApplicationConfiguration); err != nil {
+			return err
+		}
+	case *Command_ManagedApplicationAttributes:
+		_ = b.EncodeVarint(27<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.ManagedApplicationAttributes); err != nil {
+			return err
+		}
+	case *Command_ManagedApplicationFeedback:
+		_ = b.EncodeVarint(28<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.ManagedApplicationFeedback); err != nil {
+			return err
+		}
+	case *Command_SetFirmwarePassword:
+		_ = b.EncodeVarint(29<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.SetFirmwarePassword); err != nil {
+			return err
+		}
+	case *Command_VerifyFirmwarePassword:
+		_ = b.EncodeVarint(30<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.VerifyFirmwarePassword); err != nil {
+			return err
+		}
+	case *Command_SetAutoAdminPassword:
+		_ = b.EncodeVarint(31<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.SetAutoAdminPassword); err != nil {
+			return err
+		}
+	case *Command_ScheduleOsUpdate:
+		_ = b.EncodeVarint(32<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.ScheduleOsUpdate); err != nil {
+			return err
+		}
+	case *Command_ScheduleOsUpdateScan:
+		_ = b.EncodeVarint(33<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.ScheduleOsUpdateScan); err != nil {
+			return err
+		}
+	case *Command_ActiveNsExtensions:
+		_ = b.EncodeVarint(34<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.ActiveNsExtensions); err != nil {
+			return err
+		}
+	case *Command_RotateFilevaultKey:
+		_ = b.EncodeVarint(35<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.RotateFilevaultKey); err != nil {
 			return err
 		}
 	case nil:
@@ -591,6 +955,150 @@ func _Command_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer
 		err := b.DecodeMessage(msg)
 		m.Request = &Command_AccountConfiguration{msg}
 		return true, err
+	case 18: // request.apply_redemption_code
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(ApplyRedemptionCode)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_ApplyRedemptionCode{msg}
+		return true, err
+	case 19: // request.managed_application_list
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(ManagedApplicationList)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_ManagedApplicationList{msg}
+		return true, err
+	case 20: // request.remove_application
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(RemoveApplication)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_RemoveApplication{msg}
+		return true, err
+	case 21: // request.invite_to_program
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(InviteToProgram)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_InviteToProgram{msg}
+		return true, err
+	case 22: // request.validata_applications
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(ValidateApplications)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_ValidataApplications{msg}
+		return true, err
+	case 23: // request.install_media
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(InstallMedia)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_InstallMedia{msg}
+		return true, err
+	case 24: // request.remove_media
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(RemoveMedia)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_RemoveMedia{msg}
+		return true, err
+	case 25: // request.settings
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(Settings)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_Settings{msg}
+		return true, err
+	case 26: // request.managed_application_configuration
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(ManagedApplicationConfiguration)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_ManagedApplicationConfiguration{msg}
+		return true, err
+	case 27: // request.managed_application_attributes
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(ManagedApplicationAttributes)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_ManagedApplicationAttributes{msg}
+		return true, err
+	case 28: // request.managed_application_feedback
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(ManagedApplicationFeedback)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_ManagedApplicationFeedback{msg}
+		return true, err
+	case 29: // request.set_firmware_password
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(SetFirmwarePassword)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_SetFirmwarePassword{msg}
+		return true, err
+	case 30: // request.verify_firmware_password
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(VerifyFirmwarePassword)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_VerifyFirmwarePassword{msg}
+		return true, err
+	case 31: // request.set_auto_admin_password
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(SetAutoAdminPassword)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_SetAutoAdminPassword{msg}
+		return true, err
+	case 32: // request.schedule_os_update
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(ScheduleOSUpdate)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_ScheduleOsUpdate{msg}
+		return true, err
+	case 33: // request.schedule_os_update_scan
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(ScheduleOSUpdateScan)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_ScheduleOsUpdateScan{msg}
+		return true, err
+	case 34: // request.active_ns_extensions
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(ActiveNSExtensions)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_ActiveNsExtensions{msg}
+		return true, err
+	case 35: // request.rotate_filevault_key
+		if wire != proto.WireBytes {
+			return true, proto.ErrInternalBadWireType
+		}
+		msg := new(RotateFileVaultKey)
+		err := b.DecodeMessage(msg)
+		m.Request = &Command_RotateFilevaultKey{msg}
+		return true, err
 	default:
 		return false, nil
 	}
@@ -678,6 +1186,96 @@ func _Command_OneofSizer(msg proto.Message) (n int) {
 	case *Command_AccountConfiguration:
 		s := proto.Size(x.AccountConfiguration)
 		n += proto.SizeVarint(17<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_ApplyRedemptionCode:
+		s := proto.Size(x.ApplyRedemptionCode)
+		n += proto.SizeVarint(18<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_ManagedApplicationList:
+		s := proto.Size(x.ManagedApplicationList)
+		n += proto.SizeVarint(19<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_RemoveApplication:
+		s := proto.Size(x.RemoveApplication)
+		n += proto.SizeVarint(20<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_InviteToProgram:
+		s := proto.Size(x.InviteToProgram)
+		n += proto.SizeVarint(21<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_ValidataApplications:
+		s := proto.Size(x.ValidataApplications)
+		n += proto.SizeVarint(22<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_InstallMedia:
+		s := proto.Size(x.InstallMedia)
+		n += proto.SizeVarint(23<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_RemoveMedia:
+		s := proto.Size(x.RemoveMedia)
+		n += proto.SizeVarint(24<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_Settings:
+		s := proto.Size(x.Settings)
+		n += proto.SizeVarint(25<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_ManagedApplicationConfiguration:
+		s := proto.Size(x.ManagedApplicationConfiguration)
+		n += proto.SizeVarint(26<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_ManagedApplicationAttributes:
+		s := proto.Size(x.ManagedApplicationAttributes)
+		n += proto.SizeVarint(27<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_ManagedApplicationFeedback:
+		s := proto.Size(x.ManagedApplicationFeedback)
+		n += proto.SizeVarint(28<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_SetFirmwarePassword:
+		s := proto.Size(x.SetFirmwarePassword)
+		n += proto.SizeVarint(29<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_VerifyFirmwarePassword:
+		s := proto.Size(x.VerifyFirmwarePassword)
+		n += proto.SizeVarint(30<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_SetAutoAdminPassword:
+		s := proto.Size(x.SetAutoAdminPassword)
+		n += proto.SizeVarint(31<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_ScheduleOsUpdate:
+		s := proto.Size(x.ScheduleOsUpdate)
+		n += proto.SizeVarint(32<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_ScheduleOsUpdateScan:
+		s := proto.Size(x.ScheduleOsUpdateScan)
+		n += proto.SizeVarint(33<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_ActiveNsExtensions:
+		s := proto.Size(x.ActiveNsExtensions)
+		n += proto.SizeVarint(34<<3 | proto.WireBytes)
+		n += proto.SizeVarint(uint64(s))
+		n += s
+	case *Command_RotateFilevaultKey:
+		s := proto.Size(x.RotateFilevaultKey)
+		n += proto.SizeVarint(35<<3 | proto.WireBytes)
 		n += proto.SizeVarint(uint64(s))
 		n += s
 	case nil:
@@ -840,8 +1438,9 @@ func (m *DeviceLock) GetPhoneNumber() string {
 }
 
 type EraseDevice struct {
-	Pin              string `protobuf:"bytes,1,opt,name=pin,proto3" json:"pin,omitempty"`
-	PreserveDataPlan bool   `protobuf:"varint,2,opt,name=preserve_data_plan,json=preserveDataPlan,proto3" json:"preserve_data_plan,omitempty"`
+	Pin                    string `protobuf:"bytes,1,opt,name=pin,proto3" json:"pin,omitempty"`
+	PreserveDataPlan       bool   `protobuf:"varint,2,opt,name=preserve_data_plan,json=preserveDataPlan,proto3" json:"preserve_data_plan,omitempty"`
+	DisallowProximitySetup bool   `protobuf:"varint,3,opt,name=disallow_proximity_setup,json=disallowProximitySetup,proto3" json:"disallow_proximity_setup,omitempty"`
 }
 
 func (m *EraseDevice) Reset()                    { *m = EraseDevice{} }
@@ -859,6 +1458,13 @@ func (m *EraseDevice) GetPin() string {
 func (m *EraseDevice) GetPreserveDataPlan() bool {
 	if m != nil {
 		return m.PreserveDataPlan
+	}
+	return false
+}
+
+func (m *EraseDevice) GetDisallowProximitySetup() bool {
+	if m != nil {
+		return m.DisallowProximitySetup
 	}
 	return false
 }
@@ -1097,6 +1703,102 @@ func (m *InstallApplicationAttributes) String() string            { return proto
 func (*InstallApplicationAttributes) ProtoMessage()               {}
 func (*InstallApplicationAttributes) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{19} }
 
+type ApplyRedemptionCode struct {
+	Identifier     string `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`
+	RedemptionCode string `protobuf:"bytes,2,opt,name=redemption_code,json=redemptionCode,proto3" json:"redemption_code,omitempty"`
+}
+
+func (m *ApplyRedemptionCode) Reset()                    { *m = ApplyRedemptionCode{} }
+func (m *ApplyRedemptionCode) String() string            { return proto.CompactTextString(m) }
+func (*ApplyRedemptionCode) ProtoMessage()               {}
+func (*ApplyRedemptionCode) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{20} }
+
+func (m *ApplyRedemptionCode) GetIdentifier() string {
+	if m != nil {
+		return m.Identifier
+	}
+	return ""
+}
+
+func (m *ApplyRedemptionCode) GetRedemptionCode() string {
+	if m != nil {
+		return m.RedemptionCode
+	}
+	return ""
+}
+
+type ManagedApplicationList struct {
+	Identifiers []string `protobuf:"bytes,1,rep,name=identifiers" json:"identifiers,omitempty"`
+}
+
+func (m *ManagedApplicationList) Reset()                    { *m = ManagedApplicationList{} }
+func (m *ManagedApplicationList) String() string            { return proto.CompactTextString(m) }
+func (*ManagedApplicationList) ProtoMessage()               {}
+func (*ManagedApplicationList) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{21} }
+
+func (m *ManagedApplicationList) GetIdentifiers() []string {
+	if m != nil {
+		return m.Identifiers
+	}
+	return nil
+}
+
+type RemoveApplication struct {
+	Identifier string `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`
+}
+
+func (m *RemoveApplication) Reset()                    { *m = RemoveApplication{} }
+func (m *RemoveApplication) String() string            { return proto.CompactTextString(m) }
+func (*RemoveApplication) ProtoMessage()               {}
+func (*RemoveApplication) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{22} }
+
+func (m *RemoveApplication) GetIdentifier() string {
+	if m != nil {
+		return m.Identifier
+	}
+	return ""
+}
+
+type InviteToProgram struct {
+	ProgramId     string `protobuf:"bytes,1,opt,name=program_id,json=programId,proto3" json:"program_id,omitempty"`
+	InvitationUrl string `protobuf:"bytes,2,opt,name=invitation_url,json=invitationUrl,proto3" json:"invitation_url,omitempty"`
+}
+
+func (m *InviteToProgram) Reset()                    { *m = InviteToProgram{} }
+func (m *InviteToProgram) String() string            { return proto.CompactTextString(m) }
+func (*InviteToProgram) ProtoMessage()               {}
+func (*InviteToProgram) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{23} }
+
+func (m *InviteToProgram) GetProgramId() string {
+	if m != nil {
+		return m.ProgramId
+	}
+	return ""
+}
+
+func (m *InviteToProgram) GetInvitationUrl() string {
+	if m != nil {
+		return m.InvitationUrl
+	}
+	return ""
+}
+
+type ValidateApplications struct {
+	Identifiers []string `protobuf:"bytes,1,rep,name=identifiers" json:"identifiers,omitempty"`
+}
+
+func (m *ValidateApplications) Reset()                    { *m = ValidateApplications{} }
+func (m *ValidateApplications) String() string            { return proto.CompactTextString(m) }
+func (*ValidateApplications) ProtoMessage()               {}
+func (*ValidateApplications) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{24} }
+
+func (m *ValidateApplications) GetIdentifiers() []string {
+	if m != nil {
+		return m.Identifiers
+	}
+	return nil
+}
+
 type AccountConfiguration struct {
 	SkipPrimarySetupAccountCreation      bool                      `protobuf:"varint,1,opt,name=skip_primary_setup_account_creation,json=skipPrimarySetupAccountCreation,proto3" json:"skip_primary_setup_account_creation,omitempty"`
 	SkipPrimarySetupAccountAsRegularUser bool                      `protobuf:"varint,2,opt,name=skip_primary_setup_account_as_regular_user,json=skipPrimarySetupAccountAsRegularUser,proto3" json:"skip_primary_setup_account_as_regular_user,omitempty"`
@@ -1106,7 +1808,7 @@ type AccountConfiguration struct {
 func (m *AccountConfiguration) Reset()                    { *m = AccountConfiguration{} }
 func (m *AccountConfiguration) String() string            { return proto.CompactTextString(m) }
 func (*AccountConfiguration) ProtoMessage()               {}
-func (*AccountConfiguration) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{20} }
+func (*AccountConfiguration) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{25} }
 
 func (m *AccountConfiguration) GetSkipPrimarySetupAccountCreation() bool {
 	if m != nil {
@@ -1139,7 +1841,7 @@ type AutoSetupAdminAccounts struct {
 func (m *AutoSetupAdminAccounts) Reset()                    { *m = AutoSetupAdminAccounts{} }
 func (m *AutoSetupAdminAccounts) String() string            { return proto.CompactTextString(m) }
 func (*AutoSetupAdminAccounts) ProtoMessage()               {}
-func (*AutoSetupAdminAccounts) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{21} }
+func (*AutoSetupAdminAccounts) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{26} }
 
 func (m *AutoSetupAdminAccounts) GetShortName() string {
 	if m != nil {
@@ -1169,6 +1871,746 @@ func (m *AutoSetupAdminAccounts) GetHidden() bool {
 	return false
 }
 
+type InstallMedia struct {
+	ItunesStoreId int64  `protobuf:"varint,1,opt,name=itunes_store_id,json=itunesStoreId,proto3" json:"itunes_store_id,omitempty"`
+	MediaUrl      string `protobuf:"bytes,2,opt,name=media_url,json=mediaUrl,proto3" json:"media_url,omitempty"`
+	MediaType     string `protobuf:"bytes,3,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
+}
+
+func (m *InstallMedia) Reset()                    { *m = InstallMedia{} }
+func (m *InstallMedia) String() string            { return proto.CompactTextString(m) }
+func (*InstallMedia) ProtoMessage()               {}
+func (*InstallMedia) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{27} }
+
+func (m *InstallMedia) GetItunesStoreId() int64 {
+	if m != nil {
+		return m.ItunesStoreId
+	}
+	return 0
+}
+
+func (m *InstallMedia) GetMediaUrl() string {
+	if m != nil {
+		return m.MediaUrl
+	}
+	return ""
+}
+
+func (m *InstallMedia) GetMediaType() string {
+	if m != nil {
+		return m.MediaType
+	}
+	return ""
+}
+
+type RemoveMedia struct {
+	MediaType     string `protobuf:"bytes,1,opt,name=media_type,json=mediaType,proto3" json:"media_type,omitempty"`
+	ItunesStoreId int64  `protobuf:"varint,2,opt,name=itunes_store_id,json=itunesStoreId,proto3" json:"itunes_store_id,omitempty"`
+	PersistentId  string `protobuf:"bytes,3,opt,name=persistent_id,json=persistentId,proto3" json:"persistent_id,omitempty"`
+}
+
+func (m *RemoveMedia) Reset()                    { *m = RemoveMedia{} }
+func (m *RemoveMedia) String() string            { return proto.CompactTextString(m) }
+func (*RemoveMedia) ProtoMessage()               {}
+func (*RemoveMedia) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{28} }
+
+func (m *RemoveMedia) GetMediaType() string {
+	if m != nil {
+		return m.MediaType
+	}
+	return ""
+}
+
+func (m *RemoveMedia) GetItunesStoreId() int64 {
+	if m != nil {
+		return m.ItunesStoreId
+	}
+	return 0
+}
+
+func (m *RemoveMedia) GetPersistentId() string {
+	if m != nil {
+		return m.PersistentId
+	}
+	return ""
+}
+
+type Settings struct {
+	Settings []*Setting `protobuf:"bytes,1,rep,name=settings" json:"settings,omitempty"`
+}
+
+func (m *Settings) Reset()                    { *m = Settings{} }
+func (m *Settings) String() string            { return proto.CompactTextString(m) }
+func (*Settings) ProtoMessage()               {}
+func (*Settings) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{29} }
+
+func (m *Settings) GetSettings() []*Setting {
+	if m != nil {
+		return m.Settings
+	}
+	return nil
+}
+
+type Setting struct {
+	Item                    string                          `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	DeviceName              *DeviceNameSetting              `protobuf:"bytes,2,opt,name=device_name,json=deviceName" json:"device_name,omitempty"`
+	Hostname                *HostnameSetting                `protobuf:"bytes,3,opt,name=hostname" json:"hostname,omitempty"`
+	VoiceRoaming            *VoiceRoamingSetting            `protobuf:"bytes,4,opt,name=voice_roaming,json=voiceRoaming" json:"voice_roaming,omitempty"`
+	PersonalHotspot         *PersonalHotspotSetting         `protobuf:"bytes,5,opt,name=personal_hotspot,json=personalHotspot" json:"personal_hotspot,omitempty"`
+	Wallpaper               *WallpaperSetting               `protobuf:"bytes,6,opt,name=wallpaper" json:"wallpaper,omitempty"`
+	DataRoaming             *DataRoamingSetting             `protobuf:"bytes,7,opt,name=data_roaming,json=dataRoaming" json:"data_roaming,omitempty"`
+	Bluetooth               *BluetoothSetting               `protobuf:"bytes,8,opt,name=bluetooth" json:"bluetooth,omitempty"`
+	ApplicationAttributes   *ApplicationAttributesSetting   `protobuf:"bytes,9,opt,name=application_attributes,json=applicationAttributes" json:"application_attributes,omitempty"`
+	MdmOptions              *MDMOptionsSetting              `protobuf:"bytes,10,opt,name=mdm_options,json=mdmOptions" json:"mdm_options,omitempty"`
+	PasscodeLockGracePeriod *PasscodeLockGracePeriodSetting `protobuf:"bytes,11,opt,name=passcode_lock_grace_period,json=passcodeLockGracePeriod" json:"passcode_lock_grace_period,omitempty"`
+	MaximumResidentUsers    *MaximumResidentUsersSetting    `protobuf:"bytes,12,opt,name=maximum_resident_users,json=maximumResidentUsers" json:"maximum_resident_users,omitempty"`
+	DiagnosticSubmission    *DataRoamingSetting             `protobuf:"bytes,13,opt,name=diagnostic_submission,json=diagnosticSubmission" json:"diagnostic_submission,omitempty"`
+	AppAnalytics            *AppAnalyticsSetting            `protobuf:"bytes,14,opt,name=app_analytics,json=appAnalytics" json:"app_analytics,omitempty"`
+}
+
+func (m *Setting) Reset()                    { *m = Setting{} }
+func (m *Setting) String() string            { return proto.CompactTextString(m) }
+func (*Setting) ProtoMessage()               {}
+func (*Setting) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{30} }
+
+func (m *Setting) GetItem() string {
+	if m != nil {
+		return m.Item
+	}
+	return ""
+}
+
+func (m *Setting) GetDeviceName() *DeviceNameSetting {
+	if m != nil {
+		return m.DeviceName
+	}
+	return nil
+}
+
+func (m *Setting) GetHostname() *HostnameSetting {
+	if m != nil {
+		return m.Hostname
+	}
+	return nil
+}
+
+func (m *Setting) GetVoiceRoaming() *VoiceRoamingSetting {
+	if m != nil {
+		return m.VoiceRoaming
+	}
+	return nil
+}
+
+func (m *Setting) GetPersonalHotspot() *PersonalHotspotSetting {
+	if m != nil {
+		return m.PersonalHotspot
+	}
+	return nil
+}
+
+func (m *Setting) GetWallpaper() *WallpaperSetting {
+	if m != nil {
+		return m.Wallpaper
+	}
+	return nil
+}
+
+func (m *Setting) GetDataRoaming() *DataRoamingSetting {
+	if m != nil {
+		return m.DataRoaming
+	}
+	return nil
+}
+
+func (m *Setting) GetBluetooth() *BluetoothSetting {
+	if m != nil {
+		return m.Bluetooth
+	}
+	return nil
+}
+
+func (m *Setting) GetApplicationAttributes() *ApplicationAttributesSetting {
+	if m != nil {
+		return m.ApplicationAttributes
+	}
+	return nil
+}
+
+func (m *Setting) GetMdmOptions() *MDMOptionsSetting {
+	if m != nil {
+		return m.MdmOptions
+	}
+	return nil
+}
+
+func (m *Setting) GetPasscodeLockGracePeriod() *PasscodeLockGracePeriodSetting {
+	if m != nil {
+		return m.PasscodeLockGracePeriod
+	}
+	return nil
+}
+
+func (m *Setting) GetMaximumResidentUsers() *MaximumResidentUsersSetting {
+	if m != nil {
+		return m.MaximumResidentUsers
+	}
+	return nil
+}
+
+func (m *Setting) GetDiagnosticSubmission() *DataRoamingSetting {
+	if m != nil {
+		return m.DiagnosticSubmission
+	}
+	return nil
+}
+
+func (m *Setting) GetAppAnalytics() *AppAnalyticsSetting {
+	if m != nil {
+		return m.AppAnalytics
+	}
+	return nil
+}
+
+type VoiceRoamingSetting struct {
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+}
+
+func (m *VoiceRoamingSetting) Reset()                    { *m = VoiceRoamingSetting{} }
+func (m *VoiceRoamingSetting) String() string            { return proto.CompactTextString(m) }
+func (*VoiceRoamingSetting) ProtoMessage()               {}
+func (*VoiceRoamingSetting) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{31} }
+
+func (m *VoiceRoamingSetting) GetEnabled() bool {
+	if m != nil {
+		return m.Enabled
+	}
+	return false
+}
+
+type PersonalHotspotSetting struct {
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+}
+
+func (m *PersonalHotspotSetting) Reset()                    { *m = PersonalHotspotSetting{} }
+func (m *PersonalHotspotSetting) String() string            { return proto.CompactTextString(m) }
+func (*PersonalHotspotSetting) ProtoMessage()               {}
+func (*PersonalHotspotSetting) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{32} }
+
+func (m *PersonalHotspotSetting) GetEnabled() bool {
+	if m != nil {
+		return m.Enabled
+	}
+	return false
+}
+
+type WallpaperSetting struct {
+	Data  []byte `protobuf:"bytes,1,opt,name=data,proto3" json:"data,omitempty"`
+	Where int64  `protobuf:"varint,2,opt,name=where,proto3" json:"where,omitempty"`
+}
+
+func (m *WallpaperSetting) Reset()                    { *m = WallpaperSetting{} }
+func (m *WallpaperSetting) String() string            { return proto.CompactTextString(m) }
+func (*WallpaperSetting) ProtoMessage()               {}
+func (*WallpaperSetting) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{33} }
+
+func (m *WallpaperSetting) GetData() []byte {
+	if m != nil {
+		return m.Data
+	}
+	return nil
+}
+
+func (m *WallpaperSetting) GetWhere() int64 {
+	if m != nil {
+		return m.Where
+	}
+	return 0
+}
+
+type DataRoamingSetting struct {
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+}
+
+func (m *DataRoamingSetting) Reset()                    { *m = DataRoamingSetting{} }
+func (m *DataRoamingSetting) String() string            { return proto.CompactTextString(m) }
+func (*DataRoamingSetting) ProtoMessage()               {}
+func (*DataRoamingSetting) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{34} }
+
+func (m *DataRoamingSetting) GetEnabled() bool {
+	if m != nil {
+		return m.Enabled
+	}
+	return false
+}
+
+type BluetoothSetting struct {
+	Enabled bool `protobuf:"varint,1,opt,name=enabled,proto3" json:"enabled,omitempty"`
+}
+
+func (m *BluetoothSetting) Reset()                    { *m = BluetoothSetting{} }
+func (m *BluetoothSetting) String() string            { return proto.CompactTextString(m) }
+func (*BluetoothSetting) ProtoMessage()               {}
+func (*BluetoothSetting) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{35} }
+
+func (m *BluetoothSetting) GetEnabled() bool {
+	if m != nil {
+		return m.Enabled
+	}
+	return false
+}
+
+type ApplicationAttributesSetting struct {
+	Identifier            string                 `protobuf:"bytes,1,opt,name=identifier,proto3" json:"identifier,omitempty"`
+	ApplicationAttributes *ApplicationAttributes `protobuf:"bytes,2,opt,name=application_attributes,json=applicationAttributes" json:"application_attributes,omitempty"`
+}
+
+func (m *ApplicationAttributesSetting) Reset()                    { *m = ApplicationAttributesSetting{} }
+func (m *ApplicationAttributesSetting) String() string            { return proto.CompactTextString(m) }
+func (*ApplicationAttributesSetting) ProtoMessage()               {}
+func (*ApplicationAttributesSetting) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{36} }
+
+func (m *ApplicationAttributesSetting) GetIdentifier() string {
+	if m != nil {
+		return m.Identifier
+	}
+	return ""
+}
+
+func (m *ApplicationAttributesSetting) GetApplicationAttributes() *ApplicationAttributes {
+	if m != nil {
+		return m.ApplicationAttributes
+	}
+	return nil
+}
+
+type ApplicationAttributes struct {
+	VpnUuid string `protobuf:"bytes,1,opt,name=vpn_uuid,json=vpnUuid,proto3" json:"vpn_uuid,omitempty"`
+}
+
+func (m *ApplicationAttributes) Reset()                    { *m = ApplicationAttributes{} }
+func (m *ApplicationAttributes) String() string            { return proto.CompactTextString(m) }
+func (*ApplicationAttributes) ProtoMessage()               {}
+func (*ApplicationAttributes) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{37} }
+
+func (m *ApplicationAttributes) GetVpnUuid() string {
+	if m != nil {
+		return m.VpnUuid
+	}
+	return ""
+}
+
+type DeviceNameSetting struct {
+	DeviceName string `protobuf:"bytes,1,opt,name=device_name,json=deviceName,proto3" json:"device_name,omitempty"`
+}
+
+func (m *DeviceNameSetting) Reset()                    { *m = DeviceNameSetting{} }
+func (m *DeviceNameSetting) String() string            { return proto.CompactTextString(m) }
+func (*DeviceNameSetting) ProtoMessage()               {}
+func (*DeviceNameSetting) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{38} }
+
+func (m *DeviceNameSetting) GetDeviceName() string {
+	if m != nil {
+		return m.DeviceName
+	}
+	return ""
+}
+
+type HostnameSetting struct {
+	Hostname string `protobuf:"bytes,1,opt,name=hostname,proto3" json:"hostname,omitempty"`
+}
+
+func (m *HostnameSetting) Reset()                    { *m = HostnameSetting{} }
+func (m *HostnameSetting) String() string            { return proto.CompactTextString(m) }
+func (*HostnameSetting) ProtoMessage()               {}
+func (*HostnameSetting) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{39} }
+
+func (m *HostnameSetting) GetHostname() string {
+	if m != nil {
+		return m.Hostname
+	}
+	return ""
+}
+
+type MDMOptionsSetting struct {
+	MdmOptions *MDMOptions `protobuf:"bytes,1,opt,name=mdm_options,json=mdmOptions" json:"mdm_options,omitempty"`
+}
+
+func (m *MDMOptionsSetting) Reset()                    { *m = MDMOptionsSetting{} }
+func (m *MDMOptionsSetting) String() string            { return proto.CompactTextString(m) }
+func (*MDMOptionsSetting) ProtoMessage()               {}
+func (*MDMOptionsSetting) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{40} }
+
+func (m *MDMOptionsSetting) GetMdmOptions() *MDMOptions {
+	if m != nil {
+		return m.MdmOptions
+	}
+	return nil
+}
+
+type MDMOptions struct {
+	ActivationLockAllowedWhileSupervised bool `protobuf:"varint,1,opt,name=activation_lock_allowed_while_supervised,json=activationLockAllowedWhileSupervised,proto3" json:"activation_lock_allowed_while_supervised,omitempty"`
+}
+
+func (m *MDMOptions) Reset()                    { *m = MDMOptions{} }
+func (m *MDMOptions) String() string            { return proto.CompactTextString(m) }
+func (*MDMOptions) ProtoMessage()               {}
+func (*MDMOptions) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{41} }
+
+func (m *MDMOptions) GetActivationLockAllowedWhileSupervised() bool {
+	if m != nil {
+		return m.ActivationLockAllowedWhileSupervised
+	}
+	return false
+}
+
+type PasscodeLockGracePeriodSetting struct {
+	PasscodeLockGracePeriod int64 `protobuf:"varint,1,opt,name=passcode_lock_grace_period,json=passcodeLockGracePeriod,proto3" json:"passcode_lock_grace_period,omitempty"`
+}
+
+func (m *PasscodeLockGracePeriodSetting) Reset()         { *m = PasscodeLockGracePeriodSetting{} }
+func (m *PasscodeLockGracePeriodSetting) String() string { return proto.CompactTextString(m) }
+func (*PasscodeLockGracePeriodSetting) ProtoMessage()    {}
+func (*PasscodeLockGracePeriodSetting) Descriptor() ([]byte, []int) {
+	return fileDescriptorMdm, []int{42}
+}
+
+func (m *PasscodeLockGracePeriodSetting) GetPasscodeLockGracePeriod() int64 {
+	if m != nil {
+		return m.PasscodeLockGracePeriod
+	}
+	return 0
+}
+
+type MaximumResidentUsersSetting struct {
+	MaximumResidentUsers int64 `protobuf:"varint,1,opt,name=maximum_resident_users,json=maximumResidentUsers,proto3" json:"maximum_resident_users,omitempty"`
+}
+
+func (m *MaximumResidentUsersSetting) Reset()                    { *m = MaximumResidentUsersSetting{} }
+func (m *MaximumResidentUsersSetting) String() string            { return proto.CompactTextString(m) }
+func (*MaximumResidentUsersSetting) ProtoMessage()               {}
+func (*MaximumResidentUsersSetting) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{43} }
+
+func (m *MaximumResidentUsersSetting) GetMaximumResidentUsers() int64 {
+	if m != nil {
+		return m.MaximumResidentUsers
+	}
+	return 0
+}
+
+type DiagnosticSubmissionSetting struct {
+	DiagnosticSubmission bool `protobuf:"varint,1,opt,name=diagnostic_submission,json=diagnosticSubmission,proto3" json:"diagnostic_submission,omitempty"`
+}
+
+func (m *DiagnosticSubmissionSetting) Reset()                    { *m = DiagnosticSubmissionSetting{} }
+func (m *DiagnosticSubmissionSetting) String() string            { return proto.CompactTextString(m) }
+func (*DiagnosticSubmissionSetting) ProtoMessage()               {}
+func (*DiagnosticSubmissionSetting) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{44} }
+
+func (m *DiagnosticSubmissionSetting) GetDiagnosticSubmission() bool {
+	if m != nil {
+		return m.DiagnosticSubmission
+	}
+	return false
+}
+
+type AppAnalyticsSetting struct {
+	AppAnalytics bool `protobuf:"varint,1,opt,name=app_analytics,json=appAnalytics,proto3" json:"app_analytics,omitempty"`
+}
+
+func (m *AppAnalyticsSetting) Reset()                    { *m = AppAnalyticsSetting{} }
+func (m *AppAnalyticsSetting) String() string            { return proto.CompactTextString(m) }
+func (*AppAnalyticsSetting) ProtoMessage()               {}
+func (*AppAnalyticsSetting) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{45} }
+
+func (m *AppAnalyticsSetting) GetAppAnalytics() bool {
+	if m != nil {
+		return m.AppAnalytics
+	}
+	return false
+}
+
+type ManagedApplicationConfiguration struct {
+	Identifiers []string `protobuf:"bytes,1,rep,name=identifiers" json:"identifiers,omitempty"`
+}
+
+func (m *ManagedApplicationConfiguration) Reset()         { *m = ManagedApplicationConfiguration{} }
+func (m *ManagedApplicationConfiguration) String() string { return proto.CompactTextString(m) }
+func (*ManagedApplicationConfiguration) ProtoMessage()    {}
+func (*ManagedApplicationConfiguration) Descriptor() ([]byte, []int) {
+	return fileDescriptorMdm, []int{46}
+}
+
+func (m *ManagedApplicationConfiguration) GetIdentifiers() []string {
+	if m != nil {
+		return m.Identifiers
+	}
+	return nil
+}
+
+type ManagedApplicationAttributes struct {
+	Identifiers []string `protobuf:"bytes,1,rep,name=identifiers" json:"identifiers,omitempty"`
+}
+
+func (m *ManagedApplicationAttributes) Reset()                    { *m = ManagedApplicationAttributes{} }
+func (m *ManagedApplicationAttributes) String() string            { return proto.CompactTextString(m) }
+func (*ManagedApplicationAttributes) ProtoMessage()               {}
+func (*ManagedApplicationAttributes) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{47} }
+
+func (m *ManagedApplicationAttributes) GetIdentifiers() []string {
+	if m != nil {
+		return m.Identifiers
+	}
+	return nil
+}
+
+type ManagedApplicationFeedback struct {
+	Identifiers    []string `protobuf:"bytes,1,rep,name=identifiers" json:"identifiers,omitempty"`
+	DeleteFeedback bool     `protobuf:"varint,2,opt,name=delete_feedback,json=deleteFeedback,proto3" json:"delete_feedback,omitempty"`
+}
+
+func (m *ManagedApplicationFeedback) Reset()                    { *m = ManagedApplicationFeedback{} }
+func (m *ManagedApplicationFeedback) String() string            { return proto.CompactTextString(m) }
+func (*ManagedApplicationFeedback) ProtoMessage()               {}
+func (*ManagedApplicationFeedback) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{48} }
+
+func (m *ManagedApplicationFeedback) GetIdentifiers() []string {
+	if m != nil {
+		return m.Identifiers
+	}
+	return nil
+}
+
+func (m *ManagedApplicationFeedback) GetDeleteFeedback() bool {
+	if m != nil {
+		return m.DeleteFeedback
+	}
+	return false
+}
+
+type SetFirmwarePassword struct {
+	CurrentPassword string `protobuf:"bytes,1,opt,name=current_password,json=currentPassword,proto3" json:"current_password,omitempty"`
+	NewPassword     string `protobuf:"bytes,2,opt,name=new_password,json=newPassword,proto3" json:"new_password,omitempty"`
+	AllowOroms      bool   `protobuf:"varint,3,opt,name=allow_oroms,json=allowOroms,proto3" json:"allow_oroms,omitempty"`
+}
+
+func (m *SetFirmwarePassword) Reset()                    { *m = SetFirmwarePassword{} }
+func (m *SetFirmwarePassword) String() string            { return proto.CompactTextString(m) }
+func (*SetFirmwarePassword) ProtoMessage()               {}
+func (*SetFirmwarePassword) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{49} }
+
+func (m *SetFirmwarePassword) GetCurrentPassword() string {
+	if m != nil {
+		return m.CurrentPassword
+	}
+	return ""
+}
+
+func (m *SetFirmwarePassword) GetNewPassword() string {
+	if m != nil {
+		return m.NewPassword
+	}
+	return ""
+}
+
+func (m *SetFirmwarePassword) GetAllowOroms() bool {
+	if m != nil {
+		return m.AllowOroms
+	}
+	return false
+}
+
+type VerifyFirmwarePassword struct {
+	Password string `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`
+}
+
+func (m *VerifyFirmwarePassword) Reset()                    { *m = VerifyFirmwarePassword{} }
+func (m *VerifyFirmwarePassword) String() string            { return proto.CompactTextString(m) }
+func (*VerifyFirmwarePassword) ProtoMessage()               {}
+func (*VerifyFirmwarePassword) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{50} }
+
+func (m *VerifyFirmwarePassword) GetPassword() string {
+	if m != nil {
+		return m.Password
+	}
+	return ""
+}
+
+type SetAutoAdminPassword struct {
+	Guid         string `protobuf:"bytes,1,opt,name=guid,proto3" json:"guid,omitempty"`
+	PasswordHash []byte `protobuf:"bytes,2,opt,name=password_hash,json=passwordHash,proto3" json:"password_hash,omitempty"`
+}
+
+func (m *SetAutoAdminPassword) Reset()                    { *m = SetAutoAdminPassword{} }
+func (m *SetAutoAdminPassword) String() string            { return proto.CompactTextString(m) }
+func (*SetAutoAdminPassword) ProtoMessage()               {}
+func (*SetAutoAdminPassword) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{51} }
+
+func (m *SetAutoAdminPassword) GetGuid() string {
+	if m != nil {
+		return m.Guid
+	}
+	return ""
+}
+
+func (m *SetAutoAdminPassword) GetPasswordHash() []byte {
+	if m != nil {
+		return m.PasswordHash
+	}
+	return nil
+}
+
+type ScheduleOSUpdate struct {
+	Updates []*Update `protobuf:"bytes,1,rep,name=updates" json:"updates,omitempty"`
+}
+
+func (m *ScheduleOSUpdate) Reset()                    { *m = ScheduleOSUpdate{} }
+func (m *ScheduleOSUpdate) String() string            { return proto.CompactTextString(m) }
+func (*ScheduleOSUpdate) ProtoMessage()               {}
+func (*ScheduleOSUpdate) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{52} }
+
+func (m *ScheduleOSUpdate) GetUpdates() []*Update {
+	if m != nil {
+		return m.Updates
+	}
+	return nil
+}
+
+type Update struct {
+	ProductKey     string `protobuf:"bytes,1,opt,name=product_key,json=productKey,proto3" json:"product_key,omitempty"`
+	ProductVersion string `protobuf:"bytes,2,opt,name=product_version,json=productVersion,proto3" json:"product_version,omitempty"`
+	InstallAction  string `protobuf:"bytes,3,opt,name=install_action,json=installAction,proto3" json:"install_action,omitempty"`
+}
+
+func (m *Update) Reset()                    { *m = Update{} }
+func (m *Update) String() string            { return proto.CompactTextString(m) }
+func (*Update) ProtoMessage()               {}
+func (*Update) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{53} }
+
+func (m *Update) GetProductKey() string {
+	if m != nil {
+		return m.ProductKey
+	}
+	return ""
+}
+
+func (m *Update) GetProductVersion() string {
+	if m != nil {
+		return m.ProductVersion
+	}
+	return ""
+}
+
+func (m *Update) GetInstallAction() string {
+	if m != nil {
+		return m.InstallAction
+	}
+	return ""
+}
+
+type ScheduleOSUpdateScan struct {
+	Force bool `protobuf:"varint,1,opt,name=force,proto3" json:"force,omitempty"`
+}
+
+func (m *ScheduleOSUpdateScan) Reset()                    { *m = ScheduleOSUpdateScan{} }
+func (m *ScheduleOSUpdateScan) String() string            { return proto.CompactTextString(m) }
+func (*ScheduleOSUpdateScan) ProtoMessage()               {}
+func (*ScheduleOSUpdateScan) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{54} }
+
+func (m *ScheduleOSUpdateScan) GetForce() bool {
+	if m != nil {
+		return m.Force
+	}
+	return false
+}
+
+type ActiveNSExtensions struct {
+	FilterExtensionPoints []string `protobuf:"bytes,1,rep,name=filter_extension_points,json=filterExtensionPoints" json:"filter_extension_points,omitempty"`
+}
+
+func (m *ActiveNSExtensions) Reset()                    { *m = ActiveNSExtensions{} }
+func (m *ActiveNSExtensions) String() string            { return proto.CompactTextString(m) }
+func (*ActiveNSExtensions) ProtoMessage()               {}
+func (*ActiveNSExtensions) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{55} }
+
+func (m *ActiveNSExtensions) GetFilterExtensionPoints() []string {
+	if m != nil {
+		return m.FilterExtensionPoints
+	}
+	return nil
+}
+
+type RotateFileVaultKey struct {
+	KeyType                    string           `protobuf:"bytes,1,opt,name=key_type,json=keyType,proto3" json:"key_type,omitempty"`
+	FilevaultUnlock            *FileVaultUnlock `protobuf:"bytes,2,opt,name=filevault_unlock,json=filevaultUnlock" json:"filevault_unlock,omitempty"`
+	NewCertificate             []byte           `protobuf:"bytes,3,opt,name=new_certificate,json=newCertificate,proto3" json:"new_certificate,omitempty"`
+	ReplyEncryptionCertificate []byte           `protobuf:"bytes,4,opt,name=reply_encryption_certificate,json=replyEncryptionCertificate,proto3" json:"reply_encryption_certificate,omitempty"`
+}
+
+func (m *RotateFileVaultKey) Reset()                    { *m = RotateFileVaultKey{} }
+func (m *RotateFileVaultKey) String() string            { return proto.CompactTextString(m) }
+func (*RotateFileVaultKey) ProtoMessage()               {}
+func (*RotateFileVaultKey) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{56} }
+
+func (m *RotateFileVaultKey) GetKeyType() string {
+	if m != nil {
+		return m.KeyType
+	}
+	return ""
+}
+
+func (m *RotateFileVaultKey) GetFilevaultUnlock() *FileVaultUnlock {
+	if m != nil {
+		return m.FilevaultUnlock
+	}
+	return nil
+}
+
+func (m *RotateFileVaultKey) GetNewCertificate() []byte {
+	if m != nil {
+		return m.NewCertificate
+	}
+	return nil
+}
+
+func (m *RotateFileVaultKey) GetReplyEncryptionCertificate() []byte {
+	if m != nil {
+		return m.ReplyEncryptionCertificate
+	}
+	return nil
+}
+
+type FileVaultUnlock struct {
+	Password                 string `protobuf:"bytes,1,opt,name=password,proto3" json:"password,omitempty"`
+	PrivateKeyExport         []byte `protobuf:"bytes,2,opt,name=private_key_export,json=privateKeyExport,proto3" json:"private_key_export,omitempty"`
+	PrivateKeyExportPassword string `protobuf:"bytes,3,opt,name=private_key_export_password,json=privateKeyExportPassword,proto3" json:"private_key_export_password,omitempty"`
+}
+
+func (m *FileVaultUnlock) Reset()                    { *m = FileVaultUnlock{} }
+func (m *FileVaultUnlock) String() string            { return proto.CompactTextString(m) }
+func (*FileVaultUnlock) ProtoMessage()               {}
+func (*FileVaultUnlock) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{57} }
+
+func (m *FileVaultUnlock) GetPassword() string {
+	if m != nil {
+		return m.Password
+	}
+	return ""
+}
+
+func (m *FileVaultUnlock) GetPrivateKeyExport() []byte {
+	if m != nil {
+		return m.PrivateKeyExport
+	}
+	return nil
+}
+
+func (m *FileVaultUnlock) GetPrivateKeyExportPassword() string {
+	if m != nil {
+		return m.PrivateKeyExportPassword
+	}
+	return ""
+}
+
 type ResultPayload struct {
 	Udid        string        `protobuf:"bytes,1,opt,name=udid,proto3" json:"udid,omitempty"`
 	CommandUuid string        `protobuf:"bytes,2,opt,name=command_uuid,json=commandUuid,proto3" json:"command_uuid,omitempty"`
@@ -1178,7 +2620,7 @@ type ResultPayload struct {
 func (m *ResultPayload) Reset()                    { *m = ResultPayload{} }
 func (m *ResultPayload) String() string            { return proto.CompactTextString(m) }
 func (*ResultPayload) ProtoMessage()               {}
-func (*ResultPayload) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{22} }
+func (*ResultPayload) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{58} }
 
 func (m *ResultPayload) GetUdid() string {
 	if m != nil {
@@ -1214,7 +2656,7 @@ type ErrorChain struct {
 func (m *ErrorChain) Reset()                    { *m = ErrorChain{} }
 func (m *ErrorChain) String() string            { return proto.CompactTextString(m) }
 func (*ErrorChain) ProtoMessage()               {}
-func (*ErrorChain) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{23} }
+func (*ErrorChain) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{59} }
 
 func (m *ErrorChain) GetLocalizedDescription() string {
 	if m != nil {
@@ -1265,8 +2707,44 @@ func init() {
 	proto.RegisterType((*InstallApplicationOptions)(nil), "mdmproto.InstallApplicationOptions")
 	proto.RegisterType((*InstallApplicationConfiguration)(nil), "mdmproto.InstallApplicationConfiguration")
 	proto.RegisterType((*InstallApplicationAttributes)(nil), "mdmproto.InstallApplicationAttributes")
+	proto.RegisterType((*ApplyRedemptionCode)(nil), "mdmproto.ApplyRedemptionCode")
+	proto.RegisterType((*ManagedApplicationList)(nil), "mdmproto.ManagedApplicationList")
+	proto.RegisterType((*RemoveApplication)(nil), "mdmproto.RemoveApplication")
+	proto.RegisterType((*InviteToProgram)(nil), "mdmproto.InviteToProgram")
+	proto.RegisterType((*ValidateApplications)(nil), "mdmproto.ValidateApplications")
 	proto.RegisterType((*AccountConfiguration)(nil), "mdmproto.AccountConfiguration")
 	proto.RegisterType((*AutoSetupAdminAccounts)(nil), "mdmproto.AutoSetupAdminAccounts")
+	proto.RegisterType((*InstallMedia)(nil), "mdmproto.InstallMedia")
+	proto.RegisterType((*RemoveMedia)(nil), "mdmproto.RemoveMedia")
+	proto.RegisterType((*Settings)(nil), "mdmproto.Settings")
+	proto.RegisterType((*Setting)(nil), "mdmproto.Setting")
+	proto.RegisterType((*VoiceRoamingSetting)(nil), "mdmproto.VoiceRoamingSetting")
+	proto.RegisterType((*PersonalHotspotSetting)(nil), "mdmproto.PersonalHotspotSetting")
+	proto.RegisterType((*WallpaperSetting)(nil), "mdmproto.WallpaperSetting")
+	proto.RegisterType((*DataRoamingSetting)(nil), "mdmproto.DataRoamingSetting")
+	proto.RegisterType((*BluetoothSetting)(nil), "mdmproto.BluetoothSetting")
+	proto.RegisterType((*ApplicationAttributesSetting)(nil), "mdmproto.ApplicationAttributesSetting")
+	proto.RegisterType((*ApplicationAttributes)(nil), "mdmproto.ApplicationAttributes")
+	proto.RegisterType((*DeviceNameSetting)(nil), "mdmproto.DeviceNameSetting")
+	proto.RegisterType((*HostnameSetting)(nil), "mdmproto.HostnameSetting")
+	proto.RegisterType((*MDMOptionsSetting)(nil), "mdmproto.MDMOptionsSetting")
+	proto.RegisterType((*MDMOptions)(nil), "mdmproto.MDMOptions")
+	proto.RegisterType((*PasscodeLockGracePeriodSetting)(nil), "mdmproto.PasscodeLockGracePeriodSetting")
+	proto.RegisterType((*MaximumResidentUsersSetting)(nil), "mdmproto.MaximumResidentUsersSetting")
+	proto.RegisterType((*DiagnosticSubmissionSetting)(nil), "mdmproto.DiagnosticSubmissionSetting")
+	proto.RegisterType((*AppAnalyticsSetting)(nil), "mdmproto.AppAnalyticsSetting")
+	proto.RegisterType((*ManagedApplicationConfiguration)(nil), "mdmproto.ManagedApplicationConfiguration")
+	proto.RegisterType((*ManagedApplicationAttributes)(nil), "mdmproto.ManagedApplicationAttributes")
+	proto.RegisterType((*ManagedApplicationFeedback)(nil), "mdmproto.ManagedApplicationFeedback")
+	proto.RegisterType((*SetFirmwarePassword)(nil), "mdmproto.SetFirmwarePassword")
+	proto.RegisterType((*VerifyFirmwarePassword)(nil), "mdmproto.VerifyFirmwarePassword")
+	proto.RegisterType((*SetAutoAdminPassword)(nil), "mdmproto.SetAutoAdminPassword")
+	proto.RegisterType((*ScheduleOSUpdate)(nil), "mdmproto.ScheduleOSUpdate")
+	proto.RegisterType((*Update)(nil), "mdmproto.Update")
+	proto.RegisterType((*ScheduleOSUpdateScan)(nil), "mdmproto.ScheduleOSUpdateScan")
+	proto.RegisterType((*ActiveNSExtensions)(nil), "mdmproto.ActiveNSExtensions")
+	proto.RegisterType((*RotateFileVaultKey)(nil), "mdmproto.RotateFileVaultKey")
+	proto.RegisterType((*FileVaultUnlock)(nil), "mdmproto.FileVaultUnlock")
 	proto.RegisterType((*ResultPayload)(nil), "mdmproto.ResultPayload")
 	proto.RegisterType((*ErrorChain)(nil), "mdmproto.ErrorChain")
 	proto.RegisterEnum("mdmproto.ResultPayload_Status", ResultPayload_Status_name, ResultPayload_Status_value)
@@ -1564,6 +3042,294 @@ func (m *Command_AccountConfiguration) MarshalTo(dAtA []byte) (int, error) {
 	}
 	return i, nil
 }
+func (m *Command_ApplyRedemptionCode) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.ApplyRedemptionCode != nil {
+		dAtA[i] = 0x92
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.ApplyRedemptionCode.Size()))
+		n19, err := m.ApplyRedemptionCode.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n19
+	}
+	return i, nil
+}
+func (m *Command_ManagedApplicationList) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.ManagedApplicationList != nil {
+		dAtA[i] = 0x9a
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.ManagedApplicationList.Size()))
+		n20, err := m.ManagedApplicationList.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n20
+	}
+	return i, nil
+}
+func (m *Command_RemoveApplication) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.RemoveApplication != nil {
+		dAtA[i] = 0xa2
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.RemoveApplication.Size()))
+		n21, err := m.RemoveApplication.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n21
+	}
+	return i, nil
+}
+func (m *Command_InviteToProgram) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.InviteToProgram != nil {
+		dAtA[i] = 0xaa
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.InviteToProgram.Size()))
+		n22, err := m.InviteToProgram.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n22
+	}
+	return i, nil
+}
+func (m *Command_ValidataApplications) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.ValidataApplications != nil {
+		dAtA[i] = 0xb2
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.ValidataApplications.Size()))
+		n23, err := m.ValidataApplications.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n23
+	}
+	return i, nil
+}
+func (m *Command_InstallMedia) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.InstallMedia != nil {
+		dAtA[i] = 0xba
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.InstallMedia.Size()))
+		n24, err := m.InstallMedia.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n24
+	}
+	return i, nil
+}
+func (m *Command_RemoveMedia) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.RemoveMedia != nil {
+		dAtA[i] = 0xc2
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.RemoveMedia.Size()))
+		n25, err := m.RemoveMedia.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n25
+	}
+	return i, nil
+}
+func (m *Command_Settings) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.Settings != nil {
+		dAtA[i] = 0xca
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.Settings.Size()))
+		n26, err := m.Settings.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n26
+	}
+	return i, nil
+}
+func (m *Command_ManagedApplicationConfiguration) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.ManagedApplicationConfiguration != nil {
+		dAtA[i] = 0xd2
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.ManagedApplicationConfiguration.Size()))
+		n27, err := m.ManagedApplicationConfiguration.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n27
+	}
+	return i, nil
+}
+func (m *Command_ManagedApplicationAttributes) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.ManagedApplicationAttributes != nil {
+		dAtA[i] = 0xda
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.ManagedApplicationAttributes.Size()))
+		n28, err := m.ManagedApplicationAttributes.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n28
+	}
+	return i, nil
+}
+func (m *Command_ManagedApplicationFeedback) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.ManagedApplicationFeedback != nil {
+		dAtA[i] = 0xe2
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.ManagedApplicationFeedback.Size()))
+		n29, err := m.ManagedApplicationFeedback.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n29
+	}
+	return i, nil
+}
+func (m *Command_SetFirmwarePassword) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.SetFirmwarePassword != nil {
+		dAtA[i] = 0xea
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.SetFirmwarePassword.Size()))
+		n30, err := m.SetFirmwarePassword.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n30
+	}
+	return i, nil
+}
+func (m *Command_VerifyFirmwarePassword) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.VerifyFirmwarePassword != nil {
+		dAtA[i] = 0xf2
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.VerifyFirmwarePassword.Size()))
+		n31, err := m.VerifyFirmwarePassword.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n31
+	}
+	return i, nil
+}
+func (m *Command_SetAutoAdminPassword) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.SetAutoAdminPassword != nil {
+		dAtA[i] = 0xfa
+		i++
+		dAtA[i] = 0x1
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.SetAutoAdminPassword.Size()))
+		n32, err := m.SetAutoAdminPassword.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n32
+	}
+	return i, nil
+}
+func (m *Command_ScheduleOsUpdate) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.ScheduleOsUpdate != nil {
+		dAtA[i] = 0x82
+		i++
+		dAtA[i] = 0x2
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.ScheduleOsUpdate.Size()))
+		n33, err := m.ScheduleOsUpdate.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n33
+	}
+	return i, nil
+}
+func (m *Command_ScheduleOsUpdateScan) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.ScheduleOsUpdateScan != nil {
+		dAtA[i] = 0x8a
+		i++
+		dAtA[i] = 0x2
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.ScheduleOsUpdateScan.Size()))
+		n34, err := m.ScheduleOsUpdateScan.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n34
+	}
+	return i, nil
+}
+func (m *Command_ActiveNsExtensions) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.ActiveNsExtensions != nil {
+		dAtA[i] = 0x92
+		i++
+		dAtA[i] = 0x2
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.ActiveNsExtensions.Size()))
+		n35, err := m.ActiveNsExtensions.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n35
+	}
+	return i, nil
+}
+func (m *Command_RotateFilevaultKey) MarshalTo(dAtA []byte) (int, error) {
+	i := 0
+	if m.RotateFilevaultKey != nil {
+		dAtA[i] = 0x9a
+		i++
+		dAtA[i] = 0x2
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.RotateFilevaultKey.Size()))
+		n36, err := m.RotateFilevaultKey.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n36
+	}
+	return i, nil
+}
 func (m *InstallProfile) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1827,6 +3593,16 @@ func (m *EraseDevice) MarshalTo(dAtA []byte) (int, error) {
 		}
 		i++
 	}
+	if m.DisallowProximitySetup {
+		dAtA[i] = 0x18
+		i++
+		if m.DisallowProximitySetup {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
 	return i, nil
 }
 
@@ -2024,11 +3800,11 @@ func (m *InstallApplication) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0x1a
 		i++
 		i = encodeVarintMdm(dAtA, i, uint64(m.Options.Size()))
-		n19, err := m.Options.MarshalTo(dAtA[i:])
+		n37, err := m.Options.MarshalTo(dAtA[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n19
+		i += n37
 	}
 	if len(m.ManifestUrl) > 0 {
 		dAtA[i] = 0x22
@@ -2045,21 +3821,21 @@ func (m *InstallApplication) MarshalTo(dAtA []byte) (int, error) {
 		dAtA[i] = 0x32
 		i++
 		i = encodeVarintMdm(dAtA, i, uint64(m.Configuration.Size()))
-		n20, err := m.Configuration.MarshalTo(dAtA[i:])
+		n38, err := m.Configuration.MarshalTo(dAtA[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n20
+		i += n38
 	}
 	if m.Attributes != nil {
 		dAtA[i] = 0x3a
 		i++
 		i = encodeVarintMdm(dAtA, i, uint64(m.Attributes.Size()))
-		n21, err := m.Attributes.MarshalTo(dAtA[i:])
+		n39, err := m.Attributes.MarshalTo(dAtA[i:])
 		if err != nil {
 			return 0, err
 		}
-		i += n21
+		i += n39
 	}
 	if len(m.ChangeManagementState) > 0 {
 		dAtA[i] = 0x42
@@ -2126,6 +3902,156 @@ func (m *InstallApplicationAttributes) MarshalTo(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	return i, nil
+}
+
+func (m *ApplyRedemptionCode) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ApplyRedemptionCode) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Identifier) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifier)))
+		i += copy(dAtA[i:], m.Identifier)
+	}
+	if len(m.RedemptionCode) > 0 {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.RedemptionCode)))
+		i += copy(dAtA[i:], m.RedemptionCode)
+	}
+	return i, nil
+}
+
+func (m *ManagedApplicationList) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ManagedApplicationList) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Identifiers) > 0 {
+		for _, s := range m.Identifiers {
+			dAtA[i] = 0xa
+			i++
+			l = len(s)
+			for l >= 1<<7 {
+				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
+				l >>= 7
+				i++
+			}
+			dAtA[i] = uint8(l)
+			i++
+			i += copy(dAtA[i:], s)
+		}
+	}
+	return i, nil
+}
+
+func (m *RemoveApplication) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *RemoveApplication) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Identifier) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifier)))
+		i += copy(dAtA[i:], m.Identifier)
+	}
+	return i, nil
+}
+
+func (m *InviteToProgram) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *InviteToProgram) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.ProgramId) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.ProgramId)))
+		i += copy(dAtA[i:], m.ProgramId)
+	}
+	if len(m.InvitationUrl) > 0 {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.InvitationUrl)))
+		i += copy(dAtA[i:], m.InvitationUrl)
+	}
+	return i, nil
+}
+
+func (m *ValidateApplications) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ValidateApplications) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Identifiers) > 0 {
+		for _, s := range m.Identifiers {
+			dAtA[i] = 0xa
+			i++
+			l = len(s)
+			for l >= 1<<7 {
+				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
+				l >>= 7
+				i++
+			}
+			dAtA[i] = uint8(l)
+			i++
+			i += copy(dAtA[i:], s)
+		}
+	}
 	return i, nil
 }
 
@@ -2221,6 +4147,1077 @@ func (m *AutoSetupAdminAccounts) MarshalTo(dAtA []byte) (int, error) {
 			dAtA[i] = 0
 		}
 		i++
+	}
+	return i, nil
+}
+
+func (m *InstallMedia) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *InstallMedia) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.ItunesStoreId != 0 {
+		dAtA[i] = 0x8
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.ItunesStoreId))
+	}
+	if len(m.MediaUrl) > 0 {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.MediaUrl)))
+		i += copy(dAtA[i:], m.MediaUrl)
+	}
+	if len(m.MediaType) > 0 {
+		dAtA[i] = 0x1a
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.MediaType)))
+		i += copy(dAtA[i:], m.MediaType)
+	}
+	return i, nil
+}
+
+func (m *RemoveMedia) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *RemoveMedia) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.MediaType) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.MediaType)))
+		i += copy(dAtA[i:], m.MediaType)
+	}
+	if m.ItunesStoreId != 0 {
+		dAtA[i] = 0x10
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.ItunesStoreId))
+	}
+	if len(m.PersistentId) > 0 {
+		dAtA[i] = 0x1a
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.PersistentId)))
+		i += copy(dAtA[i:], m.PersistentId)
+	}
+	return i, nil
+}
+
+func (m *Settings) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Settings) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Settings) > 0 {
+		for _, msg := range m.Settings {
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintMdm(dAtA, i, uint64(msg.Size()))
+			n, err := msg.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+		}
+	}
+	return i, nil
+}
+
+func (m *Setting) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Setting) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Item) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Item)))
+		i += copy(dAtA[i:], m.Item)
+	}
+	if m.DeviceName != nil {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.DeviceName.Size()))
+		n40, err := m.DeviceName.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n40
+	}
+	if m.Hostname != nil {
+		dAtA[i] = 0x1a
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.Hostname.Size()))
+		n41, err := m.Hostname.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n41
+	}
+	if m.VoiceRoaming != nil {
+		dAtA[i] = 0x22
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.VoiceRoaming.Size()))
+		n42, err := m.VoiceRoaming.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n42
+	}
+	if m.PersonalHotspot != nil {
+		dAtA[i] = 0x2a
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.PersonalHotspot.Size()))
+		n43, err := m.PersonalHotspot.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n43
+	}
+	if m.Wallpaper != nil {
+		dAtA[i] = 0x32
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.Wallpaper.Size()))
+		n44, err := m.Wallpaper.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n44
+	}
+	if m.DataRoaming != nil {
+		dAtA[i] = 0x3a
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.DataRoaming.Size()))
+		n45, err := m.DataRoaming.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n45
+	}
+	if m.Bluetooth != nil {
+		dAtA[i] = 0x42
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.Bluetooth.Size()))
+		n46, err := m.Bluetooth.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n46
+	}
+	if m.ApplicationAttributes != nil {
+		dAtA[i] = 0x4a
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.ApplicationAttributes.Size()))
+		n47, err := m.ApplicationAttributes.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n47
+	}
+	if m.MdmOptions != nil {
+		dAtA[i] = 0x52
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.MdmOptions.Size()))
+		n48, err := m.MdmOptions.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n48
+	}
+	if m.PasscodeLockGracePeriod != nil {
+		dAtA[i] = 0x5a
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.PasscodeLockGracePeriod.Size()))
+		n49, err := m.PasscodeLockGracePeriod.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n49
+	}
+	if m.MaximumResidentUsers != nil {
+		dAtA[i] = 0x62
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.MaximumResidentUsers.Size()))
+		n50, err := m.MaximumResidentUsers.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n50
+	}
+	if m.DiagnosticSubmission != nil {
+		dAtA[i] = 0x6a
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.DiagnosticSubmission.Size()))
+		n51, err := m.DiagnosticSubmission.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n51
+	}
+	if m.AppAnalytics != nil {
+		dAtA[i] = 0x72
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.AppAnalytics.Size()))
+		n52, err := m.AppAnalytics.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n52
+	}
+	return i, nil
+}
+
+func (m *VoiceRoamingSetting) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *VoiceRoamingSetting) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Enabled {
+		dAtA[i] = 0x8
+		i++
+		if m.Enabled {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	return i, nil
+}
+
+func (m *PersonalHotspotSetting) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PersonalHotspotSetting) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Enabled {
+		dAtA[i] = 0x8
+		i++
+		if m.Enabled {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	return i, nil
+}
+
+func (m *WallpaperSetting) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *WallpaperSetting) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Data) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Data)))
+		i += copy(dAtA[i:], m.Data)
+	}
+	if m.Where != 0 {
+		dAtA[i] = 0x10
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.Where))
+	}
+	return i, nil
+}
+
+func (m *DataRoamingSetting) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *DataRoamingSetting) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Enabled {
+		dAtA[i] = 0x8
+		i++
+		if m.Enabled {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	return i, nil
+}
+
+func (m *BluetoothSetting) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *BluetoothSetting) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Enabled {
+		dAtA[i] = 0x8
+		i++
+		if m.Enabled {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	return i, nil
+}
+
+func (m *ApplicationAttributesSetting) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ApplicationAttributesSetting) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Identifier) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifier)))
+		i += copy(dAtA[i:], m.Identifier)
+	}
+	if m.ApplicationAttributes != nil {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.ApplicationAttributes.Size()))
+		n53, err := m.ApplicationAttributes.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n53
+	}
+	return i, nil
+}
+
+func (m *ApplicationAttributes) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ApplicationAttributes) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.VpnUuid) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.VpnUuid)))
+		i += copy(dAtA[i:], m.VpnUuid)
+	}
+	return i, nil
+}
+
+func (m *DeviceNameSetting) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *DeviceNameSetting) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.DeviceName) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.DeviceName)))
+		i += copy(dAtA[i:], m.DeviceName)
+	}
+	return i, nil
+}
+
+func (m *HostnameSetting) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *HostnameSetting) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Hostname) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Hostname)))
+		i += copy(dAtA[i:], m.Hostname)
+	}
+	return i, nil
+}
+
+func (m *MDMOptionsSetting) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MDMOptionsSetting) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.MdmOptions != nil {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.MdmOptions.Size()))
+		n54, err := m.MdmOptions.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n54
+	}
+	return i, nil
+}
+
+func (m *MDMOptions) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MDMOptions) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.ActivationLockAllowedWhileSupervised {
+		dAtA[i] = 0x8
+		i++
+		if m.ActivationLockAllowedWhileSupervised {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	return i, nil
+}
+
+func (m *PasscodeLockGracePeriodSetting) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *PasscodeLockGracePeriodSetting) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.PasscodeLockGracePeriod != 0 {
+		dAtA[i] = 0x8
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.PasscodeLockGracePeriod))
+	}
+	return i, nil
+}
+
+func (m *MaximumResidentUsersSetting) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *MaximumResidentUsersSetting) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.MaximumResidentUsers != 0 {
+		dAtA[i] = 0x8
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.MaximumResidentUsers))
+	}
+	return i, nil
+}
+
+func (m *DiagnosticSubmissionSetting) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *DiagnosticSubmissionSetting) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.DiagnosticSubmission {
+		dAtA[i] = 0x8
+		i++
+		if m.DiagnosticSubmission {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	return i, nil
+}
+
+func (m *AppAnalyticsSetting) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *AppAnalyticsSetting) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.AppAnalytics {
+		dAtA[i] = 0x8
+		i++
+		if m.AppAnalytics {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	return i, nil
+}
+
+func (m *ManagedApplicationConfiguration) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ManagedApplicationConfiguration) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Identifiers) > 0 {
+		for _, s := range m.Identifiers {
+			dAtA[i] = 0xa
+			i++
+			l = len(s)
+			for l >= 1<<7 {
+				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
+				l >>= 7
+				i++
+			}
+			dAtA[i] = uint8(l)
+			i++
+			i += copy(dAtA[i:], s)
+		}
+	}
+	return i, nil
+}
+
+func (m *ManagedApplicationAttributes) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ManagedApplicationAttributes) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Identifiers) > 0 {
+		for _, s := range m.Identifiers {
+			dAtA[i] = 0xa
+			i++
+			l = len(s)
+			for l >= 1<<7 {
+				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
+				l >>= 7
+				i++
+			}
+			dAtA[i] = uint8(l)
+			i++
+			i += copy(dAtA[i:], s)
+		}
+	}
+	return i, nil
+}
+
+func (m *ManagedApplicationFeedback) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ManagedApplicationFeedback) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Identifiers) > 0 {
+		for _, s := range m.Identifiers {
+			dAtA[i] = 0xa
+			i++
+			l = len(s)
+			for l >= 1<<7 {
+				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
+				l >>= 7
+				i++
+			}
+			dAtA[i] = uint8(l)
+			i++
+			i += copy(dAtA[i:], s)
+		}
+	}
+	if m.DeleteFeedback {
+		dAtA[i] = 0x10
+		i++
+		if m.DeleteFeedback {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	return i, nil
+}
+
+func (m *SetFirmwarePassword) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SetFirmwarePassword) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.CurrentPassword) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.CurrentPassword)))
+		i += copy(dAtA[i:], m.CurrentPassword)
+	}
+	if len(m.NewPassword) > 0 {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.NewPassword)))
+		i += copy(dAtA[i:], m.NewPassword)
+	}
+	if m.AllowOroms {
+		dAtA[i] = 0x18
+		i++
+		if m.AllowOroms {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	return i, nil
+}
+
+func (m *VerifyFirmwarePassword) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *VerifyFirmwarePassword) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Password) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Password)))
+		i += copy(dAtA[i:], m.Password)
+	}
+	return i, nil
+}
+
+func (m *SetAutoAdminPassword) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SetAutoAdminPassword) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Guid) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Guid)))
+		i += copy(dAtA[i:], m.Guid)
+	}
+	if len(m.PasswordHash) > 0 {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.PasswordHash)))
+		i += copy(dAtA[i:], m.PasswordHash)
+	}
+	return i, nil
+}
+
+func (m *ScheduleOSUpdate) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ScheduleOSUpdate) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Updates) > 0 {
+		for _, msg := range m.Updates {
+			dAtA[i] = 0xa
+			i++
+			i = encodeVarintMdm(dAtA, i, uint64(msg.Size()))
+			n, err := msg.MarshalTo(dAtA[i:])
+			if err != nil {
+				return 0, err
+			}
+			i += n
+		}
+	}
+	return i, nil
+}
+
+func (m *Update) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *Update) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.ProductKey) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.ProductKey)))
+		i += copy(dAtA[i:], m.ProductKey)
+	}
+	if len(m.ProductVersion) > 0 {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.ProductVersion)))
+		i += copy(dAtA[i:], m.ProductVersion)
+	}
+	if len(m.InstallAction) > 0 {
+		dAtA[i] = 0x1a
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.InstallAction)))
+		i += copy(dAtA[i:], m.InstallAction)
+	}
+	return i, nil
+}
+
+func (m *ScheduleOSUpdateScan) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ScheduleOSUpdateScan) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if m.Force {
+		dAtA[i] = 0x8
+		i++
+		if m.Force {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i++
+	}
+	return i, nil
+}
+
+func (m *ActiveNSExtensions) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *ActiveNSExtensions) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.FilterExtensionPoints) > 0 {
+		for _, s := range m.FilterExtensionPoints {
+			dAtA[i] = 0xa
+			i++
+			l = len(s)
+			for l >= 1<<7 {
+				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
+				l >>= 7
+				i++
+			}
+			dAtA[i] = uint8(l)
+			i++
+			i += copy(dAtA[i:], s)
+		}
+	}
+	return i, nil
+}
+
+func (m *RotateFileVaultKey) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *RotateFileVaultKey) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.KeyType) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.KeyType)))
+		i += copy(dAtA[i:], m.KeyType)
+	}
+	if m.FilevaultUnlock != nil {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(m.FilevaultUnlock.Size()))
+		n55, err := m.FilevaultUnlock.MarshalTo(dAtA[i:])
+		if err != nil {
+			return 0, err
+		}
+		i += n55
+	}
+	if len(m.NewCertificate) > 0 {
+		dAtA[i] = 0x1a
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.NewCertificate)))
+		i += copy(dAtA[i:], m.NewCertificate)
+	}
+	if len(m.ReplyEncryptionCertificate) > 0 {
+		dAtA[i] = 0x22
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.ReplyEncryptionCertificate)))
+		i += copy(dAtA[i:], m.ReplyEncryptionCertificate)
+	}
+	return i, nil
+}
+
+func (m *FileVaultUnlock) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalTo(dAtA)
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *FileVaultUnlock) MarshalTo(dAtA []byte) (int, error) {
+	var i int
+	_ = i
+	var l int
+	_ = l
+	if len(m.Password) > 0 {
+		dAtA[i] = 0xa
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Password)))
+		i += copy(dAtA[i:], m.Password)
+	}
+	if len(m.PrivateKeyExport) > 0 {
+		dAtA[i] = 0x12
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.PrivateKeyExport)))
+		i += copy(dAtA[i:], m.PrivateKeyExport)
+	}
+	if len(m.PrivateKeyExportPassword) > 0 {
+		dAtA[i] = 0x1a
+		i++
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.PrivateKeyExportPassword)))
+		i += copy(dAtA[i:], m.PrivateKeyExportPassword)
 	}
 	return i, nil
 }
@@ -2488,6 +5485,168 @@ func (m *Command_AccountConfiguration) Size() (n int) {
 	}
 	return n
 }
+func (m *Command_ApplyRedemptionCode) Size() (n int) {
+	var l int
+	_ = l
+	if m.ApplyRedemptionCode != nil {
+		l = m.ApplyRedemptionCode.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_ManagedApplicationList) Size() (n int) {
+	var l int
+	_ = l
+	if m.ManagedApplicationList != nil {
+		l = m.ManagedApplicationList.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_RemoveApplication) Size() (n int) {
+	var l int
+	_ = l
+	if m.RemoveApplication != nil {
+		l = m.RemoveApplication.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_InviteToProgram) Size() (n int) {
+	var l int
+	_ = l
+	if m.InviteToProgram != nil {
+		l = m.InviteToProgram.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_ValidataApplications) Size() (n int) {
+	var l int
+	_ = l
+	if m.ValidataApplications != nil {
+		l = m.ValidataApplications.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_InstallMedia) Size() (n int) {
+	var l int
+	_ = l
+	if m.InstallMedia != nil {
+		l = m.InstallMedia.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_RemoveMedia) Size() (n int) {
+	var l int
+	_ = l
+	if m.RemoveMedia != nil {
+		l = m.RemoveMedia.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_Settings) Size() (n int) {
+	var l int
+	_ = l
+	if m.Settings != nil {
+		l = m.Settings.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_ManagedApplicationConfiguration) Size() (n int) {
+	var l int
+	_ = l
+	if m.ManagedApplicationConfiguration != nil {
+		l = m.ManagedApplicationConfiguration.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_ManagedApplicationAttributes) Size() (n int) {
+	var l int
+	_ = l
+	if m.ManagedApplicationAttributes != nil {
+		l = m.ManagedApplicationAttributes.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_ManagedApplicationFeedback) Size() (n int) {
+	var l int
+	_ = l
+	if m.ManagedApplicationFeedback != nil {
+		l = m.ManagedApplicationFeedback.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_SetFirmwarePassword) Size() (n int) {
+	var l int
+	_ = l
+	if m.SetFirmwarePassword != nil {
+		l = m.SetFirmwarePassword.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_VerifyFirmwarePassword) Size() (n int) {
+	var l int
+	_ = l
+	if m.VerifyFirmwarePassword != nil {
+		l = m.VerifyFirmwarePassword.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_SetAutoAdminPassword) Size() (n int) {
+	var l int
+	_ = l
+	if m.SetAutoAdminPassword != nil {
+		l = m.SetAutoAdminPassword.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_ScheduleOsUpdate) Size() (n int) {
+	var l int
+	_ = l
+	if m.ScheduleOsUpdate != nil {
+		l = m.ScheduleOsUpdate.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_ScheduleOsUpdateScan) Size() (n int) {
+	var l int
+	_ = l
+	if m.ScheduleOsUpdateScan != nil {
+		l = m.ScheduleOsUpdateScan.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_ActiveNsExtensions) Size() (n int) {
+	var l int
+	_ = l
+	if m.ActiveNsExtensions != nil {
+		l = m.ActiveNsExtensions.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+func (m *Command_RotateFilevaultKey) Size() (n int) {
+	var l int
+	_ = l
+	if m.RotateFilevaultKey != nil {
+		l = m.RotateFilevaultKey.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
 func (m *InstallProfile) Size() (n int) {
 	var l int
 	_ = l
@@ -2591,6 +5750,9 @@ func (m *EraseDevice) Size() (n int) {
 		n += 1 + l + sovMdm(uint64(l))
 	}
 	if m.PreserveDataPlan {
+		n += 2
+	}
+	if m.DisallowProximitySetup {
 		n += 2
 	}
 	return n
@@ -2725,6 +5887,68 @@ func (m *InstallApplicationAttributes) Size() (n int) {
 	return n
 }
 
+func (m *ApplyRedemptionCode) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.Identifier)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	l = len(m.RedemptionCode)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+
+func (m *ManagedApplicationList) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.Identifiers) > 0 {
+		for _, s := range m.Identifiers {
+			l = len(s)
+			n += 1 + l + sovMdm(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *RemoveApplication) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.Identifier)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+
+func (m *InviteToProgram) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.ProgramId)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	l = len(m.InvitationUrl)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+
+func (m *ValidateApplications) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.Identifiers) > 0 {
+		for _, s := range m.Identifiers {
+			l = len(s)
+			n += 1 + l + sovMdm(uint64(l))
+		}
+	}
+	return n
+}
+
 func (m *AccountConfiguration) Size() (n int) {
 	var l int
 	_ = l
@@ -2760,6 +5984,433 @@ func (m *AutoSetupAdminAccounts) Size() (n int) {
 	}
 	if m.Hidden {
 		n += 2
+	}
+	return n
+}
+
+func (m *InstallMedia) Size() (n int) {
+	var l int
+	_ = l
+	if m.ItunesStoreId != 0 {
+		n += 1 + sovMdm(uint64(m.ItunesStoreId))
+	}
+	l = len(m.MediaUrl)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	l = len(m.MediaType)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+
+func (m *RemoveMedia) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.MediaType)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.ItunesStoreId != 0 {
+		n += 1 + sovMdm(uint64(m.ItunesStoreId))
+	}
+	l = len(m.PersistentId)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+
+func (m *Settings) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.Settings) > 0 {
+		for _, e := range m.Settings {
+			l = e.Size()
+			n += 1 + l + sovMdm(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *Setting) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.Item)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.DeviceName != nil {
+		l = m.DeviceName.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.Hostname != nil {
+		l = m.Hostname.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.VoiceRoaming != nil {
+		l = m.VoiceRoaming.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.PersonalHotspot != nil {
+		l = m.PersonalHotspot.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.Wallpaper != nil {
+		l = m.Wallpaper.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.DataRoaming != nil {
+		l = m.DataRoaming.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.Bluetooth != nil {
+		l = m.Bluetooth.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.ApplicationAttributes != nil {
+		l = m.ApplicationAttributes.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.MdmOptions != nil {
+		l = m.MdmOptions.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.PasscodeLockGracePeriod != nil {
+		l = m.PasscodeLockGracePeriod.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.MaximumResidentUsers != nil {
+		l = m.MaximumResidentUsers.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.DiagnosticSubmission != nil {
+		l = m.DiagnosticSubmission.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.AppAnalytics != nil {
+		l = m.AppAnalytics.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+
+func (m *VoiceRoamingSetting) Size() (n int) {
+	var l int
+	_ = l
+	if m.Enabled {
+		n += 2
+	}
+	return n
+}
+
+func (m *PersonalHotspotSetting) Size() (n int) {
+	var l int
+	_ = l
+	if m.Enabled {
+		n += 2
+	}
+	return n
+}
+
+func (m *WallpaperSetting) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.Data)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.Where != 0 {
+		n += 1 + sovMdm(uint64(m.Where))
+	}
+	return n
+}
+
+func (m *DataRoamingSetting) Size() (n int) {
+	var l int
+	_ = l
+	if m.Enabled {
+		n += 2
+	}
+	return n
+}
+
+func (m *BluetoothSetting) Size() (n int) {
+	var l int
+	_ = l
+	if m.Enabled {
+		n += 2
+	}
+	return n
+}
+
+func (m *ApplicationAttributesSetting) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.Identifier)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.ApplicationAttributes != nil {
+		l = m.ApplicationAttributes.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+
+func (m *ApplicationAttributes) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.VpnUuid)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+
+func (m *DeviceNameSetting) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.DeviceName)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+
+func (m *HostnameSetting) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.Hostname)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+
+func (m *MDMOptionsSetting) Size() (n int) {
+	var l int
+	_ = l
+	if m.MdmOptions != nil {
+		l = m.MdmOptions.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+
+func (m *MDMOptions) Size() (n int) {
+	var l int
+	_ = l
+	if m.ActivationLockAllowedWhileSupervised {
+		n += 2
+	}
+	return n
+}
+
+func (m *PasscodeLockGracePeriodSetting) Size() (n int) {
+	var l int
+	_ = l
+	if m.PasscodeLockGracePeriod != 0 {
+		n += 1 + sovMdm(uint64(m.PasscodeLockGracePeriod))
+	}
+	return n
+}
+
+func (m *MaximumResidentUsersSetting) Size() (n int) {
+	var l int
+	_ = l
+	if m.MaximumResidentUsers != 0 {
+		n += 1 + sovMdm(uint64(m.MaximumResidentUsers))
+	}
+	return n
+}
+
+func (m *DiagnosticSubmissionSetting) Size() (n int) {
+	var l int
+	_ = l
+	if m.DiagnosticSubmission {
+		n += 2
+	}
+	return n
+}
+
+func (m *AppAnalyticsSetting) Size() (n int) {
+	var l int
+	_ = l
+	if m.AppAnalytics {
+		n += 2
+	}
+	return n
+}
+
+func (m *ManagedApplicationConfiguration) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.Identifiers) > 0 {
+		for _, s := range m.Identifiers {
+			l = len(s)
+			n += 1 + l + sovMdm(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *ManagedApplicationAttributes) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.Identifiers) > 0 {
+		for _, s := range m.Identifiers {
+			l = len(s)
+			n += 1 + l + sovMdm(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *ManagedApplicationFeedback) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.Identifiers) > 0 {
+		for _, s := range m.Identifiers {
+			l = len(s)
+			n += 1 + l + sovMdm(uint64(l))
+		}
+	}
+	if m.DeleteFeedback {
+		n += 2
+	}
+	return n
+}
+
+func (m *SetFirmwarePassword) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.CurrentPassword)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	l = len(m.NewPassword)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.AllowOroms {
+		n += 2
+	}
+	return n
+}
+
+func (m *VerifyFirmwarePassword) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.Password)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+
+func (m *SetAutoAdminPassword) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.Guid)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	l = len(m.PasswordHash)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+
+func (m *ScheduleOSUpdate) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.Updates) > 0 {
+		for _, e := range m.Updates {
+			l = e.Size()
+			n += 1 + l + sovMdm(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *Update) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.ProductKey)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	l = len(m.ProductVersion)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	l = len(m.InstallAction)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+
+func (m *ScheduleOSUpdateScan) Size() (n int) {
+	var l int
+	_ = l
+	if m.Force {
+		n += 2
+	}
+	return n
+}
+
+func (m *ActiveNSExtensions) Size() (n int) {
+	var l int
+	_ = l
+	if len(m.FilterExtensionPoints) > 0 {
+		for _, s := range m.FilterExtensionPoints {
+			l = len(s)
+			n += 1 + l + sovMdm(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *RotateFileVaultKey) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.KeyType)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.FilevaultUnlock != nil {
+		l = m.FilevaultUnlock.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	l = len(m.NewCertificate)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	l = len(m.ReplyEncryptionCertificate)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	return n
+}
+
+func (m *FileVaultUnlock) Size() (n int) {
+	var l int
+	_ = l
+	l = len(m.Password)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	l = len(m.PrivateKeyExport)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	l = len(m.PrivateKeyExportPassword)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
 	}
 	return n
 }
@@ -3499,6 +7150,582 @@ func (m *Command) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			m.Request = &Command_AccountConfiguration{v}
+			iNdEx = postIndex
+		case 18:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ApplyRedemptionCode", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &ApplyRedemptionCode{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_ApplyRedemptionCode{v}
+			iNdEx = postIndex
+		case 19:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ManagedApplicationList", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &ManagedApplicationList{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_ManagedApplicationList{v}
+			iNdEx = postIndex
+		case 20:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RemoveApplication", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &RemoveApplication{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_RemoveApplication{v}
+			iNdEx = postIndex
+		case 21:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InviteToProgram", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &InviteToProgram{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_InviteToProgram{v}
+			iNdEx = postIndex
+		case 22:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ValidataApplications", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &ValidateApplications{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_ValidataApplications{v}
+			iNdEx = postIndex
+		case 23:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InstallMedia", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &InstallMedia{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_InstallMedia{v}
+			iNdEx = postIndex
+		case 24:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RemoveMedia", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &RemoveMedia{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_RemoveMedia{v}
+			iNdEx = postIndex
+		case 25:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Settings", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &Settings{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_Settings{v}
+			iNdEx = postIndex
+		case 26:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ManagedApplicationConfiguration", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &ManagedApplicationConfiguration{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_ManagedApplicationConfiguration{v}
+			iNdEx = postIndex
+		case 27:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ManagedApplicationAttributes", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &ManagedApplicationAttributes{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_ManagedApplicationAttributes{v}
+			iNdEx = postIndex
+		case 28:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ManagedApplicationFeedback", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &ManagedApplicationFeedback{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_ManagedApplicationFeedback{v}
+			iNdEx = postIndex
+		case 29:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SetFirmwarePassword", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &SetFirmwarePassword{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_SetFirmwarePassword{v}
+			iNdEx = postIndex
+		case 30:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field VerifyFirmwarePassword", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &VerifyFirmwarePassword{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_VerifyFirmwarePassword{v}
+			iNdEx = postIndex
+		case 31:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field SetAutoAdminPassword", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &SetAutoAdminPassword{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_SetAutoAdminPassword{v}
+			iNdEx = postIndex
+		case 32:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ScheduleOsUpdate", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &ScheduleOSUpdate{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_ScheduleOsUpdate{v}
+			iNdEx = postIndex
+		case 33:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ScheduleOsUpdateScan", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &ScheduleOSUpdateScan{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_ScheduleOsUpdateScan{v}
+			iNdEx = postIndex
+		case 34:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ActiveNsExtensions", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &ActiveNSExtensions{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_ActiveNsExtensions{v}
+			iNdEx = postIndex
+		case 35:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RotateFilevaultKey", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			v := &RotateFileVaultKey{}
+			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			m.Request = &Command_RotateFilevaultKey{v}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -4315,6 +8542,26 @@ func (m *EraseDevice) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.PreserveDataPlan = bool(v != 0)
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DisallowProximitySetup", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.DisallowProximitySetup = bool(v != 0)
 		default:
 			iNdEx = preIndex
 			skippy, err := skipMdm(dAtA[iNdEx:])
@@ -5330,6 +9577,459 @@ func (m *InstallApplicationAttributes) Unmarshal(dAtA []byte) error {
 	}
 	return nil
 }
+func (m *ApplyRedemptionCode) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ApplyRedemptionCode: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ApplyRedemptionCode: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Identifier", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Identifier = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RedemptionCode", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.RedemptionCode = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ManagedApplicationList) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ManagedApplicationList: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ManagedApplicationList: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Identifiers", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Identifiers = append(m.Identifiers, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *RemoveApplication) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RemoveApplication: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RemoveApplication: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Identifier", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Identifier = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *InviteToProgram) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: InviteToProgram: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: InviteToProgram: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ProgramId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ProgramId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InvitationUrl", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.InvitationUrl = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ValidateApplications) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ValidateApplications: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ValidateApplications: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Identifiers", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Identifiers = append(m.Identifiers, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
 func (m *AccountConfiguration) Unmarshal(dAtA []byte) error {
 	l := len(dAtA)
 	iNdEx := 0
@@ -5589,6 +10289,3263 @@ func (m *AutoSetupAdminAccounts) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.Hidden = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *InstallMedia) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: InstallMedia: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: InstallMedia: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ItunesStoreId", wireType)
+			}
+			m.ItunesStoreId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ItunesStoreId |= (int64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MediaUrl", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MediaUrl = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MediaType", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MediaType = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *RemoveMedia) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RemoveMedia: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RemoveMedia: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MediaType", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.MediaType = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ItunesStoreId", wireType)
+			}
+			m.ItunesStoreId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.ItunesStoreId |= (int64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PersistentId", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.PersistentId = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Settings) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Settings: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Settings: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Settings", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Settings = append(m.Settings, &Setting{})
+			if err := m.Settings[len(m.Settings)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Setting) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Setting: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Setting: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Item", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Item = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DeviceName", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.DeviceName == nil {
+				m.DeviceName = &DeviceNameSetting{}
+			}
+			if err := m.DeviceName.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Hostname", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Hostname == nil {
+				m.Hostname = &HostnameSetting{}
+			}
+			if err := m.Hostname.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field VoiceRoaming", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.VoiceRoaming == nil {
+				m.VoiceRoaming = &VoiceRoamingSetting{}
+			}
+			if err := m.VoiceRoaming.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 5:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PersonalHotspot", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.PersonalHotspot == nil {
+				m.PersonalHotspot = &PersonalHotspotSetting{}
+			}
+			if err := m.PersonalHotspot.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 6:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Wallpaper", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Wallpaper == nil {
+				m.Wallpaper = &WallpaperSetting{}
+			}
+			if err := m.Wallpaper.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DataRoaming", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.DataRoaming == nil {
+				m.DataRoaming = &DataRoamingSetting{}
+			}
+			if err := m.DataRoaming.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Bluetooth", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.Bluetooth == nil {
+				m.Bluetooth = &BluetoothSetting{}
+			}
+			if err := m.Bluetooth.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 9:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationAttributes", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.ApplicationAttributes == nil {
+				m.ApplicationAttributes = &ApplicationAttributesSetting{}
+			}
+			if err := m.ApplicationAttributes.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 10:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MdmOptions", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.MdmOptions == nil {
+				m.MdmOptions = &MDMOptionsSetting{}
+			}
+			if err := m.MdmOptions.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 11:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PasscodeLockGracePeriod", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.PasscodeLockGracePeriod == nil {
+				m.PasscodeLockGracePeriod = &PasscodeLockGracePeriodSetting{}
+			}
+			if err := m.PasscodeLockGracePeriod.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 12:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaximumResidentUsers", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.MaximumResidentUsers == nil {
+				m.MaximumResidentUsers = &MaximumResidentUsersSetting{}
+			}
+			if err := m.MaximumResidentUsers.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 13:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DiagnosticSubmission", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.DiagnosticSubmission == nil {
+				m.DiagnosticSubmission = &DataRoamingSetting{}
+			}
+			if err := m.DiagnosticSubmission.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 14:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AppAnalytics", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.AppAnalytics == nil {
+				m.AppAnalytics = &AppAnalyticsSetting{}
+			}
+			if err := m.AppAnalytics.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *VoiceRoamingSetting) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: VoiceRoamingSetting: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: VoiceRoamingSetting: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Enabled", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Enabled = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *PersonalHotspotSetting) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PersonalHotspotSetting: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PersonalHotspotSetting: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Enabled", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Enabled = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *WallpaperSetting) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: WallpaperSetting: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: WallpaperSetting: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Data", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Data = append(m.Data[:0], dAtA[iNdEx:postIndex]...)
+			if m.Data == nil {
+				m.Data = []byte{}
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Where", wireType)
+			}
+			m.Where = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Where |= (int64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *DataRoamingSetting) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: DataRoamingSetting: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: DataRoamingSetting: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Enabled", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Enabled = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *BluetoothSetting) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: BluetoothSetting: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: BluetoothSetting: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Enabled", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Enabled = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ApplicationAttributesSetting) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ApplicationAttributesSetting: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ApplicationAttributesSetting: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Identifier", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Identifier = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ApplicationAttributes", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.ApplicationAttributes == nil {
+				m.ApplicationAttributes = &ApplicationAttributes{}
+			}
+			if err := m.ApplicationAttributes.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ApplicationAttributes) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ApplicationAttributes: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ApplicationAttributes: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field VpnUuid", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.VpnUuid = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *DeviceNameSetting) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: DeviceNameSetting: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: DeviceNameSetting: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DeviceName", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.DeviceName = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *HostnameSetting) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: HostnameSetting: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: HostnameSetting: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Hostname", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Hostname = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MDMOptionsSetting) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MDMOptionsSetting: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MDMOptionsSetting: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MdmOptions", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.MdmOptions == nil {
+				m.MdmOptions = &MDMOptions{}
+			}
+			if err := m.MdmOptions.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MDMOptions) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MDMOptions: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MDMOptions: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ActivationLockAllowedWhileSupervised", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.ActivationLockAllowedWhileSupervised = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *PasscodeLockGracePeriodSetting) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: PasscodeLockGracePeriodSetting: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: PasscodeLockGracePeriodSetting: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PasscodeLockGracePeriod", wireType)
+			}
+			m.PasscodeLockGracePeriod = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.PasscodeLockGracePeriod |= (int64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *MaximumResidentUsersSetting) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: MaximumResidentUsersSetting: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: MaximumResidentUsersSetting: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field MaximumResidentUsers", wireType)
+			}
+			m.MaximumResidentUsers = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.MaximumResidentUsers |= (int64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *DiagnosticSubmissionSetting) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: DiagnosticSubmissionSetting: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: DiagnosticSubmissionSetting: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DiagnosticSubmission", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.DiagnosticSubmission = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *AppAnalyticsSetting) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: AppAnalyticsSetting: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: AppAnalyticsSetting: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AppAnalytics", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.AppAnalytics = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ManagedApplicationConfiguration) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ManagedApplicationConfiguration: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ManagedApplicationConfiguration: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Identifiers", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Identifiers = append(m.Identifiers, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ManagedApplicationAttributes) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ManagedApplicationAttributes: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ManagedApplicationAttributes: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Identifiers", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Identifiers = append(m.Identifiers, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ManagedApplicationFeedback) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ManagedApplicationFeedback: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ManagedApplicationFeedback: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Identifiers", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Identifiers = append(m.Identifiers, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DeleteFeedback", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.DeleteFeedback = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SetFirmwarePassword) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SetFirmwarePassword: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SetFirmwarePassword: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CurrentPassword", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.CurrentPassword = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NewPassword", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.NewPassword = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field AllowOroms", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.AllowOroms = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *VerifyFirmwarePassword) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: VerifyFirmwarePassword: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: VerifyFirmwarePassword: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Password", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Password = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SetAutoAdminPassword) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SetAutoAdminPassword: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SetAutoAdminPassword: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Guid", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Guid = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PasswordHash", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.PasswordHash = append(m.PasswordHash[:0], dAtA[iNdEx:postIndex]...)
+			if m.PasswordHash == nil {
+				m.PasswordHash = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ScheduleOSUpdate) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ScheduleOSUpdate: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ScheduleOSUpdate: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Updates", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Updates = append(m.Updates, &Update{})
+			if err := m.Updates[len(m.Updates)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *Update) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: Update: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: Update: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ProductKey", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ProductKey = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ProductVersion", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ProductVersion = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field InstallAction", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.InstallAction = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ScheduleOSUpdateScan) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ScheduleOSUpdateScan: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ScheduleOSUpdateScan: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Force", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Force = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *ActiveNSExtensions) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: ActiveNSExtensions: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: ActiveNSExtensions: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FilterExtensionPoints", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.FilterExtensionPoints = append(m.FilterExtensionPoints, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *RotateFileVaultKey) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RotateFileVaultKey: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RotateFileVaultKey: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field KeyType", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.KeyType = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FilevaultUnlock", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + msglen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.FilevaultUnlock == nil {
+				m.FilevaultUnlock = &FileVaultUnlock{}
+			}
+			if err := m.FilevaultUnlock.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field NewCertificate", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.NewCertificate = append(m.NewCertificate[:0], dAtA[iNdEx:postIndex]...)
+			if m.NewCertificate == nil {
+				m.NewCertificate = []byte{}
+			}
+			iNdEx = postIndex
+		case 4:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field ReplyEncryptionCertificate", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.ReplyEncryptionCertificate = append(m.ReplyEncryptionCertificate[:0], dAtA[iNdEx:postIndex]...)
+			if m.ReplyEncryptionCertificate == nil {
+				m.ReplyEncryptionCertificate = []byte{}
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *FileVaultUnlock) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= (uint64(b) & 0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: FileVaultUnlock: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: FileVaultUnlock: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Password", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Password = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PrivateKeyExport", wireType)
+			}
+			var byteLen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				byteLen |= (int(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if byteLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + byteLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.PrivateKeyExport = append(m.PrivateKeyExport[:0], dAtA[iNdEx:postIndex]...)
+			if m.PrivateKeyExport == nil {
+				m.PrivateKeyExport = []byte{}
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field PrivateKeyExportPassword", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowMdm
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= (uint64(b) & 0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthMdm
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.PrivateKeyExportPassword = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipMdm(dAtA[iNdEx:])
@@ -6013,105 +13970,209 @@ var (
 func init() { proto.RegisterFile("mdm.proto", fileDescriptorMdm) }
 
 var fileDescriptorMdm = []byte{
-	// 1589 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x57, 0xdb, 0x6e, 0x1c, 0xb9,
-	0x11, 0x9d, 0xd1, 0xc8, 0x92, 0xa6, 0xe6, 0xa2, 0x11, 0x75, 0x71, 0x4b, 0x72, 0x64, 0xb9, 0xed,
-	0x38, 0xb6, 0x93, 0xd8, 0x88, 0x9c, 0x0b, 0x10, 0x24, 0x40, 0x64, 0xc9, 0xc6, 0x08, 0xd0, 0x0d,
-	0x2d, 0x0b, 0x08, 0xe0, 0x87, 0x0e, 0xd5, 0xcd, 0x99, 0x21, 0xd4, 0x4d, 0xb6, 0x49, 0xb6, 0x0c,
-	0xe5, 0x2f, 0xf2, 0x16, 0x20, 0x7f, 0x90, 0x3f, 0x48, 0xbe, 0x60, 0x1f, 0x17, 0xfb, 0x05, 0x0b,
-	0xef, 0x47, 0xec, 0xeb, 0x82, 0x97, 0x9e, 0xe9, 0xb9, 0x48, 0xfb, 0xd6, 0x3c, 0x55, 0x3c, 0x24,
-	0xab, 0x58, 0xa7, 0xd8, 0x50, 0x4f, 0xe3, 0xf4, 0x75, 0x26, 0xb8, 0xe2, 0x68, 0x29, 0x8d, 0x53,
-	0xf3, 0xe5, 0xff, 0x03, 0xda, 0x07, 0x3c, 0x4d, 0x31, 0x8b, 0xcf, 0xf1, 0x6d, 0xc2, 0x71, 0x8c,
-	0x9e, 0x40, 0x33, 0xb2, 0x48, 0x98, 0xe7, 0x34, 0xf6, 0xaa, 0xbb, 0xd5, 0x17, 0xf5, 0xa0, 0xe1,
-	0xb0, 0xcb, 0x9c, 0xc6, 0xe8, 0xd7, 0xb0, 0xe8, 0x86, 0xde, 0xdc, 0x6e, 0xf5, 0x45, 0x63, 0x6f,
-	0xe5, 0x75, 0x41, 0xf8, 0xda, 0xb1, 0x05, 0x85, 0x87, 0xff, 0x63, 0x1d, 0x16, 0x1d, 0xa8, 0xb9,
-	0x05, 0xf9, 0x9c, 0x13, 0xa9, 0x42, 0x75, 0x9b, 0x91, 0x82, 0xdb, 0x61, 0x1f, 0x6f, 0x33, 0x82,
-	0x0e, 0x60, 0x99, 0x32, 0xa9, 0x70, 0x92, 0x84, 0x99, 0xe0, 0x3d, 0x9a, 0x10, 0xb7, 0x86, 0x37,
-	0x5a, 0xe3, 0xc8, 0x3a, 0x9c, 0x5b, 0x7b, 0xb7, 0x12, 0xb4, 0xe9, 0x18, 0x82, 0xfe, 0x06, 0x6d,
-	0x41, 0x52, 0x7e, 0x43, 0x86, 0x1c, 0x35, 0xc3, 0xf1, 0x70, 0xc4, 0x11, 0x18, 0xfb, 0x88, 0xa2,
-	0x25, 0xca, 0x00, 0x1a, 0xc0, 0xa3, 0xd2, 0x36, 0x6e, 0xa8, 0xa4, 0x9c, 0x51, 0xd6, 0x1f, 0xf2,
-	0xcd, 0x1b, 0xbe, 0x67, 0xb3, 0xf6, 0x34, 0x74, 0x1e, 0x91, 0x6f, 0xd1, 0x3b, 0xad, 0x88, 0xc0,
-	0x76, 0x79, 0xaf, 0x93, 0x0b, 0x3d, 0x30, 0x0b, 0x3d, 0x9d, 0xb1, 0xf1, 0x19, 0xeb, 0x6c, 0x96,
-	0x0e, 0x31, 0xb1, 0xcc, 0x15, 0x14, 0x9b, 0x20, 0x71, 0x88, 0xb3, 0x2c, 0xa1, 0x11, 0x56, 0x94,
-	0xb3, 0x30, 0xa1, 0x52, 0x79, 0x0b, 0x66, 0x15, 0x7f, 0xea, 0x38, 0x24, 0xde, 0x1f, 0xb9, 0x1e,
-	0x53, 0xa9, 0xba, 0x95, 0xc0, 0xa3, 0x77, 0xd8, 0xd0, 0x31, 0xa0, 0x98, 0xdc, 0xd0, 0x88, 0x84,
-	0x94, 0xf5, 0xb8, 0x48, 0x8d, 0xc5, 0x5b, 0x34, 0xdc, 0xdb, 0x23, 0xee, 0x43, 0xe3, 0x73, 0x34,
-	0x72, 0xe9, 0x56, 0x82, 0x95, 0x78, 0x12, 0x44, 0x7f, 0x82, 0x86, 0x63, 0x4b, 0x78, 0x74, 0xed,
-	0x2d, 0x19, 0x9a, 0xb5, 0x49, 0x9a, 0x63, 0x1e, 0x5d, 0x77, 0x2b, 0x01, 0xc4, 0xc3, 0x91, 0xce,
-	0x7e, 0x94, 0x10, 0x2c, 0xc2, 0x0c, 0x4b, 0x19, 0xf1, 0x98, 0x78, 0xf5, 0xc9, 0xec, 0x1f, 0x68,
-	0xfb, 0xb9, 0x33, 0xeb, 0xec, 0x47, 0x65, 0x00, 0xfd, 0x19, 0x9a, 0x44, 0x60, 0x49, 0x42, 0xcb,
-	0xea, 0x81, 0x99, 0xbf, 0x3e, 0x9a, 0xff, 0x5e, 0x5b, 0xed, 0x06, 0xba, 0x95, 0xa0, 0x41, 0x46,
-	0x43, 0x74, 0x04, 0x2b, 0xc5, 0x1d, 0x4f, 0xa9, 0x10, 0x5c, 0x50, 0xd6, 0xf7, 0x1a, 0x86, 0x60,
-	0xab, 0x9c, 0x45, 0xe3, 0x72, 0x52, 0x78, 0x74, 0x2b, 0x41, 0x47, 0x4c, 0x60, 0xe8, 0x2f, 0xba,
-	0x5c, 0xa4, 0x12, 0x34, 0xd2, 0x01, 0x91, 0x5e, 0xd3, 0xb0, 0x6c, 0x94, 0x59, 0x46, 0xd6, 0x6e,
-	0x25, 0x18, 0xf3, 0x46, 0x27, 0xb0, 0x9a, 0x33, 0x1d, 0xba, 0x30, 0x97, 0x44, 0x84, 0x38, 0x8a,
-	0x78, 0xce, 0x94, 0xd7, 0x9a, 0x4c, 0xc7, 0xa5, 0x71, 0xba, 0x94, 0x44, 0xec, 0x5b, 0x17, 0x9d,
-	0x8e, 0x7c, 0x12, 0xb4, 0xe9, 0x48, 0x88, 0x22, 0x86, 0xce, 0x6b, 0x4f, 0xa7, 0x43, 0x1b, 0xf5,
-	0x0c, 0x9b, 0x8e, 0x62, 0x84, 0x0e, 0xa1, 0x43, 0x18, 0xbe, 0x4a, 0x74, 0x1e, 0x75, 0x50, 0x74,
-	0x42, 0x96, 0x27, 0x4b, 0xfa, 0xbd, 0xf1, 0x38, 0xe6, 0x52, 0x9d, 0xd8, 0x8c, 0xb4, 0xc9, 0x18,
-	0x82, 0xce, 0x60, 0xb5, 0x28, 0xc8, 0xd2, 0xed, 0xf5, 0x3a, 0x86, 0xe8, 0xd1, 0xd4, 0xc5, 0x2d,
-	0x5d, 0xcd, 0x6e, 0x25, 0x40, 0x74, 0x0a, 0x45, 0x97, 0xb0, 0xee, 0x42, 0x12, 0x46, 0x9c, 0xf5,
-	0x68, 0x3f, 0x17, 0x96, 0x72, 0xc5, 0x50, 0xee, 0x8c, 0x28, 0x5d, 0x04, 0x0e, 0xca, 0x5e, 0xdd,
-	0x4a, 0xb0, 0x86, 0x67, 0xe0, 0xef, 0xea, 0xb0, 0xe8, 0xf2, 0xe8, 0xbf, 0x82, 0xf6, 0xb8, 0x52,
-	0x21, 0x0f, 0x16, 0x33, 0x2b, 0xb3, 0x46, 0xfa, 0x9a, 0x41, 0x31, 0xf4, 0xdf, 0x40, 0x6b, 0x4c,
-	0x91, 0xd0, 0x0e, 0x00, 0x8d, 0x09, 0x53, 0xb4, 0x47, 0x89, 0x70, 0x42, 0x59, 0x42, 0xfc, 0x33,
-	0xd8, 0xba, 0x5b, 0x72, 0xd0, 0xef, 0x60, 0x6d, 0xa6, 0x6c, 0xd9, 0x55, 0x57, 0xb3, 0xe9, 0x29,
-	0xfe, 0x1b, 0xd8, 0xbc, 0x53, 0x5a, 0x10, 0x82, 0xf9, 0x52, 0x33, 0x30, 0xdf, 0xfe, 0x00, 0xbc,
-	0xbb, 0x54, 0x02, 0xed, 0x42, 0x63, 0xb4, 0x57, 0xe9, 0x55, 0x77, 0x6b, 0x5a, 0xe7, 0x4b, 0x10,
-	0x7a, 0x05, 0x2b, 0x29, 0x66, 0xb8, 0x6f, 0xd5, 0x48, 0x86, 0x9c, 0x25, 0xb7, 0x46, 0xe9, 0x97,
-	0x82, 0x65, 0x67, 0xd8, 0xcf, 0x32, 0x79, 0xc6, 0x92, 0x5b, 0xff, 0xb7, 0xb0, 0x32, 0xa5, 0x19,
-	0x3a, 0x96, 0x9f, 0x73, 0x22, 0x28, 0x29, 0xe8, 0x8b, 0xa1, 0xbf, 0x07, 0xad, 0xb1, 0xfa, 0xd6,
-	0x6d, 0xc7, 0x55, 0x82, 0xe2, 0xd7, 0x84, 0xb9, 0x28, 0x34, 0x2c, 0xf6, 0x51, 0x43, 0xfe, 0x27,
-	0x80, 0x91, 0x9e, 0xa0, 0x0e, 0xd4, 0x32, 0xca, 0xdc, 0x69, 0xf5, 0xa7, 0x5e, 0x2d, 0x25, 0x52,
-	0xe2, 0xbe, 0x6d, 0x47, 0xf5, 0xa0, 0x18, 0x6a, 0xf2, 0x6c, 0xc0, 0x19, 0x09, 0x59, 0x9e, 0x5e,
-	0x11, 0x61, 0x3a, 0x4d, 0x3d, 0x68, 0x18, 0xec, 0xd4, 0x40, 0xfe, 0x09, 0x34, 0x4a, 0x82, 0x31,
-	0x83, 0xfd, 0x37, 0x80, 0x32, 0x41, 0x24, 0x11, 0x37, 0x24, 0x8c, 0xb1, 0xc2, 0x61, 0x96, 0x60,
-	0xe6, 0xa2, 0xd1, 0x29, 0x2c, 0x87, 0x58, 0xe1, 0xf3, 0x04, 0x33, 0xff, 0xbf, 0x55, 0xe8, 0x4c,
-	0xea, 0x07, 0x7a, 0x09, 0x9d, 0x98, 0x48, 0x45, 0x99, 0x55, 0x75, 0x86, 0xd3, 0xa2, 0xbd, 0x2e,
-	0x97, 0xf0, 0x53, 0x9c, 0x12, 0xb4, 0x07, 0xeb, 0x65, 0xd7, 0x42, 0xb2, 0x63, 0x77, 0xb2, 0xd5,
-	0x92, 0xd1, 0x85, 0x3d, 0x46, 0xdb, 0x50, 0x97, 0x11, 0x66, 0xa1, 0xa2, 0x29, 0x71, 0x47, 0x5c,
-	0xd2, 0xc0, 0x47, 0x9a, 0x12, 0xb4, 0x05, 0x4b, 0x5a, 0x6a, 0xbf, 0x70, 0x11, 0x9b, 0xc6, 0x58,
-	0x0f, 0x86, 0x63, 0x7f, 0x1f, 0x9a, 0x65, 0x95, 0x72, 0x37, 0x53, 0x5f, 0xaa, 0x70, 0x4c, 0xdb,
-	0xaa, 0xe6, 0xb0, 0xab, 0xce, 0x56, 0x9e, 0xe2, 0xbf, 0x81, 0x95, 0x29, 0x8d, 0xd2, 0x6b, 0x6a,
-	0x1d, 0x2a, 0x9d, 0x73, 0x38, 0xf6, 0xcf, 0x74, 0x32, 0x87, 0xfa, 0x73, 0x8f, 0x27, 0xfa, 0x25,
-	0xb4, 0x7b, 0x5c, 0x44, 0x5a, 0xe8, 0x13, 0x62, 0xaa, 0xdf, 0x06, 0xbd, 0x65, 0xd0, 0x43, 0x07,
-	0xfa, 0x14, 0xda, 0xe3, 0x02, 0x55, 0xbe, 0x0f, 0xd5, 0xfb, 0xef, 0xc3, 0xdc, 0xd4, 0x7d, 0xd0,
-	0x3b, 0xea, 0x71, 0xae, 0x18, 0x57, 0xc3, 0x58, 0x16, 0x63, 0xff, 0xff, 0x35, 0x40, 0xd3, 0x1a,
-	0x86, 0x9e, 0xc3, 0x32, 0x55, 0x39, 0x23, 0x32, 0x94, 0x8a, 0x0b, 0x93, 0x2d, 0xbd, 0x6e, 0x2d,
-	0x68, 0x59, 0xf8, 0x42, 0xa3, 0x47, 0xf1, 0x84, 0x6c, 0xcc, 0x4d, 0xca, 0x06, 0xfa, 0x2b, 0x2c,
-	0xf2, 0xcc, 0x46, 0xbc, 0x36, 0xf9, 0xb2, 0x98, 0x5e, 0xf6, 0xcc, 0xba, 0x06, 0xc5, 0x1c, 0x7d,
-	0xb8, 0x14, 0x33, 0xda, 0xd3, 0xdd, 0x2d, 0x17, 0x89, 0xcb, 0x76, 0xa3, 0xc0, 0x2e, 0x45, 0xa2,
-	0x2f, 0xa2, 0xad, 0xdf, 0x94, 0x30, 0x15, 0xf6, 0x12, 0xdc, 0x97, 0xe6, 0x11, 0x53, 0x2b, 0xea,
-	0x5a, 0xe3, 0x1f, 0x34, 0x8c, 0xce, 0xa0, 0x35, 0x2e, 0xbd, 0xf6, 0x19, 0xf2, 0xf2, 0xbe, 0x2d,
-	0x8d, 0xa9, 0x6d, 0x30, 0x3e, 0x1f, 0x7d, 0x00, 0xc0, 0x4a, 0x09, 0x7a, 0x95, 0x2b, 0x22, 0xdd,
-	0xc3, 0xe3, 0xf9, 0x7d, 0x6c, 0xfb, 0x43, 0xef, 0xa0, 0x34, 0x13, 0xfd, 0x11, 0x1e, 0x46, 0x03,
-	0xcc, 0xfa, 0x24, 0x2c, 0x1d, 0x45, 0x2a, 0xac, 0x88, 0x79, 0x86, 0xd4, 0x83, 0x75, 0x6b, 0x3e,
-	0x19, 0x5a, 0x2f, 0xb4, 0xd1, 0x3f, 0x84, 0xcd, 0x3b, 0x83, 0x88, 0x7e, 0x05, 0xcb, 0x59, 0x2e,
-	0xa2, 0x81, 0x7e, 0x57, 0xa4, 0x44, 0x0d, 0x78, 0x91, 0xc2, 0x76, 0x01, 0x9f, 0x18, 0xd4, 0x7f,
-	0x02, 0x8f, 0x7f, 0xe6, 0xdc, 0xfe, 0x0e, 0x3c, 0xba, 0xef, 0x30, 0xfe, 0x7f, 0xe6, 0x60, 0x6d,
-	0x56, 0xdb, 0x42, 0xc7, 0xf0, 0x54, 0x5e, 0xd3, 0x2c, 0xcc, 0x04, 0x4d, 0xb1, 0xb8, 0x0d, 0x25,
-	0x51, 0x79, 0x16, 0x0e, 0x1b, 0xa1, 0x20, 0x36, 0x11, 0xb6, 0x1a, 0x1f, 0x6b, 0xd7, 0x73, 0xeb,
-	0x79, 0xa1, 0x1d, 0x0b, 0x4a, 0xe7, 0x86, 0xfe, 0x0e, 0xaf, 0xee, 0x61, 0xc3, 0x32, 0x14, 0xa4,
-	0x9f, 0x27, 0x58, 0xd8, 0x27, 0x83, 0x2d, 0xad, 0x67, 0x77, 0x90, 0xee, 0xcb, 0xc0, 0x3a, 0x9b,
-	0xa2, 0xfd, 0x04, 0x9b, 0x38, 0x57, 0xbc, 0x60, 0x8c, 0x53, 0xca, 0x0a, 0x5e, 0x7d, 0x73, 0x6b,
-	0x2f, 0x1a, 0x7b, 0xbb, 0xa5, 0x0e, 0x9d, 0x2b, 0x6e, 0xb9, 0xb4, 0xa3, 0x23, 0x94, 0xc1, 0x06,
-	0x9e, 0x89, 0xfb, 0xff, 0xaa, 0xc2, 0xc6, 0xec, 0x29, 0xe8, 0x17, 0x00, 0x72, 0xc0, 0x85, 0x2a,
-	0x0b, 0x68, 0xdd, 0x20, 0x46, 0x3a, 0xb7, 0xa1, 0xde, 0xcb, 0x93, 0xc4, 0x5a, 0xe7, 0x5c, 0xe9,
-	0xe6, 0x49, 0x62, 0x8c, 0x4f, 0xa1, 0x55, 0xc8, 0x5e, 0x38, 0xc0, 0x72, 0x60, 0x2a, 0xac, 0x19,
-	0x34, 0x0b, 0xb0, 0x8b, 0xe5, 0x00, 0x6d, 0xc0, 0xc2, 0x80, 0xc6, 0x31, 0x61, 0xa6, 0x76, 0x96,
-	0x02, 0x37, 0xf2, 0xbf, 0xab, 0xea, 0x17, 0x80, 0xcc, 0x13, 0x55, 0xfc, 0x88, 0xe9, 0x9e, 0x1b,
-	0x97, 0x7a, 0x6e, 0x4c, 0xa7, 0x7f, 0xce, 0xe6, 0xa6, 0x7f, 0xce, 0xfe, 0x00, 0x0d, 0xa2, 0x9b,
-	0x42, 0x18, 0x0d, 0x30, 0x65, 0x2e, 0x56, 0x6b, 0xe5, 0xa7, 0xab, 0xe0, 0xe2, 0x40, 0xdb, 0x02,
-	0x20, 0xc3, 0x6f, 0xff, 0x02, 0x16, 0xf4, 0x1d, 0xce, 0x25, 0xea, 0x40, 0x73, 0x3f, 0xba, 0x66,
-	0xfc, 0x4b, 0x42, 0xe2, 0x3e, 0x89, 0x3b, 0x15, 0x54, 0x87, 0x07, 0x66, 0x56, 0xa7, 0x8a, 0x36,
-	0x00, 0xb9, 0x9f, 0xb9, 0x0f, 0xa6, 0x13, 0x5b, 0x7c, 0x0e, 0x2d, 0xc1, 0xfc, 0x51, 0x9c, 0x90,
-	0x4e, 0x0d, 0x01, 0x2c, 0x9c, 0x72, 0x75, 0xca, 0xbf, 0x74, 0xe6, 0xfd, 0xff, 0x55, 0x01, 0x46,
-	0xeb, 0xa1, 0xb7, 0xb0, 0x9e, 0xf0, 0x08, 0x27, 0xf4, 0x9f, 0x24, 0x0e, 0x63, 0x22, 0x23, 0x41,
-	0xb3, 0xe1, 0x75, 0xab, 0x07, 0x6b, 0x43, 0xe3, 0xe1, 0xc8, 0x86, 0x7e, 0x0f, 0x1b, 0xb9, 0x0c,
-	0x09, 0xeb, 0x27, 0x54, 0x0e, 0xc6, 0x66, 0xd9, 0xc3, 0xaf, 0xe5, 0xf2, 0xbd, 0x35, 0x96, 0x67,
-	0x3d, 0xd1, 0x2f, 0x78, 0x1d, 0x85, 0x98, 0xa7, 0x36, 0x0c, 0x26, 0x50, 0x06, 0x3b, 0x34, 0x90,
-	0x4e, 0xb5, 0x0b, 0x94, 0x7e, 0x91, 0xea, 0x6c, 0x3c, 0x08, 0xea, 0x36, 0x22, 0x3c, 0x26, 0xef,
-	0x3a, 0xdf, 0x7c, 0xdd, 0xa9, 0x7e, 0xfb, 0x75, 0xa7, 0xfa, 0xfd, 0xd7, 0x9d, 0xea, 0xbf, 0x7f,
-	0xd8, 0xa9, 0x5c, 0x2d, 0x98, 0x00, 0xbe, 0xfd, 0x29, 0x00, 0x00, 0xff, 0xff, 0x6f, 0x97, 0x0c,
-	0x98, 0x49, 0x0f, 0x00, 0x00,
+	// 3252 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x5a, 0xdb, 0x72, 0xdc, 0xc6,
+	0xd1, 0xe6, 0x92, 0x92, 0xc8, 0xed, 0xe5, 0x61, 0x39, 0x5c, 0x52, 0x10, 0x49, 0x91, 0x12, 0xe4,
+	0x83, 0xac, 0xdf, 0x96, 0xfe, 0x5f, 0xb6, 0xff, 0x38, 0x8e, 0x9c, 0x98, 0x22, 0x25, 0x53, 0x96,
+	0x28, 0x32, 0x58, 0x51, 0x4a, 0x95, 0xe3, 0x20, 0x20, 0x30, 0xdc, 0x9d, 0x22, 0x4e, 0x9e, 0x01,
+	0x96, 0xda, 0x5c, 0xa7, 0x2a, 0xd7, 0xb9, 0x49, 0xa5, 0x92, 0x37, 0xc8, 0x1b, 0x24, 0x4f, 0x90,
+	0x4b, 0x57, 0x9e, 0xc0, 0xe5, 0x5c, 0xe7, 0x1d, 0x52, 0x3d, 0x33, 0x38, 0x2c, 0x16, 0x5c, 0xe9,
+	0x0e, 0xf8, 0xfa, 0x9b, 0x9e, 0xc1, 0x4c, 0x77, 0x4f, 0x77, 0xef, 0x42, 0x33, 0xf0, 0x82, 0xbb,
+	0x31, 0x8f, 0x92, 0x88, 0xcc, 0x05, 0x5e, 0x20, 0x9f, 0xcc, 0xdf, 0xc2, 0xe2, 0x6e, 0x14, 0x04,
+	0x4e, 0xe8, 0x1d, 0x39, 0x43, 0x3f, 0x72, 0x3c, 0x72, 0x13, 0xe6, 0x5d, 0x85, 0xd8, 0x69, 0xca,
+	0x3c, 0xa3, 0x71, 0xa3, 0x71, 0xbb, 0x69, 0xb5, 0x34, 0x76, 0x9c, 0x32, 0x8f, 0xfc, 0x0f, 0xcc,
+	0xea, 0x57, 0x63, 0xfa, 0x46, 0xe3, 0x76, 0xeb, 0xfe, 0xf2, 0xdd, 0x4c, 0xe1, 0x5d, 0xad, 0xcd,
+	0xca, 0x18, 0xe6, 0x7f, 0x56, 0x61, 0x56, 0x83, 0xa8, 0x9b, 0xd3, 0xef, 0x52, 0x2a, 0x12, 0x3b,
+	0x19, 0xc6, 0x34, 0xd3, 0xad, 0xb1, 0x17, 0xc3, 0x98, 0x92, 0x5d, 0x58, 0x62, 0xa1, 0x48, 0x1c,
+	0xdf, 0xb7, 0x63, 0x1e, 0x9d, 0x32, 0x9f, 0xea, 0x39, 0x8c, 0x62, 0x8e, 0x27, 0x8a, 0x70, 0xa4,
+	0xe4, 0xfb, 0x53, 0xd6, 0x22, 0x1b, 0x41, 0xc8, 0x97, 0xb0, 0xc8, 0x69, 0x10, 0x0d, 0x68, 0xae,
+	0x63, 0x46, 0xea, 0xb8, 0x5a, 0xe8, 0xb0, 0xa4, 0xbc, 0x50, 0xb1, 0xc0, 0xcb, 0x00, 0xe9, 0xc3,
+	0x66, 0x69, 0x19, 0x03, 0x26, 0x58, 0x14, 0xb2, 0xb0, 0x97, 0xeb, 0xbb, 0x24, 0xf5, 0xbd, 0x53,
+	0xb7, 0xa6, 0x9c, 0x5c, 0x28, 0x5f, 0x67, 0x17, 0x4a, 0x09, 0x85, 0x8d, 0xf2, 0x5a, 0xab, 0x13,
+	0x5d, 0x96, 0x13, 0xdd, 0xaa, 0x59, 0x78, 0xcd, 0x3c, 0xd7, 0x4a, 0x1f, 0x51, 0x99, 0xe6, 0x04,
+	0xb2, 0x45, 0x50, 0xcf, 0x76, 0xe2, 0xd8, 0x67, 0xae, 0x93, 0xb0, 0x28, 0xb4, 0x7d, 0x26, 0x12,
+	0xe3, 0x8a, 0x9c, 0xc5, 0x1c, 0xfb, 0x1c, 0xea, 0xed, 0x14, 0xd4, 0x67, 0x4c, 0x24, 0xfb, 0x53,
+	0x96, 0xc1, 0x2e, 0x90, 0x91, 0x67, 0x40, 0x3c, 0x3a, 0x60, 0x2e, 0xb5, 0x59, 0x78, 0x1a, 0xf1,
+	0x40, 0x4a, 0x8c, 0x59, 0xa9, 0x7b, 0xa3, 0xd0, 0xbd, 0x27, 0x39, 0x4f, 0x0a, 0xca, 0xfe, 0x94,
+	0xb5, 0xec, 0x55, 0x41, 0xf2, 0x13, 0x68, 0x69, 0x6d, 0x7e, 0xe4, 0x9e, 0x19, 0x73, 0x52, 0x4d,
+	0xa7, 0xaa, 0xe6, 0x59, 0xe4, 0x9e, 0xed, 0x4f, 0x59, 0xe0, 0xe5, 0x6f, 0x78, 0xfa, 0xae, 0x4f,
+	0x1d, 0x6e, 0xc7, 0x8e, 0x10, 0x6e, 0xe4, 0x51, 0xa3, 0x59, 0x3d, 0xfd, 0x5d, 0x94, 0x1f, 0x69,
+	0x31, 0x9e, 0xbe, 0x5b, 0x06, 0xc8, 0xe7, 0x30, 0x4f, 0xb9, 0x23, 0xa8, 0xad, 0xb4, 0x1a, 0x20,
+	0xc7, 0xaf, 0x16, 0xe3, 0x1f, 0xa1, 0x54, 0x2d, 0x60, 0x7f, 0xca, 0x6a, 0xd1, 0xe2, 0x95, 0x3c,
+	0x81, 0xe5, 0xcc, 0xc6, 0x03, 0xc6, 0x79, 0xc4, 0x59, 0xd8, 0x33, 0x5a, 0x52, 0xc1, 0x7a, 0xf9,
+	0x14, 0x25, 0xe5, 0x20, 0x63, 0xec, 0x4f, 0x59, 0x6d, 0x5e, 0xc1, 0xc8, 0x03, 0x74, 0x17, 0x91,
+	0x70, 0xe6, 0xe2, 0x86, 0x08, 0x63, 0x5e, 0x6a, 0x59, 0x2b, 0x6b, 0x29, 0xa4, 0xfb, 0x53, 0xd6,
+	0x08, 0x9b, 0x1c, 0xc0, 0x4a, 0x1a, 0xe2, 0xd6, 0xd9, 0xa9, 0xa0, 0xdc, 0x76, 0x5c, 0x37, 0x4a,
+	0xc3, 0xc4, 0x58, 0xa8, 0x1e, 0xc7, 0xb1, 0x24, 0x1d, 0x0b, 0xca, 0x77, 0x14, 0x05, 0x8f, 0x23,
+	0xad, 0x82, 0xea, 0x38, 0x7c, 0x9a, 0x50, 0xa9, 0xce, 0x58, 0x1c, 0x3f, 0x0e, 0x14, 0xe2, 0x08,
+	0x75, 0x1c, 0xd9, 0x1b, 0xd9, 0x83, 0x36, 0x0d, 0x9d, 0x13, 0x1f, 0xcf, 0x11, 0x37, 0x05, 0x0f,
+	0x64, 0xa9, 0xea, 0xd2, 0x8f, 0x24, 0xe3, 0x59, 0x24, 0x92, 0x03, 0x75, 0x22, 0x8b, 0x74, 0x04,
+	0x21, 0x87, 0xb0, 0x92, 0x39, 0x64, 0xc9, 0x7a, 0x8d, 0xb6, 0x54, 0xb4, 0x39, 0x66, 0xb8, 0x25,
+	0xd3, 0xdc, 0x9f, 0xb2, 0x08, 0x1b, 0x43, 0xc9, 0x31, 0xac, 0xea, 0x2d, 0xb1, 0xdd, 0x28, 0x3c,
+	0x65, 0xbd, 0x94, 0x2b, 0x95, 0xcb, 0x52, 0xe5, 0x56, 0xa1, 0x52, 0xef, 0xc0, 0x6e, 0x99, 0xb5,
+	0x3f, 0x65, 0x75, 0x9c, 0x1a, 0x9c, 0x74, 0x61, 0x15, 0xd7, 0x37, 0xb4, 0x39, 0xf5, 0x68, 0x10,
+	0x4b, 0x17, 0x93, 0x36, 0x48, 0xa4, 0xda, 0xeb, 0x25, 0xb5, 0x48, 0xb3, 0x72, 0xd6, 0xae, 0xfa,
+	0xee, 0x15, 0x67, 0x1c, 0x26, 0xbf, 0x06, 0x23, 0x70, 0x42, 0xa7, 0x57, 0xe7, 0xba, 0x2b, 0x52,
+	0xef, 0x8d, 0x42, 0xef, 0x81, 0x62, 0x8e, 0x3b, 0xee, 0x5a, 0x50, 0x2b, 0x41, 0xb7, 0xd5, 0x11,
+	0xa8, 0xbc, 0xb3, 0x9d, 0xaa, 0x9d, 0xa8, 0xc0, 0x33, 0xba, 0xb1, 0xcb, 0xbc, 0x0a, 0x92, 0xaf,
+	0x60, 0x99, 0x85, 0x03, 0x96, 0x50, 0x3b, 0x89, 0x30, 0x8a, 0xf5, 0xb8, 0x13, 0x18, 0xab, 0x52,
+	0xd9, 0xb5, 0xf2, 0x31, 0x21, 0xe5, 0x45, 0x74, 0xa4, 0x08, 0xfb, 0x53, 0xd6, 0x12, 0x1b, 0x85,
+	0xf0, 0x80, 0x06, 0x8e, 0xcf, 0x3c, 0x27, 0x71, 0xca, 0x0b, 0x13, 0xc6, 0x5a, 0xf5, 0x80, 0x5e,
+	0x2a, 0x5a, 0x79, 0x19, 0xe8, 0x0e, 0x9d, 0x6c, 0x78, 0x19, 0x27, 0x5f, 0xc0, 0x42, 0x66, 0x48,
+	0x01, 0xf5, 0x98, 0x63, 0x5c, 0xad, 0x7a, 0x95, 0x36, 0xa1, 0x03, 0x94, 0xa2, 0x57, 0xb1, 0xd2,
+	0x3b, 0x86, 0x06, 0xbd, 0x59, 0x6a, 0xb4, 0x51, 0x0d, 0x0d, 0x6a, 0x9b, 0xb2, 0xc1, 0x2d, 0x5e,
+	0xbc, 0x92, 0xff, 0x85, 0x39, 0x41, 0x93, 0x84, 0x85, 0x3d, 0x61, 0x5c, 0x93, 0xe3, 0x48, 0x31,
+	0xae, 0xab, 0x25, 0xfb, 0x53, 0x56, 0xce, 0x22, 0xe7, 0x70, 0xb3, 0xee, 0xe0, 0x47, 0x0d, 0x76,
+	0x5d, 0xaa, 0xfa, 0x60, 0x92, 0x05, 0x54, 0x6d, 0x77, 0x3b, 0x98, 0x4c, 0x21, 0x21, 0x6c, 0xd5,
+	0x4d, 0xec, 0x24, 0x09, 0x67, 0x27, 0x69, 0x42, 0x85, 0xb1, 0x21, 0x67, 0x7d, 0x6f, 0xd2, 0xac,
+	0x3b, 0x39, 0x7b, 0x7f, 0xca, 0xda, 0x0c, 0x26, 0xc8, 0xf1, 0xbe, 0xad, 0x9b, 0xef, 0x94, 0x52,
+	0xef, 0xc4, 0x71, 0xcf, 0x8c, 0xcd, 0xea, 0x7d, 0x3b, 0x3e, 0xdb, 0x63, 0xcd, 0xc5, 0xfb, 0x36,
+	0xb8, 0x50, 0x8a, 0x0e, 0x2a, 0x68, 0x62, 0x9f, 0x32, 0x1e, 0x9c, 0x3b, 0x9c, 0xca, 0x4b, 0xe2,
+	0x3c, 0xe2, 0x9e, 0x71, 0xbd, 0xea, 0xa0, 0x5d, 0x9a, 0x3c, 0xd6, 0xac, 0x23, 0x4d, 0x42, 0x07,
+	0x15, 0xe3, 0x30, 0x3a, 0xe8, 0x80, 0x72, 0x76, 0x3a, 0xac, 0xd1, 0xbb, 0x55, 0x75, 0xd0, 0x97,
+	0x92, 0x59, 0xa3, 0x7a, 0x6d, 0x50, 0x2b, 0x21, 0xaf, 0xe0, 0x2a, 0x2e, 0xd9, 0x49, 0x93, 0xc8,
+	0x76, 0xbc, 0x80, 0x85, 0x85, 0xf2, 0xed, 0xaa, 0x2f, 0x74, 0x69, 0xb2, 0x93, 0x26, 0xd1, 0x0e,
+	0xd2, 0x4a, 0xaa, 0x3b, 0xa2, 0x06, 0x27, 0x5f, 0x03, 0x11, 0x6e, 0x9f, 0x7a, 0xa9, 0x4f, 0xed,
+	0x48, 0xd8, 0x69, 0x8c, 0x5e, 0x64, 0xdc, 0xa8, 0x5e, 0x56, 0x5d, 0xcd, 0x39, 0xec, 0x1e, 0x4b,
+	0x06, 0x5e, 0x56, 0xd9, 0xb8, 0x43, 0xa1, 0x30, 0xb9, 0xc8, 0x31, 0x5d, 0xb6, 0x70, 0x9d, 0xd0,
+	0xb8, 0x39, 0xb6, 0xc8, 0x8a, 0xc2, 0xae, 0xeb, 0xc8, 0x88, 0x5a, 0x55, 0x8a, 0x38, 0x39, 0x82,
+	0x8e, 0xe3, 0x26, 0x6c, 0x40, 0xed, 0x50, 0xd8, 0xf4, 0x75, 0x42, 0x43, 0x21, 0xc3, 0x80, 0x59,
+	0x0d, 0xfd, 0x3b, 0x92, 0xf5, 0xbc, 0xfb, 0x28, 0xe7, 0x60, 0xe8, 0x57, 0x63, 0x9f, 0x8b, 0x02,
+	0x45, 0x8d, 0x3c, 0x4a, 0x70, 0x79, 0x98, 0x1a, 0x0d, 0x9c, 0xd4, 0x4f, 0xec, 0x33, 0x3a, 0x34,
+	0x6e, 0x55, 0x35, 0x5a, 0x92, 0xf5, 0x98, 0xf9, 0xf4, 0x25, 0x92, 0x9e, 0xd2, 0x21, 0x6a, 0xe4,
+	0x39, 0x3a, 0xd0, 0xe8, 0xc3, 0x26, 0xcc, 0xea, 0xdb, 0xdb, 0xbc, 0x03, 0x8b, 0xa3, 0xf9, 0x29,
+	0x31, 0x60, 0x36, 0x56, 0xc9, 0xb5, 0x4c, 0x78, 0xe7, 0xad, 0xec, 0xd5, 0xbc, 0x07, 0x0b, 0x23,
+	0x79, 0x28, 0xd9, 0x02, 0x60, 0x1e, 0x0d, 0x13, 0x76, 0xca, 0x28, 0xd7, 0xe9, 0x71, 0x09, 0x31,
+	0x0f, 0x61, 0xfd, 0xe2, 0x44, 0x93, 0xfc, 0x1f, 0x74, 0x6a, 0x93, 0x55, 0x35, 0xeb, 0x4a, 0x3c,
+	0x3e, 0xc4, 0xbc, 0x07, 0xd7, 0x2e, 0x4c, 0x28, 0x09, 0x81, 0x4b, 0xa5, 0x12, 0x40, 0x3e, 0x9b,
+	0x7d, 0x30, 0x2e, 0xca, 0x0d, 0xc9, 0x0d, 0x68, 0x15, 0x6b, 0x15, 0x46, 0xe3, 0xc6, 0x0c, 0x66,
+	0xf7, 0x25, 0x88, 0xdc, 0x81, 0xe5, 0x92, 0x9b, 0x0b, 0x3b, 0x0a, 0xfd, 0xa1, 0xcc, 0xef, 0xe7,
+	0xac, 0xa5, 0xc2, 0x67, 0xc5, 0x61, 0xe8, 0x0f, 0xcd, 0x8f, 0x60, 0x79, 0x2c, 0x53, 0xc4, 0xbd,
+	0xfc, 0x2e, 0xa5, 0x9c, 0xd1, 0x4c, 0x7d, 0xf6, 0x6a, 0xde, 0x87, 0x85, 0x91, 0xac, 0x0e, 0x8b,
+	0x0d, 0x9d, 0xff, 0x24, 0xd1, 0x19, 0x0d, 0xf5, 0x2e, 0xb4, 0x14, 0xf6, 0x02, 0x21, 0xf3, 0x1b,
+	0x80, 0x22, 0x8b, 0x24, 0x6d, 0x98, 0x89, 0x59, 0xa8, 0xbf, 0x16, 0x1f, 0x71, 0xb6, 0x80, 0x0a,
+	0xe1, 0xf4, 0x54, 0x11, 0xd2, 0xb4, 0xb2, 0x57, 0x54, 0x1e, 0xf7, 0xa3, 0x90, 0xda, 0x61, 0x1a,
+	0x9c, 0x50, 0x2e, 0xeb, 0x8b, 0xa6, 0xd5, 0x92, 0xd8, 0x73, 0x09, 0x99, 0x7f, 0x68, 0x40, 0xab,
+	0x94, 0x27, 0xd6, 0xa8, 0xff, 0x10, 0x48, 0xcc, 0xa9, 0xa0, 0x7c, 0x40, 0x6d, 0x79, 0xcd, 0xc5,
+	0xbe, 0x13, 0xea, 0xed, 0x68, 0x67, 0x92, 0x3d, 0x27, 0x71, 0x8e, 0x7c, 0x27, 0x24, 0x9f, 0x81,
+	0xe1, 0x31, 0xe1, 0xf8, 0x7e, 0x74, 0x8e, 0x27, 0xfb, 0x9a, 0x05, 0x2c, 0x19, 0xda, 0x82, 0x26,
+	0x69, 0x2c, 0xa7, 0x9f, 0xb3, 0xd6, 0x32, 0xf9, 0x51, 0x26, 0xee, 0xa2, 0xd4, 0xfc, 0x5b, 0x03,
+	0xda, 0xd5, 0x84, 0x93, 0x7c, 0x00, 0x6d, 0x8f, 0x8a, 0x84, 0x85, 0x2a, 0xd2, 0x86, 0x4e, 0x90,
+	0xd5, 0x63, 0x4b, 0x25, 0xfc, 0xb9, 0x13, 0x50, 0x72, 0x1f, 0x56, 0xcb, 0xd4, 0x2c, 0xc7, 0xf7,
+	0xf4, 0xa6, 0xac, 0x94, 0x84, 0xfa, 0xc4, 0x3c, 0xb2, 0x01, 0x4d, 0xf4, 0x7d, 0x3b, 0x61, 0x01,
+	0xd5, 0xbb, 0x33, 0x87, 0xc0, 0x0b, 0x16, 0x50, 0xb2, 0x0e, 0x73, 0x79, 0x04, 0xbb, 0xa4, 0x64,
+	0xd9, 0xbb, 0xb9, 0x03, 0xf3, 0xe5, 0xb4, 0x56, 0x1b, 0x35, 0xda, 0xa3, 0x3d, 0x92, 0x0c, 0x37,
+	0xe4, 0x27, 0xaf, 0x68, 0x59, 0x79, 0x88, 0x79, 0x0f, 0x96, 0xc7, 0x92, 0x5a, 0x9c, 0x13, 0x13,
+	0xd7, 0xd2, 0x77, 0xe6, 0xef, 0xe6, 0x21, 0xda, 0x41, 0x9e, 0xb0, 0x4e, 0x60, 0x92, 0x77, 0x61,
+	0xf1, 0x34, 0xe2, 0x2e, 0x56, 0x06, 0x3e, 0x95, 0xb7, 0xaf, 0x3a, 0xae, 0x05, 0x89, 0xee, 0x69,
+	0xd0, 0x64, 0xb0, 0x38, 0x9a, 0xd1, 0x96, 0x4d, 0xa9, 0x31, 0xd9, 0x94, 0xa6, 0xc7, 0x4c, 0x09,
+	0x57, 0x74, 0x1a, 0x45, 0x49, 0x18, 0x25, 0xf9, 0x5e, 0x66, 0xef, 0xe6, 0x3f, 0x66, 0x80, 0x8c,
+	0x27, 0xbd, 0xe4, 0x3d, 0x58, 0x62, 0x49, 0x1a, 0x52, 0x61, 0x8b, 0x24, 0xe2, 0xf2, 0xb4, 0x70,
+	0xde, 0x19, 0x6b, 0x41, 0xc1, 0x5d, 0x44, 0x9f, 0x78, 0x95, 0x88, 0x33, 0x5d, 0x8d, 0x38, 0xe4,
+	0x0b, 0x98, 0x8d, 0x62, 0xb5, 0xe3, 0x33, 0xd5, 0x52, 0x74, 0x7c, 0xda, 0x43, 0x45, 0xb5, 0xb2,
+	0x31, 0xf8, 0x71, 0x81, 0x13, 0xb2, 0x53, 0x2c, 0x87, 0x52, 0xee, 0xeb, 0xd3, 0x6e, 0x65, 0xd8,
+	0x31, 0xf7, 0xd1, 0x10, 0x95, 0xeb, 0x07, 0x34, 0x4c, 0xec, 0x53, 0xdf, 0xe9, 0x09, 0x59, 0xf5,
+	0xce, 0x64, 0x21, 0x01, 0xf1, 0xc7, 0x08, 0x93, 0x43, 0x58, 0x18, 0x4d, 0x7d, 0xae, 0x54, 0x53,
+	0x9f, 0xf1, 0x25, 0x8d, 0xe4, 0x35, 0xd6, 0xe8, 0x78, 0xf2, 0x18, 0xa0, 0x94, 0xd2, 0xcc, 0x56,
+	0x53, 0x9a, 0x71, 0x6d, 0x45, 0xca, 0x62, 0x95, 0x46, 0x92, 0xff, 0x87, 0xab, 0x6e, 0xdf, 0x09,
+	0x7b, 0xd4, 0x2e, 0x7d, 0x8a, 0xc0, 0x6b, 0x42, 0xd6, 0xad, 0x4d, 0x6b, 0x55, 0x89, 0x0f, 0x72,
+	0x69, 0x17, 0x85, 0xe6, 0x1e, 0x5c, 0xbb, 0x70, 0x13, 0xc9, 0xfb, 0xb0, 0x14, 0xa7, 0xdc, 0xed,
+	0x63, 0x21, 0x1a, 0xd0, 0xa4, 0x1f, 0x65, 0x47, 0xb8, 0x98, 0xc1, 0x07, 0x12, 0x35, 0x6f, 0xc2,
+	0xf6, 0x1b, 0xbe, 0xdb, 0xdc, 0x82, 0xcd, 0x49, 0x1f, 0x63, 0xfe, 0x06, 0x56, 0x6a, 0xea, 0x91,
+	0x37, 0xdd, 0x47, 0xb8, 0xc4, 0x6a, 0x9d, 0xa3, 0x4c, 0x68, 0x91, 0x8f, 0x28, 0x32, 0x3f, 0x87,
+	0xb5, 0xfa, 0xba, 0xe4, 0xcd, 0x97, 0x86, 0xf9, 0x31, 0x2c, 0x8f, 0xd5, 0x1e, 0x6f, 0xbc, 0x29,
+	0x5f, 0xc1, 0x52, 0xa5, 0xc6, 0x20, 0xd7, 0x01, 0x74, 0x3d, 0x62, 0xe7, 0x97, 0x5a, 0x53, 0x23,
+	0x4f, 0x3c, 0x74, 0x6d, 0x59, 0x82, 0xa8, 0x20, 0x87, 0xc6, 0xaa, 0x3e, 0x65, 0xa1, 0x40, 0x8f,
+	0xb9, 0x6f, 0x7e, 0x06, 0x9d, 0xba, 0x7a, 0xe3, 0x2d, 0xbe, 0xe3, 0xaf, 0xd3, 0xd0, 0xa9, 0xab,
+	0x25, 0xc9, 0x33, 0xb8, 0x25, 0xce, 0x58, 0x6c, 0xc7, 0x9c, 0x05, 0x0e, 0xd7, 0x31, 0xdd, 0xce,
+	0xab, 0x53, 0x4e, 0x95, 0xb1, 0xab, 0x88, 0xb7, 0x8d, 0xd4, 0x23, 0xc5, 0x94, 0xe1, 0x3d, 0x53,
+	0xa9, 0x69, 0xe4, 0x57, 0x70, 0x67, 0x82, 0x36, 0x47, 0xd8, 0x9c, 0xf6, 0x52, 0xdf, 0xe1, 0xaa,
+	0x8e, 0x57, 0xe1, 0xeb, 0x9d, 0x0b, 0x94, 0xee, 0x08, 0x4b, 0x91, 0x65, 0x60, 0xfc, 0x06, 0xae,
+	0xc9, 0x1c, 0x54, 0x6b, 0x94, 0x99, 0xa8, 0xd6, 0x8b, 0xd1, 0x61, 0x66, 0x34, 0xcd, 0xc5, 0x74,
+	0x53, 0xe9, 0x42, 0xa2, 0x56, 0x28, 0xac, 0x35, 0xa7, 0x16, 0x37, 0xff, 0xd8, 0x80, 0xb5, 0xfa,
+	0x21, 0x78, 0x70, 0xa2, 0x1f, 0xf1, 0xa4, 0x7c, 0x49, 0x35, 0x25, 0x22, 0xaf, 0xa7, 0x0d, 0x68,
+	0x9e, 0xa6, 0xbe, 0xaf, 0xa4, 0xd3, 0x3a, 0x3c, 0xa6, 0xbe, 0x2f, 0x85, 0xb7, 0x60, 0x21, 0xbb,
+	0x5a, 0xec, 0xbe, 0x23, 0xfa, 0x32, 0x8a, 0xcd, 0x5b, 0xf3, 0x19, 0xb8, 0xef, 0x88, 0x3e, 0x59,
+	0x83, 0x2b, 0x7d, 0xe6, 0x79, 0x34, 0x94, 0xf1, 0x69, 0xce, 0xd2, 0x6f, 0x26, 0x87, 0xf9, 0x72,
+	0x31, 0xf8, 0xd6, 0x41, 0x75, 0x03, 0x9a, 0xb2, 0x3a, 0x2c, 0x59, 0xd1, 0x9c, 0x04, 0x30, 0xde,
+	0x5d, 0x07, 0x50, 0x42, 0xd9, 0x02, 0x55, 0xe1, 0x5c, 0xd1, 0x5f, 0x0c, 0x63, 0x6a, 0x0e, 0xa1,
+	0x55, 0x2a, 0x21, 0x2b, 0xec, 0x46, 0x85, 0x5d, 0xb7, 0xa2, 0xe9, 0xba, 0x15, 0xe1, 0x36, 0x50,
+	0x2e, 0x98, 0x48, 0x30, 0x32, 0x31, 0x4f, 0xcf, 0x3b, 0x5f, 0x80, 0x4f, 0x3c, 0xf3, 0xa7, 0x30,
+	0x97, 0x55, 0xa1, 0xe4, 0xa3, 0x52, 0xad, 0xda, 0x90, 0x47, 0xbb, 0x3c, 0x56, 0xab, 0x16, 0x85,
+	0xaa, 0xf9, 0xfd, 0x2c, 0xcc, 0x6a, 0x14, 0xd3, 0x46, 0x96, 0xd0, 0x20, 0x4b, 0x1b, 0xf1, 0x99,
+	0x3c, 0xc8, 0x9b, 0x79, 0xf9, 0x29, 0xd5, 0xf4, 0x04, 0xf1, 0xc4, 0x32, 0xdd, 0xba, 0xa3, 0x27,
+	0x0f, 0xf1, 0x53, 0x98, 0xeb, 0x47, 0x22, 0x91, 0x43, 0x67, 0xaa, 0xad, 0x84, 0x7d, 0x2d, 0xc9,
+	0x17, 0x95, 0x51, 0xc9, 0x43, 0x58, 0x18, 0x44, 0x38, 0x27, 0x8f, 0x9c, 0x80, 0x85, 0x3d, 0xdd,
+	0xb5, 0x2d, 0x95, 0x78, 0x2f, 0x51, 0x6c, 0x29, 0x69, 0x36, 0x7e, 0x7e, 0x50, 0x02, 0xc9, 0x53,
+	0x68, 0xe3, 0x1e, 0x45, 0xa1, 0xe3, 0xdb, 0xfd, 0x28, 0x11, 0x71, 0x94, 0xe8, 0x9e, 0x6c, 0xc9,
+	0xd4, 0x8f, 0x34, 0x63, 0x5f, 0x11, 0x32, 0x4d, 0x4b, 0xf1, 0x28, 0x4e, 0x3e, 0x83, 0xe6, 0xb9,
+	0xe3, 0xfb, 0xb1, 0x13, 0x53, 0xae, 0xef, 0xae, 0x52, 0x99, 0xf5, 0x2a, 0x13, 0x65, 0xe3, 0x0b,
+	0x32, 0xf9, 0x05, 0xcc, 0xcb, 0x0c, 0x31, 0xfb, 0x92, 0xd9, 0x6a, 0xa9, 0x82, 0x69, 0x62, 0xe5,
+	0x43, 0x5a, 0x5e, 0x81, 0xe1, 0xd4, 0x27, 0x7e, 0x4a, 0x93, 0x28, 0x4a, 0xfa, 0xba, 0x97, 0x5a,
+	0x9a, 0xfa, 0x61, 0x26, 0xca, 0xa7, 0xce, 0xc9, 0xe4, 0x5b, 0x58, 0xbb, 0xa0, 0x05, 0xd0, 0xac,
+	0xde, 0x97, 0xb5, 0x77, 0x4b, 0xa6, 0x72, 0xd5, 0xa9, 0xad, 0xfc, 0x1f, 0x40, 0x2b, 0xf0, 0x02,
+	0x3b, 0x4b, 0x32, 0xa0, 0x6a, 0x19, 0x07, 0x7b, 0x07, 0xfa, 0x42, 0xcc, 0x2d, 0x23, 0xf0, 0x82,
+	0xec, 0x8e, 0xa4, 0xb0, 0x9e, 0x75, 0x79, 0x65, 0x9b, 0xd8, 0xee, 0x71, 0xc7, 0xa5, 0x76, 0x4c,
+	0x39, 0x8b, 0x3c, 0xdd, 0x76, 0xbd, 0x5d, 0x3a, 0x28, 0xcd, 0xc5, 0x7c, 0xff, 0x2b, 0x64, 0x1e,
+	0x49, 0x62, 0xa6, 0xf9, 0x6a, 0x5c, 0x2f, 0x27, 0xdf, 0xc0, 0x5a, 0xe0, 0xbc, 0x66, 0x41, 0x1a,
+	0x60, 0x12, 0x2a, 0x83, 0xba, 0x0c, 0x9f, 0x59, 0x4f, 0xf6, 0xdd, 0x72, 0x63, 0x42, 0xf2, 0x2c,
+	0x4d, 0xc3, 0xc0, 0x99, 0xaf, 0xbc, 0x13, 0xd4, 0x08, 0xc9, 0x2f, 0x61, 0xd5, 0x63, 0x4e, 0x2f,
+	0x8c, 0x44, 0xc2, 0x5c, 0x5b, 0xa4, 0x27, 0x01, 0x13, 0x58, 0x89, 0xe9, 0x56, 0xed, 0xe4, 0x43,
+	0xee, 0x14, 0x43, 0xbb, 0xf9, 0x48, 0xb4, 0x7c, 0x27, 0x8e, 0x6d, 0x27, 0x74, 0xfc, 0x61, 0xc2,
+	0x5c, 0xa1, 0xdb, 0xb5, 0xa3, 0xdd, 0xc7, 0x9d, 0x4c, 0x9a, 0x5b, 0xbe, 0x53, 0x02, 0xcd, 0x7b,
+	0xb0, 0x52, 0xe3, 0x1e, 0x98, 0xc8, 0xaa, 0xd6, 0xac, 0xa7, 0x2f, 0xa4, 0xec, 0xd5, 0xbc, 0x0f,
+	0x6b, 0xf5, 0x8e, 0x30, 0x61, 0xcc, 0x03, 0x68, 0x57, 0xcd, 0x1e, 0xe3, 0x07, 0x5a, 0xae, 0x2e,
+	0xd8, 0xe4, 0x33, 0xe9, 0xc0, 0xe5, 0xf3, 0x3e, 0xe5, 0x54, 0x47, 0x37, 0xf5, 0x62, 0xde, 0x05,
+	0x32, 0xbe, 0x25, 0x13, 0x66, 0xfb, 0x10, 0xda, 0x55, 0x4b, 0x9f, 0xc0, 0xfe, 0x53, 0x03, 0x36,
+	0x27, 0x59, 0xf4, 0x1b, 0xb3, 0xa3, 0x97, 0x17, 0x7a, 0x8e, 0x8a, 0x7f, 0xdb, 0x6f, 0xf0, 0x9c,
+	0x0b, 0x5c, 0xc6, 0xbc, 0x0f, 0xab, 0xf5, 0x5d, 0xb4, 0x6b, 0x30, 0x37, 0x88, 0xc3, 0xf2, 0xef,
+	0x76, 0xb3, 0x83, 0x38, 0x3c, 0xc6, 0xba, 0xfd, 0x93, 0xac, 0x9a, 0x2e, 0xc5, 0x58, 0xb2, 0x3d,
+	0x1a, 0x95, 0xf5, 0x17, 0x14, 0x81, 0xd7, 0xfc, 0x08, 0x96, 0x2a, 0xe1, 0x15, 0x6b, 0x91, 0x3c,
+	0x16, 0xeb, 0xea, 0x28, 0x7b, 0x37, 0xbf, 0x86, 0xe5, 0x31, 0x77, 0x25, 0x9f, 0x8e, 0x3a, 0x78,
+	0xa3, 0xfa, 0xc3, 0x41, 0x31, 0xa2, 0xec, 0xd9, 0xa6, 0x07, 0x50, 0x48, 0xc8, 0x4b, 0xb8, 0x2d,
+	0x1b, 0x39, 0xba, 0xf1, 0x8d, 0x9e, 0x2e, 0x2b, 0x5d, 0xea, 0xd9, 0xe7, 0x7d, 0xac, 0x0d, 0x45,
+	0x1a, 0x53, 0x3e, 0x60, 0x22, 0x3f, 0xc6, 0x77, 0x0a, 0x3e, 0x7a, 0xf3, 0x8e, 0x62, 0xbf, 0x42,
+	0x72, 0x37, 0xe7, 0x9a, 0xdf, 0xc2, 0xd6, 0xe4, 0x98, 0x40, 0x7e, 0x36, 0x31, 0xc2, 0xa8, 0xeb,
+	0xff, 0xa2, 0xb8, 0x61, 0x76, 0x61, 0x63, 0x42, 0x3c, 0x20, 0x9f, 0x5c, 0x18, 0x56, 0x94, 0xde,
+	0xda, 0x78, 0x61, 0x5a, 0xb0, 0xb1, 0x57, 0xe3, 0xf4, 0x99, 0xd2, 0x8f, 0x2f, 0x0a, 0x27, 0x6a,
+	0x5f, 0x6a, 0x03, 0x86, 0xf9, 0xb9, 0xcc, 0xff, 0xab, 0x11, 0x01, 0xd3, 0x86, 0xd1, 0x38, 0xa2,
+	0x74, 0x8c, 0x06, 0x8a, 0x5d, 0xd8, 0x7e, 0x43, 0xc7, 0xf9, 0x2d, 0x92, 0xe3, 0x2f, 0x61, 0x73,
+	0x52, 0x03, 0xf9, 0x2d, 0x34, 0xf4, 0x60, 0xfd, 0xe2, 0xa6, 0xf0, 0x5b, 0xf4, 0xa6, 0xde, 0x87,
+	0x25, 0xfd, 0x03, 0x57, 0xde, 0x75, 0x56, 0xc9, 0xf1, 0xa2, 0x82, 0x33, 0x55, 0xe6, 0xef, 0x1b,
+	0xb0, 0x52, 0xd3, 0x1b, 0xc6, 0x42, 0xd6, 0x4d, 0x39, 0xc7, 0x43, 0xcc, 0xbb, 0x1b, 0xba, 0xa3,
+	0xa2, 0xf1, 0x9c, 0x7a, 0x13, 0xe6, 0x43, 0x7a, 0x5e, 0xd0, 0x74, 0xcd, 0x1f, 0xd2, 0xf3, 0x9c,
+	0xb2, 0x0d, 0x2d, 0xd5, 0xeb, 0x89, 0x78, 0x14, 0x08, 0xdd, 0xe1, 0x01, 0x09, 0x1d, 0x22, 0x62,
+	0x7e, 0x02, 0x6b, 0xf5, 0x9d, 0xe4, 0x91, 0xf6, 0x4a, 0xa3, 0xd2, 0x5e, 0x39, 0x84, 0x4e, 0x5d,
+	0x8b, 0x18, 0x83, 0x6e, 0xaf, 0xd4, 0xeb, 0xc3, 0xe7, 0xf1, 0xdc, 0x79, 0x7a, 0x3c, 0x77, 0x36,
+	0x7f, 0x0e, 0xed, 0x6a, 0x3b, 0x97, 0xdc, 0x81, 0x59, 0xd5, 0xff, 0xcd, 0x72, 0xc7, 0x76, 0xe9,
+	0xe7, 0x46, 0x29, 0xb0, 0x32, 0x82, 0x39, 0x84, 0x2b, 0x7a, 0xd4, 0x36, 0xb4, 0x62, 0x1e, 0x79,
+	0xa9, 0xab, 0xba, 0xb1, 0x3a, 0x1a, 0x69, 0xe8, 0x29, 0x1d, 0xca, 0x82, 0x58, 0x13, 0x06, 0x98,
+	0xb7, 0xea, 0xee, 0x4b, 0xd3, 0x5a, 0xd4, 0xf0, 0x4b, 0x85, 0xaa, 0x52, 0x4e, 0xff, 0x58, 0x28,
+	0x7b, 0x42, 0x3a, 0xdd, 0xcd, 0x7e, 0xf9, 0xd9, 0x91, 0xa0, 0xf9, 0x21, 0x74, 0xea, 0x3a, 0xd1,
+	0x78, 0xd9, 0xc8, 0x76, 0x8e, 0xb6, 0x76, 0xf5, 0x62, 0x3e, 0x03, 0x32, 0xde, 0x61, 0xc6, 0xca,
+	0xff, 0x94, 0xf9, 0x09, 0xe5, 0x45, 0x6b, 0xda, 0x8e, 0x23, 0x86, 0x15, 0x91, 0xb2, 0xb1, 0x55,
+	0x25, 0xce, 0x87, 0x1c, 0x49, 0xa1, 0xf9, 0x43, 0x03, 0xc8, 0x78, 0x7b, 0x19, 0x23, 0xf8, 0x19,
+	0x1d, 0x96, 0x93, 0xfd, 0xd9, 0x33, 0x3a, 0x94, 0xa9, 0xfe, 0x1e, 0xb4, 0x8b, 0x76, 0xb5, 0xea,
+	0x62, 0xea, 0x7b, 0xa4, 0x94, 0x0c, 0xe7, 0xca, 0x54, 0x03, 0xcc, 0x5a, 0xca, 0x87, 0x28, 0x00,
+	0xf7, 0x10, 0x2d, 0xcf, 0xa5, 0x1c, 0xed, 0xde, 0x75, 0x74, 0x47, 0x69, 0xde, 0x5a, 0x0c, 0xe9,
+	0xf9, 0x6e, 0x81, 0x92, 0x2f, 0x61, 0x93, 0xd3, 0xd8, 0x1f, 0xda, 0x34, 0x74, 0xf9, 0x50, 0x17,
+	0xf8, 0xa5, 0x51, 0x97, 0xe4, 0xa8, 0x75, 0xc9, 0x79, 0x94, 0x53, 0x4a, 0x1a, 0xcc, 0xbf, 0x34,
+	0x60, 0xa9, 0xb2, 0x9e, 0x49, 0xa6, 0xa9, 0xda, 0xa1, 0x18, 0xb2, 0x29, 0x9e, 0xbf, 0x4d, 0x5f,
+	0xc7, 0x11, 0x4f, 0xb4, 0xcd, 0xb5, 0xb5, 0xe4, 0x29, 0x1d, 0x3e, 0x92, 0x38, 0xf9, 0x02, 0x36,
+	0xc6, 0xd9, 0x85, 0x47, 0xa9, 0x03, 0x37, 0xaa, 0xc3, 0x32, 0x7b, 0x37, 0xff, 0xd5, 0x80, 0x05,
+	0x8b, 0x8a, 0xd4, 0x4f, 0xb2, 0x3f, 0xbe, 0x10, 0xb8, 0x94, 0x7a, 0xa5, 0x6e, 0xb7, 0xc7, 0xc6,
+	0xff, 0x0c, 0x33, 0x3d, 0xfe, 0x67, 0x98, 0x4f, 0xa1, 0x45, 0x39, 0x8f, 0xb8, 0xed, 0xf6, 0x1d,
+	0x16, 0xea, 0x32, 0xb8, 0x53, 0xfe, 0xab, 0x00, 0x8f, 0xf8, 0x2e, 0xca, 0x2c, 0xa0, 0xf9, 0xb3,
+	0xd9, 0x85, 0x2b, 0xdd, 0xc4, 0x49, 0x52, 0x41, 0xda, 0x30, 0xbf, 0xe3, 0x9e, 0x85, 0xd1, 0xb9,
+	0x4f, 0xbd, 0x1e, 0xf5, 0xda, 0x53, 0xa4, 0x09, 0x97, 0xe5, 0xa8, 0x76, 0x83, 0xac, 0x01, 0xd1,
+	0x7f, 0x9e, 0x79, 0x2c, 0x7b, 0xe0, 0x0a, 0x9f, 0x26, 0x73, 0x70, 0xe9, 0x89, 0xe7, 0xd3, 0xf6,
+	0x0c, 0x01, 0xb8, 0xf2, 0x3c, 0x4a, 0x9e, 0x47, 0xe7, 0xed, 0x4b, 0xe6, 0xdf, 0x1b, 0x00, 0xc5,
+	0x7c, 0x78, 0x13, 0xf8, 0x91, 0xeb, 0xf8, 0xec, 0x77, 0xd4, 0xb3, 0x3d, 0x2a, 0x5c, 0xce, 0xe2,
+	0xbc, 0x93, 0xd0, 0xb4, 0x3a, 0xb9, 0x70, 0xaf, 0x90, 0xe1, 0x9d, 0x94, 0x0a, 0x9b, 0x86, 0x3d,
+	0x9f, 0x89, 0xfe, 0xc8, 0x28, 0xf5, 0xf1, 0x9d, 0x54, 0x3c, 0x52, 0xc2, 0xf2, 0xa8, 0x9b, 0x30,
+	0xaf, 0x76, 0xc1, 0x8b, 0x02, 0xb5, 0x0d, 0x72, 0xa3, 0x24, 0xb6, 0x27, 0x21, 0xac, 0x64, 0xf5,
+	0x46, 0x45, 0x9e, 0x32, 0x9f, 0xcb, 0x56, 0x53, 0xed, 0x48, 0xe4, 0xd1, 0x87, 0xed, 0x7f, 0xfe,
+	0xb8, 0xd5, 0xf8, 0xfe, 0xc7, 0xad, 0xc6, 0x0f, 0x3f, 0x6e, 0x35, 0xfe, 0xfc, 0xef, 0xad, 0xa9,
+	0x93, 0x2b, 0x72, 0x03, 0x3f, 0xfe, 0x6f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x83, 0x60, 0xe0, 0x4b,
+	0xb9, 0x24, 0x00, 0x00,
 }
