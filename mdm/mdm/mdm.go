@@ -676,8 +676,8 @@ type RemoveProvisioningProfile struct {
 }
 
 type InstalledApplicationList struct {
-	Identifiers     []string `plist",omitempty" json:"identifiers,omitpempty"`
-	ManagedAppsOnly bool     `json:"managed_apps_only"`
+	Identifiers     []string `plist:",omitempty" json:"identifiers,omitempty"`
+	ManagedAppsOnly bool     `plist:",omitpempty" json:"managed_appd_only,omitempty"`
 }
 
 type DeviceInformation struct {

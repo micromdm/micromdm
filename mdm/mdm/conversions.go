@@ -10,6 +10,13 @@ func commandToProto(cmd *Command) *mdmproto.Command {
 		RequestType: cmd.RequestType,
 	}
 	switch cmd.RequestType {
+	case "InstalledApplicationList":
+		cmdproto.Request = &mdmproto.Command_InstalledApplicationList{
+			InstalledApplicationList: &mdmproto.InstalledApplicationList{
+				Identifiers:     cmd.InstalledApplicationList.Identifiers,
+				ManagedAppsOnly: cmd.InstalledApplicationList.ManagedAppsOnly,
+			},
+		}
 	case "InstallProfile":
 		cmdproto.Request = &mdmproto.Command_InstallProfile{
 			InstallProfile: &mdmproto.InstallProfile{
@@ -43,6 +50,12 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 		RequestType: pb.RequestType,
 	}
 	switch pb.RequestType {
+	case "InstalledApplicationList":
+		pbcmd := pb.GetInstalledApplicationList()
+		cmd.InstalledApplicationList = &InstalledApplicationList{
+			Identifiers:     pbcmd.GetIdentifiers(),
+			ManagedAppsOnly: pbcmd.GetManagedAppsOnly(),
+		}
 	case "InstallProfile":
 		cmd.InstallProfile = &InstallProfile{
 			Payload: pb.GetInstallProfile().GetPayload(),
