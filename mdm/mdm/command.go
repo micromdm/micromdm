@@ -46,6 +46,7 @@ type Command struct {
 	InviteToProgram                 *InviteToProgram
 	ValidateApplications            *ValidateApplications
 	InstallMedia                    *InstallMedia
+	RemoveMedia                     *RemoveMedia
 	Settings                        *Settings
 	ManagedApplicationConfiguration *ManagedApplicationConfiguration
 	ManagedApplicationAttributes    *ManagedApplicationAttributes
