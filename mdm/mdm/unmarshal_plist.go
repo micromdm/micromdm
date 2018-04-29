@@ -29,7 +29,10 @@ func (c *Command) UnmarshalPlist(unmarshal func(i interface{}) error) error {
 		"PlayLostModeSound",
 		"DisableLostMode",
 		"DeviceLocation",
-		"TODO_remove":
+		"ManagedMediaList",
+		"DeviceConfigured",
+		"AvailableOSUpdates",
+		"NSExtensionMappings":
 		return nil
 	case "InstallProfile":
 		var payload InstallProfile
@@ -135,6 +138,139 @@ func (c *Command) UnmarshalPlist(unmarshal func(i interface{}) error) error {
 			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
 		}
 		c.InstallApplication = &payload
+		return nil
+	case "AccountConfiguration":
+		var payload AccountConfiguration
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.AccountConfiguration = &payload
+		return nil
+	case "ApplyRedemptionCode":
+		var payload ApplyRedemptionCode
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.ApplyRedemptionCode = &payload
+		return nil
+	case "ManagedApplicationList":
+		var payload ManagedApplicationList
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.ManagedApplicationList = &payload
+		return nil
+	case "RemoveApplication":
+		var payload RemoveApplication
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.RemoveApplication = &payload
+		return nil
+	case "InviteToProgram":
+		var payload InviteToProgram
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.InviteToProgram = &payload
+		return nil
+	case "ValidateApplications":
+		var payload ValidateApplications
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.ValidateApplications = &payload
+		return nil
+	case "InstallMedia":
+		var payload InstallMedia
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.InstallMedia = &payload
+		return nil
+	case "RemoveMedia":
+		var payload RemoveMedia
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.RemoveMedia = &payload
+		return nil
+	case "Settings":
+		var payload Settings
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.Settings = &payload
+		return nil
+	case "ManagedApplicationConfiguration":
+		var payload ManagedApplicationConfiguration
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.ManagedApplicationConfiguration = &payload
+		return nil
+	case "ManagedApplicationAttributes":
+		var payload ManagedApplicationAttributes
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.ManagedApplicationAttributes = &payload
+		return nil
+	case "ManagedApplicationFeedback":
+		var payload ManagedApplicationFeedback
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.ManagedApplicationFeedback = &payload
+		return nil
+	case "SetFirmwarePassword":
+		var payload SetFirmwarePassword
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.SetFirmwarePassword = &payload
+		return nil
+	case "VerifyFirmwarePassword":
+		var payload VerifyFirmwarePassword
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.VerifyFirmwarePassword = &payload
+		return nil
+	case "SetAutoAdminPassword":
+		var payload SetAutoAdminPassword
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.SetAutoAdminPassword = &payload
+		return nil
+	case "ScheduleOSUpdate":
+		var payload ScheduleOSUpdate
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.ScheduleOSUpdate = &payload
+		return nil
+	case "ScheduleOSUpdateScan":
+		var payload ScheduleOSUpdateScan
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.ScheduleOSUpdateScan = &payload
+		return nil
+	case "ActiveNSExtensions":
+		var payload ActiveNSExtensions
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.ActiveNSExtensions = &payload
+		return nil
+	case "RotateFileVaultKey":
+		var payload RotateFileVaultKey
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.RotateFileVaultKey = &payload
 		return nil
 	default:
 		return fmt.Errorf("mdm: unknown RequestType: %s", requestType.RequestType)
