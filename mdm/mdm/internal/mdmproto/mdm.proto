@@ -177,7 +177,7 @@ message ValidateApplications {
 
 message AccountConfiguration {
   bool skip_primary_setup_account_creation = 1;
-  bool skip_primary_setup_account_as_regular_user = 2;
+  bool set_primary_setup_account_as_regular_user = 2;
   repeated AutoSetupAdminAccounts auto_setup_admin_accounts = 3;
 }
 
@@ -218,7 +218,7 @@ message Setting {
   MDMOptionsSetting mdm_options = 10;
   PasscodeLockGracePeriodSetting passcode_lock_grace_period = 11;
   MaximumResidentUsersSetting maximum_resident_users = 12;
-  DataRoamingSetting diagnostic_submission = 13;
+  DiagnosticSubmissionSetting diagnostic_submission = 13;
   AppAnalyticsSetting app_analytics = 14;
 }
 
@@ -231,7 +231,7 @@ message PersonalHotspotSetting {
 }
 
 message WallpaperSetting {
-  bytes data = 1;
+  bytes image = 1;
   int64 where = 2;
 }
 
@@ -277,11 +277,11 @@ message MaximumResidentUsersSetting {
 }
 
 message DiagnosticSubmissionSetting {
-  bool diagnostic_submission = 1;
+  bool enabled = 1;
 }
 
 message AppAnalyticsSetting {
-  bool app_analytics = 1;
+  bool enabled = 1;
 }
 
 message ManagedApplicationConfiguration {
