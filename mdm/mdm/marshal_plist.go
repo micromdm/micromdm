@@ -17,7 +17,10 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 		"PlayLostModeSound",
 		"DisableLostMode",
 		"DeviceLocation",
-		"TODO_remove":
+		"ManagedMediaList",
+		"DeviceConfigured",
+		"AvailableOSUpdates",
+		"NSExtensionMappings":
 		return &struct {
 			RequestType string
 		}{
@@ -151,6 +154,150 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 		}{
 			RequestType:          c.RequestType,
 			AccountConfiguration: c.AccountConfiguration,
+		}, nil
+	case "ApplyRedemptionCode":
+		return &struct {
+			RequestType string
+			*ApplyRedemptionCode
+		}{
+			RequestType:         c.RequestType,
+			ApplyRedemptionCode: c.ApplyRedemptionCode,
+		}, nil
+	case "ManagedApplicationList":
+		return &struct {
+			RequestType string
+			*ManagedApplicationList
+		}{
+			RequestType:            c.RequestType,
+			ManagedApplicationList: c.ManagedApplicationList,
+		}, nil
+	case "RemoveApplication":
+		return &struct {
+			RequestType string
+			*RemoveApplication
+		}{
+			RequestType:       c.RequestType,
+			RemoveApplication: c.RemoveApplication,
+		}, nil
+	case "InviteToProgram":
+		return &struct {
+			RequestType string
+			*InviteToProgram
+		}{
+			RequestType:     c.RequestType,
+			InviteToProgram: c.InviteToProgram,
+		}, nil
+	case "ValidateApplications":
+		return &struct {
+			RequestType string
+			*ValidateApplications
+		}{
+			RequestType:          c.RequestType,
+			ValidateApplications: c.ValidateApplications,
+		}, nil
+	case "InstallMedia":
+		return &struct {
+			RequestType string
+			*InstallMedia
+		}{
+			RequestType:  c.RequestType,
+			InstallMedia: c.InstallMedia,
+		}, nil
+	case "RemoveMedia":
+		return &struct {
+			RequestType string
+			*RemoveMedia
+		}{
+			RequestType: c.RequestType,
+			RemoveMedia: c.RemoveMedia,
+		}, nil
+	case "Settings":
+		return &struct {
+			RequestType string
+			*Settings
+		}{
+			RequestType: c.RequestType,
+			Settings:    c.Settings,
+		}, nil
+	case "ManagedApplicationConfiguration":
+		return &struct {
+			RequestType string
+			*ManagedApplicationConfiguration
+		}{
+			RequestType:                     c.RequestType,
+			ManagedApplicationConfiguration: c.ManagedApplicationConfiguration,
+		}, nil
+	case "ManagedApplicationAttributes":
+		return &struct {
+			RequestType string
+			*ManagedApplicationAttributes
+		}{
+			RequestType:                  c.RequestType,
+			ManagedApplicationAttributes: c.ManagedApplicationAttributes,
+		}, nil
+	case "ManagedApplicationFeedback":
+		return &struct {
+			RequestType string
+			*ManagedApplicationFeedback
+		}{
+			RequestType:                c.RequestType,
+			ManagedApplicationFeedback: c.ManagedApplicationFeedback,
+		}, nil
+	case "SetFirmwarePassword":
+		return &struct {
+			RequestType string
+			*SetFirmwarePassword
+		}{
+			RequestType:         c.RequestType,
+			SetFirmwarePassword: c.SetFirmwarePassword,
+		}, nil
+	case "VerifyFirmwarePassword":
+		return &struct {
+			RequestType string
+			*VerifyFirmwarePassword
+		}{
+			RequestType:            c.RequestType,
+			VerifyFirmwarePassword: c.VerifyFirmwarePassword,
+		}, nil
+	case "SetAutoAdminPassword":
+		return &struct {
+			RequestType string
+			*SetAutoAdminPassword
+		}{
+			RequestType:          c.RequestType,
+			SetAutoAdminPassword: c.SetAutoAdminPassword,
+		}, nil
+	case "ScheduleOSUpdate":
+		return &struct {
+			RequestType string
+			*ScheduleOSUpdate
+		}{
+			RequestType:      c.RequestType,
+			ScheduleOSUpdate: c.ScheduleOSUpdate,
+		}, nil
+	case "ScheduleOSUpdateScan":
+		return &struct {
+			RequestType string
+			*ScheduleOSUpdateScan
+		}{
+			RequestType:          c.RequestType,
+			ScheduleOSUpdateScan: c.ScheduleOSUpdateScan,
+		}, nil
+	case "ActiveNSExtensions":
+		return &struct {
+			RequestType string
+			*ActiveNSExtensions
+		}{
+			RequestType:        c.RequestType,
+			ActiveNSExtensions: c.ActiveNSExtensions,
+		}, nil
+	case "RotateFileVaultKey":
+		return &struct {
+			RequestType string
+			*RotateFileVaultKey
+		}{
+			RequestType:        c.RequestType,
+			RotateFileVaultKey: c.RotateFileVaultKey,
 		}, nil
 	default:
 		return nil, fmt.Errorf("mdm: unknown command RequestType, %s", c.RequestType)
