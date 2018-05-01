@@ -21,7 +21,7 @@
   branch = "master"
   name = "github.com/fullsailor/pkcs7"
   packages = ["."]
-  revision = "a009d8d7de53d9503c797cb8ec66fa3b21eed209"
+  revision = "ae226422660e5ca10db350d33f81c6608f3fbcdd"
 
 [[projects]]
   branch = "master"

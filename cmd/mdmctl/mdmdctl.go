@@ -38,6 +38,9 @@ func main() {
 	case "mdmcert":
 		cmd := new(mdmcertCommand)
 		run = cmd.Run
+	case "mdmcert.download":
+		cmd := new(mdmcertDownloadCommand)
+		run = cmd.Run
 	default:
 		usage()
 		os.Exit(1)
@@ -58,6 +61,7 @@ Available Commands:
 	config
 	remove
 	mdmcert
+	mdmcert.download
 	version
 
 Use micromdm <command> -h for additional usage of each command.
