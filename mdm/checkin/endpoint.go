@@ -2,10 +2,10 @@ package checkin
 
 import (
 	"context"
-	"errors"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/mdm"
+	"github.com/pkg/errors"
 )
 
 // errInvalidMessageType is an invalid checking command.
@@ -26,13 +26,13 @@ func MakeCheckinEndpoint(svc Service) endpoint.Endpoint {
 			err = svc.TokenUpdate(ctx, req.CheckinCommand)
 		case "CheckOut":
 			err = svc.CheckOut(ctx, req.CheckinCommand)
+		case "UserAuthenticate":
+			// TODO: to support per-user MDM. See #293
+			err = &rejectUserAuth{}
 		default:
-			return checkinResponse{Err: errInvalidMessageType}, nil
+			err = errInvalidMessageType
 		}
-		if err != nil {
-			return checkinResponse{Err: err}, nil
-		}
-		return checkinResponse{}, nil
+		return checkinResponse{Err: err}, nil
 	}
 }
 
@@ -45,3 +45,23 @@ type checkinResponse struct {
 }
 
 func (r checkinResponse) error() error { return r.Err }
+
+type rejectUserAuth struct{}
+
+func (e *rejectUserAuth) Error() string {
+	return "reject user auth"
+}
+
+func (e *rejectUserAuth) UserAuthReject() bool {
+	return true
+}
+
+func isRejectedUserAuth(err error) bool {
+	type rejectUserAuthError interface {
+		error
+		UserAuthReject() bool
+	}
+
+	_, ok := errors.Cause(err).(rejectUserAuthError)
+	return ok
+}
