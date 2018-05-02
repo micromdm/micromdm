@@ -84,8 +84,7 @@ func (db *DB) Save(bp *blueprint.Blueprint) error {
 	check_bp, err := db.BlueprintByName(bp.Name)
 	if err != nil && !isNotFound(err) {
 		return err
-	}
-	if bp.UUID != check_bp.UUID {
+	} else if bp.UUID != check_bp.UUID {
 		return fmt.Errorf("Blueprint not saved: same name %s exists", bp.Name)
 	}
 	// verify that each Profile ID represents a profile we know about
