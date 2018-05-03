@@ -185,8 +185,8 @@ func (cmd *mdmcertDownloadCommand) Run(args []string) error {
 		}
 
 		fmt.Print("Request successfully sent to mdmcert.download. Your CSR should now\n" +
-			"be signed. Check your email for next steps. The -decode step should\n" +
-			"be used now to extract the CSR request to be uploaded to Apple.\n")
+			"be signed. Check your email for next steps. Then use the -decrypt option\n" +
+			"to extract the CSR request which will then be uploaded to Apple.\n")
 
 	} else { // -decrypt switch
 		if _, err := os.Stat(*flCReqPath); err == nil {
