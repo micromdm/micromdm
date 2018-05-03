@@ -8,11 +8,12 @@ import (
 	"encoding/asn1"
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"math/big"
 	"os"
-	"time"
 	"strings"
+	"time"
 )
 
 func GenerateRandomCertificateSerialNumber() (*big.Int, error) {
@@ -66,6 +67,11 @@ func ReadPEMCertificateFile(path string) (*x509.Certificate, error) {
 	return certs[0], nil
 }
 
+const (
+	rsaPrivateKeyPEMBlockType = "RSA PRIVATE KEY"
+	certificatePEMBlockType   = "CERTIFICATE"
+)
+
 func ReadPEMCertificatesFile(path string) ([]*x509.Certificate, error) {
 	pemData, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -76,7 +82,7 @@ func ReadPEMCertificatesFile(path string) ([]*x509.Certificate, error) {
 	for {
 		var block *pem.Block
 		block, rest = pem.Decode(rest)
-		if block == nil || block.Type != "CERTIFICATE" {
+		if block == nil || block.Type != certificatePEMBlockType {
 			return nil, errors.New("failed to decode PEM block containing certificate")
 		}
 		asn1data = append(asn1data, block.Bytes...)
@@ -85,6 +91,40 @@ func ReadPEMCertificatesFile(path string) ([]*x509.Certificate, error) {
 		}
 	}
 	return x509.ParseCertificates(asn1data)
+}
+
+func ReadPEMRSAKeyFile(path string) (*rsa.PrivateKey, error) {
+	return ReadEncryptedPEMRSAKeyFile(path, nil)
+}
+
+func ReadEncryptedPEMRSAKeyFile(path string, password []byte) (*rsa.PrivateKey, error) {
+	pemData, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	pemBlock, _ := pem.Decode(pemData)
+	if pemBlock == nil {
+		return nil, errors.New("PEM decode failed")
+	}
+	if pemBlock.Type != rsaPrivateKeyPEMBlockType {
+		return nil, fmt.Errorf("expecting PEM type of %s, but got %s", rsaPrivateKeyPEMBlockType, pemBlock.Type)
+	}
+
+	if x509.IsEncryptedPEMBlock(pemBlock) {
+		if password == nil {
+			return nil, errors.New("no supplied password for encrypted PEM")
+		}
+		derBytes, err := x509.DecryptPEMBlock(pemBlock, password)
+		if err != nil {
+			return nil, err
+		}
+		return x509.ParsePKCS1PrivateKey(derBytes)
+	} else if password != nil {
+		return nil, errors.New("supplied PEM password, but not encrypted")
+	}
+
+	return x509.ParsePKCS1PrivateKey(pemBlock.Bytes)
 }
 
 func WritePEMCertificateFile(cert *x509.Certificate, path string) error {
@@ -97,7 +137,7 @@ func WritePEMCertificateFile(cert *x509.Certificate, path string) error {
 	return pem.Encode(
 		file,
 		&pem.Block{
-			Type:  "CERTIFICATE",
+			Type:  certificatePEMBlockType,
 			Bytes: cert.Raw,
 		})
 }
@@ -112,9 +152,29 @@ func WritePEMRSAKeyFile(key *rsa.PrivateKey, path string) error {
 	return pem.Encode(
 		file,
 		&pem.Block{
-			Type:  "RSA PRIVATE KEY",
+			Type:  rsaPrivateKeyPEMBlockType,
 			Bytes: x509.MarshalPKCS1PrivateKey(key),
 		})
+}
+
+func WriteEncryptedPEMRSAKeyFile(key *rsa.PrivateKey, password []byte, path string) error {
+	file, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0700)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	encPemBlock, err := x509.EncryptPEMBlock(
+		rand.Reader,
+		rsaPrivateKeyPEMBlockType,
+		x509.MarshalPKCS1PrivateKey(key),
+		password,
+		x509.PEMCipher3DES)
+	if err != nil {
+		return err
+	}
+
+	return pem.Encode(file, encPemBlock)
 }
 
 // TopicFromCert extracts the push certificate topic from the provided certificate.

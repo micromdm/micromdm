@@ -43,11 +43,11 @@ func CreateCSR(req *CSRConfig) error {
 		return err
 	}
 
-	derBytes, err := newCSR(key, strings.ToLower(req.Email), strings.ToUpper(req.Country), req.CommonName)
+	derBytes, err := NewCSR(key, strings.ToLower(req.Email), strings.ToUpper(req.Country), req.CommonName)
 	if err != nil {
 		return err
 	}
-	pemCSR := pemCSR(derBytes)
+	pemCSR := PemCSR(derBytes)
 	return ioutil.WriteFile(req.CSRPath, pemCSR, 0600)
 }
 
@@ -145,7 +145,7 @@ const (
 )
 
 // create a CSR using the same parameters as Keychain Access would produce
-func newCSR(priv *rsa.PrivateKey, email, country, cname string) ([]byte, error) {
+func NewCSR(priv *rsa.PrivateKey, email, country, cname string) ([]byte, error) {
 	subj := pkix.Name{
 		Country:    []string{country},
 		CommonName: cname,
@@ -161,7 +161,7 @@ func newCSR(priv *rsa.PrivateKey, email, country, cname string) ([]byte, error) 
 }
 
 // convert DER to PEM format
-func pemCSR(derBytes []byte) []byte {
+func PemCSR(derBytes []byte) []byte {
 	pemBlock := &pem.Block{
 		Type:    csrPEMBlockType,
 		Headers: nil,
