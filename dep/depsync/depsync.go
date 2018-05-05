@@ -3,13 +3,13 @@ package depsync
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"log"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/boltdb/bolt"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/micromdm/dep"
 	"github.com/pkg/errors"
 
@@ -28,6 +28,7 @@ type Syncer interface {
 
 type watcher struct {
 	mtx    sync.RWMutex
+	logger log.Logger
 	client dep.Client
 
 	publisher pubsub.Publisher
@@ -57,18 +58,25 @@ func WithClient(client dep.Client) Option {
 	}
 }
 
-func New(pub pubsub.PublishSubscriber, db *bolt.DB, opts ...Option) (Syncer, error) {
+func WithLogger(logger log.Logger) Option {
+	return func(w *watcher) {
+		w.logger = logger
+	}
+}
+
+func New(pub pubsub.PublishSubscriber, db *bolt.DB, logger log.Logger, opts ...Option) (Syncer, error) {
 	conf, err := LoadConfig(db)
 	if err != nil {
 		return nil, err
 	}
 	if conf.Cursor.Valid() {
-		fmt.Printf("loaded dep config with cursor: %s\n", conf.Cursor.Value)
+		level.Info(logger).Log("msg", "loaded DEP config", "cursor", conf.Cursor.Value)
 	} else {
 		conf.Cursor.Value = ""
 	}
 
 	sync := &watcher{
+		logger:    log.NewNopLogger(),
 		publisher: pub,
 		conf:      conf,
 		startSync: make(chan bool),
@@ -84,21 +92,21 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, opts ...Option) (Syncer, err
 
 	saveCursor := func() {
 		if err := conf.Save(); err != nil {
-			log.Printf("saving cursor %s\n", err)
+			level.Info(logger).Log("err", err, "msg", "saving cursor")
 			return
 		}
-		log.Printf("saved DEP cursor at value %s\n", conf.Cursor.Value)
+		level.Info(logger).Log("msg", "saved DEP config", "cursor", conf.Cursor.Value)
 	}
 
 	go func() {
 		defer saveCursor()
 		if sync.client == nil {
 			// block until we have a DEP client to start sync process
-			log.Println("depsync: waiting for DEP token to be added before starting sync")
+			level.Info(logger).Log("msg", "waiting for DEP token to be added before starting sync")
 			<-sync.startSync
 		}
 		if err := sync.Run(); err != nil {
-			log.Println("DEP watcher failed: ", err)
+			level.Info(logger).Log("err", err, "msg", "DEP watcher failed")
 		}
 	}()
 	return sync, nil
@@ -116,13 +124,13 @@ func (w *watcher) updateClient(pubsub pubsub.Subscriber) error {
 			case event := <-tokenAdded:
 				var token conf.DEPToken
 				if err := json.Unmarshal(event.Message, &token); err != nil {
-					log.Printf("unmarshalling tokenAdded to token: %s\n", err)
+					level.Info(w.logger).Log("err", err, "msg", "unmarshalling tokenAdd to token")
 					continue
 				}
 
 				client, err := token.Client()
 				if err != nil {
-					log.Printf("creating new DEP client: %s\n", err)
+					level.Info(w.logger).Log("err", err, "msg", "creating new DEP client")
 					continue
 				}
 
@@ -151,7 +159,7 @@ func isCursorExpired(err error) bool {
 }
 
 func (w *watcher) Run() error {
-	ticker := time.NewTicker(30 * time.Minute).C
+	ticker := time.NewTicker(30 * time.Second).C
 FETCH:
 	for {
 		resp, err := w.client.FetchDevices(dep.Limit(100), dep.Cursor(w.conf.Cursor.Value))
@@ -160,7 +168,7 @@ FETCH:
 		} else if err != nil {
 			return err
 		}
-		fmt.Printf("more=%v, cursor=%s, fetched=%v\n", resp.MoreToFollow, resp.Cursor, resp.FetchedUntil)
+		level.Info(w.logger).Log("msg", "DEP fetch", "more", resp.MoreToFollow, "cursor", resp.Cursor, "fetched", resp.FetchedUntil)
 		w.conf.Cursor = cursor{Value: resp.Cursor, CreatedAt: time.Now()}
 		if err := w.conf.Save(); err != nil {
 			return errors.Wrap(err, "saving cursor from fetch")
@@ -188,7 +196,7 @@ SYNC:
 			return err
 		}
 		if len(resp.Devices) != 0 {
-			fmt.Printf("more=%v, cursor=%s, synced=%v\n", resp.MoreToFollow, resp.Cursor, resp.FetchedUntil)
+			level.Info(w.logger).Log("msg", "DEP sync", "more", resp.MoreToFollow, "cursor", resp.Cursor, "fetched", resp.FetchedUntil)
 		}
 		w.conf.Cursor = cursor{Value: resp.Cursor, CreatedAt: time.Now()}
 		if err := w.conf.Save(); err != nil {
