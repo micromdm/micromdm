@@ -20,10 +20,13 @@ import (
 const (
 	SyncTopic    = "mdm.DepSync"
 	ConfigBucket = "mdm.DEPConfig"
+
+	syncDuration        = 30 * time.Minute
+	cursorValidDuration = 7 * 24 * time.Hour
 )
 
 type Syncer interface {
-	privateDEPSyncer() bool
+	SyncNow()
 }
 
 type watcher struct {
@@ -34,6 +37,7 @@ type watcher struct {
 	publisher pubsub.Publisher
 	conf      *config
 	startSync chan bool
+	syncNow   chan bool
 }
 
 type cursor struct {
@@ -43,7 +47,7 @@ type cursor struct {
 
 // A cursor is valid for a week.
 func (c cursor) Valid() bool {
-	expiration := time.Now().Add(24 * 7 * time.Hour)
+	expiration := time.Now().Add(cursorValidDuration)
 	if c.CreatedAt.After(expiration) {
 		return false
 	}
@@ -80,6 +84,7 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, logger log.Logger, opts ...O
 		publisher: pub,
 		conf:      conf,
 		startSync: make(chan bool),
+		syncNow:   make(chan bool),
 	}
 
 	for _, opt := range opts {
@@ -144,9 +149,12 @@ func (w *watcher) updateClient(pubsub pubsub.Subscriber) error {
 	return nil
 }
 
-// TODO this is private temporarily until the interface can be defined
-func (w *watcher) privateDEPSyncer() bool {
-	return true
+func (w *watcher) SyncNow() {
+	if w.client == nil {
+		level.Info(w.logger).Log("msg", "waiting for DEP token to be added before starting sync")
+		return
+	}
+	w.syncNow <- true
 }
 
 // TODO this needs to be a proper error in the micromdm/dep package.
@@ -159,7 +167,7 @@ func isCursorExpired(err error) bool {
 }
 
 func (w *watcher) Run() error {
-	ticker := time.NewTicker(30 * time.Minute).C
+	ticker := time.NewTicker(syncDuration).C
 FETCH:
 	for {
 		resp, err := w.client.FetchDevices(dep.Limit(100), dep.Cursor(w.conf.Cursor.Value))
@@ -213,7 +221,11 @@ SYNC:
 			}
 		}
 		if !resp.MoreToFollow {
-			<-ticker
+			select {
+			case <-ticker:
+			case <-w.syncNow:
+				level.Info(w.logger).Log("msg", "explicit DEP sync requested")
+			}
 		}
 	}
 }
