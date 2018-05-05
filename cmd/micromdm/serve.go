@@ -161,7 +161,7 @@ func serve(args []string) error {
 	sm.setupWebhooks()
 	sm.setupCommandQueue(logger)
 	sm.setupDepClient()
-	sm.setupDEPSync(logger)
+	syncer := sm.setupDEPSync(logger)
 	if sm.err != nil {
 		stdlog.Fatal(sm.err)
 	}
@@ -300,6 +300,10 @@ func serve(args []string) error {
 
 	scepHandler := scep.ServiceHandler(ctx, sm.scepService, httpLogger)
 	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.enrollService, sm.scepDepot), httptransport.ServerErrorLogger(httpLogger))
+
+	syncNowEndpoint := depsync.MakeSyncNowEndpoint(depsync.NewRPC(syncer))
+	depsyncHandlers := depsync.MakeHTTPHandlers(ctx, depsync.Endpoints{SyncNowEndpoint: syncNowEndpoint}, connectOpts...)
+
 	r := mux.NewRouter()
 	r.Handle("/version", version.Handler())
 	r.Handle("/mdm/checkin", mdmAuthSignMessageMiddleware(sm.scepDepot, checkinHandlers.CheckinHandler)).Methods("PUT")
@@ -337,6 +341,7 @@ func serve(args []string) error {
 		r.Handle("/v1/dep/devices", apiAuthMiddleware(*flAPIKey, depHandlers))
 		r.Handle("/v1/dep/account", apiAuthMiddleware(*flAPIKey, depHandlers))
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, depHandlers))
+		r.Handle("/v1/dep/syncnow", apiAuthMiddleware(*flAPIKey, depsyncHandlers.SyncNowHandler)).Methods("POST")
 		r.Handle("/v1/commands", apiAuthMiddleware(*flAPIKey, commandHandlers.NewCommandHandler)).Methods("POST")
 		r.Handle("/push/{udid}", apiAuthMiddleware(*flAPIKey, apnsHandlers))
 	} else {
@@ -769,9 +774,9 @@ func (c *server) setupDepClient() (dep.Client, error) {
 	return client, nil
 }
 
-func (c *server) setupDEPSync(logger log.Logger) {
+func (c *server) setupDEPSync(logger log.Logger) depsync.Syncer {
 	if c.err != nil {
-		return
+		return nil
 	}
 
 	client := c.depClient
@@ -782,10 +787,12 @@ func (c *server) setupDEPSync(logger log.Logger) {
 		opts = append(opts, depsync.WithClient(client))
 	}
 
-	_, c.err = depsync.New(c.pubclient, c.db, logger, opts...)
+	var syncer depsync.Syncer
+	syncer, c.err = depsync.New(c.pubclient, c.db, logger, opts...)
 	if c.err != nil {
-		return
+		return nil
 	}
+	return syncer
 }
 
 func (c *server) setupSCEP(logger log.Logger) {
