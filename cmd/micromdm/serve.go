@@ -161,7 +161,7 @@ func serve(args []string) error {
 	sm.setupWebhooks()
 	sm.setupCommandQueue(logger)
 	sm.setupDepClient()
-	sm.setupDEPSync()
+	sm.setupDEPSync(logger)
 	if sm.err != nil {
 		stdlog.Fatal(sm.err)
 	}
@@ -769,17 +769,20 @@ func (c *server) setupDepClient() (dep.Client, error) {
 	return client, nil
 }
 
-func (c *server) setupDEPSync() {
+func (c *server) setupDEPSync(logger log.Logger) {
 	if c.err != nil {
 		return
 	}
 
 	client := c.depClient
-	var opts []depsync.Option
+	opts := []depsync.Option{
+		depsync.WithLogger(log.With(logger, "component", "depsync")),
+	}
 	if client != nil {
 		opts = append(opts, depsync.WithClient(client))
 	}
-	_, c.err = depsync.New(c.pubclient, c.db, opts...)
+
+	_, c.err = depsync.New(c.pubclient, c.db, logger, opts...)
 	if c.err != nil {
 		return
 	}
