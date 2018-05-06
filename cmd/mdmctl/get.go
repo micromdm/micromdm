@@ -137,8 +137,6 @@ func (cmd *getCommand) getDevices(args []string) error {
 	var flFilterSerialsSlice []string
 	if *flFilterSerials != "" {
 		flFilterSerialsSlice = strings.Split(*flFilterSerials, ",")
-	} else {
-		flFilterSerialsSlice = nil
 	}
 
 	devices, err := cmd.devicesvc.ListDevices(ctx, device.ListDevicesOption{FilterSerial: flFilterSerialsSlice})
