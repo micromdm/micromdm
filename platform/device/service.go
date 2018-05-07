@@ -9,7 +9,7 @@ type Service interface {
 }
 
 type Store interface {
-	List() ([]Device, error)
+	List(opt ListDevicesOption) ([]Device, error)
 }
 
 type DeviceService struct {

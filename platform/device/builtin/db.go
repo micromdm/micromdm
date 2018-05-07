@@ -52,20 +52,28 @@ func NewDB(db *bolt.DB, pubsubSvc pubsub.PublishSubscriber) (*DB, error) {
 	return datastore, nil
 }
 
-func (db *DB) List() ([]device.Device, error) {
-	// TODO add filter/limit with ForEach
+func (db *DB) List(opt device.ListDevicesOption) ([]device.Device, error) {
 	var devices []device.Device
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(DeviceBucket))
-		c := b.Cursor()
-		for k, v := c.First(); k != nil; k, v = c.Next() {
+		// TODO optimize by implemting Seek() and bytes.HasPrefix() so we don't
+		// hit all keys in the database if we dont have to.
+		return b.ForEach(func(k, v []byte) error {
 			var dev device.Device
 			if err := device.UnmarshalDevice(v, &dev); err != nil {
 				return err
 			}
-			devices = append(devices, dev)
-		}
-		return nil
+			if len(opt.FilterSerial) == 0 {
+				devices = append(devices, dev)
+				return nil
+			}
+			for _, fs := range opt.FilterSerial {
+				if fs == dev.SerialNumber {
+					devices = append(devices, dev)
+				}
+			}
+			return nil
+		})
 	})
 	return devices, err
 }

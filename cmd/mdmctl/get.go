@@ -119,6 +119,9 @@ func (out *devicesTableOutput) BasicFooter() {
 
 func (cmd *getCommand) getDevices(args []string) error {
 	flagset := flag.NewFlagSet("devices", flag.ExitOnError)
+	var (
+		flFilterSerials = flagset.String("serials", "", "comma seperated list of serials to search")
+	)
 	flagset.Usage = usageFor(flagset, "mdmctl get devices [flags]")
 	if err := flagset.Parse(args); err != nil {
 		return err
@@ -128,7 +131,15 @@ func (cmd *getCommand) getDevices(args []string) error {
 	out.BasicHeader()
 	defer out.BasicFooter()
 	ctx := context.Background()
-	devices, err := cmd.devicesvc.ListDevices(ctx, device.ListDevicesOption{})
+
+	// convert string to []string in case a filter serial is defined
+	// nil serials will return all serials from the database
+	var flFilterSerialsSlice []string
+	if *flFilterSerials != "" {
+		flFilterSerialsSlice = strings.Split(*flFilterSerials, ",")
+	}
+
+	devices, err := cmd.devicesvc.ListDevices(ctx, device.ListDevicesOption{FilterSerial: flFilterSerialsSlice})
 	if err != nil {
 		return err
 	}
