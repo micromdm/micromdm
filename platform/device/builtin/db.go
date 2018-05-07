@@ -26,7 +26,6 @@ const (
 
 type DB struct {
 	*bolt.DB
-	device.Store
 }
 
 func NewDB(db *bolt.DB, pubsubSvc pubsub.PublishSubscriber) (*DB, error) {

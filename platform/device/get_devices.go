@@ -2,7 +2,6 @@ package device
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"time"
 
@@ -50,13 +49,11 @@ func (r getDevicesResponse) Failed() error { return r.Err }
 
 func decodeListDevicesRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var opts ListDevicesOption
-	if err := json.NewDecoder(r.Body).Decode(&opts); err != nil {
-		return nil, err
-	}
+	err := httputil.DecodeJSONRequest(r, &opts)
 	req := getDevicesRequest{
 		Opts: opts,
 	}
-	return req, nil
+	return req, err
 }
 
 func decodeListDevicesResponse(_ context.Context, r *http.Response) (interface{}, error) {
