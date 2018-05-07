@@ -26,7 +26,7 @@ type DeviceDTO struct {
 }
 
 func (svc *DeviceService) ListDevices(ctx context.Context, opt ListDevicesOption) ([]DeviceDTO, error) {
-	devices, err := svc.store.List()
+	devices, err := svc.store.List(opt)
 	var dto []DeviceDTO
 	for _, d := range devices {
 		dto = append(dto, DeviceDTO{
@@ -48,10 +48,12 @@ type getDevicesResponse struct {
 func (r getDevicesResponse) Failed() error { return r.Err }
 
 func decodeListDevicesRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	defer r.Body.Close()
 	var opts ListDevicesOption
-	req := getDevicesRequest{Opts: opts}
-	return req, nil
+	err := httputil.DecodeJSONRequest(r, &opts)
+	req := getDevicesRequest{
+		Opts: opts,
+	}
+	return req, err
 }
 
 func decodeListDevicesResponse(_ context.Context, r *http.Response) (interface{}, error) {
