@@ -59,7 +59,7 @@ func (db *DB) List(opt device.ListDevicesOption) ([]device.Device, error) {
 		b := tx.Bucket([]byte(DeviceBucket))
 		// TODO optimize by implemting Seek() and bytes.HasPrefix() so we don't
 		// hit all keys in the database if we dont have to.
-		if err := b.ForEach(func(k, v []byte) error {
+		return b.ForEach(func(k, v []byte) error {
 			var dev device.Device
 			if err := device.UnmarshalDevice(v, &dev); err != nil {
 				return err
@@ -74,10 +74,7 @@ func (db *DB) List(opt device.ListDevicesOption) ([]device.Device, error) {
 				}
 			}
 			return nil
-		}); err != nil {
-			return err
-		}
-		return nil
+		})
 	})
 	return devices, err
 }
