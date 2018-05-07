@@ -18,8 +18,9 @@ import (
 )
 
 const (
-	SyncTopic    = "mdm.DepSync"
-	ConfigBucket = "mdm.DEPConfig"
+	SyncTopic        = "mdm.DepSync"
+	ConfigBucket     = "mdm.DEPConfig"
+	AutoAssignBucket = "mdm.DEPAutoAssign"
 
 	syncDuration        = 30 * time.Minute
 	cursorValidDuration = 7 * 24 * time.Hour
@@ -27,6 +28,12 @@ const (
 
 type Syncer interface {
 	SyncNow()
+	GetConfig() *config // TODO: #302
+}
+
+type AutoAssigner struct {
+	Filter      string `json:"filter"`
+	ProfileUUID string `json:"profile_uuid"`
 }
 
 type watcher struct {
@@ -157,6 +164,10 @@ func (w *watcher) SyncNow() {
 	w.syncNow <- true
 }
 
+func (w *watcher) GetConfig() *config {
+	return w.conf
+}
+
 // TODO this needs to be a proper error in the micromdm/dep package.
 func isCursorExhausted(err error) bool {
 	return strings.Contains(err.Error(), "EXHAUSTED_CURSOR")
@@ -164,6 +175,104 @@ func isCursorExhausted(err error) bool {
 
 func isCursorExpired(err error) bool {
 	return strings.Contains(err.Error(), "EXPIRED_CURSOR")
+}
+
+// Process DEP messages and pull out filter-matching serial numbers
+// associated to profile UUIDs for auto-assignment.
+func (w *watcher) filteredAutoAssignments(devices []dep.Device) (map[string][]string, error) {
+	// load auto-assigners every run to make sure we get the latest set of
+	// auto-assigner profile UUIDs/filters. Note this makes every *watcher
+	// (i.e. every DEP sync instance) share the current DB set of auto-
+	// assigners. perhaps to refactor to be more separated.
+	assigners, err := w.conf.loadAutoAssigners()
+	if err != nil {
+		return nil, err
+	}
+	assigned := make(map[string][]string)
+	// skip looping over serials if we have no autoassigners
+	if len(assigners) < 1 {
+		return assigned, nil
+	}
+	for _, d := range devices {
+		// only process DEP "added" OpType messages
+		if d.OpType != "added" {
+			continue
+		}
+		// filter our devices by our assigner filters and get list of
+		// which devices are to be assigned to which profiles
+		for _, assigner := range assigners {
+			if assigner.Filter == "*" { // only supported filter type right now
+				if serials, ok := assigned[assigner.ProfileUUID]; ok {
+					assigned[assigner.ProfileUUID] = append(serials, d.SerialNumber)
+				} else {
+					assigned[assigner.ProfileUUID] = []string{d.SerialNumber}
+				}
+			}
+		}
+
+	}
+	return assigned, nil
+}
+
+func (w *watcher) processAutoAssign(devices []dep.Device) error {
+	assignments, err := w.filteredAutoAssignments(devices)
+	if err != nil {
+		return err
+	}
+
+	for profileUUID, serials := range assignments {
+		resp, err := w.client.AssignProfile(profileUUID, serials)
+		if err != nil {
+			level.Info(w.logger).Log(
+				"err", err,
+				"msg", "auto-assign error assigning serials to profile",
+				"profile", profileUUID,
+			)
+			continue
+		}
+		// count our results for logging
+		resultCounts := map[string]int{
+			"SUCCESS":        0,
+			"NOT_ACCESSIBLE": 0,
+			"FAILED":         0,
+		}
+		for _, result := range resp.Devices {
+			if ct, ok := resultCounts[result]; ok {
+				// NOTE: we're logging _only_ the above pre-defined result types
+				resultCounts[result] = ct + 1
+			}
+		}
+		// TODO: alternate strategy is to log all failed devices
+		// TODO: handle/requeue failed devices?
+		level.Info(w.logger).Log(
+			"msg", "DEP auto-assigned",
+			"profile", profileUUID,
+			"success", resultCounts["SUCCESS"],
+			"not_accessible", resultCounts["NOT_ACCESSIBLE"],
+			"failed", resultCounts["FAILED"],
+		)
+	}
+
+	return nil
+}
+
+func (w *watcher) publishAndProcessDevices(devices []dep.Device) error {
+	e := NewEvent(devices)
+	data, err := MarshalEvent(e)
+	if err != nil {
+		return err
+	}
+	err = w.publisher.Publish(context.TODO(), SyncTopic, data)
+	if err != nil {
+		return err
+	}
+	go func() {
+		err := w.processAutoAssign(devices)
+		if err != nil {
+			level.Info(w.logger).Log("err", err, "msg", "auto-assign error")
+		}
+	}()
+	return nil
 }
 
 func (w *watcher) Run() error {
@@ -176,17 +285,18 @@ FETCH:
 		} else if err != nil {
 			return err
 		}
-		level.Info(w.logger).Log("msg", "DEP fetch", "more", resp.MoreToFollow, "cursor", resp.Cursor, "fetched", resp.FetchedUntil)
+		level.Info(w.logger).Log(
+			"msg", "DEP fetch",
+			"more", resp.MoreToFollow,
+			"cursor", resp.Cursor,
+			"fetched", resp.FetchedUntil,
+			"devices", len(resp.Devices),
+		)
 		w.conf.Cursor = cursor{Value: resp.Cursor, CreatedAt: time.Now()}
 		if err := w.conf.Save(); err != nil {
 			return errors.Wrap(err, "saving cursor from fetch")
 		}
-		e := NewEvent(resp.Devices)
-		data, err := MarshalEvent(e)
-		if err != nil {
-			return err
-		}
-		if err := w.publisher.Publish(context.TODO(), SyncTopic, data); err != nil {
+		if err := w.publishAndProcessDevices(resp.Devices); err != nil {
 			return err
 		}
 		if !resp.MoreToFollow {
@@ -203,22 +313,19 @@ SYNC:
 		} else if err != nil {
 			return err
 		}
-		if len(resp.Devices) != 0 {
-			level.Info(w.logger).Log("msg", "DEP sync", "more", resp.MoreToFollow, "cursor", resp.Cursor, "fetched", resp.FetchedUntil)
-		}
+		level.Info(w.logger).Log(
+			"msg", "DEP sync",
+			"more", resp.MoreToFollow,
+			"cursor", resp.Cursor,
+			"fetched", resp.FetchedUntil,
+			"devices", len(resp.Devices),
+		)
 		w.conf.Cursor = cursor{Value: resp.Cursor, CreatedAt: time.Now()}
 		if err := w.conf.Save(); err != nil {
 			return errors.Wrap(err, "saving cursor from sync")
 		}
-		if len(resp.Devices) > 0 {
-			e := NewEvent(resp.Devices)
-			data, err := MarshalEvent(e)
-			if err != nil {
-				return err
-			}
-			if err := w.publisher.Publish(context.TODO(), SyncTopic, data); err != nil {
-				return err
-			}
+		if err := w.publishAndProcessDevices(resp.Devices); err != nil {
+			return err
 		}
 		if !resp.MoreToFollow {
 			select {

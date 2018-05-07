@@ -5,18 +5,12 @@ import (
 )
 
 type Service interface {
-	SyncNow(ctx context.Context)
+	SyncNow(context.Context) error
+	ApplyAutoAssigner(context.Context, *AutoAssigner) error
+	GetAutoAssigners(context.Context) ([]*AutoAssigner, error)
+	RemoveAutoAssigner(context.Context, string) error
 }
 
-type syncNowService struct {
+type DEPSyncService struct {
 	syncer Syncer
-}
-
-func (s *syncNowService) SyncNow(_ context.Context) {
-	s.syncer.SyncNow()
-	return
-}
-
-func NewRPC(syncer Syncer) *syncNowService {
-	return &syncNowService{syncer: syncer}
 }

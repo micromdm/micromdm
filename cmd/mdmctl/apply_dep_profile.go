@@ -11,6 +11,7 @@ import (
 	"os"
 
 	"github.com/micromdm/dep"
+	"github.com/micromdm/micromdm/dep/depsync"
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/pkg/crypto"
@@ -40,6 +41,7 @@ func (cmd *applyCommand) applyDEPProfile(args []string) error {
 		flTemplate    = flagset.Bool("template", false, "print a JSON example of a DEP profile")
 		flAnchorFile  = flagset.String("anchor", "", "filename of PEM cert(s) to add to anchor certs in template")
 		flUseServer   = flagset.Bool("use-server-cert", false, "use the server cert(s) to add to anchor certs in template")
+		flFilter      = flagset.String("filter", "", "set the auto-assign filter to for the defined profile")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl apply dep-profiles [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -97,6 +99,16 @@ func (cmd *applyCommand) applyDEPProfile(args []string) error {
 	// TODO: it would be nice to encode back a profile that save the
 	// UUID for future reference.
 	fmt.Printf("Defined DEP Profile with UUID %s\n", resp.ProfileUUID)
+
+	if *flFilter != "" {
+		assigner := depsync.AutoAssigner{*flFilter, resp.ProfileUUID}
+		err := cmd.depsyncsvc.ApplyAutoAssigner(context.TODO(), &assigner)
+		if err != nil {
+			return errors.Wrap(err, "set auto-assigner")
+		}
+		fmt.Printf("Saved auto-assign filter '%s' for this DEP profile\n", *flFilter)
+	}
+
 	return nil
 }
 

@@ -72,6 +72,8 @@ func (cmd *getCommand) Run(args []string) error {
 		run = cmd.getUsers
 	case "apps":
 		run = cmd.getApps
+	case "dep-autoassigners":
+		run = cmd.getDEPAutoAssigners
 	default:
 		cmd.Usage()
 		os.Exit(1)
@@ -92,6 +94,7 @@ Valid resource types:
   * dep-devices
   * dep-account
   * dep-profiles
+  * dep-autoassigners
   * users
   * profiles
   * apps

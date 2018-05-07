@@ -4,6 +4,7 @@ import (
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 
+	"github.com/micromdm/micromdm/dep/depsync"
 	"github.com/micromdm/micromdm/platform/appstore"
 	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/config"
@@ -23,6 +24,7 @@ type remoteServices struct {
 	configsvc    config.Service
 	appsvc       appstore.Service
 	depsvc       dep.Service
+	depsyncsvc   depsync.Service
 }
 
 func setupClient(logger log.Logger) (*remoteServices, error) {
@@ -87,6 +89,13 @@ func setupClient(logger log.Logger) (*remoteServices, error) {
 		return nil, err
 	}
 
+	depsyncsvc, err := depsync.NewHTTPClient(
+		cfg.ServerURL, cfg.APIToken, logger,
+		httptransport.SetClient(skipVerifyHTTPClient(cfg.SkipVerify)))
+	if err != nil {
+		return nil, err
+	}
+
 	return &remoteServices{
 		profilesvc:   profilesvc,
 		blueprintsvc: blueprintsvc,
@@ -96,5 +105,6 @@ func setupClient(logger log.Logger) (*remoteServices, error) {
 		configsvc:    configsvc,
 		appsvc:       appsvc,
 		depsvc:       depsvc,
+		depsyncsvc:   depsyncsvc,
 	}, nil
 }
