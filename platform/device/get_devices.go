@@ -33,7 +33,7 @@ func (svc *DeviceService) ListDevices(ctx context.Context, opt ListDevicesOption
 			SerialNumber:     d.SerialNumber,
 			UDID:             d.UDID,
 			EnrollmentStatus: d.Enrolled,
-			LastSeen:         d.LastCheckin,
+			LastSeen:         d.LastSeen,
 		})
 	}
 	return dto, err
