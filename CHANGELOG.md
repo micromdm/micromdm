@@ -20,7 +20,7 @@
 * Added support for supplied `depsim` URL. #318
 * Add Dockerfile. #316
 
-## [v1.2.0](https://github.com/micromdm/micromdm/compare/v1.1.0...v1.2.0) October 31 2017 (User Profiles)
+## [v1.2.0](https://github.com/micromdm/micromdm/compare/v1.1.0...v1.2.0) October 31 2017
 
 ### User Profiles
 
