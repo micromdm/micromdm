@@ -73,6 +73,178 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 		cmd.UnlockUserAccount = &UnlockUserAccount{
 			UserName: pbc.GetUsername(),
 		}
+	case "DeleteUser":
+		pbc := pb.GetDeleteUser()
+		cmd.DeleteUser = &DeleteUser{
+			UserName:      pbc.GetUsername(),
+			ForceDeletion: pbc.GetForceDeletion(),
+		}
+	case "EnableLostMode":
+		pbc := pb.GetEnableLostMode()
+		cmd.EnableLostMode = &EnableLostMode{
+			Message:     pbc.GetMessage(),
+			PhoneNumber: pbc.GetPhoneNumber(),
+			Footnote:    pbc.GetFootnote(),
+		}
+	case "InstallApplication":
+		pbc := pb.GetInstallApplication()
+		var mgmt *int
+		mgmtFlags := nilIfZeroInt64(pbc.GetManagementFlags())
+		if mgmtFlags != nil {
+			mgmti := int(*mgmtFlags)
+			mgmt = &mgmti
+		}
+
+		var (
+			options       *InstallApplicationOptions
+			configuration *InstallApplicationConfiguration
+			attributes    *InstallApplicationAttributes
+		)
+
+		pboptions := pbc.GetOptions()
+		if pboptions != nil {
+			options = &InstallApplicationOptions{
+				PurchaseMethod: pboptions.GetPurchaseMethod(),
+			}
+		}
+
+		pbconfig := pbc.GetConfiguration()
+		if pbconfig != nil {
+			configuration = &InstallApplicationConfiguration{}
+		}
+
+		pbattributes := pbc.GetAttributes()
+		if pbattributes != nil {
+			attributes = &InstallApplicationAttributes{}
+		}
+
+		cmd.InstallApplication = &InstallApplication{
+			ITunesStoreID:         nilIfZeroInt64(pbc.GetItunesStoreId()),
+			Identifier:            nilIfEmptyString(pbc.GetIdentifier()),
+			ManagementFlags:       mgmt,
+			ChangeManagementState: nilIfEmptyString(pbc.GetChangeManagementState()),
+			ManifestURL:           nilIfEmptyString(pbc.GetManifestUrl()),
+			Options:               options,
+			Configuration:         configuration,
+			Attributes:            attributes,
+		}
+	case "AccountConfiguration":
+		pbc := pb.GetAccountConfiguration()
+		var autosetupadminaccounts []AdminAccount
+		for _, acct := range pbc.GetAutoSetupAdminAccounts() {
+			autosetupadminaccounts = append(autosetupadminaccounts, AdminAccount{
+				ShortName:    acct.GetShortName(),
+				FullName:     acct.GetFullName(),
+				PasswordHash: acct.GetPasswordHash(),
+				Hidden:       acct.GetHidden(),
+			})
+		}
+		cmd.AccountConfiguration = &AccountConfiguration{
+			SkipPrimarySetupAccountCreation:     pbc.GetSkipPrimarySetupAccountCreation(),
+			SetPrimarySetupAccountAsRegularUser: pbc.GetSetPrimarySetupAccountAsRegularUser(),
+			AutoSetupAdminAccounts:              autosetupadminaccounts,
+		}
+	case "ApplyRedemptionCode":
+		pbc := pb.GetApplyRedemptionCode()
+		cmd.ApplyRedemptionCode = &ApplyRedemptionCode{
+			Identifier:     pbc.GetIdentifier(),
+			RedemptionCode: pbc.GetRedemptionCode(),
+		}
+	case "ManagedApplicationList":
+		pbc := pb.GetManagedApplicationList()
+		cmd.ManagedApplicationList = &ManagedApplicationList{
+			Identifiers: pbc.GetIdentifiers(),
+		}
+	case "RemoveApplication":
+		pbc := pb.GetRemoveApplication()
+		cmd.RemoveApplication = &RemoveApplication{
+			Identifier: pbc.GetIdentifier(),
+		}
+	case "InviteToProgram":
+		pbc := pb.GetInviteToProgram()
+		cmd.InviteToProgram = &InviteToProgram{
+			ProgramID:     pbc.GetProgramId(),
+			InvitationURL: pbc.GetInvitationUrl(),
+		}
+	case "ValidateApplications":
+		pbc := pb.GetValidataApplications()
+		cmd.ValidateApplications = &ValidateApplications{
+			Identifiers: pbc.GetIdentifiers(),
+		}
+	case "InstallMedia":
+		pbc := pb.GetInstallMedia()
+		cmd.InstallMedia = &InstallMedia{
+			ITunesStoreID: nilIfZeroInt64(pbc.GetItunesStoreId()),
+			MediaType:     pbc.GetMediaType(),
+			MediaURL:      pbc.GetMediaUrl(),
+		}
+	case "RemoveMedia":
+		pbc := pb.GetRemoveMedia()
+		cmd.RemoveMedia = &RemoveMedia{
+			ITunesStoreID: nilIfZeroInt64(pbc.GetItunesStoreId()),
+			MediaType:     pbc.GetMediaType(),
+			PersistentID:  pbc.GetPersistentId(),
+		}
+	case "Settings":
+		panic("TODO: settings command")
+	case "ManagedApplicationConfiguration":
+		pbc := pb.GetManagedApplicationConfiguration()
+		cmd.ManagedApplicationConfiguration = &ManagedApplicationConfiguration{
+			Identifiers: pbc.GetIdentifiers(),
+		}
+	case "ManagedApplicationAttributes":
+		pbc := pb.GetManagedApplicationAttributes()
+		cmd.ManagedApplicationAttributes = &ManagedApplicationAttributes{
+			Identifiers: pbc.GetIdentifiers(),
+		}
+	case "ManagedApplicationFeedback":
+		pbc := pb.GetManagedApplicationFeedback()
+		cmd.ManagedApplicationFeedback = &ManagedApplicationFeedback{
+			Identifiers:    pbc.GetIdentifiers(),
+			DeleteFeedback: pbc.GetDeleteFeedback(),
+		}
+	case "SetFirmwarePassword":
+		pbc := pb.GetSetFirmwarePassword()
+		cmd.SetFirmwarePassword = &SetFirmwarePassword{
+			CurrentPassword: pbc.GetCurrentPassword(),
+			NewPassword:     pbc.GetNewPassword(),
+			AllowOroms:      pbc.GetAllowOroms(),
+		}
+	case "VerifyFirmwarePassword":
+		pbc := pb.GetVerifyFirmwarePassword()
+		cmd.VerifyFirmwarePassword = &VerifyFirmwarePassword{
+			Password: pbc.GetPassword(),
+		}
+	case "SetAutoAdminPassword":
+		pbc := pb.GetSetAutoAdminPassword()
+		cmd.SetAutoAdminPassword = &SetAutoAdminPassword{
+			GUID:         pbc.GetGuid(),
+			PasswordHash: pbc.GetPasswordHash(),
+		}
+	case "ScheduleOSUpdate":
+		pbc := pb.GetScheduleOsUpdate()
+		var updates []OSUpdate
+		for _, up := range pbc.GetUpdates() {
+			updates = append(updates, OSUpdate{
+				ProductKey:    up.GetProductKey(),
+				InstallAction: up.GetInstallAction(),
+			})
+		}
+		cmd.ScheduleOSUpdate = &ScheduleOSUpdate{
+			Updates: updates,
+		}
+	case "ScheduleOSUpdateScan":
+		pbc := pb.GetScheduleOsUpdateScan()
+		cmd.ScheduleOSUpdateScan = &ScheduleOSUpdateScan{
+			Force: pbc.GetForce(),
+		}
+	case "ActiveNSExtensions":
+		pbc := pb.GetActiveNsExtensions()
+		cmd.ActiveNSExtensions = &ActiveNSExtensions{
+			FilterExtensionPoints: pbc.GetFilterExtensionPoints(),
+		}
+	case "RotateFileVaultKey":
+
 	}
 	return &cmd
 }
@@ -85,4 +257,18 @@ func UnmarshalCommandPayload(data []byte, payload *CommandPayload) error {
 	payload.CommandUUID = pb.CommandUuid
 	payload.Command = protoToCommand(pb.Command)
 	return nil
+}
+
+func nilIfZeroInt64(n int64) *int64 {
+	if n == 0 {
+		return nil
+	}
+	return &n
+}
+
+func nilIfEmptyString(s string) *string {
+	if s == "" {
+		return nil
+	}
+	return &s
 }
