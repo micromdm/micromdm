@@ -186,7 +186,14 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			PersistentID:  pbc.GetPersistentId(),
 		}
 	case "Settings":
-		panic("TODO: settings command")
+		pbc := pb.GetSettings()
+		var settings []Setting
+		for _, s := range pbc.GetSettings() {
+			settings = append(settings, protoToSetting(s))
+		}
+		cmd.Settings = &Settings{
+			Settings: settings,
+		}
 	case "ManagedApplicationConfiguration":
 		pbc := pb.GetManagedApplicationConfiguration()
 		cmd.ManagedApplicationConfiguration = &ManagedApplicationConfiguration{
@@ -244,9 +251,79 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			FilterExtensionPoints: pbc.GetFilterExtensionPoints(),
 		}
 	case "RotateFileVaultKey":
+		pbc := pb.GetRotateFilevaultKey()
+		fvunlock := pbc.GetFilevaultUnlock()
+		cmd.RotateFileVaultKey = &RotateFileVaultKey{
+			KeyType:                    pbc.GetKeyType(),
+			NewCertificate:             pbc.GetNewCertificate(),
+			ReplyEncryptionCertificate: pbc.GetReplyEncryptionCertificate(),
+			FileVaultUnlock: FileVaultUnlock{
+				Password:                 fvunlock.GetPassword(),
+				PrivateKeyExport:         fvunlock.GetPrivateKeyExport(),
+				PrivateKeyExportPassword: fvunlock.GetPrivateKeyExportPassword(),
+			},
+		}
 
 	}
 	return &cmd
+}
+
+func protoToSetting(s *mdmproto.Setting) Setting {
+	setting := Setting{
+		Item: s.GetItem(),
+	}
+	switch s.Item {
+	case "VoiceRoaming":
+		pbs := s.GetVoiceRoaming()
+		setting.Enabled = nilIfFalse(pbs.GetEnabled())
+	case "PersonalHotspot":
+		pbs := s.GetPersonalHotspot()
+		setting.Enabled = nilIfFalse(pbs.GetEnabled())
+	case "Wallpaper":
+		pbs := s.GetWallpaper()
+		setting.Image = pbs.GetImage()
+		setting.Where = nilIfZeroInt(int(pbs.GetWhere()))
+	case "DataRoaming":
+		pbs := s.GetDataRoaming()
+		setting.Enabled = nilIfFalse(pbs.GetEnabled())
+	case "Bluetooth":
+		pbs := s.GetBluetooth()
+		setting.Enabled = nilIfFalse(pbs.GetEnabled())
+	case "ApplicationAttributes":
+		pbs := s.GetApplicationAttributes()
+		attr := pbs.GetApplicationAttributes()
+		vpnUUID := attr.GetVpnUuid()
+		if vpnUUID != "" {
+			setting.Attributes = map[string]string{"VPNUUID": vpnUUID}
+		}
+		setting.Identifier = nilIfEmptyString(pbs.GetIdentifier())
+	case "DeviceName":
+		pbs := s.GetDeviceName()
+		setting.DeviceName = nilIfEmptyString(pbs.GetDeviceName())
+	case "HostName":
+		pbs := s.GetHostname()
+		setting.HostName = nilIfEmptyString(pbs.GetHostname())
+	case "MDMOptions":
+		pbs := s.GetMdmOptions()
+		activationLockAllowed := pbs.GetMdmOptions().GetActivationLockAllowedWhileSupervised()
+		setting.MDMOptions = map[string]interface {
+		}{
+			"ActivationLockAllowedWhileSupervised": activationLockAllowed,
+		}
+	case "PasscodeLockGracePeriod":
+		pbs := s.GetPasscodeLockGracePeriod()
+		setting.PasscodeLockGracePeriod = nilIfZeroInt(int(pbs.GetPasscodeLockGracePeriod()))
+	case "MaximumResidentUsers":
+		pbs := s.GetMaximumResidentUsers()
+		setting.MaximumResidentUsers = nilIfZeroInt(int(pbs.GetMaximumResidentUsers()))
+	case "DiagnosticSubmission":
+		pbs := s.GetDiagnosticSubmission()
+		setting.Enabled = nilIfFalse(pbs.GetEnabled())
+	case "AppAnalytics":
+		pbs := s.GetAppAnalytics()
+		setting.Enabled = nilIfFalse(pbs.GetEnabled())
+	}
+	return setting
 }
 
 func UnmarshalCommandPayload(data []byte, payload *CommandPayload) error {
@@ -266,9 +343,24 @@ func nilIfZeroInt64(n int64) *int64 {
 	return &n
 }
 
+func nilIfZeroInt(n int) *int {
+	if n == 0 {
+		return nil
+	}
+	return &n
+}
+
 func nilIfEmptyString(s string) *string {
 	if s == "" {
 		return nil
 	}
 	return &s
+}
+
+func nilIfFalse(b bool) *bool {
+	if !b {
+		return nil
+
+	}
+	return &b
 }
