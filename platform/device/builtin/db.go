@@ -243,7 +243,7 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 				newDevice.DeviceName = ev.Command.DeviceName
 				newDevice.Model = ev.Command.Model
 				newDevice.ModelName = ev.Command.ModelName
-				newDevice.LastCheckin = time.Now()
+				newDevice.LastSeen = time.Now()
 				// Challenge:    ev.Command.Challenge, // FIXME: @groob why is this commented out?
 
 				if err := db.Save(newDevice); err != nil {
@@ -268,7 +268,7 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 				dev.PushMagic = ev.Command.PushMagic
 				dev.UnlockToken = ev.Command.UnlockToken.String()
 				dev.AwaitingConfiguration = ev.Command.AwaitingConfiguration
-				dev.LastCheckin = time.Now()
+				dev.LastSeen = time.Now()
 				var newlyEnrolled bool = false
 				if dev.Enrolled == false {
 					newlyEnrolled = true
@@ -333,7 +333,7 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 					fmt.Println(err)
 					continue
 				}
-				dev.LastCheckin = time.Now()
+				dev.LastSeen = time.Now()
 				if err := db.Save(dev); err != nil {
 					fmt.Println(err)
 					continue
@@ -350,7 +350,7 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 					continue
 				}
 				dev.Enrolled = false
-				dev.LastCheckin = time.Now()
+				dev.LastSeen = time.Now()
 				if err := db.Save(dev); err != nil {
 					fmt.Println(err)
 					continue
