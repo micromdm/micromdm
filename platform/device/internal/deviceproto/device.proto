@@ -31,7 +31,7 @@ message Device {
     int64 dep_profile_push_time =25;
     int64 dep_profile_assigned_date =26;
     string dep_profile_assigned_by =27;
-    int64 last_check_in =28;
+    int64 last_seen =28;
     bytes last_query_response =29;
 
 }

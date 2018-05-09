@@ -84,7 +84,7 @@ func MarshalDevice(dev *Device) ([]byte, error) {
 		DepProfilePushTime:     timeToNano(dev.DEPProfilePushTime),
 		DepProfileAssignedDate: timeToNano(dev.DEPProfileAssignedDate),
 		DepProfileAssignedBy:   dev.DEPProfileAssignedBy,
-		LastCheckIn:            timeToNano(dev.LastSeen),
+		LastSeen:               timeToNano(dev.LastSeen),
 		LastQueryResponse:      dev.LastQueryResponse,
 	}
 	return proto.Marshal(&protodev)
@@ -122,7 +122,7 @@ func UnmarshalDevice(data []byte, dev *Device) error {
 	dev.DEPProfilePushTime = timeFromNano(pb.GetDepProfilePushTime())
 	dev.DEPProfileAssignedDate = timeFromNano(pb.GetDepProfileAssignedDate())
 	dev.DEPProfileAssignedBy = pb.GetDepProfileAssignedBy()
-	dev.LastSeen = timeFromNano(pb.GetLastCheckIn())
+	dev.LastSeen = timeFromNano(pb.GetLastSeen())
 	dev.LastQueryResponse = pb.GetLastQueryResponse()
 	return nil
 }
