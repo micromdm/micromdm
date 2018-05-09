@@ -16,13 +16,19 @@ func (c *CommandRequest) UnmarshalJSON(data []byte) error {
 		return errors.Wrap(err, "mdm: unmarshal json command request")
 	}
 	c.UDID = request.UDID
-	c.Command = &Command{
-		RequestType: request.RequestType,
-	}
+	c.Command = &Command{}
 	return c.Command.UnmarshalJSON(data)
 }
 
 func (c *Command) UnmarshalJSON(data []byte) error {
+	var request = struct {
+		RequestType string `json:"request_type"`
+	}{}
+	if err := json.Unmarshal(data, &request); err != nil {
+		return errors.Wrap(err, "mdm: unmarshal json command request")
+	}
+	c.RequestType = request.RequestType
+
 	switch c.RequestType {
 	case "ProfileList",
 		"ProvisioningProfileList",
