@@ -903,7 +903,9 @@ func apiAuthMiddleware(token string, next http.Handler) http.HandlerFunc {
 		_, password, ok := r.BasicAuth()
 		if !ok || password != token {
 			w.Header().Set("WWW-Authenticate", `Basic realm="micromdm"`)
-			http.Error(w, `{"error": "you need to log in"}`, http.StatusUnauthorized)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte(`{"error": "you need to log in"}`))
 			return
 		}
 		next.ServeHTTP(w, r)
