@@ -266,6 +266,11 @@ func (w *watcher) publishAndProcessDevices(devices []dep.Device) error {
 	if err != nil {
 		return err
 	}
+
+	// TODO: instead of directly kicking off the auto-assigner process
+	// consider placing a subscriber on the DEP pubsub topic. The same
+	// information gets marshalled but it allows us the future
+	// flexibility to separate out that component if we desired.
 	go func() {
 		err := w.processAutoAssign(devices)
 		if err != nil {
