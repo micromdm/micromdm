@@ -293,31 +293,46 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 				}
 				fmt.Printf("got %d devices from DEP\n", len(ev.Devices))
 				for _, d := range ev.Devices {
-					newDevice := new(device.Device)
-					bySerial, err := db.DeviceBySerial(d.SerialNumber)
-					if err == nil && bySerial != nil { // must be a DEP device
-						fmt.Printf("existing device checked in from DEP: %s\n", d.SerialNumber)
-						newDevice = bySerial
-					}
-					if err != nil && !isNotFound(err) {
-						fmt.Println(err) // some other issue is going on
+					updDevice, updDeviceErr := db.DeviceBySerial(d.SerialNumber)
+					if updDeviceErr != nil && !isNotFound(updDeviceErr) {
+						fmt.Printf("error getting device %s: %s\n", d.SerialNumber, err)
 						continue
 					}
-					if newDevice.UUID == "" { // previously unknown
-						newDevice.UUID = uuid.NewV4().String()
+
+					if updDeviceErr != nil && isNotFound(updDeviceErr) {
+						updDevice = new(device.Device)
+						if d.OpType == "modified" {
+							fmt.Printf("warning: no existing device for DEP device update: %s\n", d.SerialNumber)
+						}
 					}
-					newDevice.SerialNumber = d.SerialNumber
-					newDevice.Model = d.Model
-					newDevice.Description = d.Description
-					newDevice.Color = d.Color
-					newDevice.AssetTag = d.AssetTag
-					newDevice.DEPProfileStatus = device.DEPProfileStatus(d.ProfileStatus)
-					newDevice.DEPProfileUUID = d.ProfileUUID
-					newDevice.DEPProfileAssignTime = d.ProfileAssignTime
-					newDevice.DEPProfileAssignedDate = d.DeviceAssignedDate
-					newDevice.DEPProfileAssignedBy = d.DeviceAssignedBy
-					// TODO: deal with sync fields OpType, OpDate
-					if err := db.Save(newDevice); err != nil {
+					if updDeviceErr == nil && d.OpType == "added" {
+						// consider issuing this warning if op_type == "" as well.
+						// in that case it's likely the device came from a DEP
+						// fetch (vs. a sync) which could be a re-fetch of devices
+						fmt.Printf("warning: re-adding existing DEP device: %s\n", d.SerialNumber)
+					}
+					if d.OpType == "deleted" {
+						fmt.Printf("warning: DEP device unassigned: %s\n", d.SerialNumber)
+					}
+
+					if updDevice.UUID == "" {
+						// generate UUID for any device that doesn't have one
+						updDevice.UUID = uuid.NewV4().String()
+					}
+
+					updDevice.SerialNumber = d.SerialNumber
+					updDevice.Model = d.Model
+					updDevice.Description = d.Description
+					updDevice.Color = d.Color
+					updDevice.AssetTag = d.AssetTag
+					updDevice.DEPProfileStatus = device.DEPProfileStatus(d.ProfileStatus)
+					updDevice.DEPProfileUUID = d.ProfileUUID
+					updDevice.DEPProfileAssignTime = d.ProfileAssignTime
+					updDevice.DEPProfileAssignedDate = d.DeviceAssignedDate
+					updDevice.DEPProfileAssignedBy = d.DeviceAssignedBy
+					// TODO: support profile_push_time, os, device_family, op_date
+
+					if err := db.Save(updDevice); err != nil {
 						fmt.Println(err)
 						continue
 					}

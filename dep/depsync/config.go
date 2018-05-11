@@ -27,6 +27,49 @@ func (cfg *config) Save() error {
 	return errors.Wrap(err, "saving dep sync cursor")
 }
 
+func (cfg *config) saveAutoAssigner(assigner *AutoAssigner) error {
+	if assigner.Filter != "*" {
+		return errors.New("only '*' filter auto-assigners supported")
+	}
+	err := cfg.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucketIfNotExists([]byte(AutoAssignBucket))
+		if err != nil {
+			return err
+		}
+		return b.Put([]byte(assigner.Filter), []byte(assigner.ProfileUUID))
+	})
+	return errors.Wrap(err, "saving auto-assigner")
+}
+
+func (cfg *config) loadAutoAssigners() ([]*AutoAssigner, error) {
+	assigners := []*AutoAssigner{}
+	err := cfg.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(AutoAssignBucket))
+		if b == nil { // bucket doesn't exist yet
+			return nil
+		}
+
+		return b.ForEach(func(k, v []byte) error {
+			assigners = append(assigners, &AutoAssigner{
+				Filter:      string(k),
+				ProfileUUID: string(v),
+			})
+			return nil
+		})
+	})
+	return assigners, errors.Wrap(err, "loading auto-assigners")
+}
+
+func (cfg *config) deleteAutoAssigner(filter string) error {
+	return cfg.Update(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(AutoAssignBucket))
+		if b == nil { // bucket doesn't exist yet
+			return nil
+		}
+		return b.Delete([]byte(filter))
+	})
+}
+
 func LoadConfig(db *bolt.DB) (*config, error) {
 	conf := config{DB: db}
 	err := db.Update(func(tx *bolt.Tx) error {

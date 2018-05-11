@@ -301,8 +301,7 @@ func serve(args []string) error {
 	scepHandler := scep.ServiceHandler(ctx, sm.scepService, httpLogger)
 	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.enrollService, sm.scepDepot), httptransport.ServerErrorLogger(httpLogger))
 
-	syncNowEndpoint := depsync.MakeSyncNowEndpoint(depsync.NewRPC(syncer))
-	depsyncHandlers := depsync.MakeHTTPHandlers(ctx, depsync.Endpoints{SyncNowEndpoint: syncNowEndpoint}, connectOpts...)
+	depsyncEndpoints := depsync.MakeServerEndpoints(depsync.NewService(syncer))
 
 	r := mux.NewRouter()
 	r.Handle("/version", version.Handler())
@@ -325,6 +324,7 @@ func serve(args []string) error {
 	deviceHandler := device.MakeHTTPHandler(deviceEndpoints, logger)
 	depHandlers := depapi.MakeHTTPHandler(depEndpoints, logger)
 	apnsHandlers := apns.MakeHTTPHandler(apnsEndpoints, logger)
+	depsyncHandlers := depsync.MakeHTTPHandler(depsyncEndpoints, logger)
 
 	// API commands. Only handled if the user provides an api key.
 	if *flAPIKey != "" {
@@ -341,7 +341,8 @@ func serve(args []string) error {
 		r.Handle("/v1/dep/devices", apiAuthMiddleware(*flAPIKey, depHandlers))
 		r.Handle("/v1/dep/account", apiAuthMiddleware(*flAPIKey, depHandlers))
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, depHandlers))
-		r.Handle("/v1/dep/syncnow", apiAuthMiddleware(*flAPIKey, depsyncHandlers.SyncNowHandler)).Methods("POST")
+		r.Handle("/v1/dep/syncnow", apiAuthMiddleware(*flAPIKey, depsyncHandlers))
+		r.Handle("/v1/dep/autoassigners", apiAuthMiddleware(*flAPIKey, depsyncHandlers))
 		r.Handle("/v1/commands", apiAuthMiddleware(*flAPIKey, commandHandlers.NewCommandHandler)).Methods("POST")
 		r.Handle("/push/{udid}", apiAuthMiddleware(*flAPIKey, apnsHandlers))
 	} else {
