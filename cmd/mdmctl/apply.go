@@ -64,6 +64,8 @@ func (cmd *applyCommand) Run(args []string) error {
 		run = cmd.applyBlock
 	case "users":
 		run = cmd.applyUser
+	case "dep-autoassigner":
+		run = cmd.applyDEPAutoAssigner
 	default:
 		cmd.Usage()
 		os.Exit(1)
@@ -82,6 +84,7 @@ Valid resource types:
   * users
   * dep-tokens
   * dep-profiles
+  * dep-autoassigner
   * app
   * block
 

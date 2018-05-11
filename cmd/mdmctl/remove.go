@@ -46,6 +46,8 @@ func (cmd *removeCommand) Run(args []string) error {
 		run = cmd.removeProfiles
 	case "block":
 		run = cmd.removeBlock
+	case "dep-autoassigner":
+		run = cmd.removeDEPAutoAssigner
 	default:
 		cmd.Usage()
 		os.Exit(1)
@@ -63,6 +65,7 @@ Valid resource types:
   * blueprints
   * profiles
   * block
+  * dep-autoassigner
 `
 
 	fmt.Println(getUsage)

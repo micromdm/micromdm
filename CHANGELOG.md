@@ -2,6 +2,7 @@
 
 ### Auto-assigner
 
+* Added DEP auto-assigner logic. #405
 * Added support for querying devices by serial. #363
 * Added support for triggering a DEP sync via API. #404
 * Added support for mdmcert.download directly to `mdmctl` #401
