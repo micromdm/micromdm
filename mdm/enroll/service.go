@@ -97,7 +97,7 @@ func updateTopic(svc *service, sub pubsub.Subscriber) error {
 			case <-configEvents:
 				topic, err := svc.topicProvier.PushTopic()
 				if err != nil {
-					log.Println("enroll: get push topic %s", topic)
+					log.Printf("enroll: get push topic %s\n", topic)
 				}
 				svc.mu.Lock()
 				svc.Topic = topic

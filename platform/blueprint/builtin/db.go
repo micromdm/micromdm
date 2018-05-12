@@ -112,7 +112,7 @@ func (db *DB) Save(bp *blueprint.Blueprint) error {
 	indexes := []string{bp.UUID, bp.Name}
 	idxBucket := tx.Bucket([]byte(blueprintIndexBucket))
 	if idxBucket == nil {
-		return fmt.Errorf("bucket %q not found!", idxBucket)
+		return fmt.Errorf("bucket %v not found!", idxBucket)
 	}
 	for _, idx := range indexes {
 		if idx == "" {
