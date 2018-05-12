@@ -121,6 +121,9 @@ func serve(args []string) error {
 	if !strings.HasPrefix(*flServerURL, "https://") {
 		return errors.New("-server-url must begin with https://")
 	}
+	if !*flTLS && (*flTLSCert != "" || *flTLSKey != "") {
+		return errors.New("cannot set -tls=false and supply -tls-cert or -tls-key")
+	}
 
 	logger := log.NewLogfmtLogger(os.Stderr)
 	stdlog.SetOutput(log.NewStdlibAdapter(logger)) // force structured logs
