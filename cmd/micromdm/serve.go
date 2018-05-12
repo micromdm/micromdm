@@ -240,41 +240,6 @@ func serve(args []string) error {
 	dc := sm.depClient
 	appDB := &appsbuiltin.Repo{Path: *flRepoPath}
 
-	var profilesvc profile.Service
-	{
-		profilesvc = profile.New(sm.profileDB)
-	}
-
-	var blueprintsvc blueprint.Service
-	{
-		blueprintsvc = blueprint.New(bpDB)
-	}
-
-	var usersvc user.Service
-	{
-		usersvc = user.New(userDB)
-	}
-
-	var configsvc config.Service
-	{
-		configsvc = config.New(sm.configDB)
-	}
-
-	var appsvc appstore.Service
-	{
-		appsvc = appstore.New(appDB)
-	}
-
-	var devicesvc device.Service
-	{
-		devicesvc = device.New(devDB)
-	}
-
-	var depsvc depapi.Service
-	{
-		depsvc = depapi.New(dc, sm.pubclient)
-	}
-
 	connectHandlers := connect.MakeHTTPHandlers(ctx, connectEndpoints, connectOpts...)
 	scepHandler := scep.ServiceHandler(ctx, sm.scepService, httpLogger)
 	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.enrollService, sm.scepDepot), httptransport.ServerErrorLogger(httpLogger))
@@ -295,33 +260,40 @@ func serve(args []string) error {
 	if *flAPIKey != "" {
 		basicAuthEndpointMiddleware := basic.AuthMiddleware("micromdm", *flAPIKey, "micromdm")
 
+		configsvc := config.New(sm.configDB)
 		configEndpoints := config.MakeServerEndpoints(configsvc, basicAuthEndpointMiddleware)
 		config.RegisterHTTPHandlers(r, configEndpoints, options...)
 
 		apnsEndpoints := apns.MakeServerEndpoints(sm.pushService, basicAuthEndpointMiddleware)
 		apns.RegisterHTTPHandlers(r, apnsEndpoints, options...)
 
+		devicesvc := device.New(devDB)
 		deviceEndpoints := device.MakeServerEndpoints(devicesvc, basicAuthEndpointMiddleware)
 		device.RegisterHTTPHandlers(r, deviceEndpoints, options...)
 
+		profilesvc := profile.New(sm.profileDB)
 		profileEndpoints := profile.MakeServerEndpoints(profilesvc, basicAuthEndpointMiddleware)
 		profile.RegisterHTTPHandlers(r, profileEndpoints, options...)
 
+		blueprintsvc := blueprint.New(bpDB)
 		blueprintEndpoints := blueprint.MakeServerEndpoints(blueprintsvc, basicAuthEndpointMiddleware)
 		blueprint.RegisterHTTPHandlers(r, blueprintEndpoints, options...)
 
 		blockEndpoints := block.MakeServerEndpoints(removeService, basicAuthEndpointMiddleware)
 		block.RegisterHTTPHandlers(r, blockEndpoints, options...)
 
+		usersvc := user.New(userDB)
 		userEndpoints := user.MakeServerEndpoints(usersvc, basicAuthEndpointMiddleware)
 		user.RegisterHTTPHandlers(r, userEndpoints, options...)
 
+		appsvc := appstore.New(appDB)
 		appEndpoints := appstore.MakeServerEndpoints(appsvc, basicAuthEndpointMiddleware)
 		appstore.RegisterHTTPHandlers(r, appEndpoints, options...)
 
 		commandEndpoints := command.MakeServerEndpoints(sm.commandService, basicAuthEndpointMiddleware)
 		command.RegisterHTTPHandlers(r, commandEndpoints, options...)
 
+		depsvc := depapi.New(dc, sm.pubclient)
 		depEndpoints := depapi.MakeServerEndpoints(depsvc, basicAuthEndpointMiddleware)
 		depapi.RegisterHTTPHandlers(r, depEndpoints, options...)
 
