@@ -121,7 +121,7 @@ func serve(args []string) error {
 	if !strings.HasPrefix(*flServerURL, "https://") {
 		return errors.New("-server-url must begin with https://")
 	}
-	if *flTLS == false && (*flTLSCert != "" || *flTLSKey != "") {
+	if !*flTLS && (*flTLSCert != "" || *flTLSKey != "") {
 		return errors.New("cannot set -tls=false and supply -tls-cert or -tls-key")
 	}
 
