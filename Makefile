@@ -55,7 +55,8 @@ ifneq ($(shell pwd), $(WORKSPACE))
 endif
 
 deps: check-deps
-	go get -u github.com/golang/dep/...
+	@which dep > /dev/null 2>&1 || \
+		echo "Installing dep" && go get -u github.com/golang/dep/cmd/dep
 	dep ensure -vendor-only
 
 test:

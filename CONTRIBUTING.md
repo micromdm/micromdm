@@ -15,7 +15,7 @@ Here's a few places to get started and find out what's outstanding.
 
 ## Building the project
 
-To build MicroMDM from source, you will need [Go 1.8](https://golang.org/dl/) or later installed.
+To build MicroMDM from source, you will need [Go 1.10](https://golang.org/dl/) or later installed.
 
 ```
 # if GOPATH is unset:

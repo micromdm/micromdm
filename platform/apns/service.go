@@ -108,7 +108,7 @@ func updateClient(svc *PushService, sub pubsub.Subscriber) error {
 			case <-configEvents:
 				pushsvc, err := NewPushService(svc.provider)
 				if err != nil {
-					log.Println("push: could not get push certificate %s", err)
+					log.Printf("push: could not get push certificate %s\n", err)
 					continue
 				}
 				svc.mu.Lock()
