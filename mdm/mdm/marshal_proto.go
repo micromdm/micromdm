@@ -1,30 +1,61 @@
 package mdm
 
 import (
+	"fmt"
+
 	"github.com/gogo/protobuf/proto"
 	"github.com/micromdm/micromdm/mdm/mdm/internal/mdmproto"
 )
 
 func MarshalCommandPayload(cmd *CommandPayload) ([]byte, error) {
+	cmdToProto, err := commandToProto(cmd.Command)
+	if err != nil {
+		return nil, err
+	}
 	cmdproto := mdmproto.CommandPayload{
 		CommandUuid: cmd.CommandUUID,
-		Command:     commandToProto(cmd.Command),
+		Command:     cmdToProto,
 	}
-	return proto.Marshal(&cmdproto)
+	pb, err := proto.Marshal(&cmdproto)
+	return pb, err
 }
 
-func commandToProto(cmd *Command) *mdmproto.Command {
+func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 	cmdproto := mdmproto.Command{
 		RequestType: cmd.RequestType,
 	}
 	switch cmd.RequestType {
+	case "ProfileList",
+		"ProvisioningProfileList",
+		"CertificateList",
+		"SecurityInfo",
+		"RestartDevice",
+		"ShutDownDevice",
+		"StopMirroring",
+		"ClearRestrictionsPassword",
+		"UserList",
+		"LogOutUser",
+		"PlayLostModeSound",
+		"DisableLostMode",
+		"DeviceLocation",
+		"ManagedMediaList",
+		"DeviceConfigured",
+		"AvailableOSUpdates",
+		"NSExtensionMappings":
+
 	case "InstallProfile":
+		if cmd.InstallProfile == nil {
+			break
+		}
 		cmdproto.Request = &mdmproto.Command_InstallProfile{
 			InstallProfile: &mdmproto.InstallProfile{
 				Payload: cmd.InstallProfile.Payload,
 			},
 		}
 	case "RemoveProfile":
+		if cmd.RemoveProfile == nil {
+			break
+		}
 		cmdproto.Request = &mdmproto.Command_RemoveProfile{
 			RemoveProfile: &mdmproto.RemoveProfile{
 				Identifier: cmd.RemoveProfile.Identifier,
@@ -50,6 +81,9 @@ func commandToProto(cmd *Command) *mdmproto.Command {
 			},
 		}
 	case "DeviceInformation":
+		if cmd.DeviceInformation == nil {
+			break
+		}
 		cmdproto.Request = &mdmproto.Command_DeviceInformation{
 			DeviceInformation: &mdmproto.DeviceInformation{
 				Queries: cmd.DeviceInformation.Queries,
@@ -294,8 +328,10 @@ func commandToProto(cmd *Command) *mdmproto.Command {
 				},
 			},
 		}
+	default:
+		return nil, fmt.Errorf("unknown command type %s", cmd.RequestType)
 	}
-	return &cmdproto
+	return &cmdproto, nil
 }
 
 func settingToProto(s Setting) *mdmproto.Setting {

@@ -1,6 +1,8 @@
 package mdm
 
 import (
+	"fmt"
+
 	"github.com/gogo/protobuf/proto"
 	"github.com/micromdm/micromdm/mdm/mdm/internal/mdmproto"
 )
@@ -10,6 +12,24 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 		RequestType: pb.RequestType,
 	}
 	switch pb.RequestType {
+	case "ProfileList",
+		"ProvisioningProfileList",
+		"CertificateList",
+		"SecurityInfo",
+		"RestartDevice",
+		"ShutDownDevice",
+		"StopMirroring",
+		"ClearRestrictionsPassword",
+		"UserList",
+		"LogOutUser",
+		"PlayLostModeSound",
+		"DisableLostMode",
+		"DeviceLocation",
+		"ManagedMediaList",
+		"DeviceConfigured",
+		"AvailableOSUpdates",
+		"NSExtensionMappings":
+
 	case "InstallProfile":
 		cmd.InstallProfile = &InstallProfile{
 			Payload: pb.GetInstallProfile().GetPayload(),
@@ -33,6 +53,7 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			ManagedAppsOnly: pbcmd.GetManagedAppsOnly(),
 		}
 	case "DeviceInformation":
+		fmt.Println("x", pb.GetDeviceInformation().GetQueries())
 		cmd.DeviceInformation = &DeviceInformation{
 			Queries: pb.GetDeviceInformation().GetQueries(),
 		}

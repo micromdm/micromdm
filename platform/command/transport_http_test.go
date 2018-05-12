@@ -27,9 +27,8 @@ func TestDecodeRequest(t *testing.T) {
 		t.Errorf("have %s, want %s", have, want)
 	}
 
-	if have, want := decoded.CommandRequest.InstallApplication.ManifestURL,
-		"https://mdm.acme.co/repo/munkitools-3.0.0.3298.plist"; have != want {
-		t.Errorf("have %s, want %s", have, want)
+	if have, want := decoded.CommandRequest.InstallApplication.ManifestURL, "https://mdm.acme.co/repo/munkitools-3.0.0.3298.plist"; *have != want {
+		t.Errorf("have %s, want %s", *have, want)
 	}
 
 }
