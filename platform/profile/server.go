@@ -2,7 +2,6 @@ package profile
 
 import (
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/micromdm/micromdm/pkg/httputil"
@@ -14,17 +13,15 @@ type Endpoints struct {
 	RemoveProfilesEndpoint endpoint.Endpoint
 }
 
-func MakeServerEndpoints(s Service) Endpoints {
+func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
-		ApplyProfileEndpoint:   MakeApplyProfileEndpoint(s),
-		GetProfilesEndpoint:    MakeGetProfilesEndpoint(s),
-		RemoveProfilesEndpoint: MakeRemoveProfilesEndpoint(s),
+		ApplyProfileEndpoint:   endpoint.Chain(outer, others...)(MakeApplyProfileEndpoint(s)),
+		GetProfilesEndpoint:    endpoint.Chain(outer, others...)(MakeGetProfilesEndpoint(s)),
+		RemoveProfilesEndpoint: endpoint.Chain(outer, others...)(MakeRemoveProfilesEndpoint(s)),
 	}
 }
 
-func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
-	r, options := httputil.NewRouter(logger)
-
+func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
 	// GET     /v1/profiles		get a list of profiles managed by the server
 	// PUT     /v1/profiles		create or replace a profile on the server
 	// DELETE  /v1/profiles		remove one or more profiles from the server
@@ -49,6 +46,4 @@ func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
 		httputil.EncodeJSONResponse,
 		options...,
 	))
-
-	return r
 }
