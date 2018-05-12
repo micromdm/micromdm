@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/boltdb/bolt"
-	"github.com/micromdm/mdm"
+	"github.com/micromdm/micromdm/mdm/mdm"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 
@@ -42,15 +42,15 @@ func New(db *bolt.DB, pub pubsub.Publisher) (*Command, error) {
 	return &svc, nil
 }
 
-func (svc *Command) NewCommand(ctx context.Context, request *mdm.CommandRequest) (*mdm.Payload, error) {
+func (svc *Command) NewCommand(ctx context.Context, request *mdm.CommandRequest) (*mdm.CommandPayload, error) {
 	if request == nil {
 		return nil, errors.New("empty CommandRequest")
 	}
-	payload, err := mdm.NewPayload(request)
+	payload, err := mdm.NewCommandPayload(request)
 	if err != nil {
 		return nil, errors.Wrap(err, "creating mdm payload")
 	}
-	event := NewEvent(*payload, request.UDID)
+	event := NewEvent(payload, request.UDID)
 	msg, err := MarshalEvent(event)
 	if err != nil {
 		return nil, errors.Wrap(err, "marshalling mdm command event")

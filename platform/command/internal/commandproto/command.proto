@@ -5,8 +5,9 @@ package commandproto;
 message Event {
        	string id = 1;
        	int64 time = 2;
-        Payload payload = 3;
+        Payload payload = 3; // unused
         string device_udid = 4;
+        bytes payload_bytes = 5;
 }
 
 message Payload {

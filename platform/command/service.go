@@ -6,12 +6,12 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/metrics"
-	"github.com/micromdm/mdm"
+	"github.com/micromdm/micromdm/mdm/mdm"
 	"golang.org/x/net/context"
 )
 
 type Service interface {
-	NewCommand(context.Context, *mdm.CommandRequest) (*mdm.Payload, error)
+	NewCommand(context.Context, *mdm.CommandRequest) (*mdm.CommandPayload, error)
 }
 
 // Middleware describes a service (as opposed to endpoint) middleware.
@@ -28,7 +28,7 @@ func ServiceLoggingMiddleware(logger log.Logger) Middleware {
 	}
 }
 
-func (mw serviceLoggingMiddleware) NewCommand(ctx context.Context, req *mdm.CommandRequest) (p *mdm.Payload, err error) {
+func (mw serviceLoggingMiddleware) NewCommand(ctx context.Context, req *mdm.CommandRequest) (p *mdm.CommandPayload, err error) {
 	defer func(begin time.Time) {
 		mw.logger.Log(
 			"method", "NewCommand",
@@ -60,7 +60,7 @@ type serviceInstrumentingMiddleware struct {
 	next     Service
 }
 
-func (mw serviceInstrumentingMiddleware) NewCommand(ctx context.Context, req *mdm.CommandRequest) (*mdm.Payload, error) {
+func (mw serviceInstrumentingMiddleware) NewCommand(ctx context.Context, req *mdm.CommandRequest) (*mdm.CommandPayload, error) {
 	p, err := mw.next.NewCommand(ctx, req)
 	mw.payloads.Add(1)
 	return p, err

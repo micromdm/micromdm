@@ -10,7 +10,7 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/metrics"
-	"github.com/micromdm/mdm"
+	"github.com/micromdm/micromdm/mdm/mdm"
 )
 
 var errEmptyRequest = errors.New("request must contain UDID of the device")
@@ -70,8 +70,8 @@ type newCommandRequest struct {
 }
 
 type newCommandResponse struct {
-	Payload *mdm.Payload `json:"payload,omitempty"`
-	Err     error        `json:"error,omitempty"`
+	Payload *mdm.CommandPayload `json:"payload,omitempty"`
+	Err     error               `json:"error,omitempty"`
 }
 
 func (r newCommandResponse) error() error { return r.Err }

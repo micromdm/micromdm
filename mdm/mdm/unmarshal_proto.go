@@ -1,0 +1,387 @@
+package mdm
+
+import (
+	"fmt"
+
+	"github.com/gogo/protobuf/proto"
+	"github.com/micromdm/micromdm/mdm/mdm/internal/mdmproto"
+)
+
+func protoToCommand(pb *mdmproto.Command) *Command {
+	cmd := Command{
+		RequestType: pb.RequestType,
+	}
+	switch pb.RequestType {
+	case "ProfileList",
+		"ProvisioningProfileList",
+		"CertificateList",
+		"SecurityInfo",
+		"RestartDevice",
+		"ShutDownDevice",
+		"StopMirroring",
+		"ClearRestrictionsPassword",
+		"UserList",
+		"LogOutUser",
+		"PlayLostModeSound",
+		"DisableLostMode",
+		"DeviceLocation",
+		"ManagedMediaList",
+		"DeviceConfigured",
+		"AvailableOSUpdates",
+		"NSExtensionMappings":
+
+	case "InstallProfile":
+		cmd.InstallProfile = &InstallProfile{
+			Payload: pb.GetInstallProfile().GetPayload(),
+		}
+	case "RemoveProfile":
+		cmd.RemoveProfile = &RemoveProfile{
+			Identifier: pb.GetRemoveProfile().GetIdentifier(),
+		}
+	case "InstallProvisioningProfile":
+		cmd.InstallProvisioningProfile = &InstallProvisioningProfile{
+			ProvisioningProfile: pb.GetInstallProvisioningProfile().GetProvisioningProfile(),
+		}
+	case "RemoveProvisioningProfile":
+		cmd.RemoveProvisioningProfile = &RemoveProvisioningProfile{
+			UUID: pb.GetRemoveProfisioningProfile().GetUuid(),
+		}
+	case "InstalledApplicationList":
+		pbcmd := pb.GetInstalledApplicationList()
+		cmd.InstalledApplicationList = &InstalledApplicationList{
+			Identifiers:     pbcmd.GetIdentifiers(),
+			ManagedAppsOnly: pbcmd.GetManagedAppsOnly(),
+		}
+	case "DeviceInformation":
+		fmt.Println("x", pb.GetDeviceInformation().GetQueries())
+		cmd.DeviceInformation = &DeviceInformation{
+			Queries: pb.GetDeviceInformation().GetQueries(),
+		}
+	case "DeviceLock":
+		pbc := pb.GetDeviceLock()
+		cmd.DeviceLock = &DeviceLock{
+			PIN:         pbc.GetPin(),
+			Message:     pbc.GetMessage(),
+			PhoneNumber: pbc.GetPhoneNumber(),
+		}
+	case "ClearPasscode":
+		pbc := pb.GetClearPasscode()
+		cmd.ClearPasscode = &ClearPasscode{
+			UnlockToken: pbc.GetUnlockToken(),
+		}
+	case "EraseDevice":
+		pbc := pb.GetEraseDevice()
+		cmd.EraseDevice = &EraseDevice{
+			PIN:                    pbc.GetPin(),
+			PreserveDataPlan:       pbc.GetPreserveDataPlan(),
+			DisallowProximitySetup: pbc.GetDisallowProximitySetup(),
+		}
+	case "RequestMirroring":
+		pbc := pb.GetRequestMirroring()
+		cmd.RequestMirroring = &RequestMirroring{
+			DestinationName:     pbc.GetDestinationName(),
+			DestinationDeviceID: pbc.GetDestinationDeviceId(),
+			ScanTime:            pbc.GetScanTime(),
+			Password:            pbc.GetPassword(),
+		}
+	case "Restrictions":
+		pbc := pb.GetRestrictions()
+		cmd.Restrictions = &Restrictions{
+			ProfileRestrictions: pbc.GetProfileRestrictions(),
+		}
+	case "UnlockUserAccount":
+		pbc := pb.GetUnlockUserAccount()
+		cmd.UnlockUserAccount = &UnlockUserAccount{
+			UserName: pbc.GetUsername(),
+		}
+	case "DeleteUser":
+		pbc := pb.GetDeleteUser()
+		cmd.DeleteUser = &DeleteUser{
+			UserName:      pbc.GetUsername(),
+			ForceDeletion: pbc.GetForceDeletion(),
+		}
+	case "EnableLostMode":
+		pbc := pb.GetEnableLostMode()
+		cmd.EnableLostMode = &EnableLostMode{
+			Message:     pbc.GetMessage(),
+			PhoneNumber: pbc.GetPhoneNumber(),
+			Footnote:    pbc.GetFootnote(),
+		}
+	case "InstallApplication":
+		pbc := pb.GetInstallApplication()
+		var mgmt *int
+		mgmtFlags := nilIfZeroInt64(pbc.GetManagementFlags())
+		if mgmtFlags != nil {
+			mgmti := int(*mgmtFlags)
+			mgmt = &mgmti
+		}
+
+		var (
+			options       *InstallApplicationOptions
+			configuration *InstallApplicationConfiguration
+			attributes    *InstallApplicationAttributes
+		)
+
+		pboptions := pbc.GetOptions()
+		if pboptions != nil {
+			options = &InstallApplicationOptions{
+				PurchaseMethod: pboptions.GetPurchaseMethod(),
+			}
+		}
+
+		pbconfig := pbc.GetConfiguration()
+		if pbconfig != nil {
+			configuration = &InstallApplicationConfiguration{}
+		}
+
+		pbattributes := pbc.GetAttributes()
+		if pbattributes != nil {
+			attributes = &InstallApplicationAttributes{}
+		}
+
+		cmd.InstallApplication = &InstallApplication{
+			ITunesStoreID:         nilIfZeroInt64(pbc.GetItunesStoreId()),
+			Identifier:            nilIfEmptyString(pbc.GetIdentifier()),
+			ManagementFlags:       mgmt,
+			ChangeManagementState: nilIfEmptyString(pbc.GetChangeManagementState()),
+			ManifestURL:           nilIfEmptyString(pbc.GetManifestUrl()),
+			Options:               options,
+			Configuration:         configuration,
+			Attributes:            attributes,
+		}
+	case "AccountConfiguration":
+		pbc := pb.GetAccountConfiguration()
+		var autosetupadminaccounts []AdminAccount
+		for _, acct := range pbc.GetAutoSetupAdminAccounts() {
+			autosetupadminaccounts = append(autosetupadminaccounts, AdminAccount{
+				ShortName:    acct.GetShortName(),
+				FullName:     acct.GetFullName(),
+				PasswordHash: acct.GetPasswordHash(),
+				Hidden:       acct.GetHidden(),
+			})
+		}
+		cmd.AccountConfiguration = &AccountConfiguration{
+			SkipPrimarySetupAccountCreation:     pbc.GetSkipPrimarySetupAccountCreation(),
+			SetPrimarySetupAccountAsRegularUser: pbc.GetSetPrimarySetupAccountAsRegularUser(),
+			AutoSetupAdminAccounts:              autosetupadminaccounts,
+		}
+	case "ApplyRedemptionCode":
+		pbc := pb.GetApplyRedemptionCode()
+		cmd.ApplyRedemptionCode = &ApplyRedemptionCode{
+			Identifier:     pbc.GetIdentifier(),
+			RedemptionCode: pbc.GetRedemptionCode(),
+		}
+	case "ManagedApplicationList":
+		pbc := pb.GetManagedApplicationList()
+		cmd.ManagedApplicationList = &ManagedApplicationList{
+			Identifiers: pbc.GetIdentifiers(),
+		}
+	case "RemoveApplication":
+		pbc := pb.GetRemoveApplication()
+		cmd.RemoveApplication = &RemoveApplication{
+			Identifier: pbc.GetIdentifier(),
+		}
+	case "InviteToProgram":
+		pbc := pb.GetInviteToProgram()
+		cmd.InviteToProgram = &InviteToProgram{
+			ProgramID:     pbc.GetProgramId(),
+			InvitationURL: pbc.GetInvitationUrl(),
+		}
+	case "ValidateApplications":
+		pbc := pb.GetValidataApplications()
+		cmd.ValidateApplications = &ValidateApplications{
+			Identifiers: pbc.GetIdentifiers(),
+		}
+	case "InstallMedia":
+		pbc := pb.GetInstallMedia()
+		cmd.InstallMedia = &InstallMedia{
+			ITunesStoreID: nilIfZeroInt64(pbc.GetItunesStoreId()),
+			MediaType:     pbc.GetMediaType(),
+			MediaURL:      pbc.GetMediaUrl(),
+		}
+	case "RemoveMedia":
+		pbc := pb.GetRemoveMedia()
+		cmd.RemoveMedia = &RemoveMedia{
+			ITunesStoreID: nilIfZeroInt64(pbc.GetItunesStoreId()),
+			MediaType:     pbc.GetMediaType(),
+			PersistentID:  pbc.GetPersistentId(),
+		}
+	case "Settings":
+		pbc := pb.GetSettings()
+		var settings []Setting
+		for _, s := range pbc.GetSettings() {
+			settings = append(settings, protoToSetting(s))
+		}
+		cmd.Settings = &Settings{
+			Settings: settings,
+		}
+	case "ManagedApplicationConfiguration":
+		pbc := pb.GetManagedApplicationConfiguration()
+		cmd.ManagedApplicationConfiguration = &ManagedApplicationConfiguration{
+			Identifiers: pbc.GetIdentifiers(),
+		}
+	case "ManagedApplicationAttributes":
+		pbc := pb.GetManagedApplicationAttributes()
+		cmd.ManagedApplicationAttributes = &ManagedApplicationAttributes{
+			Identifiers: pbc.GetIdentifiers(),
+		}
+	case "ManagedApplicationFeedback":
+		pbc := pb.GetManagedApplicationFeedback()
+		cmd.ManagedApplicationFeedback = &ManagedApplicationFeedback{
+			Identifiers:    pbc.GetIdentifiers(),
+			DeleteFeedback: pbc.GetDeleteFeedback(),
+		}
+	case "SetFirmwarePassword":
+		pbc := pb.GetSetFirmwarePassword()
+		cmd.SetFirmwarePassword = &SetFirmwarePassword{
+			CurrentPassword: pbc.GetCurrentPassword(),
+			NewPassword:     pbc.GetNewPassword(),
+			AllowOroms:      pbc.GetAllowOroms(),
+		}
+	case "VerifyFirmwarePassword":
+		pbc := pb.GetVerifyFirmwarePassword()
+		cmd.VerifyFirmwarePassword = &VerifyFirmwarePassword{
+			Password: pbc.GetPassword(),
+		}
+	case "SetAutoAdminPassword":
+		pbc := pb.GetSetAutoAdminPassword()
+		cmd.SetAutoAdminPassword = &SetAutoAdminPassword{
+			GUID:         pbc.GetGuid(),
+			PasswordHash: pbc.GetPasswordHash(),
+		}
+	case "ScheduleOSUpdate":
+		pbc := pb.GetScheduleOsUpdate()
+		var updates []OSUpdate
+		for _, up := range pbc.GetUpdates() {
+			updates = append(updates, OSUpdate{
+				ProductKey:    up.GetProductKey(),
+				InstallAction: up.GetInstallAction(),
+			})
+		}
+		cmd.ScheduleOSUpdate = &ScheduleOSUpdate{
+			Updates: updates,
+		}
+	case "ScheduleOSUpdateScan":
+		pbc := pb.GetScheduleOsUpdateScan()
+		cmd.ScheduleOSUpdateScan = &ScheduleOSUpdateScan{
+			Force: pbc.GetForce(),
+		}
+	case "ActiveNSExtensions":
+		pbc := pb.GetActiveNsExtensions()
+		cmd.ActiveNSExtensions = &ActiveNSExtensions{
+			FilterExtensionPoints: pbc.GetFilterExtensionPoints(),
+		}
+	case "RotateFileVaultKey":
+		pbc := pb.GetRotateFilevaultKey()
+		fvunlock := pbc.GetFilevaultUnlock()
+		cmd.RotateFileVaultKey = &RotateFileVaultKey{
+			KeyType:                    pbc.GetKeyType(),
+			NewCertificate:             pbc.GetNewCertificate(),
+			ReplyEncryptionCertificate: pbc.GetReplyEncryptionCertificate(),
+			FileVaultUnlock: FileVaultUnlock{
+				Password:                 fvunlock.GetPassword(),
+				PrivateKeyExport:         fvunlock.GetPrivateKeyExport(),
+				PrivateKeyExportPassword: fvunlock.GetPrivateKeyExportPassword(),
+			},
+		}
+
+	}
+	return &cmd
+}
+
+func protoToSetting(s *mdmproto.Setting) Setting {
+	setting := Setting{
+		Item: s.GetItem(),
+	}
+	switch s.Item {
+	case "VoiceRoaming":
+		pbs := s.GetVoiceRoaming()
+		setting.Enabled = nilIfFalse(pbs.GetEnabled())
+	case "PersonalHotspot":
+		pbs := s.GetPersonalHotspot()
+		setting.Enabled = nilIfFalse(pbs.GetEnabled())
+	case "Wallpaper":
+		pbs := s.GetWallpaper()
+		setting.Image = pbs.GetImage()
+		setting.Where = nilIfZeroInt(int(pbs.GetWhere()))
+	case "DataRoaming":
+		pbs := s.GetDataRoaming()
+		setting.Enabled = nilIfFalse(pbs.GetEnabled())
+	case "Bluetooth":
+		pbs := s.GetBluetooth()
+		setting.Enabled = nilIfFalse(pbs.GetEnabled())
+	case "ApplicationAttributes":
+		pbs := s.GetApplicationAttributes()
+		attr := pbs.GetApplicationAttributes()
+		vpnUUID := attr.GetVpnUuid()
+		if vpnUUID != "" {
+			setting.Attributes = map[string]string{"VPNUUID": vpnUUID}
+		}
+		setting.Identifier = nilIfEmptyString(pbs.GetIdentifier())
+	case "DeviceName":
+		pbs := s.GetDeviceName()
+		setting.DeviceName = nilIfEmptyString(pbs.GetDeviceName())
+	case "HostName":
+		pbs := s.GetHostname()
+		setting.HostName = nilIfEmptyString(pbs.GetHostname())
+	case "MDMOptions":
+		pbs := s.GetMdmOptions()
+		activationLockAllowed := pbs.GetMdmOptions().GetActivationLockAllowedWhileSupervised()
+		setting.MDMOptions = map[string]interface {
+		}{
+			"ActivationLockAllowedWhileSupervised": activationLockAllowed,
+		}
+	case "PasscodeLockGracePeriod":
+		pbs := s.GetPasscodeLockGracePeriod()
+		setting.PasscodeLockGracePeriod = nilIfZeroInt(int(pbs.GetPasscodeLockGracePeriod()))
+	case "MaximumResidentUsers":
+		pbs := s.GetMaximumResidentUsers()
+		setting.MaximumResidentUsers = nilIfZeroInt(int(pbs.GetMaximumResidentUsers()))
+	case "DiagnosticSubmission":
+		pbs := s.GetDiagnosticSubmission()
+		setting.Enabled = nilIfFalse(pbs.GetEnabled())
+	case "AppAnalytics":
+		pbs := s.GetAppAnalytics()
+		setting.Enabled = nilIfFalse(pbs.GetEnabled())
+	}
+	return setting
+}
+
+func UnmarshalCommandPayload(data []byte, payload *CommandPayload) error {
+	var pb mdmproto.CommandPayload
+	if err := proto.Unmarshal(data, &pb); err != nil {
+		return err
+	}
+	payload.CommandUUID = pb.CommandUuid
+	payload.Command = protoToCommand(pb.Command)
+	return nil
+}
+
+func nilIfZeroInt64(n int64) *int64 {
+	if n == 0 {
+		return nil
+	}
+	return &n
+}
+
+func nilIfZeroInt(n int) *int {
+	if n == 0 {
+		return nil
+	}
+	return &n
+}
+
+func nilIfEmptyString(s string) *string {
+	if s == "" {
+		return nil
+	}
+	return &s
+}
+
+func nilIfFalse(b bool) *bool {
+	if !b {
+		return nil
+
+	}
+	return &b
+}
