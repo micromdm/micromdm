@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/micromdm/mdm"
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/mdm/checkin"
+	"github.com/micromdm/micromdm/mdm/mdm"
 	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/device"
@@ -26,9 +26,9 @@ func (db *DB) ApplyToDevice(ctx context.Context, svc command.Service, bp *bluepr
 		}
 		requests = append(requests, &mdm.CommandRequest{
 			UDID: udid,
-			Command: mdm.Command{
+			Command: &mdm.Command{
 				RequestType: "AccountConfiguration",
-				AccountConfiguration: mdm.AccountConfiguration{
+				AccountConfiguration: &mdm.AccountConfiguration{
 					SkipPrimarySetupAccountCreation:     bp.SkipPrimarySetupAccountCreation,
 					SetPrimarySetupAccountAsRegularUser: bp.SetPrimarySetupAccountAsRegularUser,
 					AutoSetupAdminAccounts: []mdm.AdminAccount{
@@ -47,11 +47,11 @@ func (db *DB) ApplyToDevice(ctx context.Context, svc command.Service, bp *bluepr
 	for _, appURL := range bp.ApplicationURLs {
 		requests = append(requests, &mdm.CommandRequest{
 			UDID: udid,
-			Command: mdm.Command{
+			Command: &mdm.Command{
 				RequestType: "InstallApplication",
-				InstallApplication: mdm.InstallApplication{
-					ManifestURL:     appURL,
-					ManagementFlags: 1,
+				InstallApplication: &mdm.InstallApplication{
+					ManifestURL:     &appURL,
+					ManagementFlags: intPtr(1),
 				},
 			},
 		})
@@ -70,9 +70,9 @@ func (db *DB) ApplyToDevice(ctx context.Context, svc command.Service, bp *bluepr
 
 		requests = append(requests, &mdm.CommandRequest{
 			UDID: udid,
-			Command: mdm.Command{
+			Command: &mdm.Command{
 				RequestType: "InstallProfile",
-				InstallProfile: mdm.InstallProfile{
+				InstallProfile: &mdm.InstallProfile{
 					Payload: foundProfile.Mobileconfig,
 				},
 			},
@@ -124,7 +124,7 @@ func (db *DB) StartListener(sub pubsub.Subscriber, cmdSvc command.Service) error
 
 				if ev.Command.AwaitingConfiguration {
 					_, err := cmdSvc.NewCommand(ctx, &mdm.CommandRequest{
-						Command: mdm.Command{RequestType: "DeviceConfigured"},
+						Command: &mdm.Command{RequestType: "DeviceConfigured"},
 						UDID:    ev.Command.UDID,
 					})
 					if err != nil {
@@ -144,4 +144,8 @@ func (db *DB) StartListener(sub pubsub.Subscriber, cmdSvc command.Service) error
 	}()
 
 	return nil
+}
+
+func intPtr(i int) *int {
+	return &i
 }

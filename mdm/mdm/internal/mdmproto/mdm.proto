@@ -1,0 +1,368 @@
+syntax = "proto3";
+
+package mdmproto;
+
+message CommandPayload {
+  string command_uuid = 1;
+  Command command = 2;
+}
+
+message Command {
+  string request_type = 1;
+  /*
+     Request Types that do not have additional fields:
+     - ProfileList
+     - ProvisioningProfileList
+     - CertificateList",
+     - SecurityInfo
+     - RestartDevice
+     - ShutDownDevice
+     - StopMirroring
+     - ClearRestrictionsPassword
+     - UserList
+     - LogOutUser
+     - PlayLostModeSound
+     - DisableLostMode
+     - DeviceLocation
+     - ManagedMediaList
+     - DeviceConfigured
+     - AvailableOSUpdates
+     - NSExtensionMappings
+   */
+  oneof request {
+    InstallProfile install_profile = 2;
+    RemoveProfile remove_profile = 3;
+    InstallProvisioningProfile install_provisioning_profile = 4;
+    RemoveProvisioningProfile remove_profisioning_profile = 5;
+    InstalledApplicationList installed_application_list = 6;
+    DeviceInformation device_information = 7;
+    DeviceLock device_lock = 8;
+    ClearPasscode clear_passcode = 9;
+    EraseDevice erase_device = 10;
+    RequestMirroring request_mirroring = 11;
+    Restrictions restrictions = 12;
+    UnlockUserAccount unlock_user_account = 13;
+    DeleteUser delete_user = 14;
+    EnableLostMode enable_lost_mode = 15;
+    InstallApplication install_application = 16;
+    AccountConfiguration account_configuration = 17;
+    ApplyRedemptionCode apply_redemption_code = 18;
+    ManagedApplicationList managed_application_list = 19;
+    RemoveApplication remove_application = 20;
+    InviteToProgram invite_to_program = 21;
+    ValidateApplications validata_applications = 22;
+    InstallMedia install_media = 23;
+    RemoveMedia remove_media = 24;
+    Settings settings = 25;
+    ManagedApplicationConfiguration managed_application_configuration = 26;
+    ManagedApplicationAttributes  managed_application_attributes = 27;
+    ManagedApplicationFeedback  managed_application_feedback = 28;
+    SetFirmwarePassword set_firmware_password = 29;
+    VerifyFirmwarePassword verify_firmware_password = 30;
+    SetAutoAdminPassword set_auto_admin_password = 31;
+    ScheduleOSUpdate schedule_os_update = 32;
+    ScheduleOSUpdateScan schedule_os_update_scan = 33;
+    ActiveNSExtensions active_ns_extensions = 34;
+    RotateFileVaultKey rotate_filevault_key = 35;
+  }
+}
+
+message InstallProfile {
+  bytes payload = 1; // The mobileconfig data.
+}
+
+message RemoveProfile {
+  string identifier = 1;
+}
+
+message InstallProvisioningProfile {
+  bytes provisioning_profile = 1;
+}
+
+message RemoveProvisioningProfile {
+  string uuid = 1;
+}
+
+message InstalledApplicationList {
+  repeated string identifiers = 1;
+  bool managed_apps_only = 2;
+}
+
+message DeviceInformation {
+  repeated string queries = 1;
+}
+
+message ClearPasscode {
+  bytes unlock_token = 1;
+}
+
+message DeviceLock {
+  string pin = 1;
+  string message = 2;
+  string phone_number = 3;
+}
+
+message EraseDevice {
+  string pin = 1;
+  bool preserve_data_plan = 2;
+  bool disallow_proximity_setup = 3;
+}
+
+message RequestMirroring {
+  string destination_name = 1;
+  string destination_device_id = 2;
+  string scan_time = 3;
+  string password = 4;
+}
+
+message Restrictions {
+  bool profile_restrictions = 1;
+}
+
+message UnlockUserAccount {
+  string username = 1;
+}
+
+message DeleteUser {
+  string username = 1;
+  bool force_deletion = 2;
+}
+
+message EnableLostMode {
+  string message = 1;
+  string phone_number = 2;
+  string footnote = 3;
+}
+
+message InstallApplication {
+  int64 itunes_store_id = 1;
+  string identifier = 2;
+  InstallApplicationOptions options = 3; 
+  string manifest_url = 4;
+  int64 management_flags = 5; // bitwise OR
+  InstallApplicationConfiguration configuration = 6;
+  InstallApplicationAttributes attributes = 7;
+  string change_management_state = 8;
+}
+
+message InstallApplicationOptions {
+  int64 purchase_method = 1;
+}
+
+message InstallApplicationConfiguration {}
+
+message InstallApplicationAttributes {}
+
+message ApplyRedemptionCode {
+  string identifier = 1;
+  string redemption_code = 2;
+}
+
+message ManagedApplicationList {
+  repeated string identifiers = 1;
+}
+
+message RemoveApplication {
+  string identifier = 1;
+}
+
+message InviteToProgram {
+  string program_id = 1;
+  string invitation_url = 2;
+}
+
+message ValidateApplications {
+  repeated string identifiers = 1;
+}
+
+message AccountConfiguration {
+  bool skip_primary_setup_account_creation = 1;
+  bool set_primary_setup_account_as_regular_user = 2;
+  repeated AutoSetupAdminAccounts auto_setup_admin_accounts = 3;
+}
+
+message AutoSetupAdminAccounts {
+  string short_name = 1;
+  string full_name = 2;
+  bytes password_hash = 3;
+  bool hidden = 4;
+}
+
+
+message InstallMedia {
+  int64 itunes_store_id = 1;
+  string media_url = 2;
+  string media_type = 3;
+}
+
+message RemoveMedia {
+  string media_type = 1;
+  int64 itunes_store_id = 2;
+  string persistent_id = 3;
+}
+
+message Settings {
+  repeated Setting settings = 1;
+}
+
+message Setting {
+  string item = 1;
+  DeviceNameSetting device_name = 2;
+  HostnameSetting hostname = 3;
+  VoiceRoamingSetting voice_roaming = 4;
+  PersonalHotspotSetting personal_hotspot = 5;
+  WallpaperSetting wallpaper = 6;
+  DataRoamingSetting data_roaming = 7;
+  BluetoothSetting bluetooth = 8;
+  ApplicationAttributesSetting application_attributes = 9;
+  MDMOptionsSetting mdm_options = 10;
+  PasscodeLockGracePeriodSetting passcode_lock_grace_period = 11;
+  MaximumResidentUsersSetting maximum_resident_users = 12;
+  DiagnosticSubmissionSetting diagnostic_submission = 13;
+  AppAnalyticsSetting app_analytics = 14;
+}
+
+message VoiceRoamingSetting {
+  bool enabled = 1;
+}
+
+message PersonalHotspotSetting {
+  bool enabled = 1;
+}
+
+message WallpaperSetting {
+  bytes image = 1;
+  int64 where = 2;
+}
+
+message DataRoamingSetting {
+  bool enabled = 1;
+}
+
+message BluetoothSetting {
+  bool enabled = 1;
+}
+
+message ApplicationAttributesSetting {
+  string identifier = 1;
+  ApplicationAttributes application_attributes = 2;
+}
+
+message ApplicationAttributes {
+  string vpn_uuid = 1;
+}
+
+message DeviceNameSetting {
+  string device_name = 1;
+}
+
+message HostnameSetting {
+  string hostname = 1;
+}
+
+message MDMOptionsSetting {
+  MDMOptions mdm_options = 1;
+}
+
+message MDMOptions {
+  bool activation_lock_allowed_while_supervised = 1;
+}
+
+message PasscodeLockGracePeriodSetting {
+  int64 passcode_lock_grace_period = 1;
+}
+
+message MaximumResidentUsersSetting {
+  int64 maximum_resident_users = 1;
+}
+
+message DiagnosticSubmissionSetting {
+  bool enabled = 1;
+}
+
+message AppAnalyticsSetting {
+  bool enabled = 1;
+}
+
+message ManagedApplicationConfiguration {
+  repeated string identifiers = 1;
+}
+
+message ManagedApplicationAttributes {
+  repeated string identifiers = 1;
+}
+
+message ManagedApplicationFeedback {
+  repeated string identifiers = 1;
+  bool delete_feedback = 2;
+}
+
+message SetFirmwarePassword {
+  string current_password = 1;
+  string new_password = 2;
+  bool allow_oroms = 3;
+}
+
+message VerifyFirmwarePassword {
+  string password = 1;
+}
+
+message SetAutoAdminPassword {
+  string guid = 1;
+  bytes password_hash = 2;
+}
+
+message ScheduleOSUpdate {
+  repeated Update updates = 1;
+}
+
+message Update {
+  string product_key = 1;
+  string product_version = 2;
+  string install_action = 3;
+}
+
+message ScheduleOSUpdateScan {
+  bool force = 1;
+}
+
+message ActiveNSExtensions {
+  repeated string filter_extension_points = 1;
+}
+
+message RotateFileVaultKey {
+  string key_type = 1;
+  FileVaultUnlock filevault_unlock = 2;
+  bytes new_certificate = 3;
+  bytes reply_encryption_certificate = 4;
+}
+
+message FileVaultUnlock {
+  string password = 1;
+  bytes private_key_export = 2;
+  string private_key_export_password = 3;
+}
+
+message ResultPayload {
+  enum Status {
+    Acknowledged = 0;
+    Error = 1;
+    CommandFormatError = 2;
+    Idle = 3;
+    NotNow = 4;
+  }
+  string udid = 1;
+  string command_uuid = 2;
+  repeated ErrorChain error_chain = 3;
+}
+
+message ErrorChain {
+  string localized_description = 1;
+  string us_english_description = 2;
+
+  // The ErrorDomain and ErrorCode keys contain internal codes used by Apple 
+  // that may be useful for diagnostics. Your host should not rely on these 
+  // values, as they may change between software releases.
+  string error_domain = 3;
+  int32  error_code = 4;
+}
