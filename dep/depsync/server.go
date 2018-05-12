@@ -2,7 +2,6 @@ package depsync
 
 import (
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 
@@ -20,18 +19,16 @@ type Endpoints struct {
 	RemoveAutoAssignerEndpoint endpoint.Endpoint
 }
 
-func MakeServerEndpoints(s Service) Endpoints {
+func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
-		SyncNowEndpoint:            MakeSyncNowEndpoint(s),
-		ApplyAutoAssignerEndpoint:  MakeApplyAutoAssignerEndpoint(s),
-		GetAutoAssignersEndpoint:   MakeGetAutoAssignersEndpoint(s),
-		RemoveAutoAssignerEndpoint: MakeRemoveAutoAssignerEndpoint(s),
+		SyncNowEndpoint:            endpoint.Chain(outer, others...)(MakeSyncNowEndpoint(s)),
+		ApplyAutoAssignerEndpoint:  endpoint.Chain(outer, others...)(MakeApplyAutoAssignerEndpoint(s)),
+		GetAutoAssignersEndpoint:   endpoint.Chain(outer, others...)(MakeGetAutoAssignersEndpoint(s)),
+		RemoveAutoAssignerEndpoint: endpoint.Chain(outer, others...)(MakeRemoveAutoAssignerEndpoint(s)),
 	}
 }
 
-func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
-	r, options := httputil.NewRouter(logger)
-
+func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
 	// POST		/v1/dep/syncnow			request a DEP sync operation to happen now
 	// POST		/v1/dep/autoassigners	set a DEP auto-assigner
 	// GET		/v1/dep/autoassigners	get list of DEP auto-assigners
@@ -64,6 +61,4 @@ func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
 		httputil.EncodeJSONResponse,
 		options...,
 	))
-
-	return r
 }

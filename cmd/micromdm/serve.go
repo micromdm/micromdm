@@ -22,11 +22,11 @@ import (
 	"github.com/RobotsAndPencils/buford/push"
 	"github.com/boltdb/bolt"
 	"github.com/fullsailor/pkcs7"
+	"github.com/go-kit/kit/auth/basic"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/gorilla/mux"
 	"github.com/groob/finalizer/logutil"
 	"github.com/micromdm/dep"
 	"github.com/micromdm/go4/env"
@@ -43,6 +43,7 @@ import (
 	"github.com/micromdm/micromdm/mdm/connect"
 	"github.com/micromdm/micromdm/mdm/enroll"
 	"github.com/micromdm/micromdm/pkg/crypto"
+	httputil2 "github.com/micromdm/micromdm/pkg/httputil"
 	"github.com/micromdm/micromdm/platform/apns"
 	apnsbuiltin "github.com/micromdm/micromdm/platform/apns/builtin"
 	"github.com/micromdm/micromdm/platform/appstore"
@@ -217,8 +218,6 @@ func serve(args []string) error {
 		checkinHandlers = checkin.MakeHTTPHandlers(ctx, e, opts...)
 	}
 
-	commandEndpoints := command.MakeServerEndpoints(sm.commandService)
-
 	connectOpts := []httptransport.ServerOption{
 		httptransport.ServerErrorLogger(httpLogger),
 		httptransport.ServerErrorEncoder(connect.EncodeError),
@@ -240,59 +239,41 @@ func serve(args []string) error {
 		profilesvc = profile.New(sm.profileDB)
 	}
 
-	profileEndpoints := profile.MakeServerEndpoints(profilesvc)
-
 	var blueprintsvc blueprint.Service
 	{
 		blueprintsvc = blueprint.New(bpDB)
 	}
-
-	blueprintEndpoints := blueprint.MakeServerEndpoints(blueprintsvc)
-	blockEndpoints := block.MakeServerEndpoints(removeService)
 
 	var usersvc user.Service
 	{
 		usersvc = user.New(userDB)
 	}
 
-	userEndpoints := user.MakeServerEndpoints(usersvc)
-
 	var configsvc config.Service
 	{
 		configsvc = config.New(sm.configDB)
 	}
-
-	configEndpoints := config.MakeServerEndpoints(configsvc)
 
 	var appsvc appstore.Service
 	{
 		appsvc = appstore.New(appDB)
 	}
 
-	appEndpoints := appstore.MakeServerEndpoints(appsvc)
-
 	var devicesvc device.Service
 	{
 		devicesvc = device.New(devDB)
 	}
-	deviceEndpoints := device.MakeServerEndpoints(devicesvc)
 
 	var depsvc depapi.Service
 	{
 		depsvc = depapi.New(dc, sm.pubclient)
 	}
-	depEndpoints := depapi.MakeServerEndpoints(depsvc)
-
-	apnsEndpoints := apns.MakeServerEndpoints(sm.pushService)
 
 	connectHandlers := connect.MakeHTTPHandlers(ctx, connectEndpoints, connectOpts...)
-
 	scepHandler := scep.ServiceHandler(ctx, sm.scepService, httpLogger)
 	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.enrollService, sm.scepDepot), httptransport.ServerErrorLogger(httpLogger))
 
-	depsyncEndpoints := depsync.MakeServerEndpoints(depsync.NewService(syncer))
-
-	r := mux.NewRouter()
+	r, options := httputil2.NewRouter(logger)
 	r.Handle("/version", version.Handler())
 	r.Handle("/mdm/checkin", mdmAuthSignMessageMiddleware(sm.scepDepot, checkinHandlers.CheckinHandler)).Methods("PUT")
 	r.Handle("/mdm/connect", mdmAuthSignMessageMiddleware(sm.scepDepot, connectHandlers.ConnectHandler)).Methods("PUT")
@@ -304,37 +285,42 @@ func serve(args []string) error {
 		io.WriteString(w, homePage)
 	})
 
-	profilesHandler := profile.MakeHTTPHandler(profileEndpoints, logger)
-	blueprintsHandler := blueprint.MakeHTTPHandler(blueprintEndpoints, logger)
-	blockhandler := block.MakeHTTPHandler(blockEndpoints, logger)
-	userHandler := user.MakeHTTPHandler(userEndpoints, logger)
-	configHandler := config.MakeHTTPHandler(configEndpoints, logger)
-	appsHandler := appstore.MakeHTTPHandler(appEndpoints, logger)
-	deviceHandler := device.MakeHTTPHandler(deviceEndpoints, logger)
-	depHandlers := depapi.MakeHTTPHandler(depEndpoints, logger)
-	apnsHandlers := apns.MakeHTTPHandler(apnsEndpoints, logger)
-	depsyncHandlers := depsync.MakeHTTPHandler(depsyncEndpoints, logger)
-	commandHandler := command.MakeHTTPHandler(commandEndpoints, logger)
-
 	// API commands. Only handled if the user provides an api key.
 	if *flAPIKey != "" {
-		r.Handle("/v1/profiles", apiAuthMiddleware(*flAPIKey, profilesHandler))
-		r.Handle("/v1/blueprints", apiAuthMiddleware(*flAPIKey, blueprintsHandler))
-		r.Handle("/v1/users", apiAuthMiddleware(*flAPIKey, userHandler))
-		r.Handle("/v1/apps", apiAuthMiddleware(*flAPIKey, appsHandler))
-		r.Handle("/v1/devices/{udid}/block", apiAuthMiddleware(*flAPIKey, blockhandler))
-		r.Handle("/v1/devices/{udid}/unblock", apiAuthMiddleware(*flAPIKey, blockhandler))
-		r.Handle("/v1/devices", apiAuthMiddleware(*flAPIKey, deviceHandler))
-		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, configHandler))
-		r.Handle("/v1/dep-tokens", apiAuthMiddleware(*flAPIKey, configHandler))
-		r.Handle("/v1/config/certificate", apiAuthMiddleware(*flAPIKey, configHandler))
-		r.Handle("/v1/dep/devices", apiAuthMiddleware(*flAPIKey, depHandlers))
-		r.Handle("/v1/dep/account", apiAuthMiddleware(*flAPIKey, depHandlers))
-		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, depHandlers))
-		r.Handle("/v1/dep/syncnow", apiAuthMiddleware(*flAPIKey, depsyncHandlers))
-		r.Handle("/v1/dep/autoassigners", apiAuthMiddleware(*flAPIKey, depsyncHandlers))
-		r.Handle("/v1/commands", apiAuthMiddleware(*flAPIKey, commandHandler))
-		r.Handle("/push/{udid}", apiAuthMiddleware(*flAPIKey, apnsHandlers))
+		basicAuthEndpointMiddleware := basic.AuthMiddleware("micromdm", *flAPIKey, "micromdm")
+
+		configEndpoints := config.MakeServerEndpoints(configsvc, basicAuthEndpointMiddleware)
+		config.RegisterHTTPHandlers(r, configEndpoints, options...)
+
+		apnsEndpoints := apns.MakeServerEndpoints(sm.pushService, basicAuthEndpointMiddleware)
+		apns.RegisterHTTPHandlers(r, apnsEndpoints, options...)
+
+		deviceEndpoints := device.MakeServerEndpoints(devicesvc, basicAuthEndpointMiddleware)
+		device.RegisterHTTPHandlers(r, deviceEndpoints, options...)
+
+		profileEndpoints := profile.MakeServerEndpoints(profilesvc, basicAuthEndpointMiddleware)
+		profile.RegisterHTTPHandlers(r, profileEndpoints, options...)
+
+		blueprintEndpoints := blueprint.MakeServerEndpoints(blueprintsvc, basicAuthEndpointMiddleware)
+		blueprint.RegisterHTTPHandlers(r, blueprintEndpoints, options...)
+
+		blockEndpoints := block.MakeServerEndpoints(removeService, basicAuthEndpointMiddleware)
+		block.RegisterHTTPHandlers(r, blockEndpoints, options...)
+
+		userEndpoints := user.MakeServerEndpoints(usersvc, basicAuthEndpointMiddleware)
+		user.RegisterHTTPHandlers(r, userEndpoints, options...)
+
+		appEndpoints := appstore.MakeServerEndpoints(appsvc, basicAuthEndpointMiddleware)
+		appstore.RegisterHTTPHandlers(r, appEndpoints, options...)
+
+		commandEndpoints := command.MakeServerEndpoints(sm.commandService, basicAuthEndpointMiddleware)
+		command.RegisterHTTPHandlers(r, commandEndpoints, options...)
+
+		depEndpoints := depapi.MakeServerEndpoints(depsvc, basicAuthEndpointMiddleware)
+		depapi.RegisterHTTPHandlers(r, depEndpoints, options...)
+
+		depsyncEndpoints := depsync.MakeServerEndpoints(depsync.NewService(syncer), basicAuthEndpointMiddleware)
+		depsync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
 	} else {
 		mainLogger.Log("msg", "no api key specified")
 	}
@@ -885,20 +871,6 @@ func mdmAuthSignMessageMiddleware(db *boltdepot.Depot, next http.Handler) http.H
 			return
 		}
 
-		next.ServeHTTP(w, r)
-	}
-}
-
-func apiAuthMiddleware(token string, next http.Handler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		_, password, ok := r.BasicAuth()
-		if !ok || password != token {
-			w.Header().Set("WWW-Authenticate", `Basic realm="micromdm"`)
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte(`{"error": "you need to log in"}`))
-			return
-		}
 		next.ServeHTTP(w, r)
 	}
 }

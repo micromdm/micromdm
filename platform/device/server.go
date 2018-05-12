@@ -2,7 +2,6 @@ package device
 
 import (
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 
@@ -13,15 +12,13 @@ type Endpoints struct {
 	ListDevicesEndpoint endpoint.Endpoint
 }
 
-func MakeServerEndpoints(s Service) Endpoints {
+func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
-		ListDevicesEndpoint: MakeListDevicesEndpoint(s),
+		ListDevicesEndpoint: endpoint.Chain(outer, others...)(MakeListDevicesEndpoint(s)),
 	}
 }
 
-func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
-	r, options := httputil.NewRouter(logger)
-
+func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
 	// GET     /v1/devices		get a list of devices managed by the server
 
 	r.Methods("GET").Path("/v1/devices").Handler(httptransport.NewServer(
@@ -30,6 +27,4 @@ func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
 		httputil.EncodeJSONResponse,
 		options...,
 	))
-
-	return r
 }
