@@ -2,7 +2,6 @@ package config
 
 import (
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/micromdm/micromdm/pkg/httputil"
@@ -14,17 +13,15 @@ type Endpoints struct {
 	GetDEPTokensEndpoint        endpoint.Endpoint
 }
 
-func MakeServerEndpoints(s Service) Endpoints {
+func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
-		ApplyDEPTokensEndpoint:      MakeApplyDEPTokensEndpoint(s),
-		SavePushCertificateEndpoint: MakeSavePushCertificateEndpoint(s),
-		GetDEPTokensEndpoint:        MakeGetDEPTokensEndpoint(s),
+		ApplyDEPTokensEndpoint:      endpoint.Chain(outer, others...)(MakeApplyDEPTokensEndpoint(s)),
+		SavePushCertificateEndpoint: endpoint.Chain(outer, others...)(MakeSavePushCertificateEndpoint(s)),
+		GetDEPTokensEndpoint:        endpoint.Chain(outer, others...)(MakeGetDEPTokensEndpoint(s)),
 	}
 }
 
-func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
-	r, options := httputil.NewRouter(logger)
-
+func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
 	// PUT     /v1/config/certificate		create or replace the MDM Push Certificate
 	// PUT     /v1/dep-tokens				create or replace a DEP OAuth token
 	// GET     /v1/dep-tokens				get the OAuth Token used for the DEP client
@@ -49,6 +46,4 @@ func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
 		httputil.EncodeJSONResponse,
 		options...,
 	))
-
-	return r
 }

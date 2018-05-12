@@ -2,7 +2,6 @@ package blueprint
 
 import (
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/micromdm/micromdm/pkg/httputil"
@@ -14,17 +13,15 @@ type Endpoints struct {
 	RemoveBlueprintsEndpoint endpoint.Endpoint
 }
 
-func MakeServerEndpoints(s Service) Endpoints {
+func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
-		GetBlueprintsEndpoint:    MakeGetBlueprintsEndpoint(s),
-		ApplyBlueprintEndpoint:   MakeApplyBlueprintEndpoint(s),
-		RemoveBlueprintsEndpoint: MakeRemoveBlueprintsEndpoint(s),
+		GetBlueprintsEndpoint:    endpoint.Chain(outer, others...)(MakeGetBlueprintsEndpoint(s)),
+		ApplyBlueprintEndpoint:   endpoint.Chain(outer, others...)(MakeApplyBlueprintEndpoint(s)),
+		RemoveBlueprintsEndpoint: endpoint.Chain(outer, others...)(MakeRemoveBlueprintsEndpoint(s)),
 	}
 }
 
-func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
-	r, options := httputil.NewRouter(logger)
-
+func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
 	// PUT     /v1/blueprints			create or replace a blueprint on the server
 	// GET     /v1/blueprints			get a list of blueprints managed by the server
 	// DELETE  /v1/blueprints			remove one or more blueprints from the server
@@ -49,6 +46,4 @@ func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
 		httputil.EncodeJSONResponse,
 		options...,
 	))
-
-	return r
 }

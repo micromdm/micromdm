@@ -2,7 +2,6 @@ package dep
 
 import (
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 
@@ -16,18 +15,16 @@ type Endpoints struct {
 	GetDeviceDetailsEndpoint endpoint.Endpoint
 }
 
-func MakeServerEndpoints(s Service) Endpoints {
+func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
-		DefineProfileEndpoint:    MakeDefineProfileEndpoint(s),
-		FetchProfileEndpoint:     MakeFetchProfileEndpoint(s),
-		GetAccountInfoEndpoint:   MakeGetAccountInfoEndpoint(s),
-		GetDeviceDetailsEndpoint: MakeGetDeviceDetailsEndpoint(s),
+		DefineProfileEndpoint:    endpoint.Chain(outer, others...)(MakeDefineProfileEndpoint(s)),
+		FetchProfileEndpoint:     endpoint.Chain(outer, others...)(MakeFetchProfileEndpoint(s)),
+		GetAccountInfoEndpoint:   endpoint.Chain(outer, others...)(MakeGetAccountInfoEndpoint(s)),
+		GetDeviceDetailsEndpoint: endpoint.Chain(outer, others...)(MakeGetDeviceDetailsEndpoint(s)),
 	}
 }
 
-func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
-	r, options := httputil.NewRouter(logger)
-
+func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
 	// PUT		/v1/dep/profiles		define a DEP profile with mdmenrollment.apple.com
 	// POST		/v1/dep/profiles		get a DEP profile given a known profile UUID
 	// GET		/v1/dep/account			get information about the dep account
@@ -60,6 +57,4 @@ func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
 		httputil.EncodeJSONResponse,
 		options...,
 	))
-
-	return r
 }

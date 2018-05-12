@@ -19,6 +19,7 @@ func NewRouter(logger log.Logger) (*mux.Router, []httptransport.ServerOption) {
 	options := []httptransport.ServerOption{
 		httptransport.ServerErrorEncoder(ErrorEncoder),
 		httptransport.ServerErrorLogger(logger),
+		httptransport.ServerBefore(httptransport.PopulateRequestContext),
 	}
 	return r, options
 }
@@ -28,12 +29,15 @@ func EncodeJSONResponse(ctx context.Context, w http.ResponseWriter, response int
 		ErrorEncoder(ctx, f.Failed(), w)
 		return nil
 	}
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	if headerer, ok := response.(httptransport.Headerer); ok {
-		for k := range headerer.Headers() {
-			w.Header().Set(k, headerer.Headers().Get(k))
+		for k, values := range headerer.Headers() {
+			for _, v := range values {
+				w.Header().Add(k, v)
+			}
 		}
 	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
 	code := http.StatusOK
 	if sc, ok := response.(httptransport.StatusCoder); ok {
 		code = sc.StatusCode()
@@ -46,16 +50,18 @@ func EncodeJSONResponse(ctx context.Context, w http.ResponseWriter, response int
 }
 
 func ErrorEncoder(_ context.Context, err error, w http.ResponseWriter) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	errMap := map[string]interface{}{"error": err.Error()}
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
 
 	if headerer, ok := err.(httptransport.Headerer); ok {
-		for k := range headerer.Headers() {
-			w.Header().Set(k, headerer.Headers().Get(k))
+		for k, values := range headerer.Headers() {
+			for _, v := range values {
+				w.Header().Add(k, v)
+			}
 		}
 	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 	code := http.StatusInternalServerError
 	if sc, ok := err.(httptransport.StatusCoder); ok {

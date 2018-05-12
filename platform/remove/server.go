@@ -2,7 +2,6 @@ package remove
 
 import (
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/micromdm/micromdm/pkg/httputil"
@@ -13,16 +12,14 @@ type Endpoints struct {
 	UnblockDeviceEndpoint endpoint.Endpoint
 }
 
-func MakeServerEndpoints(s Service) Endpoints {
+func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
-		BlockDeviceEndpoint:   MakeBlockDeviceEndpoint(s),
-		UnblockDeviceEndpoint: MakeUnblockDeviceEndpoint(s),
+		BlockDeviceEndpoint:   endpoint.Chain(outer, others...)(MakeBlockDeviceEndpoint(s)),
+		UnblockDeviceEndpoint: endpoint.Chain(outer, others...)(MakeUnblockDeviceEndpoint(s)),
 	}
 }
 
-func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
-	r, options := httputil.NewRouter(logger)
-
+func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
 	// POST		/v1/devices/:udid/block			force a device to unenroll next time it connects
 	// POST		/v1/devices/:udid/unblock		allow a blocked device to enroll again
 
@@ -39,7 +36,4 @@ func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
 		httputil.EncodeJSONResponse,
 		options...,
 	))
-
-	return r
-
 }

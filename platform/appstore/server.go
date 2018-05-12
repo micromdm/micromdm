@@ -2,7 +2,6 @@ package appstore
 
 import (
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 
@@ -14,16 +13,14 @@ type Endpoints struct {
 	ListAppsEndpoint  endpoint.Endpoint
 }
 
-func MakeServerEndpoints(s Service) Endpoints {
+func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
-		AppUploadEndpoint: MakeUploadAppEndpiont(s),
-		ListAppsEndpoint:  MakeListAppsEndpoint(s),
+		AppUploadEndpoint: endpoint.Chain(outer, others...)(MakeUploadAppEndpiont(s)),
+		ListAppsEndpoint:  endpoint.Chain(outer, others...)(MakeListAppsEndpoint(s)),
 	}
 }
 
-func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
-	r, options := httputil.NewRouter(logger)
-
+func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
 	// POST    /v1/apps			upload an app to the server
 	// GET     /v1/apps			list apps managed by the server
 
@@ -40,6 +37,4 @@ func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
 		httputil.EncodeJSONResponse,
 		options...,
 	))
-
-	return r
 }

@@ -2,7 +2,6 @@ package apns
 
 import (
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 
@@ -13,15 +12,13 @@ type Endpoints struct {
 	PushEndpoint endpoint.Endpoint
 }
 
-func MakeServerEndpoints(s Service) Endpoints {
+func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
-		PushEndpoint: MakePushEndpoint(s),
+		PushEndpoint: endpoint.Chain(outer, others...)(MakePushEndpoint(s)),
 	}
 }
 
-func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
-	r, options := httputil.NewRouter(logger)
-
+func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
 	// GET    /push/:udid		create an APNS Push notification for a managed device or user(deprecated)
 	// POST   /v1/push/:udid	create an APNS Push notification for a managed device or user
 
@@ -38,6 +35,4 @@ func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
 		httputil.EncodeJSONResponse,
 		options...,
 	))
-
-	return r
 }

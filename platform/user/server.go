@@ -2,7 +2,6 @@ package user
 
 import (
 	"github.com/go-kit/kit/endpoint"
-	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 
@@ -14,16 +13,14 @@ type Endpoints struct {
 	ListUsersEndpoint endpoint.Endpoint
 }
 
-func MakeServerEndpoints(s Service) Endpoints {
+func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
-		ApplyUserEndpoint: MakeApplyUserEndpoint(s),
-		ListUsersEndpoint: MakeListUsersEndpoint(s),
+		ApplyUserEndpoint: endpoint.Chain(outer, others...)(MakeApplyUserEndpoint(s)),
+		ListUsersEndpoint: endpoint.Chain(outer, others...)(MakeListUsersEndpoint(s)),
 	}
 }
 
-func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
-	r, options := httputil.NewRouter(logger)
-
+func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
 	// PUT     /v1/users		create or replace an user
 	// GET     /v1/users		get a list of users managed by the server
 
@@ -40,6 +37,4 @@ func MakeHTTPHandler(e Endpoints, logger log.Logger) *mux.Router {
 		httputil.EncodeJSONResponse,
 		options...,
 	))
-
-	return r
 }
