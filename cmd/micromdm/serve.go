@@ -124,6 +124,9 @@ func serve(args []string) error {
 	if !*flTLS && (*flTLSCert != "" || *flTLSKey != "") {
 		return errors.New("cannot set -tls=false and supply -tls-cert or -tls-key")
 	}
+	if *flAPNSCertPath != "" || *flAPNSKeyPass != "" || *flAPNSKeyPath != "" {
+		stdlog.Println("-apns-cert, -apns-password, and -apns-key switches are deprecated. please transition to `mdmctl mdmcert upload` instead")
+	}
 
 	logger := log.NewLogfmtLogger(os.Stderr)
 	stdlog.SetOutput(log.NewStdlibAdapter(logger)) // force structured logs
