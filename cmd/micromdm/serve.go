@@ -217,18 +217,7 @@ func serve(args []string) error {
 		checkinHandlers = checkin.MakeHTTPHandlers(ctx, e, opts...)
 	}
 
-	var commandHandlers command.HTTPHandlers
-	{
-		e := command.Endpoints{
-			NewCommandEndpoint: command.MakeNewCommandEndpoint(sm.commandService),
-		}
-
-		opts := []httptransport.ServerOption{
-			httptransport.ServerErrorLogger(httpLogger),
-			httptransport.ServerErrorEncoder(connect.EncodeError),
-		}
-		commandHandlers = command.MakeHTTPHandlers(ctx, e, opts...)
-	}
+	commandEndpoints := command.MakeServerEndpoints(sm.commandService)
 
 	connectOpts := []httptransport.ServerOption{
 		httptransport.ServerErrorLogger(httpLogger),
@@ -325,6 +314,7 @@ func serve(args []string) error {
 	depHandlers := depapi.MakeHTTPHandler(depEndpoints, logger)
 	apnsHandlers := apns.MakeHTTPHandler(apnsEndpoints, logger)
 	depsyncHandlers := depsync.MakeHTTPHandler(depsyncEndpoints, logger)
+	commandHandler := command.MakeHTTPHandler(commandEndpoints, logger)
 
 	// API commands. Only handled if the user provides an api key.
 	if *flAPIKey != "" {
@@ -343,7 +333,7 @@ func serve(args []string) error {
 		r.Handle("/v1/dep/profiles", apiAuthMiddleware(*flAPIKey, depHandlers))
 		r.Handle("/v1/dep/syncnow", apiAuthMiddleware(*flAPIKey, depsyncHandlers))
 		r.Handle("/v1/dep/autoassigners", apiAuthMiddleware(*flAPIKey, depsyncHandlers))
-		r.Handle("/v1/commands", apiAuthMiddleware(*flAPIKey, commandHandlers.NewCommandHandler)).Methods("POST")
+		r.Handle("/v1/commands", apiAuthMiddleware(*flAPIKey, commandHandler))
 		r.Handle("/push/{udid}", apiAuthMiddleware(*flAPIKey, apnsHandlers))
 	} else {
 		mainLogger.Log("msg", "no api key specified")
@@ -478,7 +468,7 @@ func (c *server) setupCommandService() {
 	if c.err != nil {
 		return
 	}
-	c.commandService, c.err = command.New(c.db, c.pubclient)
+	c.commandService, c.err = command.New(c.pubclient)
 }
 
 func (c *server) setupWebhooks() {
