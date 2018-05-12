@@ -2,8 +2,9 @@
 
 ### Auto-assigner
 
-* Added DEP auto-assigner logic. #405
-* Added support for querying devices by serial. #363
+* Added DEP auto-assigner feature. #405
+* Fixed bug with authentication error messages. #411
+* Added support for querying devices by serial(s). #363
 * Added support for triggering a DEP sync via API. #404
 * Added support for mdmcert.download directly to `mdmctl` #401
 * Reject network MDM user attempts until we add support. #379
@@ -17,7 +18,7 @@
 * Refactored services (mostly for HA). #348, #349, #351, #352, #353, #354, #355, #359
 * Reorganized project layout. #333, #335, #336, #338, #340, #347
 * Added support for version API. #327
-* Added command response webhook. #315
+* Added command response webhook feature. #315
 * Added support for supplied `depsim` URL. #318
 * Added Dockerfile. #316
 
