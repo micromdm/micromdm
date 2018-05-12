@@ -1,3 +1,3 @@
 package commandproto
 
-//go:generate protoc --go_out=. command.proto
+//go:generate protoc command.proto -I. --gofast_out=.
