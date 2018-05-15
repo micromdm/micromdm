@@ -105,6 +105,7 @@ func serve(args []string) error {
 		flDepSim            = flagset.String("depsim", "", "use depsim URL")
 		flExamples          = flagset.Bool("examples", false, "prints some example usage")
 		flCommandWebhookURL = flagset.String("command-webhook-url", "", "URL to send command responses as raw plists.")
+		flHomePage          = flagset.Bool("homepage", true, "hosts a simple built-in webpage at the / address")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -252,9 +253,11 @@ func serve(args []string) error {
 	r.Handle("/ota/enroll", enrollHandlers.OTAEnrollHandler)
 	r.Handle("/ota/phase23", enrollHandlers.OTAPhase2Phase3Handler).Methods("POST")
 	r.Handle("/scep", scepHandler)
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		io.WriteString(w, homePage)
-	})
+	if *flHomePage {
+		r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+			io.WriteString(w, homePage)
+		})
+	}
 
 	// API commands. Only handled if the user provides an api key.
 	if *flAPIKey != "" {
