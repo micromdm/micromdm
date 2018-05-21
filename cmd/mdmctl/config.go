@@ -256,6 +256,9 @@ func switchServerConfig(name string) error {
 	if err != nil {
 		return err
 	}
+	if _, ok := clientCfg.Servers[name]; !ok {
+		return fmt.Errorf("No server named \"%s\" found", name)
+	}
 	clientCfg.Active = name
 	return saveClientConfig(clientCfg)
 }
