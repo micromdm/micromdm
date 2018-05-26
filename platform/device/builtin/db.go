@@ -218,7 +218,7 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 					fmt.Println(err) // some other issue is going on
 					continue
 				}
-				_, err = db.DeviceByUDID(ev.Command.UDID)
+				byUDID, err := db.DeviceByUDID(ev.Command.UDID)
 				if err != nil && isNotFound(err) { // never checked in
 					fmt.Printf("checking in new device %s\n", ev.Command.SerialNumber)
 				} else if err != nil {
@@ -226,6 +226,7 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 					continue
 				} else if err == nil {
 					fmt.Printf("re-enrolling device %s\n", ev.Command.SerialNumber)
+					newDevice = byUDID
 					newDevice.Enrolled = false
 				}
 
