@@ -145,11 +145,10 @@ func setCmd(args []string) error {
 
 	cfg := new(ServerConfig)
 
-	validatedToken, err := validateAPIToken(*flToken)
-	if err != nil {
-		return err
+	if *flToken == "" {
+		return errors.New("bad input: api-token must be provided.")
 	}
-	cfg.APIToken = validatedToken
+	cfg.APIToken = *flToken
 
 	validatedURL, err := validateServerURL(*flServerURL)
 	if err != nil {
@@ -205,14 +204,6 @@ func validateServerURL(serverURL string) (string, error) {
 	serverURL = u.String()
 
 	return serverURL, nil
-}
-
-func validateAPIToken(apiToken string) (string, error) {
-	if apiToken == "" {
-		return apiToken, errors.New("bad input: api-token must be provided.")
-	}
-
-	return apiToken, nil
 }
 
 func clientConfigPath() (string, error) {
@@ -274,7 +265,7 @@ func switchServerConfig(name string) error {
 		return err
 	}
 	if _, ok := clientCfg.Servers[name]; !ok {
-		return fmt.Errorf("No server named \"%s\" found", name)
+		return fmt.Errorf("no server named \"%s\" found", name)
 	}
 	clientCfg.Active = name
 	return saveClientConfig(clientCfg)
