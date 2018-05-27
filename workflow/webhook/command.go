@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/micromdm/micromdm/mdm/connect"
+	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/pubsub"
 	"github.com/pkg/errors"
 )
@@ -42,8 +42,8 @@ func (cw CommandWebhook) StartListener(sub pubsub.Subscriber) error {
 		for {
 			select {
 			case event := <-connectEvents:
-				var ev connect.Event
-				if err := connect.UnmarshalEvent(event.Message, &ev); err != nil {
+				var ev mdm.AcknowledgeEvent
+				if err := mdm.UnmarshalAcknowledgeEvent(event.Message, &ev); err != nil {
 					fmt.Println(err)
 					continue
 				}

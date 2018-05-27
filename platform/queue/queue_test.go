@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/boltdb/bolt"
-	"github.com/micromdm/mdm"
+	"github.com/micromdm/micromdm/mdm"
 )
 
 func TestNext_Error(t *testing.T) {
@@ -29,7 +29,7 @@ func TestNext_Error(t *testing.T) {
 		Status:      "Error",
 	}
 	for range dc.Commands {
-		cmd, err := store.Next(ctx, resp)
+		cmd, err := store.nextCommand(ctx, resp)
 		if err != nil {
 			t.Fatalf("expected nil, but got err: %s", err)
 		}
@@ -57,16 +57,15 @@ func TestNext_NotNow(t *testing.T) {
 	ctx := context.Background()
 	tf := func(t *testing.T) {
 
-
 		resp := mdm.Response{
 			UDID:        dc.DeviceUDID,
 			CommandUUID: "yCmd",
 			Status:      "NotNow",
 		}
-		cmd, err := store.Next(ctx, resp)
+		cmd, err := store.nextCommand(ctx, resp)
 
 		if err != nil {
-				t.Fatalf("expected nil, but got err: %s", err)
+			t.Fatalf("expected nil, but got err: %s", err)
 		}
 
 		resp = mdm.Response{
@@ -75,7 +74,7 @@ func TestNext_NotNow(t *testing.T) {
 			Status:      "NotNow",
 		}
 
-		cmd, err = store.Next(ctx, resp)
+		cmd, err = store.nextCommand(ctx, resp)
 		if err != nil {
 			t.Fatalf("expected nil, but got err: %s", err)
 		}
@@ -111,7 +110,7 @@ func TestNext_Idle(t *testing.T) {
 		Status:      "Idle",
 	}
 	for i, _ := range dc.Commands {
-		cmd, err := store.Next(ctx, resp)
+		cmd, err := store.nextCommand(ctx, resp)
 		if err != nil {
 			t.Fatalf("expected nil, but got err: %s", err)
 		}
@@ -143,7 +142,7 @@ func TestNext_zeroCommands(t *testing.T) {
 	for _, s := range allStatuses {
 		t.Run(s, func(t *testing.T) {
 			resp := mdm.Response{CommandUUID: s, Status: s}
-			cmd, err := store.Next(ctx, resp)
+			cmd, err := store.nextCommand(ctx, resp)
 			if err != nil {
 				t.Errorf("expected nil, but got err: %s", err)
 			}

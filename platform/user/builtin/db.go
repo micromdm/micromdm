@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 
-	"github.com/micromdm/micromdm/mdm/checkin"
+	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/pubsub"
 	"github.com/micromdm/micromdm/platform/user"
 )
@@ -201,10 +201,10 @@ func (e *notFound) NotFound() bool {
 }
 
 func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
-	tokenUpdateEvents, err := pubsubSvc.Subscribe(context.TODO(), "users", checkin.TokenUpdateTopic)
+	tokenUpdateEvents, err := pubsubSvc.Subscribe(context.TODO(), "users", mdm.TokenUpdateTopic)
 	if err != nil {
 		return errors.Wrapf(err,
-			"subscribing devices to %s topic", checkin.TokenUpdateTopic)
+			"subscribing devices to %s topic", mdm.TokenUpdateTopic)
 	}
 	go func() {
 		for {
@@ -252,10 +252,10 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 	return nil
 }
 
-func unmarshalCheckin(event pubsub.Event) (checkin.Event, error) {
-	var ev checkin.Event
-	if err := checkin.UnmarshalEvent(event.Message, &ev); err != nil {
-		return checkin.Event{}, err
+func unmarshalCheckin(event pubsub.Event) (mdm.CheckinEvent, error) {
+	var ev mdm.CheckinEvent
+	if err := mdm.UnmarshalCheckinEvent(event.Message, &ev); err != nil {
+		return mdm.CheckinEvent{}, err
 	}
 	return ev, nil
 }

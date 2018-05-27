@@ -7,7 +7,7 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/pkg/errors"
 
-	"github.com/micromdm/micromdm/mdm/checkin"
+	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/apns"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
@@ -81,17 +81,17 @@ func (db *DB) Save(info *apns.PushInfo) error {
 }
 
 func (db *DB) pollCheckin(sub pubsub.Subscriber) error {
-	tokenUpdateEvents, err := sub.Subscribe(context.TODO(), "push-info", checkin.TokenUpdateTopic)
+	tokenUpdateEvents, err := sub.Subscribe(context.TODO(), "push-info", mdm.TokenUpdateTopic)
 	if err != nil {
 		return errors.Wrapf(err,
-			"subscribing push to %s topic", checkin.TokenUpdateTopic)
+			"subscribing push to %s topic", mdm.TokenUpdateTopic)
 	}
 	go func() {
 		for {
 			select {
 			case event := <-tokenUpdateEvents:
-				var ev checkin.Event
-				if err := checkin.UnmarshalEvent(event.Message, &ev); err != nil {
+				var ev mdm.CheckinEvent
+				if err := mdm.UnmarshalCheckinEvent(event.Message, &ev); err != nil {
 					fmt.Println(err)
 					continue
 				}

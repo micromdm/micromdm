@@ -1,33 +1,37 @@
-package connect
+package mdm
 
 import (
 	"time"
 
 	"github.com/gogo/protobuf/proto"
-	"github.com/micromdm/mdm"
-	uuid "github.com/satori/go.uuid"
-
-	"github.com/micromdm/micromdm/mdm/connect/internal/connectproto"
+	"github.com/micromdm/micromdm/mdm/internal/connectproto"
 )
 
-type Event struct {
+type AcknowledgeEvent struct {
 	ID       string
 	Time     time.Time
-	Response mdm.Response
+	Response Response
+	Params   map[string]string
 	Raw      []byte
 }
 
-func NewEvent(resp MDMConnectRequest) *Event {
-	event := Event{
-		ID:       uuid.NewV4().String(),
-		Time:     time.Now().UTC(),
-		Response: resp.MDMResponse,
-		Raw:      resp.Raw,
-	}
-	return &event
+type Response struct {
+	RequestType string `json:"request_type,omitempty" plist:",omitempty"`
+	UDID        string
+	UserID      *string `json:"user_id,omitempty" plist:"UserID,omitempty"`
+	Status      string
+	CommandUUID string
+	ErrorChain  []ErrorChainItem `json:"error_chain" plist:",omitempty"`
 }
 
-func MarshalEvent(e *Event) ([]byte, error) {
+type ErrorChainItem struct {
+	ErrorCode            int    `json:"error_code,omitempty"`
+	ErrorDomain          string `json:"error_domain,omitempty"`
+	LocalizedDescription string `json:"localized_description,omitempty"`
+	USEnglishDescription string `json:"us_english_description,omitempty"`
+}
+
+func MarshalAcknowledgeEvent(e *AcknowledgeEvent) ([]byte, error) {
 	response := &connectproto.Response{
 		CommandUuid: e.Response.CommandUUID,
 		Udid:        e.Response.UDID,
@@ -42,11 +46,12 @@ func MarshalEvent(e *Event) ([]byte, error) {
 		Id:       e.ID,
 		Time:     e.Time.UnixNano(),
 		Response: response,
+		Params:   e.Params,
 		Raw:      e.Raw,
 	})
 }
 
-func UnmarshalEvent(data []byte, e *Event) error {
+func UnmarshalAcknowledgeEvent(data []byte, e *AcknowledgeEvent) error {
 	var pb connectproto.Event
 	if err := proto.Unmarshal(data, &pb); err != nil {
 		return err
@@ -57,14 +62,15 @@ func UnmarshalEvent(data []byte, e *Event) error {
 		return nil
 	}
 	r := pb.GetResponse()
-	e.Response = mdm.Response{
+	e.Response = Response{
 		UDID:        r.GetUdid(),
 		UserID:      strPtr(r.GetUserId()),
 		Status:      r.GetStatus(),
 		RequestType: r.GetRequestType(),
 		CommandUUID: r.GetCommandUuid(),
 	}
-	e.Raw = pb.Raw
+	e.Raw = pb.GetRaw()
+	e.Params = pb.GetParams()
 	return nil
 }
 
