@@ -138,11 +138,17 @@ func setCmd(args []string) error {
 		return err
 	}
 
+	if flagset.NFlag() == 0 {
+		flagset.Usage()
+		os.Exit(1)
+	}
+
 	cfg := new(ServerConfig)
 
-	if *flToken != "" {
-		cfg.APIToken = *flToken
+	if *flToken == "" {
+		return errors.New("bad input: api-token must be provided.")
 	}
+	cfg.APIToken = *flToken
 
 	validatedURL, err := validateServerURL(*flServerURL)
 	if err != nil {
@@ -182,20 +188,22 @@ func migrateCmd(args []string) error {
 }
 
 func validateServerURL(serverURL string) (string, error) {
-	if serverURL != "" {
-		if !(strings.HasPrefix(serverURL, "http") ||
-			strings.HasPrefix(serverURL, "https")) {
-			serverURL = "https://" + serverURL
-		}
-		u, err := url.Parse(serverURL)
-		if err != nil {
-			return "", err
-		}
-		u.Path = "/"
-		serverURL = u.String()
+	if serverURL == "" {
+		return serverURL, errors.New("bad input: server-url must be provided.")
 	}
-	return serverURL, nil
 
+	if !(strings.HasPrefix(serverURL, "http") ||
+		strings.HasPrefix(serverURL, "https")) {
+		serverURL = "https://" + serverURL
+	}
+	u, err := url.Parse(serverURL)
+	if err != nil {
+		return "", err
+	}
+	u.Path = "/"
+	serverURL = u.String()
+
+	return serverURL, nil
 }
 
 func clientConfigPath() (string, error) {
@@ -255,6 +263,9 @@ func switchServerConfig(name string) error {
 	clientCfg, err := loadClientConfig()
 	if err != nil {
 		return err
+	}
+	if _, ok := clientCfg.Servers[name]; !ok {
+		return fmt.Errorf("no server named \"%s\" found", name)
 	}
 	clientCfg.Active = name
 	return saveClientConfig(clientCfg)
