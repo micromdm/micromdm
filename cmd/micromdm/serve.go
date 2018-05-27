@@ -23,7 +23,6 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/fullsailor/pkcs7"
 	"github.com/go-kit/kit/auth/basic"
-	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	httptransport "github.com/go-kit/kit/transport/http"
@@ -39,8 +38,7 @@ import (
 	"golang.org/x/crypto/pkcs12"
 
 	"github.com/micromdm/micromdm/dep/depsync"
-	"github.com/micromdm/micromdm/mdm/checkin"
-	"github.com/micromdm/micromdm/mdm/connect"
+	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/mdm/enroll"
 	"github.com/micromdm/micromdm/pkg/crypto"
 	httputil2 "github.com/micromdm/micromdm/pkg/httputil"
@@ -163,7 +161,6 @@ func serve(args []string) error {
 	sm.setupConfigStore()
 	sm.loadPushCerts()
 	sm.setupSCEP(logger)
-	sm.setupCheckinService()
 	sm.setupPushService(logger)
 	sm.setupCommandService()
 	sm.setupWebhooks()
@@ -213,42 +210,15 @@ func serve(args []string) error {
 	ctx := context.Background()
 	httpLogger := log.With(logger, "transport", "http")
 
-	var checkinHandlers checkin.HTTPHandlers
-	{
-		e := checkin.Endpoints{
-			CheckinEndpoint: checkin.MakeCheckinEndpoint(sm.checkinService),
-		}
-		opts := []httptransport.ServerOption{
-			httptransport.ServerErrorLogger(httpLogger),
-			httptransport.ServerErrorEncoder(checkin.EncodeError),
-		}
-		checkinHandlers = checkin.MakeHTTPHandlers(ctx, e, opts...)
-	}
-
-	connectOpts := []httptransport.ServerOption{
-		httptransport.ServerErrorLogger(httpLogger),
-		httptransport.ServerErrorEncoder(connect.EncodeError),
-	}
-
-	var connectEndpoint endpoint.Endpoint
-	{
-		connectEndpoint = connect.MakeConnectEndpoint(sm.connectService)
-	}
-	connectEndpoints := connect.Endpoints{
-		ConnectEndpoint: connectEndpoint,
-	}
-
 	dc := sm.depClient
 	appDB := &appsbuiltin.Repo{Path: *flRepoPath}
 
-	connectHandlers := connect.MakeHTTPHandlers(ctx, connectEndpoints, connectOpts...)
 	scepHandler := scep.ServiceHandler(ctx, sm.scepService, httpLogger)
 	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.enrollService, sm.scepDepot), httptransport.ServerErrorLogger(httpLogger))
 
 	r, options := httputil2.NewRouter(logger)
+
 	r.Handle("/version", version.Handler())
-	r.Handle("/mdm/checkin", mdmAuthSignMessageMiddleware(sm.scepDepot, checkinHandlers.CheckinHandler)).Methods("PUT")
-	r.Handle("/mdm/connect", mdmAuthSignMessageMiddleware(sm.scepDepot, connectHandlers.ConnectHandler)).Methods("PUT")
 	r.Handle("/mdm/enroll", enrollHandlers.EnrollHandler).Methods("GET", "POST")
 	r.Handle("/ota/enroll", enrollHandlers.OTAEnrollHandler)
 	r.Handle("/ota/phase23", enrollHandlers.OTAPhase2Phase3Handler).Methods("POST")
@@ -258,6 +228,10 @@ func serve(args []string) error {
 			io.WriteString(w, homePage)
 		})
 	}
+
+	signatureVerifier := &mdmSignatureVerifier{db: sm.scepDepot}
+	mdmEndpoints := mdm.MakeServerEndpoints(sm.mdmService)
+	mdm.RegisterHTTPHandlers(r, mdmEndpoints, signatureVerifier, logger)
 
 	// API commands. Only handled if the user provides an api key.
 	if *flAPIKey != "" {
@@ -411,8 +385,7 @@ type server struct {
 
 	PushService    *push.Service // bufford push
 	pushService    apns.Service
-	checkinService checkin.Service
-	connectService connect.Service
+	mdmService     mdm.Service
 	enrollService  enroll.Service
 	scepService    scep.Service
 	commandService command.Service
@@ -447,7 +420,7 @@ func (c *server) setupWebhooks() {
 		return
 	}
 
-	h, err := webhook.NewCommandWebhook(c.webhooksHTTPClient, connect.ConnectTopic, c.CommandWebhookURL)
+	h, err := webhook.NewCommandWebhook(c.webhooksHTTPClient, mdm.ConnectTopic, c.CommandWebhookURL)
 	if err != nil {
 		c.err = err
 		return
@@ -488,25 +461,13 @@ func (c *server) setupCommandQueue(logger log.Logger) {
 		return
 	}
 
-	var connectService connect.Service
+	var mdmService mdm.Service
 	{
-		svc, err := connect.New(q, c.pubclient)
-		if err != nil {
-			c.err = err
-			return
-		}
-		connectService = svc
-		connectService = connect.LoggingMiddleware(log.With(level.Info(logger), "component", "connect"))(svc)
-		connectService = block.RemoveMiddleware(c.removeDB)(connectService)
+		svc := mdm.NewService(c.pubclient, q)
+		mdmService = svc
+		mdmService = block.RemoveMiddleware(c.removeDB)(mdmService)
 	}
-	c.connectService = connectService
-}
-
-func (c *server) setupCheckinService() {
-	if c.err != nil {
-		return
-	}
-	c.checkinService, c.err = checkin.New(c.db, c.pubclient)
+	c.mdmService = mdmService
 }
 
 func (c *server) setupBolt() {
@@ -794,66 +755,38 @@ func (c *server) setupSCEP(logger log.Logger) {
 	}
 }
 
-// TODO: move to separate package/library
-func mdmAuthSignMessageMiddleware(db *boltdepot.Depot, next http.Handler) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		b64sig := r.Header.Get("Mdm-Signature")
-		if b64sig == "" {
-			http.Error(w, "Signature missing", http.StatusBadRequest)
-			return
-		}
-		sig, err := base64.StdEncoding.DecodeString(b64sig)
-		if err != nil {
-			http.Error(w, "Signature decoding error", http.StatusBadRequest)
-			return
-		}
-		p7, err := pkcs7.Parse(sig)
-		if err != nil {
-			http.Error(w, "Signature parsing error", http.StatusBadRequest)
-			return
-		}
-		bodyBuf, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			fmt.Println(err)
-			http.Error(w, "Problem reading request", http.StatusInternalServerError)
-			return
-		}
+type mdmSignatureVerifier struct {
+	db *boltdepot.Depot
+}
 
-		// the signed data is the HTTP body message
-		p7.Content = bodyBuf
-
-		// reassign body to our already-read buffer
-		r.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBuf))
-		// TODO: r.Body.Close() as we've ReadAll()'d it?
-
-		err = p7.Verify()
-		if err != nil {
-			http.Error(w, "Signature verification error", http.StatusBadRequest)
-			return
-		}
-
-		cert := p7.GetOnlySigner()
-		if cert == nil {
-			http.Error(w, "Invalid signer", http.StatusBadRequest)
-			return
-		}
-
-		hasCN, err := HasCN(db, cert.Subject.CommonName, 0, cert, false)
-		if err != nil {
-			fmt.Println(err)
-			http.Error(w, "Unable to validate signature", http.StatusInternalServerError)
-			return
-		}
-		if !hasCN {
-			fmt.Println("Unauthorized client signature from:", cert.Subject.CommonName)
-			// NOTE: We're not returning 401 Unauthorized to avoid unenrolling a device
-			// this may change in the future
-			http.Error(w, "Unauthorized", http.StatusBadRequest)
-			return
-		}
-
-		next.ServeHTTP(w, r)
+func (v *mdmSignatureVerifier) VerifySignature(b64sig string, message []byte) error {
+	if b64sig == "" {
+		return errors.New("signature missing")
 	}
+	sig, err := base64.StdEncoding.DecodeString(b64sig)
+	if err != nil {
+		return errors.Wrap(err, "decode MDM SignMessage header")
+	}
+	p7, err := pkcs7.Parse(sig)
+	if err != nil {
+		return errors.Wrap(err, "parse MDM SignMessage signature")
+	}
+	p7.Content = message
+	if err := p7.Verify(); err != nil {
+		return errors.Wrap(err, "verify MDM Signed Message")
+	}
+	cert := p7.GetOnlySigner()
+	if cert == nil {
+		return errors.New("invalid signer")
+	}
+	hasCN, err := HasCN(v.db, cert.Subject.CommonName, 0, cert, false)
+	if err != nil {
+		return errors.Wrap(err, "unable to validate signature")
+	}
+	if !hasCN {
+		return errors.Wrap(err, "Unauthorized client")
+	}
+	return nil
 }
 
 // implement HasCN function that belongs in micromdm/scep/depot/bolt

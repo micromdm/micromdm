@@ -7,6 +7,7 @@ message Event {
     int64   time = 2;
     Response response = 3;
     bytes raw = 4;
+    map<string, string> params = 5;
 }
 
 message Response {

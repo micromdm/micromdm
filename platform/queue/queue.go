@@ -9,7 +9,7 @@ import (
 	"github.com/groob/plist"
 	"github.com/pkg/errors"
 
-	"github.com/micromdm/mdm"
+	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
@@ -24,7 +24,18 @@ type Store struct {
 	*bolt.DB
 }
 
-func (db *Store) Next(ctx context.Context, resp mdm.Response) (*Command, error) {
+func (db *Store) Next(ctx context.Context, resp mdm.Response) ([]byte, error) {
+	cmd, err := db.nextCommand(ctx, resp)
+	if err != nil {
+		return nil, err
+	}
+	if cmd == nil {
+		return nil, nil
+	}
+	return cmd.Payload, nil
+}
+
+func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*Command, error) {
 	udid := resp.UDID
 	if resp.UserID != nil {
 		// use the user id for user level commands

@@ -10,8 +10,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 
 	"github.com/micromdm/micromdm/dep/depsync"
-	"github.com/micromdm/micromdm/mdm/checkin"
-	"github.com/micromdm/micromdm/mdm/connect"
+	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/device"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
@@ -175,37 +174,37 @@ func isNotFound(err error) bool {
 }
 
 func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
-	authenticateEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", checkin.AuthenticateTopic)
+	authenticateEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", mdm.AuthenticateTopic)
 	if err != nil {
 		return errors.Wrapf(err,
-			"subscribing devices to %s topic", checkin.AuthenticateTopic)
+			"subscribing devices to %s topic", mdm.AuthenticateTopic)
 	}
-	tokenUpdateEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", checkin.TokenUpdateTopic)
+	tokenUpdateEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", mdm.TokenUpdateTopic)
 	if err != nil {
 		return errors.Wrapf(err,
-			"subscribing devices to %s topic", checkin.TokenUpdateTopic)
+			"subscribing devices to %s topic", mdm.TokenUpdateTopic)
 	}
-	checkoutEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", checkin.CheckoutTopic)
+	checkoutEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", mdm.CheckoutTopic)
 	if err != nil {
 		return errors.Wrapf(err,
-			"subscribing devices to %s topic", checkin.CheckoutTopic)
+			"subscribing devices to %s topic", mdm.CheckoutTopic)
 	}
 	depSyncEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", depsync.SyncTopic)
 	if err != nil {
 		return errors.Wrapf(err,
 			"subscribing devices to %s topic", depsync.SyncTopic)
 	}
-	connectEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", connect.ConnectTopic)
+	connectEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", mdm.ConnectTopic)
 	if err != nil {
 		return errors.Wrapf(err,
-			"subscribing devices to %s topic", connect.ConnectTopic)
+			"subscribing devices to %s topic", mdm.ConnectTopic)
 	}
 	go func() {
 		for {
 			select {
 			case event := <-authenticateEvents:
-				var ev checkin.Event
-				if err := checkin.UnmarshalEvent(event.Message, &ev); err != nil {
+				var ev mdm.CheckinEvent
+				if err := mdm.UnmarshalCheckinEvent(event.Message, &ev); err != nil {
 					fmt.Println(err)
 					continue
 				}
@@ -252,8 +251,8 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 					continue
 				}
 			case event := <-tokenUpdateEvents:
-				var ev checkin.Event
-				if err := checkin.UnmarshalEvent(event.Message, &ev); err != nil {
+				var ev mdm.CheckinEvent
+				if err := mdm.UnmarshalCheckinEvent(event.Message, &ev); err != nil {
 					fmt.Println(err)
 					continue
 				}
@@ -339,8 +338,8 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 					}
 				}
 			case event := <-connectEvents:
-				var ev connect.Event
-				if err := connect.UnmarshalEvent(event.Message, &ev); err != nil {
+				var ev mdm.AcknowledgeEvent
+				if err := mdm.UnmarshalAcknowledgeEvent(event.Message, &ev); err != nil {
 					fmt.Println(err)
 					continue
 				}
@@ -355,8 +354,8 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 					continue
 				}
 			case event := <-checkoutEvents:
-				var ev checkin.Event
-				if err := checkin.UnmarshalEvent(event.Message, &ev); err != nil {
+				var ev mdm.CheckinEvent
+				if err := mdm.UnmarshalCheckinEvent(event.Message, &ev); err != nil {
 					fmt.Println(err)
 					continue
 				}
