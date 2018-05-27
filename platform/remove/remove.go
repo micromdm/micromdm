@@ -6,7 +6,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
 
-	"github.com/micromdm/micromdm/mdm/connect"
+	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/remove/internal/removeproto"
 )
 
@@ -30,8 +30,8 @@ func UnmarshalDevice(data []byte, dev *Device) error {
 	return nil
 }
 
-func RemoveMiddleware(store Store) connect.Middleware {
-	return func(next connect.Service) connect.Service {
+func RemoveMiddleware(store Store) mdm.Middleware {
+	return func(next mdm.Service) mdm.Service {
 		return &removeMiddleware{
 			store: store,
 			next:  next,
@@ -41,11 +41,11 @@ func RemoveMiddleware(store Store) connect.Middleware {
 
 type removeMiddleware struct {
 	store Store
-	next  connect.Service
+	next  mdm.Service
 }
 
-func (mw removeMiddleware) Acknowledge(ctx context.Context, req connect.MDMConnectRequest) ([]byte, error) {
-	udid := req.MDMResponse.UDID
+func (mw removeMiddleware) Acknowledge(ctx context.Context, req mdm.AcknowledgeEvent) ([]byte, error) {
+	udid := req.Response.UDID
 	_, err := mw.store.DeviceByUDID(udid)
 	if err != nil {
 		if !isNotFound(err) {
@@ -56,6 +56,10 @@ func (mw removeMiddleware) Acknowledge(ctx context.Context, req connect.MDMConne
 		return nil, checkoutErr{}
 	}
 	return mw.next.Acknowledge(ctx, req)
+}
+
+func (mw removeMiddleware) Checkin(ctx context.Context, req mdm.CheckinEvent) error {
+	return mw.next.Checkin(ctx, req)
 }
 
 type checkoutErr struct{}

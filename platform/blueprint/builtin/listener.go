@@ -6,7 +6,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/micromdm/micromdm/mdm/checkin"
+	mdmsvc "github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/mdm/mdm"
 	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/command"
@@ -99,8 +99,8 @@ func (db *DB) StartListener(sub pubsub.Subscriber, cmdSvc command.Service) error
 		for {
 			select {
 			case event := <-tokenUpdateEvents:
-				var ev checkin.Event
-				if err := checkin.UnmarshalEvent(event.Message, &ev); err != nil {
+				var ev mdmsvc.CheckinEvent
+				if err := mdmsvc.UnmarshalCheckinEvent(event.Message, &ev); err != nil {
 					fmt.Println(err)
 					continue
 				}

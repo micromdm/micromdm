@@ -1,33 +1,75 @@
-package checkin
+package mdm
 
 import (
+	"encoding/hex"
 	"time"
 
 	"github.com/gogo/protobuf/proto"
-	"github.com/micromdm/mdm"
-	uuid "github.com/satori/go.uuid"
 
-	"github.com/micromdm/micromdm/mdm/checkin/internal/checkinproto"
+	"github.com/micromdm/micromdm/mdm/internal/checkinproto"
 )
 
-type Event struct {
+type CheckinEvent struct {
 	ID      string
 	Time    time.Time
-	Command mdm.CheckinCommand
+	Command CheckinCommand
+	Params  map[string]string
+	Raw     []byte
 }
 
-// NewEvent returns an Event with a unique ID and the current time.
-func NewEvent(cmd mdm.CheckinCommand) *Event {
-	event := Event{
-		ID:      uuid.NewV4().String(),
-		Time:    time.Now().UTC(),
-		Command: cmd,
-	}
-	return &event
+// CheckinRequest represents an MDM checkin command struct.
+type CheckinCommand struct {
+	// MessageType can be either Authenticate,
+	// TokenUpdate or CheckOut
+	MessageType string
+	Topic       string
+	UDID        string
+	auth
+	update
 }
 
-// MarshalEvent serializes an event to a protocol buffer wire format.
-func MarshalEvent(e *Event) ([]byte, error) {
+// Authenticate Message Type
+type auth struct {
+	OSVersion    string
+	BuildVersion string
+	ProductName  string
+	SerialNumber string
+	IMEI         string
+	MEID         string
+	DeviceName   string `plist:"DeviceName,omitempty"`
+	Challenge    []byte `plist:"Challenge,omitempty"`
+	Model        string `plist:"Model,omitpempty"`
+	ModelName    string `plist:"ModelName,omitempty"`
+}
+
+// TokenUpdate Mesage Type
+type update struct {
+	Token                 hexData
+	PushMagic             string
+	UnlockToken           hexData
+	AwaitingConfiguration bool
+	userTokenUpdate
+}
+
+// TokenUpdate with user keys
+type userTokenUpdate struct {
+	UserID        string `plist:",omitempty"`
+	UserLongName  string `plist:",omitempty"`
+	UserShortName string `plist:",omitempty"`
+	NotOnConsole  bool   `plist:",omitempty"`
+}
+
+// data decodes to []byte,
+// we can then attach a string method to the type
+// Tokens are encoded as Hex Strings
+type hexData []byte
+
+func (d hexData) String() string {
+	return hex.EncodeToString(d)
+}
+
+// MarshalCheckinEvent serializes an event to a protocol buffer wire format.
+func MarshalCheckinEvent(e *CheckinEvent) ([]byte, error) {
 	command := &checkinproto.Command{
 		MessageType: e.Command.MessageType,
 		Topic:       e.Command.Topic,
@@ -63,12 +105,14 @@ func MarshalEvent(e *Event) ([]byte, error) {
 		Id:      e.ID,
 		Time:    e.Time.UnixNano(),
 		Command: command,
+		Params:  e.Params,
+		Raw:     e.Raw,
 	})
 }
 
-// UnmarshalEvent parses a protocol buffer representation of data into
+// UnmarshalCheckinEvent parses a protocol buffer representation of data into
 // the Event.
-func UnmarshalEvent(data []byte, e *Event) error {
+func UnmarshalCheckinEvent(data []byte, e *CheckinEvent) error {
 	var pb checkinproto.Event
 	if err := proto.Unmarshal(data, &pb); err != nil {
 		return err
@@ -78,7 +122,7 @@ func UnmarshalEvent(data []byte, e *Event) error {
 	if pb.Command == nil {
 		return nil
 	}
-	e.Command = mdm.CheckinCommand{
+	e.Command = CheckinCommand{
 		MessageType: pb.Command.MessageType,
 		Topic:       pb.Command.Topic,
 		UDID:        pb.Command.Udid,
@@ -105,5 +149,7 @@ func UnmarshalEvent(data []byte, e *Event) error {
 		e.Command.UserShortName = pb.Command.TokenUpdate.UserShortName
 		e.Command.NotOnConsole = pb.Command.TokenUpdate.NotOnConsole
 	}
+	e.Raw = pb.GetRaw()
+	e.Params = pb.GetParams()
 	return nil
 }

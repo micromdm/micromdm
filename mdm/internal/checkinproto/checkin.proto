@@ -6,6 +6,8 @@ message Event {
        	string  id = 1;
        	int64   time = 2;
         Command command = 3;
+        bytes raw = 4;
+        map<string, string> params = 5;
 }
 
 message Command {
