@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/gorilla/mux"
@@ -69,4 +70,18 @@ func (e Endpoints) BlockDevice(ctx context.Context, udid string) error {
 		return err
 	}
 	return resp.(blockDeviceResponse).Err
+}
+
+func (mw logmw) BlockDevice(ctx context.Context, udid string) (err error) {
+	defer func(begin time.Time) {
+		_ = mw.logger.Log(
+			"method", "BlockDevice",
+			"udid", udid,
+			"err", err,
+			"took", time.Since(begin),
+		)
+	}(time.Now())
+
+	err = mw.next.BlockDevice(ctx, udid)
+	return
 }
