@@ -1,17 +1,16 @@
 package webhook
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+	"github.com/pkg/errors"
+
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/pubsub"
-	"github.com/pkg/errors"
 )
 
 type Event struct {
@@ -83,55 +82,38 @@ func (w *Worker) Run(ctx context.Context) error {
 	}
 
 	for {
+		var (
+			event *Event
+			err   error
+		)
 		select {
 		case <-ctx.Done():
 			return ctx.Err()
-		case event := <-ackEvents:
-			w.acknowledgeEvent(ctx, event.Topic, event.Message)
-		case event := <-authenticateEvents:
-			w.checkinEvent(ctx, event.Topic, event.Message)
-		case event := <-tokenUpdateEvents:
-			w.checkinEvent(ctx, event.Topic, event.Message)
-		case event := <-checkoutEvents:
-			w.checkinEvent(ctx, event.Topic, event.Message)
+		case ev := <-ackEvents:
+			event, err = acknowledgeEvent(ev.Topic, ev.Message)
+		case ev := <-authenticateEvents:
+			event, err = checkinEvent(ev.Topic, ev.Message)
+		case ev := <-tokenUpdateEvents:
+			event, err = checkinEvent(ev.Topic, ev.Message)
+		case ev := <-checkoutEvents:
+			event, err = checkinEvent(ev.Topic, ev.Message)
 		}
-	}
-}
 
-const contentType = "application/json"
+		if err != nil {
+			level.Info(w.logger).Log(
+				"msg", "create webhook event",
+				"err", err,
+			)
+			continue
+		}
 
-func (w *Worker) post(ctx context.Context, event interface{}) {
-	raw, err := json.MarshalIndent(&event, "", "  ")
-	if err != nil {
-		level.Info(w.logger).Log(
-			"msg", "marshal webhook event",
-			"err", err,
-		)
-		return
-	}
+		if err := postWebhookEvent(ctx, w.client, w.url, event); err != nil {
+			level.Info(w.logger).Log(
+				"msg", "post webhook event",
+				"err", err,
+			)
+			continue
+		}
 
-	req, err := http.NewRequest(http.MethodPost, w.url, bytes.NewBuffer(raw))
-	if err != nil {
-		level.Info(w.logger).Log(
-			"msg", "create webhook http request",
-			"err", err,
-		)
-		return
-	}
-
-	resp, err := w.client.Do(req.WithContext(ctx))
-	if err != nil {
-		level.Info(w.logger).Log(
-			"msg", "post webhook event",
-			"err", err,
-		)
-		return
-	}
-
-	if resp.StatusCode != http.StatusOK {
-		level.Info(w.logger).Log(
-			"msg", "post webhook event",
-			"response_code", resp.StatusCode,
-		)
 	}
 }

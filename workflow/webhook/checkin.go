@@ -1,9 +1,8 @@
 package webhook
 
 import (
-	"context"
+	"github.com/pkg/errors"
 
-	"github.com/go-kit/kit/log/level"
 	"github.com/micromdm/micromdm/mdm"
 )
 
@@ -13,16 +12,12 @@ type CheckinEvent struct {
 	RawPayload []byte            `json:"raw_payload"`
 }
 
-func (w *Worker) checkinEvent(ctx context.Context, topic string, data []byte) {
+func checkinEvent(topic string, data []byte) (*Event, error) {
 	var ev mdm.CheckinEvent
 	if err := mdm.UnmarshalCheckinEvent(data, &ev); err != nil {
-		level.Info(w.logger).Log(
-			"msg", "unmarshal pubsub event",
-			"err", err,
-			"topic", topic,
-		)
-		return
+		return nil, errors.Wrap(err, "unmarshal checkin event for webhook")
 	}
+
 	webhookEvent := Event{
 		Topic:     topic,
 		EventID:   ev.ID,
@@ -35,6 +30,5 @@ func (w *Worker) checkinEvent(ctx context.Context, topic string, data []byte) {
 		},
 	}
 
-	w.post(ctx, &webhookEvent)
-	return
+	return &webhookEvent, nil
 }

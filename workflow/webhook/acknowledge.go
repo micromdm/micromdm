@@ -1,9 +1,8 @@
 package webhook
 
 import (
-	"context"
+	"github.com/pkg/errors"
 
-	"github.com/go-kit/kit/log/level"
 	"github.com/micromdm/micromdm/mdm"
 )
 
@@ -15,15 +14,10 @@ type AcknowledgeEvent struct {
 	RawPayload  []byte            `json:"raw_payload"`
 }
 
-func (w *Worker) acknowledgeEvent(ctx context.Context, topic string, data []byte) {
+func acknowledgeEvent(topic string, data []byte) (*Event, error) {
 	var ev mdm.AcknowledgeEvent
 	if err := mdm.UnmarshalAcknowledgeEvent(data, &ev); err != nil {
-		level.Info(w.logger).Log(
-			"msg", "unmarshal pubsub event",
-			"err", err,
-			"topic", topic,
-		)
-		return
+		return nil, errors.Wrap(err, "unmarshal acknowledge event for webhook")
 	}
 	webhookEvent := Event{
 		Topic:     topic,
@@ -39,6 +33,5 @@ func (w *Worker) acknowledgeEvent(ctx context.Context, topic string, data []byte
 		},
 	}
 
-	w.post(ctx, &webhookEvent)
-	return
+	return &webhookEvent, nil
 }
