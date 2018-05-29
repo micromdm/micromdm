@@ -73,7 +73,7 @@ func setupDB(t *testing.T) *DB {
 	if err != nil {
 		t.Fatalf("couldn't open bolt, err %s\n", err)
 	}
-	devDB, err := NewDB(db, nil)
+	devDB, err := NewDB(db)
 	if err != nil {
 		t.Fatalf("couldn't create device DB, err %s\n", err)
 	}

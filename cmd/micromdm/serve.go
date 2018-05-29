@@ -176,10 +176,13 @@ func serve(args []string) error {
 		stdlog.Fatal(err)
 	}
 
-	devDB, err := devicebuiltin.NewDB(sm.db, sm.pubclient)
+	devDB, err := devicebuiltin.NewDB(sm.db)
 	if err != nil {
 		stdlog.Fatal(err)
 	}
+
+	devWorker := device.NewWorker(devDB, sm.pubclient, logger)
+	go devWorker.Run(context.Background())
 
 	userDB, err := userbuiltin.NewDB(sm.db, sm.pubclient, log.With(logger, "component", "user db"))
 	if err != nil {
