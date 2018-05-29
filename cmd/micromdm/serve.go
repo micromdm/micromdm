@@ -171,9 +171,13 @@ func serve(args []string) error {
 		stdlog.Fatal(sm.err)
 	}
 
-	removeService, err := block.New(sm.removeDB)
-	if err != nil {
-		stdlog.Fatal(err)
+	var removeService block.Service
+	{
+		svc, err := block.New(sm.removeDB)
+		if err != nil {
+			stdlog.Fatal(err)
+		}
+		removeService = block.LoggingMiddleware(logger)(svc)
 	}
 
 	devDB, err := devicebuiltin.NewDB(sm.db, sm.pubclient)
