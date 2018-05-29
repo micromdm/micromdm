@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/gorilla/mux"
@@ -67,4 +68,18 @@ func (e Endpoints) UnblockDevice(ctx context.Context, udid string) error {
 		return err
 	}
 	return resp.(unblockDeviceResponse).Err
+}
+
+func (mw logmw) UnblockDevice(ctx context.Context, udid string) (err error) {
+	defer func(begin time.Time) {
+		_ = mw.logger.Log(
+			"method", "BlockDevice",
+			"udid", udid,
+			"err", err,
+			"took", time.Since(begin),
+		)
+	}(time.Now())
+
+	err = mw.next.UnblockDevice(ctx, udid)
+	return
 }
