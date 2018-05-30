@@ -102,7 +102,7 @@ func serve(args []string) error {
 		flRepoPath          = flagset.String("filerepo", "", "path to http file repo")
 		flDepSim            = flagset.String("depsim", "", "use depsim URL")
 		flExamples          = flagset.Bool("examples", false, "prints some example usage")
-		flCommandWebhookURL = flagset.String("command-webhook-url", "", "URL to send command responses as raw plists.")
+		flCommandWebhookURL = flagset.String("command-webhook-url", "", "URL to send command responses.")
 		flHomePage          = flagset.Bool("homepage", true, "hosts a simple built-in webpage at the / address")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
@@ -163,7 +163,7 @@ func serve(args []string) error {
 	sm.setupSCEP(logger)
 	sm.setupPushService(logger)
 	sm.setupCommandService()
-	sm.setupWebhooks()
+	sm.setupWebhooks(logger)
 	sm.setupCommandQueue(logger)
 	sm.setupDepClient()
 	syncer := sm.setupDEPSync(logger)
@@ -208,8 +208,6 @@ func serve(args []string) error {
 	if err := bpDB.StartListener(sm.pubclient, sm.commandService); err != nil {
 		stdlog.Fatal(err)
 	}
-
-	sm.startWebhooks()
 
 	ctx := context.Background()
 	httpLogger := log.With(logger, "transport", "http")
@@ -395,7 +393,6 @@ type server struct {
 	commandService command.Service
 	configService  config.Service
 
-	responseWebhook    *webhook.CommandWebhook
 	webhooksHTTPClient *http.Client
 
 	err error
@@ -415,7 +412,7 @@ func (c *server) setupCommandService() {
 	c.commandService, c.err = command.New(c.pubclient)
 }
 
-func (c *server) setupWebhooks() {
+func (c *server) setupWebhooks(logger log.Logger) {
 	if c.err != nil {
 		return
 	}
@@ -424,23 +421,9 @@ func (c *server) setupWebhooks() {
 		return
 	}
 
-	h, err := webhook.NewCommandWebhook(c.webhooksHTTPClient, mdm.ConnectTopic, c.CommandWebhookURL)
-	if err != nil {
-		c.err = err
-		return
-	}
-
-	c.responseWebhook = h
-}
-
-func (c *server) startWebhooks() {
-	if c.err != nil {
-		return
-	}
-
-	if c.responseWebhook != nil {
-		c.responseWebhook.StartListener(c.pubclient)
-	}
+	ctx := context.Background()
+	ww := webhook.New(c.CommandWebhookURL, c.pubclient, webhook.WithLogger(logger), webhook.WithHTTPClient(c.webhooksHTTPClient))
+	go ww.Run(ctx)
 }
 
 func (c *server) setupRemoveService() {
