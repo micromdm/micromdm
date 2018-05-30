@@ -74,7 +74,7 @@ type checkinResponse struct {
 func (r checkinResponse) Failed() error { return r.Err }
 
 func (d *requestDecoder) decodeCheckinRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	body, err := d.readBody(r)
+	body, deviceCert, err := d.readBody(r)
 	if err != nil {
 		return nil, errors.Wrap(err, "read checkin request body")
 	}
@@ -86,11 +86,12 @@ func (d *requestDecoder) decodeCheckinRequest(ctx context.Context, r *http.Reque
 
 	params := mux.Vars(r)
 	event := CheckinEvent{
-		ID:      uuid.NewV4().String(),
-		Time:    time.Now().UTC(),
-		Command: cmd,
-		Params:  params,
-		Raw:     body,
+		ID:         uuid.NewV4().String(),
+		Time:       time.Now().UTC(),
+		Command:    cmd,
+		Params:     params,
+		Raw:        body,
+		DeviceCert: deviceCert,
 	}
 	req := checkinRequest{Event: event}
 	return req, nil

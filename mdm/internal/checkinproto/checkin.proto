@@ -29,6 +29,7 @@ message Authenticate {
     bytes  challenge = 8;
     string model = 9;
     string model_name =10;
+    bytes  device_cert = 11;
 }
 
 message TokenUpdate {

@@ -1,6 +1,7 @@
 package device
 
 import (
+	"crypto/x509"
 	"time"
 
 	"github.com/gogo/protobuf/proto"
@@ -41,6 +42,7 @@ type Device struct {
 	DEPProfileAssignedBy   string
 	LastSeen               time.Time
 	LastQueryResponse      []byte
+	DeviceCert             *x509.Certificate
 }
 
 // DEPProfileStatus is the status of the DEP Profile
@@ -87,6 +89,9 @@ func MarshalDevice(dev *Device) ([]byte, error) {
 		LastSeen:               timeToNano(dev.LastSeen),
 		LastQueryResponse:      dev.LastQueryResponse,
 	}
+	if dev.DeviceCert != nil {
+		protodev.DeviceCert = dev.DeviceCert.Raw
+	}
 	return proto.Marshal(&protodev)
 }
 
@@ -124,6 +129,13 @@ func UnmarshalDevice(data []byte, dev *Device) error {
 	dev.DEPProfileAssignedBy = pb.GetDepProfileAssignedBy()
 	dev.LastSeen = timeFromNano(pb.GetLastSeen())
 	dev.LastQueryResponse = pb.GetLastQueryResponse()
+	certs, err := x509.ParseCertificates(pb.GetDeviceCert())
+	if err != nil {
+		return err
+	}
+	if len(certs) > 0 {
+		dev.DeviceCert = certs[0]
+	}
 	return nil
 }
 

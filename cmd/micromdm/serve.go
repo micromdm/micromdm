@@ -40,6 +40,7 @@ import (
 	"github.com/micromdm/micromdm/dep/depsync"
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/mdm/enroll"
+	mdmmw "github.com/micromdm/micromdm/mdm/mw"
 	"github.com/micromdm/micromdm/pkg/crypto"
 	httputil2 "github.com/micromdm/micromdm/pkg/httputil"
 	"github.com/micromdm/micromdm/platform/apns"
@@ -164,7 +165,6 @@ func serve(args []string) error {
 	sm.setupPushService(logger)
 	sm.setupCommandService()
 	sm.setupWebhooks()
-	sm.setupCommandQueue(logger)
 	sm.setupDepClient()
 	syncer := sm.setupDEPSync(logger)
 	if sm.err != nil {
@@ -184,6 +184,7 @@ func serve(args []string) error {
 	if err != nil {
 		stdlog.Fatal(err)
 	}
+	sm.setupCommandQueue(logger, devDB)
 
 	userDB, err := userbuiltin.NewDB(sm.db, sm.pubclient, log.With(logger, "component", "user db"))
 	if err != nil {
@@ -455,7 +456,7 @@ func (c *server) setupRemoveService() {
 	c.removeDB = removeDB
 }
 
-func (c *server) setupCommandQueue(logger log.Logger) {
+func (c *server) setupCommandQueue(logger log.Logger, db *devicebuiltin.DB) {
 	if c.err != nil {
 		return
 	}
@@ -470,6 +471,7 @@ func (c *server) setupCommandQueue(logger log.Logger) {
 		svc := mdm.NewService(c.pubclient, q)
 		mdmService = svc
 		mdmService = block.RemoveMiddleware(c.removeDB)(mdmService)
+		mdmService = mdmmw.UDIDAuthMiddleware(db)(mdmService)
 	}
 	c.mdmService = mdmService
 }
@@ -763,34 +765,34 @@ type mdmSignatureVerifier struct {
 	db *boltdepot.Depot
 }
 
-func (v *mdmSignatureVerifier) VerifySignature(b64sig string, message []byte) error {
+func (v *mdmSignatureVerifier) VerifySignature(b64sig string, message []byte) (*x509.Certificate, error) {
 	if b64sig == "" {
-		return errors.New("signature missing")
+		return nil, errors.New("signature missing")
 	}
 	sig, err := base64.StdEncoding.DecodeString(b64sig)
 	if err != nil {
-		return errors.Wrap(err, "decode MDM SignMessage header")
+		return nil, errors.Wrap(err, "decode MDM SignMessage header")
 	}
 	p7, err := pkcs7.Parse(sig)
 	if err != nil {
-		return errors.Wrap(err, "parse MDM SignMessage signature")
+		return nil, errors.Wrap(err, "parse MDM SignMessage signature")
 	}
 	p7.Content = message
 	if err := p7.Verify(); err != nil {
-		return errors.Wrap(err, "verify MDM Signed Message")
+		return nil, errors.Wrap(err, "verify MDM Signed Message")
 	}
 	cert := p7.GetOnlySigner()
 	if cert == nil {
-		return errors.New("invalid signer")
+		return nil, errors.New("invalid signer")
 	}
 	hasCN, err := HasCN(v.db, cert.Subject.CommonName, 0, cert, false)
 	if err != nil {
-		return errors.Wrap(err, "unable to validate signature")
+		return cert, errors.Wrap(err, "unable to validate signature")
 	}
 	if !hasCN {
-		return errors.Wrap(err, "Unauthorized client")
+		return cert, errors.Wrap(err, "Unauthorized client")
 	}
-	return nil
+	return cert, nil
 }
 
 // implement HasCN function that belongs in micromdm/scep/depot/bolt
