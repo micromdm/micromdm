@@ -1,18 +1,12 @@
 package builtin
 
 import (
-	"context"
 	"fmt"
-	"time"
 
 	"github.com/boltdb/bolt"
 	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
 
-	"github.com/micromdm/micromdm/dep/depsync"
-	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/device"
-	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
 const (
@@ -27,7 +21,7 @@ type DB struct {
 	*bolt.DB
 }
 
-func NewDB(db *bolt.DB, pubsubSvc pubsub.PublishSubscriber) (*DB, error) {
+func NewDB(db *bolt.DB) (*DB, error) {
 	err := db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(deviceIndexBucket))
 		if err != nil {
@@ -39,15 +33,7 @@ func NewDB(db *bolt.DB, pubsubSvc pubsub.PublishSubscriber) (*DB, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "creating %s bucket", DeviceBucket)
 	}
-	datastore := &DB{
-		DB: db,
-	}
-	if pubsubSvc == nil { // don't start the poller without pubsub.
-		return datastore, nil
-	}
-	if err := datastore.pollCheckin(pubsubSvc); err != nil {
-		return nil, err
-	}
+	datastore := &DB{DB: db}
 	return datastore, nil
 }
 
@@ -124,6 +110,10 @@ func (e *notFound) Error() string {
 	return fmt.Sprintf("not found: %s %s", e.ResourceType, e.Message)
 }
 
+func (e *notFound) NotFound() bool {
+	return true
+}
+
 func (db *DB) DeviceByUDID(udid string) (*device.Device, error) {
 	var dev device.Device
 	err := db.View(func(tx *bolt.Tx) error {
@@ -164,215 +154,4 @@ func (db *DB) DeviceBySerial(serial string) (*device.Device, error) {
 		return nil, err
 	}
 	return &dev, nil
-}
-
-func isNotFound(err error) bool {
-	if _, ok := err.(*notFound); ok {
-		return true
-	}
-	return false
-}
-
-func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
-	authenticateEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", mdm.AuthenticateTopic)
-	if err != nil {
-		return errors.Wrapf(err,
-			"subscribing devices to %s topic", mdm.AuthenticateTopic)
-	}
-	tokenUpdateEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", mdm.TokenUpdateTopic)
-	if err != nil {
-		return errors.Wrapf(err,
-			"subscribing devices to %s topic", mdm.TokenUpdateTopic)
-	}
-	checkoutEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", mdm.CheckoutTopic)
-	if err != nil {
-		return errors.Wrapf(err,
-			"subscribing devices to %s topic", mdm.CheckoutTopic)
-	}
-	depSyncEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", depsync.SyncTopic)
-	if err != nil {
-		return errors.Wrapf(err,
-			"subscribing devices to %s topic", depsync.SyncTopic)
-	}
-	connectEvents, err := pubsubSvc.Subscribe(context.TODO(), "devices", mdm.ConnectTopic)
-	if err != nil {
-		return errors.Wrapf(err,
-			"subscribing devices to %s topic", mdm.ConnectTopic)
-	}
-	go func() {
-		for {
-			select {
-			case event := <-authenticateEvents:
-				var ev mdm.CheckinEvent
-				if err := mdm.UnmarshalCheckinEvent(event.Message, &ev); err != nil {
-					fmt.Println(err)
-					continue
-				}
-				newDevice := new(device.Device)
-				bySerial, err := db.DeviceBySerial(ev.Command.SerialNumber)
-				if err == nil && bySerial != nil { // must be a DEP device
-					newDevice = bySerial
-				}
-				if err != nil && !isNotFound(err) {
-					fmt.Println(err) // some other issue is going on
-					continue
-				}
-				byUDID, err := db.DeviceByUDID(ev.Command.UDID)
-				if err != nil && isNotFound(err) { // never checked in
-					fmt.Printf("checking in new device %s\n", ev.Command.SerialNumber)
-				} else if err != nil {
-					fmt.Println(err)
-					continue
-				} else if err == nil {
-					fmt.Printf("re-enrolling device %s\n", ev.Command.SerialNumber)
-					newDevice = byUDID
-					newDevice.Enrolled = false
-				}
-
-				// only create new UUID on initial enrollment.
-				if newDevice.UUID == "" {
-					newDevice.UUID = uuid.NewV4().String()
-				}
-				newDevice.UDID = ev.Command.UDID
-				newDevice.OSVersion = ev.Command.OSVersion
-				newDevice.BuildVersion = ev.Command.BuildVersion
-				newDevice.ProductName = ev.Command.ProductName
-				newDevice.SerialNumber = ev.Command.SerialNumber
-				newDevice.IMEI = ev.Command.IMEI
-				newDevice.MEID = ev.Command.MEID
-				newDevice.DeviceName = ev.Command.DeviceName
-				newDevice.Model = ev.Command.Model
-				newDevice.ModelName = ev.Command.ModelName
-				newDevice.LastSeen = time.Now()
-				// Challenge:    ev.Command.Challenge, // FIXME: @groob why is this commented out?
-
-				if err := db.Save(newDevice); err != nil {
-					fmt.Println(err)
-					continue
-				}
-			case event := <-tokenUpdateEvents:
-				var ev mdm.CheckinEvent
-				if err := mdm.UnmarshalCheckinEvent(event.Message, &ev); err != nil {
-					fmt.Println(err)
-					continue
-				}
-				if ev.Command.UserID != "" {
-					continue
-				}
-				dev, err := db.DeviceByUDID(ev.Command.UDID)
-				if err != nil {
-					fmt.Println(err)
-					continue
-				}
-				dev.Token = ev.Command.Token.String()
-				dev.PushMagic = ev.Command.PushMagic
-				dev.UnlockToken = ev.Command.UnlockToken.String()
-				dev.AwaitingConfiguration = ev.Command.AwaitingConfiguration
-				dev.LastSeen = time.Now()
-				var newlyEnrolled bool = false
-				if dev.Enrolled == false {
-					newlyEnrolled = true
-					dev.Enrolled = true
-				}
-				if err := db.Save(dev); err != nil {
-					fmt.Println(err)
-					continue
-				}
-				if newlyEnrolled {
-					fmt.Printf("device %s enrolled\n", ev.Command.UDID)
-					err := pubsubSvc.Publish(context.TODO(), device.DeviceEnrolledTopic, event.Message)
-					if err != nil {
-						fmt.Println(err)
-					}
-				}
-			case event := <-depSyncEvents:
-				var ev depsync.Event
-				if err := depsync.UnmarshalEvent(event.Message, &ev); err != nil {
-					fmt.Println(err)
-					continue
-				}
-				fmt.Printf("got %d devices from DEP\n", len(ev.Devices))
-				for _, d := range ev.Devices {
-					updDevice, updDeviceErr := db.DeviceBySerial(d.SerialNumber)
-					if updDeviceErr != nil && !isNotFound(updDeviceErr) {
-						fmt.Printf("error getting device %s: %s\n", d.SerialNumber, err)
-						continue
-					}
-
-					if updDeviceErr != nil && isNotFound(updDeviceErr) {
-						updDevice = new(device.Device)
-						if d.OpType == "modified" {
-							fmt.Printf("warning: no existing device for DEP device update: %s\n", d.SerialNumber)
-						}
-					}
-					if updDeviceErr == nil && d.OpType == "added" {
-						// consider issuing this warning if op_type == "" as well.
-						// in that case it's likely the device came from a DEP
-						// fetch (vs. a sync) which could be a re-fetch of devices
-						fmt.Printf("warning: re-adding existing DEP device: %s\n", d.SerialNumber)
-					}
-					if d.OpType == "deleted" {
-						fmt.Printf("warning: DEP device unassigned: %s\n", d.SerialNumber)
-					}
-
-					if updDevice.UUID == "" {
-						// generate UUID for any device that doesn't have one
-						updDevice.UUID = uuid.NewV4().String()
-					}
-
-					updDevice.SerialNumber = d.SerialNumber
-					updDevice.Model = d.Model
-					updDevice.Description = d.Description
-					updDevice.Color = d.Color
-					updDevice.AssetTag = d.AssetTag
-					updDevice.DEPProfileStatus = device.DEPProfileStatus(d.ProfileStatus)
-					updDevice.DEPProfileUUID = d.ProfileUUID
-					updDevice.DEPProfileAssignTime = d.ProfileAssignTime
-					updDevice.DEPProfileAssignedDate = d.DeviceAssignedDate
-					updDevice.DEPProfileAssignedBy = d.DeviceAssignedBy
-					// TODO: support profile_push_time, os, device_family, op_date
-
-					if err := db.Save(updDevice); err != nil {
-						fmt.Println(err)
-						continue
-					}
-				}
-			case event := <-connectEvents:
-				var ev mdm.AcknowledgeEvent
-				if err := mdm.UnmarshalAcknowledgeEvent(event.Message, &ev); err != nil {
-					fmt.Println(err)
-					continue
-				}
-				dev, err := db.DeviceByUDID(ev.Response.UDID)
-				if err != nil {
-					fmt.Println(err)
-					continue
-				}
-				dev.LastSeen = time.Now()
-				if err := db.Save(dev); err != nil {
-					fmt.Println(err)
-					continue
-				}
-			case event := <-checkoutEvents:
-				var ev mdm.CheckinEvent
-				if err := mdm.UnmarshalCheckinEvent(event.Message, &ev); err != nil {
-					fmt.Println(err)
-					continue
-				}
-				dev, err := db.DeviceByUDID(ev.Command.UDID)
-				if err != nil {
-					fmt.Println(err)
-					continue
-				}
-				dev.Enrolled = false
-				dev.LastSeen = time.Now()
-				if err := db.Save(dev); err != nil {
-					fmt.Println(err)
-					continue
-				}
-			}
-		}
-	}()
-
-	return nil
 }
