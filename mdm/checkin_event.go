@@ -1,6 +1,7 @@
 package mdm
 
 import (
+	"crypto/x509"
 	"encoding/hex"
 	"time"
 
@@ -10,11 +11,12 @@ import (
 )
 
 type CheckinEvent struct {
-	ID      string
-	Time    time.Time
-	Command CheckinCommand
-	Params  map[string]string
-	Raw     []byte
+	ID         string
+	Time       time.Time
+	Command    CheckinCommand
+	Params     map[string]string
+	Raw        []byte
+	DeviceCert *x509.Certificate
 }
 
 // CheckinRequest represents an MDM checkin command struct.
@@ -89,6 +91,9 @@ func MarshalCheckinEvent(e *CheckinEvent) ([]byte, error) {
 			ModelName:    e.Command.ModelName,
 			ProductName:  e.Command.ProductName,
 		}
+		if e.DeviceCert != nil {
+			command.Authenticate.DeviceCert = e.DeviceCert.Raw
+		}
 	case "TokenUpdate":
 		command.TokenUpdate = &checkinproto.TokenUpdate{
 			Token:                 e.Command.Token,
@@ -139,6 +144,13 @@ func UnmarshalCheckinEvent(data []byte, e *CheckinEvent) error {
 		e.Command.Model = pb.Command.Authenticate.Model
 		e.Command.ModelName = pb.Command.Authenticate.ModelName
 		e.Command.ProductName = pb.Command.Authenticate.ProductName
+		certs, err := x509.ParseCertificates(pb.Command.Authenticate.DeviceCert)
+		if err != nil {
+			return err
+		}
+		if len(certs) > 0 {
+			e.DeviceCert = certs[0]
+		}
 	case "TokenUpdate":
 		e.Command.Token = pb.Command.TokenUpdate.Token
 		e.Command.PushMagic = pb.Command.TokenUpdate.PushMagic

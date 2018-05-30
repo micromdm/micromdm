@@ -2,6 +2,7 @@ package mdm
 
 import (
 	"context"
+	"crypto/x509"
 	"io/ioutil"
 	"net/http"
 
@@ -48,29 +49,36 @@ func RegisterHTTPHandlers(r *mux.Router, e Endpoints, verifier SignatureVerifier
 }
 
 type SignatureVerifier interface {
-	VerifySignature(sig string, message []byte) error
+	VerifySignature(sig string, message []byte) (*x509.Certificate, error)
 }
 
 type requestDecoder struct {
 	verifier SignatureVerifier
 }
 
-func (d *requestDecoder) readBody(r *http.Request) ([]byte, error) {
+func (d *requestDecoder) readBody(r *http.Request) ([]byte, *x509.Certificate, error) {
 	defer r.Body.Close()
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "reading MDM Response HTTP Body")
+		return nil, nil, errors.Wrap(err, "reading MDM Response HTTP Body")
 	}
+
+	// TODO: If we ever use Go client cert auth we can use
+	// r.TLS.PeerCertificates to return the client cert. Unecessary
+	// now as default config is uses Mdm-Signature header method instead
+	// (for better compatilibity with proxies, etc.)
+	var deviceCert *x509.Certificate
 
 	if d.verifier != nil {
 		b64sig := r.Header.Get("Mdm-Signature")
-		if err := d.verifier.VerifySignature(b64sig, body); err != nil {
-			return nil, errors.Wrap(err, "verify signature")
+		deviceCert, err = d.verifier.VerifySignature(b64sig, body)
+		if err != nil {
+			return nil, nil, errors.Wrap(err, "verify signature")
 		}
 	}
 
-	return body, nil
+	return body, deviceCert, nil
 }
 
 // According to the MDM Check-in protocol, the server must respond with 200 OK

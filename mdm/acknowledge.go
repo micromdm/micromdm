@@ -40,7 +40,7 @@ func (r acknowledgeResponse) Response() []byte { return r.Payload }
 func (r acknowledgeResponse) Failed() error    { return r.Err }
 
 func (d *requestDecoder) decodeAcknowledgeRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	body, err := d.readBody(r)
+	body, _, err := d.readBody(r)
 	if err != nil {
 		return nil, errors.Wrap(err, "read acknowledge request body")
 	}

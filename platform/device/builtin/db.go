@@ -166,7 +166,7 @@ func (db *DB) DeviceBySerial(serial string) (*device.Device, error) {
 	return &dev, nil
 }
 
-func isNotFound(err error) bool {
+func IsNotFound(err error) bool {
 	if _, ok := err.(*notFound); ok {
 		return true
 	}
@@ -213,12 +213,12 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 				if err == nil && bySerial != nil { // must be a DEP device
 					newDevice = bySerial
 				}
-				if err != nil && !isNotFound(err) {
+				if err != nil && !IsNotFound(err) {
 					fmt.Println(err) // some other issue is going on
 					continue
 				}
 				byUDID, err := db.DeviceByUDID(ev.Command.UDID)
-				if err != nil && isNotFound(err) { // never checked in
+				if err != nil && IsNotFound(err) { // never checked in
 					fmt.Printf("checking in new device %s\n", ev.Command.SerialNumber)
 				} else if err != nil {
 					fmt.Println(err)
@@ -244,6 +244,12 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 				newDevice.Model = ev.Command.Model
 				newDevice.ModelName = ev.Command.ModelName
 				newDevice.LastSeen = time.Now()
+				// the Authenticate message is the only place where we
+				// should unconditionally set the cert in the DB
+				// technically this is duplicated because the middleware
+				// will save a cert to a device that has a nil cert
+				// but at some point we'll turn that off
+				newDevice.DeviceCert = ev.DeviceCert
 				// Challenge:    ev.Command.Challenge, // FIXME: @groob why is this commented out?
 
 				if err := db.Save(newDevice); err != nil {
@@ -294,12 +300,12 @@ func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
 				fmt.Printf("got %d devices from DEP\n", len(ev.Devices))
 				for _, d := range ev.Devices {
 					updDevice, updDeviceErr := db.DeviceBySerial(d.SerialNumber)
-					if updDeviceErr != nil && !isNotFound(updDeviceErr) {
+					if updDeviceErr != nil && !IsNotFound(updDeviceErr) {
 						fmt.Printf("error getting device %s: %s\n", d.SerialNumber, err)
 						continue
 					}
 
-					if updDeviceErr != nil && isNotFound(updDeviceErr) {
+					if updDeviceErr != nil && IsNotFound(updDeviceErr) {
 						updDevice = new(device.Device)
 						if d.OpType == "modified" {
 							fmt.Printf("warning: no existing device for DEP device update: %s\n", d.SerialNumber)
