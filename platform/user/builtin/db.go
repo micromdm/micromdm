@@ -1,17 +1,12 @@
 package builtin
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
 	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
 
-	"github.com/micromdm/micromdm/mdm"
-	"github.com/micromdm/micromdm/platform/pubsub"
 	"github.com/micromdm/micromdm/platform/user"
 )
 
@@ -26,7 +21,7 @@ type DB struct {
 	logger log.Logger
 }
 
-func NewDB(db *bolt.DB, pubsubSvc pubsub.PublishSubscriber, logger log.Logger) (*DB, error) {
+func NewDB(db *bolt.DB) (*DB, error) {
 	err := db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(userIndexBucket))
 		if err != nil {
@@ -40,14 +35,7 @@ func NewDB(db *bolt.DB, pubsubSvc pubsub.PublishSubscriber, logger log.Logger) (
 	}
 
 	datastore := &DB{
-		DB:     db,
-		logger: logger,
-	}
-	if pubsubSvc == nil { // don't start the poller without pubsub.
-		return datastore, nil
-	}
-	if err := datastore.pollCheckin(pubsubSvc); err != nil {
-		return nil, err
+		DB: db,
 	}
 	return datastore, nil
 }
@@ -198,72 +186,4 @@ func (e *notFound) Error() string {
 
 func (e *notFound) NotFound() bool {
 	return true
-}
-
-func (db *DB) pollCheckin(pubsubSvc pubsub.PublishSubscriber) error {
-	tokenUpdateEvents, err := pubsubSvc.Subscribe(context.TODO(), "users", mdm.TokenUpdateTopic)
-	if err != nil {
-		return errors.Wrapf(err,
-			"subscribing devices to %s topic", mdm.TokenUpdateTopic)
-	}
-	go func() {
-		for {
-			select {
-			case e := <-tokenUpdateEvents:
-				event, err := unmarshalCheckin(e)
-				if err != nil {
-					level.Info(db.logger).Log("err", err, "msg", "unmarshal TokenUpdate event in user db")
-					break
-				}
-				if event.Command.UserID == "" {
-					break // only interested in user commands
-				}
-				newUser := new(user.User)
-				byGUID, err := db.UserByUserID(event.Command.UserID)
-				if err != nil && !isNotFound(err) {
-					level.Info(db.logger).Log("err", err, "msg", "get user from DB")
-					break
-				}
-				if err == nil && byGUID != nil {
-					newUser = byGUID
-				}
-				if newUser.UUID == "" {
-					if err := db.DeleteDeviceUsers(event.Command.UDID); err != nil {
-						level.Info(db.logger).Log(
-							"err", err,
-							"msg", "delete existing user before creating new one",
-						)
-					}
-					newUser.UUID = uuid.NewV4().String()
-				}
-				newUser.UDID = event.Command.UDID
-				newUser.UserID = event.Command.UserID
-				newUser.UserLongname = event.Command.UserLongName
-				newUser.UserShortname = event.Command.UserShortName
-				newUser.AuthToken = event.Command.Token.String()
-				if err := db.Save(newUser); err != nil {
-					level.Info(db.logger).Log("err", err, "msg", "update user from TokenUpdate")
-					break
-				}
-			}
-		}
-	}()
-
-	return nil
-}
-
-func unmarshalCheckin(event pubsub.Event) (mdm.CheckinEvent, error) {
-	var ev mdm.CheckinEvent
-	if err := mdm.UnmarshalCheckinEvent(event.Message, &ev); err != nil {
-		return mdm.CheckinEvent{}, err
-	}
-	return ev, nil
-}
-
-func isNotFound(err error) bool {
-	cause := errors.Cause(err)
-	if _, ok := cause.(*notFound); ok {
-		return true
-	}
-	return false
 }
