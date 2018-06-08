@@ -17,4 +17,3 @@ message Response {
     string request_type = 4;
     string command_uuid = 5;
 }
-

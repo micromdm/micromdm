@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-kit/kit/endpoint"
-	"github.com/groob/plist"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 )
@@ -38,16 +37,11 @@ type acknowledgeResponse struct {
 func (r acknowledgeResponse) Response() []byte { return r.Payload }
 func (r acknowledgeResponse) Failed() error    { return r.Err }
 
-func (d *requestDecoder) decodeAcknowledgeRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	body, err := d.readBody(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "read acknowledge request body")
-	}
-
+func decodeAcknowledgeRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var res Response
-	err = plist.Unmarshal(body, &res)
+	body, err := mdmRequestBody(r, &res)
 	if err != nil {
-		return nil, errors.Wrap(err, "unmarshal MDM Response plist")
+		return nil, errors.Wrap(err, "read MDM request")
 	}
 
 	values := r.URL.Query()

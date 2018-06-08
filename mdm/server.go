@@ -1,14 +1,19 @@
 package mdm
 
 import (
+	"bytes"
 	"context"
+	"crypto/x509"
+	"encoding/base64"
 	"io/ioutil"
 	"net/http"
 
+	"github.com/fullsailor/pkcs7"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
+	"github.com/groob/plist"
 	"github.com/pkg/errors"
 )
 
@@ -24,53 +29,104 @@ func MakeServerEndpoints(s Service) Endpoints {
 	}
 }
 
-func RegisterHTTPHandlers(r *mux.Router, e Endpoints, verifier SignatureVerifier, logger log.Logger) {
-	decoder := &requestDecoder{verifier: verifier}
+func RegisterHTTPHandlers(r *mux.Router, e Endpoints, logger log.Logger) {
 	options := []httptransport.ServerOption{
 		httptransport.ServerErrorEncoder(encodeError),
 		httptransport.ServerErrorLogger(logger),
 		httptransport.ServerBefore(httptransport.PopulateRequestContext),
+		httptransport.ServerBefore(populateDeviceCertificateFromSignRequestHeader),
 	}
 
 	r.Methods(http.MethodPut).Path("/mdm/checkin").Handler(httptransport.NewServer(
 		e.CheckinEndpoint,
-		decoder.decodeCheckinRequest,
+		decodeCheckinRequest,
 		encodeResponse,
 		options...,
 	))
 
 	r.Methods(http.MethodPut).Path("/mdm/connect").Handler(httptransport.NewServer(
 		e.AcknowledgeEndpoint,
-		decoder.decodeAcknowledgeRequest,
+		decodeAcknowledgeRequest,
 		encodeResponse,
 		options...,
 	))
 }
 
-type SignatureVerifier interface {
-	VerifySignature(sig string, message []byte) error
+type contextKey int
+
+const (
+	ContextKeyDeviceCertificate contextKey = iota
+	ContextKeyDeviceCertificateVerifyError
+)
+
+func DeviceCertificateFromContext(ctx context.Context) (*x509.Certificate, error) {
+	cert := ctx.Value(ContextKeyDeviceCertificate).(*x509.Certificate)
+	err, _ := ctx.Value(ContextKeyDeviceCertificateVerifyError).(error)
+	return cert, err
 }
 
-type requestDecoder struct {
-	verifier SignatureVerifier
+func populateDeviceCertificateFromSignRequestHeader(ctx context.Context, r *http.Request) context.Context {
+	bodyReader := r.Body
+	defer bodyReader.Close()
+
+	// We gracefully bubble up errors from this function, so we silently disregard them (terrible)
+	body, _ := ioutil.ReadAll(r.Body)
+
+	// Replace our body object with a fully buffered response
+	r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+	cert, err := verifySignature(r.Header.Get("Mdm-Signature"), body)
+	ctx = context.WithValue(ctx, ContextKeyDeviceCertificate, cert)
+	ctx = context.WithValue(ctx, ContextKeyDeviceCertificateVerifyError, err)
+
+	return ctx
 }
 
-func (d *requestDecoder) readBody(r *http.Request) ([]byte, error) {
+// TODO: If we ever use Go client cert auth we can use
+//       r.TLS.PeerCertificates to return the client cert. Unecessary
+//       now as default config is uses Mdm-Signature header method instead
+//       (for better compatilibity with proxies, etc.)
+// func populateDeviceCertificateFromTLSPeerCertificates()
+
+// Extract (raw) body bytes, parse property list
+func mdmRequestBody(r *http.Request, s interface{}) ([]byte, error) {
 	defer r.Body.Close()
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "reading MDM Response HTTP Body")
+		return nil, errors.Wrap(err, "reading MDM request HTTP body")
 	}
 
-	if d.verifier != nil {
-		b64sig := r.Header.Get("Mdm-Signature")
-		if err := d.verifier.VerifySignature(b64sig, body); err != nil {
-			return nil, errors.Wrap(err, "verify signature")
-		}
+	err = plist.Unmarshal(body, s)
+	if err != nil {
+		return body, errors.Wrap(err, "unmarshal MDM request plist")
 	}
 
 	return body, nil
+}
+
+// Verify MDM header signature. Note: does NOT verify device certificate
+func verifySignature(header string, body []byte) (*x509.Certificate, error) {
+	if header == "" {
+		return nil, errors.New("signature missing")
+	}
+	sig, err := base64.StdEncoding.DecodeString(header)
+	if err != nil {
+		return nil, errors.Wrap(err, "decode MDM SignMessage header")
+	}
+	p7, err := pkcs7.Parse(sig)
+	if err != nil {
+		return nil, errors.Wrap(err, "CMS parse decoded MDM SignMessage signature")
+	}
+	p7.Content = body
+	if err := p7.Verify(); err != nil {
+		return nil, errors.Wrap(err, "CMS verify MDM Signed Message")
+	}
+	cert := p7.GetOnlySigner()
+	if cert == nil {
+		return nil, errors.New("invalid or missing CMS signer")
+	}
+	return cert, nil
 }
 
 // According to the MDM Check-in protocol, the server must respond with 200 OK

@@ -15,6 +15,10 @@ const (
 	// The deviceIndexBucket index bucket stores serial number and UDID references
 	// to the device uuid.
 	deviceIndexBucket = "mdm.DeviceIdx"
+
+	// The udidCertAuthBucket stores a simple mapping from UDID to
+	// sha256 hash of the device identity certificate for future validation
+	udidCertAuthBucket = "mdm.UDIDCertAuth"
 )
 
 type DB struct {
@@ -28,6 +32,10 @@ func NewDB(db *bolt.DB) (*DB, error) {
 			return err
 		}
 		_, err = tx.CreateBucketIfNotExists([]byte(DeviceBucket))
+		if err != nil {
+			return err
+		}
+		_, err = tx.CreateBucketIfNotExists([]byte(udidCertAuthBucket))
 		return err
 	})
 	if err != nil {
@@ -176,4 +184,35 @@ func (db *DB) deviceByIndex(key string) (*device.Device, error) {
 		return nil, err
 	}
 	return &dev, nil
+}
+
+func (db *DB) SaveUDIDCertHash(udid, certHash []byte) error {
+	tx, err := db.DB.Begin(true)
+	if err != nil {
+		return errors.Wrap(err, "begin transaction")
+	}
+	bkt := tx.Bucket([]byte(udidCertAuthBucket))
+	if bkt == nil {
+		return fmt.Errorf("bucket %q not found!", udidCertAuthBucket)
+	}
+	if err := bkt.Put(udid, certHash); err != nil {
+		return errors.Wrap(err, "put udid cert to boltdb")
+	}
+	return tx.Commit()
+}
+
+func (db *DB) GetUDIDCertHash(udid []byte) ([]byte, error) {
+	var certHash []byte
+	err := db.View(func(tx *bolt.Tx) error {
+		b := tx.Bucket([]byte(udidCertAuthBucket))
+		if b == nil {
+			return fmt.Errorf("bucket %q not found!", udidCertAuthBucket)
+		}
+		certHash = b.Get(udid)
+		if certHash == nil {
+			return &notFound{"UDID", fmt.Sprintf("udid %s", string(udid))}
+		}
+		return nil
+	})
+	return certHash, err
 }
