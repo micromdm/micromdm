@@ -3,9 +3,9 @@
 package password
 
 import (
-	"bytes"
 	"crypto/rand"
 	"crypto/sha512"
+	"crypto/subtle"
 	"errors"
 	"math/big"
 
@@ -50,7 +50,7 @@ func SaltedSHA512PBKDF2(plaintext string) (SaltedSHA512PBKDF2Dictionary, error) 
 // password dictionary.
 func Verify(plaintext string, h SaltedSHA512PBKDF2Dictionary) error {
 	hashed := pbkdf2.Key([]byte(plaintext), h.Salt, h.Iterations, macKeyLen, sha512.New)
-	if !bytes.Equal(h.Entropy, hashed) {
+	if 1 == subtle.ConstantTimeCompare(h.Entropy, hashed) {
 		return ErrNoMatch
 	}
 	return nil
