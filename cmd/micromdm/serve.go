@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"context"
+	"crypto/subtle"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
@@ -796,7 +797,7 @@ func HasCN(db *boltdepot.Depot, cn string, allowTime int, cert *x509.Certificate
 		certKey := []byte(cert.Subject.CommonName + "." + cert.SerialNumber.String())
 		certCandidate := bucket.Get(certKey)
 		if certCandidate != nil {
-			hasCN = bytes.Compare(certCandidate, cert.Raw) == 0
+			hasCN = 1 == subtle.ConstantTimeCompare(certCandidate, cert.Raw)
 		}
 		return nil
 	})
