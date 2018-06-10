@@ -27,7 +27,7 @@
   branch = "master"
   name = "github.com/garyburd/go-oauth"
   packages = ["oauth"]
-  revision = "4cff9ef7b7003713efa191899dbaab8fa75e3e73"
+  revision = "bca2e7f09a178fd36b034107a00e2323bca6a82e"
 
 [[projects]]
   name = "github.com/go-kit/kit"
@@ -38,8 +38,8 @@
     "log/level",
     "transport/http"
   ]
-  revision = "4dc7be5d2d12881735283bcab7352178e190fc71"
-  version = "v0.6.0"
+  revision = "ca4112baa34cb55091301bdc13b1420a122b1b9e"
+  version = "v0.7.0"
 
 [[projects]]
   name = "github.com/go-logfmt/logfmt"
@@ -50,14 +50,14 @@
 [[projects]]
   name = "github.com/go-stack/stack"
   packages = ["."]
-  revision = "817915b46b97fd7bb80e8ab6b69f01a53ac3eebf"
-  version = "v1.6.0"
+  revision = "259ab82a6cad3992b4e21ff5cac294ccb06474bc"
+  version = "v1.7.0"
 
 [[projects]]
   name = "github.com/gogo/protobuf"
   packages = ["proto"]
-  revision = "342cbe0a04158f6dcb03ca0079991a51a4248c02"
-  version = "v0.5"
+  revision = "1adfc126b41513cc696b209667c8656ea7aac67c"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -68,14 +68,14 @@
 [[projects]]
   name = "github.com/gorilla/context"
   packages = ["."]
-  revision = "1ea25387ff6f684839d82767c1733ff4d4d15d0a"
-  version = "v1.1"
+  revision = "08b5f424b9271eedf6f9f0ce86cb9396ed337a42"
+  version = "v1.1.1"
 
 [[projects]]
   name = "github.com/gorilla/mux"
   packages = ["."]
-  revision = "24fca303ac6da784b9e8269f724ddeb0b2eea5e7"
-  version = "v1.5.0"
+  revision = "e3702bed27f0d39777b0b37b664b6280e8ef8fbf"
+  version = "v1.6.2"
 
 [[projects]]
   branch = "master"
@@ -90,7 +90,7 @@
   branch = "master"
   name = "github.com/groob/plist"
   packages = ["."]
-  revision = "7b367e0aa692e62a223e823f3288c0c00f519a36"
+  revision = "dd56909aee38bb3860460e3e1ca8a4270c04ce15"
 
 [[projects]]
   branch = "master"
@@ -102,7 +102,7 @@
   branch = "master"
   name = "github.com/micromdm/dep"
   packages = ["."]
-  revision = "3e565f89e59266df10c92da54118bf13ec312905"
+  revision = "03ff93db459fe3baf80b2d1f4acb668a92c5a40e"
 
 [[projects]]
   branch = "master"
@@ -112,13 +112,7 @@
     "httputil",
     "version"
   ]
-  revision = "486ea5f130c78a9c058374eb159df08296caea9d"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/micromdm/mdm"
-  packages = ["."]
-  revision = "aab40a0d8858ffa58000166248e28525c82571de"
+  revision = "deded5397014104c618443dde9408a94c8232e21"
 
 [[projects]]
   name = "github.com/micromdm/scep"
@@ -141,8 +135,8 @@
 [[projects]]
   name = "github.com/satori/go.uuid"
   packages = ["."]
-  revision = "879c5887cd475cd7864858769793b2ceb0d44feb"
-  version = "v1.1.0"
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
+  version = "v1.2.0"
 
 [[projects]]
   branch = "master"
@@ -154,28 +148,27 @@
     "pkcs12",
     "pkcs12/internal/rc2"
   ]
-  revision = "9419663f5a44be8b34ca85f08abc5fe1be11f8a3"
+  revision = "8ac0e0d97ce45cd83d1d7243c060cb8461dda5e9"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
   packages = [
     "context",
+    "http/httpguts",
     "http2",
     "http2/hpack",
-    "idna",
-    "lex/httplex"
+    "idna"
   ]
-  revision = "a04bdaca5b32abe1c069418fb7088ae607de5bd0"
+  revision = "1e491301e022f8f977054da4c2d852decd59571f"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "686000749eaec0b8855b8eef5336cf63899fe51d"
+  revision = "7c1e4f34a39c8bf93b6a3379e4ffb3b118ecc614"
 
 [[projects]]
-  branch = "master"
   name = "golang.org/x/text"
   packages = [
     "collate",
@@ -193,20 +186,12 @@
     "unicode/norm",
     "unicode/rangetable"
   ]
-  revision = "c01e4764d870b77f8abe5096ee19ad20d80e8075"
-
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/tools"
-  packages = [
-    "go/ast/astutil",
-    "imports"
-  ]
-  revision = "9bd2f442688b66c5289262d70f537c2ecf81d7de"
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5f587f612f4f5f3dbad6cf659cb4eadfee35f886ea4dd7b795cf9fe9bfeb99e0"
+  inputs-digest = "c7f6428978cff90d51244bf8f2d30bd551e1d5f98f875187594c4d356ea2cbd5"
   solver-name = "gps-cdcl"
   solver-version = 1

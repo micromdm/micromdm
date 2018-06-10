@@ -4,7 +4,7 @@
 
 [[constraint]]
   name = "github.com/go-kit/kit"
-  version = "v0.6.0"
+  version = "v0.7.0"
 
 [[constraint]]
   name = "github.com/gorilla/mux"
@@ -17,10 +17,6 @@
 [[constraint]]
   name = "github.com/satori/go.uuid"
   version = "v1.1.0"
-
-[[constraint]]
-  name = "github.com/micromdm/mdm"
-  branch = "master"
 
 [[constraint]]
   name = "github.com/groob/plist"

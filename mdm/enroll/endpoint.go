@@ -7,7 +7,6 @@ import (
 
 	"github.com/fullsailor/pkcs7"
 	"github.com/go-kit/kit/endpoint"
-	"github.com/micromdm/mdm"
 	boltdepot "github.com/micromdm/scep/depot/bolt"
 
 	"github.com/micromdm/micromdm/pkg/crypto"
@@ -21,10 +20,15 @@ type Endpoints struct {
 }
 
 type depEnrollmentRequest struct {
-	mdm.DEPEnrollmentRequest
+	Language string `plist:"LANGUAGE"`
+	Product  string `plist:"PRODUCT"`
+	Serial   string `plist:"SERIAL"`
+	UDID     string `plist:"UDID"`
+	Version  string `plist:"VERSION"`
+	IMEI     string `plist:"IMEI,omitempty"`
+	MEID     string `plist:"MEID,omitempty"`
 }
 
-// TODO: may overlap at some point with mdm.DEPEnrollmentRequest
 type otaEnrollmentRequest struct {
 	Challenge     string `plist:"CHALLENGE"`
 	Product       string `plist:"PRODUCT"`
