@@ -2,6 +2,14 @@
 
 ### Auto-assigner
 
+* Reorganize/refactor MDM, device, webhook services. #423, #424, #425, #426, #427
+* Do not allow `mdmctl config set` without args. #421
+* Fix for multiple UDID records. #422
+* Added/refactored logging. #405, #425
+* Added `-homepage` switch. #420
+* Warn about deprecated APNS switches. #412
+* Disallow bad TLS configuration with `-tls=false`. #414
+* Refactored MDM types. #341, #415
 * Added DEP auto-assigner feature. #405
 * Fixed bug with authentication error messages. #411
 * Added support for querying devices by serial(s). #363
