@@ -50,9 +50,8 @@ func (w *Worker) Run(ctx context.Context) error {
 	}
 	depSyncEvents, err := w.ps.Subscribe(ctx, subscription, depsync.SyncTopic)
 	if err != nil {
-		return errors.Wrapf(err, "subscribing %s to %s", subscription, mdm.AuthenticateTopic)
+		return errors.Wrapf(err, "subscribing %s to %s", subscription, depsync.SyncTopic)
 	}
-
 	connectEvents, err := w.ps.Subscribe(ctx, subscription, mdm.ConnectTopic)
 	if err != nil {
 		return errors.Wrapf(err, "subscribing %s to %s", subscription, mdm.ConnectTopic)
@@ -193,7 +192,7 @@ func (w *Worker) updateFromTokenUpdate(ctx context.Context, message []byte) erro
 	dev.AwaitingConfiguration = ev.Command.AwaitingConfiguration
 	dev.LastSeen = time.Now()
 	// first TokenUpdate event will have the enrollment status set to false.
-	newlyEnrolled := dev.Enrolled
+	newlyEnrolled := !dev.Enrolled
 	dev.Enrolled = true
 	if err := w.db.Save(dev); err != nil {
 		return errors.Wrapf(err, "saving updated device for Token event udid=%s", ev.Command.UDID)
