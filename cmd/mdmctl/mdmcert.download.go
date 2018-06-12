@@ -265,7 +265,7 @@ func (sign *signRequest) HTTPRequest() (*http.Request, error) {
 func sendMdmcertDownloadRequest(client *http.Client, req *http.Request) error {
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil
+		return err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
