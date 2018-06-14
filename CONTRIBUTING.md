@@ -1,14 +1,14 @@
 # Contributing
 
-Welcome! If you're looking to help, this document is a great place to start! 
+Welcome! If you're looking to help, this document is a great place to start!
 
 
 ## Finding things that need help
 
 Here's a few places to get started and find out what's outstanding.
 
-- Read through the [MDM Protocol Reference](https://developer.apple.com/library/content/documentation/Miscellaneous/Reference/MobileDeviceManagementProtocolRef/3-MDM_Protocol/MDM_Protocol.html) on the Apple website. Having a deeper understanding of MDM can help with designing features and uncovering bugs. 
-- Follow the [Quickstart](https://github.com/micromdm/micromdm/wiki/Quickstart) guide and make edits if something doesn't look or work right. 
+- Read through the [MDM Protocol Reference](https://developer.apple.com/library/content/documentation/Miscellaneous/Reference/MobileDeviceManagementProtocolRef/3-MDM_Protocol/MDM_Protocol.html) on the Apple website. Having a deeper understanding of MDM can help with designing features and uncovering bugs.
+- Follow the [Quickstart](https://github.com/micromdm/micromdm/wiki/Quickstart) guide and make edits if something doesn't look or work right.
 - If you run into a problem that you're not sure how to fix, file a bug in [the issue tracker](https://github.com/micromdm/micromdm/issues)
 - Browse through the open issues in [the issue tracker](https://github.com/micromdm/micromdm/issues). We try to tag issues as [**beginner friendly**](https://github.com/micromdm/micromdm/issues?q=is%3Aissue+is%3Aopen+label%3Abeginner-friendly) where appropriate.
 - See something that others might benefit from? Considering updating or writing a [wiki page](https://github.com/micromdm/micromdm/wiki).
@@ -41,10 +41,10 @@ Example:
 git clone git@github.com:micromdm/micromdm $GOPATH/src/github.com/micromdm/micromdm
 
 # add your remote/upstream
-git remote add groob git@github.com:groob/micromdm.git 
+git remote add groob git@github.com:groob/micromdm.git
 
 # update from origin/master
-git pull --rebase 
+git pull --rebase
 
 # create a branch
 git checkout -b my_feature
@@ -69,9 +69,9 @@ A few helpful resources for getting started with Go:
 * [How to write Go code](https://golang.org/doc/code.html)
 * [GOPATH on the go wiki](https://github.com/golang/go/wiki/GOPATH)
 
-To build MicroMDM you will need to:  
+To build MicroMDM you will need to:
 
-1. Download and install [`Go`](https://golang.org/dl/)  
+1. Download and install [`Go`](https://golang.org/dl/)
 2. Make a workspace directory and set the `GOPATH` as explained above.
 3. Install [`dep`](https://github.com/golang/dep) via the command `go get -u github.com/golang/dep/...`
 Note that `dep` is a very new project itself. If you're running trouble with the `dep ensure` command, ping @groob in the #micromdm channel on Slack.
@@ -84,11 +84,11 @@ The repo must always be in the folder `$GOPATH/src/github.com/micromdm/micromdm`
 
 ## Important libraries and frameworks
 
-MicroMDM is built using a few popular Go packages outside the standard libraries. It might be worth checking them out. 
+MicroMDM is built using a few popular Go packages outside the standard libraries. It might be worth checking them out.
 
-- [Go Kit](https://github.com/go-kit/kit#go-kit------) is a set of Go libraries used by MicroMDM to provide [logging](https://github.com/go-kit/kit/tree/master/log), and abstractions for building HTTP services. Its [examples](https://gokit.io/examples/) page is a good place to start.  
+- [Go Kit](https://github.com/go-kit/kit#go-kit------) is a set of Go libraries used by MicroMDM to provide [logging](https://github.com/go-kit/kit/tree/master/log), and abstractions for building HTTP services. Its [examples](https://gokit.io/examples/) page is a good place to start.
 - [BoltDB](https://github.com/boltdb/bolt#getting-started) is a key/value database used to provide persistant storage for many components of MicroMDM.
-- [gorilla/mux](http://www.gorillatoolkit.org/pkg/mux) is used to provide routing for http handlers. 
+- [gorilla/mux](http://www.gorillatoolkit.org/pkg/mux) is used to provide routing for http handlers.
 
 ## Other resources
 

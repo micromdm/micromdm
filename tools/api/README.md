@@ -6,7 +6,7 @@ A sample of the common API requests are available as `curl` scripts. To use them
   `brew install jq`
 
 ## Setup
-Create an `env` file and define environment variables you will need to talk to the server. 
+Create an `env` file and define environment variables you will need to talk to the server.
 This env file will be sourced by the scripts.
 
 Contents of `env` file:
@@ -50,5 +50,5 @@ The `api` folder groups all MDM commands in the `commands` folder. Use these for
 ```
 
 All the scripts in this folder are tiny. Consider reading them to get an understanding of the API.
-Also consider learning `jq`. 
+Also consider learning `jq`.
 MicroMDM returns and accepts JSON for all of the API endpoints, and `jq` is a powerful tool for reading and manipulating JSON data.
