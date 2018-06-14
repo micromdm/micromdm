@@ -81,8 +81,8 @@ func (w *Worker) updateUserFromTokenUpdate(ctx context.Context, message []byte) 
 				ev.Command.UDID,
 				ev.Command.UserID,
 			)
-			usr.UUID = uuid.NewV4().String()
 		}
+		usr.UUID = uuid.NewV4().String()
 	}
 
 	usr.UDID = ev.Command.UDID
