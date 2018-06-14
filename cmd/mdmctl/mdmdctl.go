@@ -64,7 +64,7 @@ Available Commands:
 	mdmcert.download
 	version
 
-Use micromdm <command> -h for additional usage of each command.
+Use mdmctl <command> -h for additional usage of each command.
 Example: mdmctl get devices
 `
 	fmt.Println(helpText)
