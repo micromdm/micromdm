@@ -1,10 +1,10 @@
 # Local Development with ngrok
 
 When developing and testing MicroMDM you will likely want to enroll devices. Normally that means either generating or getting new TLS certificates and hosting micromdm on some publicly accessible server.
-`ngrok` is a tool that makes it easy to expose the MicroMDM server as a public URL that your devices can enroll to. 
+`ngrok` is a tool that makes it easy to expose the MicroMDM server as a public URL that your devices can enroll to.
 
-The scripts in this will help you get MicroMDM running for local development. 
-First, install the listed requirements. 
+The scripts in this will help you get MicroMDM running for local development.
+First, install the listed requirements.
 
 Next, make sure you've cloned the `micromdm` repo exactly as described in the [contributing guide](../../CONTRIBUTING.md). Follow the steps in the same document to downloads required dependencies and build `micromdm` and `mdmctl`.
 
