@@ -35,7 +35,7 @@
 ### User Profiles
 
 * Added support for modifying the default enrollment profile.
-* Added support for user level profiles. 
+* Added support for user level profiles.
 * Added support for AccountConfiguration during DEP Enrollment. Specified in blueprints
 * Addes support for multiple server configs in `mdmctl`.
 * Added `mdmctl mdmcert upload` command which uploads/replaces the servers push certificate.
