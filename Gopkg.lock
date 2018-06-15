@@ -18,10 +18,14 @@
   version = "v1.3.1"
 
 [[projects]]
-  branch = "master"
+  branch = "sha256"
   name = "github.com/fullsailor/pkcs7"
-  packages = ["."]
-  revision = "ae226422660e5ca10db350d33f81c6608f3fbcdd"
+  packages = [
+    ".",
+    "internal/x509util"
+  ]
+  revision = "f41fa115eb76823dcfb8c45678da0fb6d7ecb792"
+  source = "github.com/groob/pkcs7"
 
 [[projects]]
   branch = "master"
@@ -115,16 +119,18 @@
   revision = "deded5397014104c618443dde9408a94c8232e21"
 
 [[projects]]
+  branch = "master"
   name = "github.com/micromdm/scep"
   packages = [
+    "challenge",
+    "crypto/x509util",
+    "csrverifier",
     "depot",
     "depot/bolt",
     "scep",
-    "scep/internal/pkcs7",
     "server"
   ]
-  revision = "a202afd5e358b857c95d048fc47432759db0d9bd"
-  version = "v1.0.0"
+  revision = "528937a33139b55852ba3d2b8944dce7b3261404"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -148,7 +154,7 @@
     "pkcs12",
     "pkcs12/internal/rc2"
   ]
-  revision = "8ac0e0d97ce45cd83d1d7243c060cb8461dda5e9"
+  revision = "fd5f17ee729917fcb39f16421460212d917a0813"
 
 [[projects]]
   branch = "master"
@@ -160,13 +166,13 @@
     "http2/hpack",
     "idna"
   ]
-  revision = "1e491301e022f8f977054da4c2d852decd59571f"
+  revision = "db08ff08e8622530d9ed3a0e8ac279f6d4c02196"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "7c1e4f34a39c8bf93b6a3379e4ffb3b118ecc614"
+  revision = "8883426083c04a2627e6e59d84d5f6fb63d16c91"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -192,6 +198,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c7f6428978cff90d51244bf8f2d30bd551e1d5f98f875187594c4d356ea2cbd5"
+  inputs-digest = "151e504814f497d3591f423ebe5be4fca6dd047d33a35ba2f66bf6fad2a72bba"
   solver-name = "gps-cdcl"
   solver-version = 1

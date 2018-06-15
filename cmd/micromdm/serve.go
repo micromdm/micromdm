@@ -221,7 +221,12 @@ func serve(args []string) error {
 	dc := sm.depClient
 	appDB := &appsbuiltin.Repo{Path: *flRepoPath}
 
-	scepHandler := scep.ServiceHandler(ctx, sm.scepService, httpLogger)
+	scepEndpoints := scep.MakeServerEndpoints(sm.scepService)
+	scepComponentLogger := log.With(logger, "component", "scep")
+	scepEndpoints.GetEndpoint = scep.EndpointLoggingMiddleware(scepComponentLogger)(scepEndpoints.GetEndpoint)
+	scepEndpoints.PostEndpoint = scep.EndpointLoggingMiddleware(scepComponentLogger)(scepEndpoints.PostEndpoint)
+	scepHandler := scep.MakeHTTPHandler(scepEndpoints, sm.scepService, scepComponentLogger)
+
 	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.enrollService, sm.scepDepot), httptransport.ServerErrorLogger(httpLogger))
 
 	r, options := httputil2.NewRouter(logger)
