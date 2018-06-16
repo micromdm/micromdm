@@ -20,7 +20,8 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 		"ManagedMediaList",
 		"DeviceConfigured",
 		"AvailableOSUpdates",
-		"NSExtensionMappings":
+		"NSExtensionMappings",
+		"OSUpdateStatus":
 		return &struct {
 			RequestType string
 		}{

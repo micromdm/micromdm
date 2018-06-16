@@ -28,7 +28,8 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 		"ManagedMediaList",
 		"DeviceConfigured",
 		"AvailableOSUpdates",
-		"NSExtensionMappings":
+		"NSExtensionMappings",
+		"OSUpdateStatus":
 
 	case "InstallProfile":
 		cmd.InstallProfile = &InstallProfile{

@@ -28,6 +28,7 @@ message Command {
      - DeviceConfigured
      - AvailableOSUpdates
      - NSExtensionMappings
+     - OSUpdateStatus
    */
   oneof request {
     InstallProfile install_profile = 2;
@@ -64,6 +65,7 @@ message Command {
     ScheduleOSUpdateScan schedule_os_update_scan = 33;
     ActiveNSExtensions active_ns_extensions = 34;
     RotateFileVaultKey rotate_filevault_key = 35;
+    OSUpdateStatus os_update_status = 36;
   }
 }
 
@@ -366,3 +368,5 @@ message ErrorChain {
   string error_domain = 3;
   int32  error_code = 4;
 }
+
+message OSUpdateStatus {}

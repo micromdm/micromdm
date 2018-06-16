@@ -56,6 +56,7 @@ type Command struct {
 	SetAutoAdminPassword            *SetAutoAdminPassword
 	ScheduleOSUpdate                *ScheduleOSUpdate
 	ScheduleOSUpdateScan            *ScheduleOSUpdateScan
+	OSUpdateStatus                  *OSUpdateStatus
 	ActiveNSExtensions              *ActiveNSExtensions
 	RotateFileVaultKey              *RotateFileVaultKey
 }
@@ -251,6 +252,8 @@ type ScheduleOSUpdate struct {
 type ScheduleOSUpdateScan struct {
 	Force bool `plist:",omitempty" json:"force,omitempty"`
 }
+
+type OSUpdateStatus struct{}
 
 type ActiveNSExtensions struct {
 	FilterExtensionPoints []string `plist:",omitempty json:"filter_extensions_points,omitempty"`
