@@ -41,7 +41,8 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 		"ManagedMediaList",
 		"DeviceConfigured",
 		"AvailableOSUpdates",
-		"NSExtensionMappings":
+		"NSExtensionMappings",
+		"OSUpdateStatus":
 
 	case "InstallProfile":
 		if cmd.InstallProfile == nil {

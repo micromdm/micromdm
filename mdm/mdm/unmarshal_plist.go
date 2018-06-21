@@ -32,7 +32,8 @@ func (c *Command) UnmarshalPlist(unmarshal func(i interface{}) error) error {
 		"ManagedMediaList",
 		"DeviceConfigured",
 		"AvailableOSUpdates",
-		"NSExtensionMappings":
+		"NSExtensionMappings",
+		"OSUpdateStatus":
 		return nil
 	case "InstallProfile":
 		var payload InstallProfile
