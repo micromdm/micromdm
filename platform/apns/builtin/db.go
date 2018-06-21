@@ -1,13 +1,11 @@
 package builtin
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/boltdb/bolt"
 	"github.com/pkg/errors"
 
-	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/apns"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
@@ -28,9 +26,6 @@ func NewDB(db *bolt.DB, sub pubsub.Subscriber) (*DB, error) {
 	}
 	datastore := &DB{
 		DB: db,
-	}
-	if err := datastore.pollCheckin(sub); err != nil {
-		return nil, err
 	}
 	return datastore, nil
 }
@@ -78,41 +73,4 @@ func (db *DB) Save(info *apns.PushInfo) error {
 		return errors.Wrap(err, "put PushInfo to boltdb")
 	}
 	return tx.Commit()
-}
-
-func (db *DB) pollCheckin(sub pubsub.Subscriber) error {
-	tokenUpdateEvents, err := sub.Subscribe(context.TODO(), "push-info", mdm.TokenUpdateTopic)
-	if err != nil {
-		return errors.Wrapf(err,
-			"subscribing push to %s topic", mdm.TokenUpdateTopic)
-	}
-	go func() {
-		for {
-			select {
-			case event := <-tokenUpdateEvents:
-				var ev mdm.CheckinEvent
-				if err := mdm.UnmarshalCheckinEvent(event.Message, &ev); err != nil {
-					fmt.Println(err)
-					continue
-				}
-				info := apns.PushInfo{
-					UDID:      ev.Command.UDID,
-					Token:     ev.Command.Token.String(),
-					PushMagic: ev.Command.PushMagic,
-					MDMTopic:  ev.Command.Topic,
-				}
-				if ev.Command.UserID != "" {
-					// use the GUID if this is a user TokenUpdate.
-					info.UDID = ev.Command.UserID
-				}
-				if err := db.Save(&info); err != nil {
-					fmt.Println(err)
-					continue
-				}
-				fmt.Printf("updated pushinfo for udid %s\n", info.UDID)
-			}
-		}
-	}()
-
-	return nil
 }
