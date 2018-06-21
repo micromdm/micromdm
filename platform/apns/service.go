@@ -5,10 +5,13 @@ import (
 	"crypto/tls"
 	"fmt"
 	"log"
+	"net/http"
 	"sync"
+	"time"
 
 	"github.com/RobotsAndPencils/buford/push"
 	"github.com/pkg/errors"
+	"golang.org/x/net/http2"
 
 	"github.com/micromdm/micromdm/platform/config"
 	"github.com/micromdm/micromdm/platform/pubsub"
@@ -121,13 +124,30 @@ func updateClient(svc *PushService, sub pubsub.Subscriber) error {
 	return nil
 }
 
+func newClient(cert tls.Certificate) (*http.Client, error) {
+	config := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+	}
+	config.BuildNameToCertificate()
+	transport := &http.Transport{
+		TLSClientConfig: config,
+		IdleConnTimeout: 90 * time.Second,
+	}
+
+	if err := http2.ConfigureTransport(transport); err != nil {
+		return nil, err
+	}
+
+	return &http.Client{Transport: transport}, nil
+}
+
 func NewPushService(provider PushCertificateProvider) (*push.Service, error) {
 	cert, err := provider.PushCertificate()
 	if err != nil {
 		return nil, errors.Wrap(err, "get push certificate from store")
 	}
 
-	client, err := push.NewClient(*cert)
+	client, err := newClient(*cert)
 	if err != nil {
 		return nil, errors.Wrap(err, "create push service client")
 	}
