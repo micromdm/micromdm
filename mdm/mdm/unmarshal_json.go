@@ -46,7 +46,8 @@ func (c *Command) UnmarshalJSON(data []byte) error {
 		"ManagedMediaList",
 		"DeviceConfigured",
 		"AvailableOSUpdates",
-		"NSExtensionMappings":
+		"NSExtensionMappings",
+		"OSUpdateStatus":
 		return nil
 	case "InstallProfile":
 		var payload InstallProfile
