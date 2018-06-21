@@ -101,6 +101,33 @@ func (db *DB) Save(dev *device.Device) error {
 	return tx.Commit()
 }
 
+func (db *DB) Delete(udid string) error {
+	device, err := db.DeviceByUDID(udid)
+	if err != nil {
+		return err
+	}
+
+	tx, err := db.DB.Begin(true)
+	if err != nil {
+		return errors.Wrap(err, "begin transaction")
+	}
+
+	bkt := tx.Bucket([]byte(DeviceBucket))
+	if err := bkt.Delete([]byte(device.UUID)); err != nil {
+		return errors.Wrapf(err, "delete device for UDID %s", udid)
+	}
+
+	idxBucket := tx.Bucket([]byte(deviceIndexBucket))
+	if err := idxBucket.Delete([]byte(udid)); err != nil {
+		return errors.Wrapf(err, "delete device index for UDID %s", udid)
+	}
+	if err := idxBucket.Delete([]byte(device.SerialNumber)); err != nil {
+		return errors.Wrapf(err, "delete device index for serial %s", device.SerialNumber)
+	}
+
+	return tx.Commit()
+}
+
 type notFound struct {
 	ResourceType string
 	Message      string

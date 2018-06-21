@@ -42,6 +42,8 @@ func (cmd *removeCommand) Run(args []string) error {
 	switch strings.ToLower(args[0]) {
 	case "blueprints":
 		run = cmd.removeBlueprints
+	case "devices":
+		run = cmd.removeDevices
 	case "profiles":
 		run = cmd.removeProfiles
 	case "block":
@@ -63,6 +65,7 @@ Display one or many resources.
 Valid resource types:
 
   * blueprints
+  * devices
   * profiles
   * block
   * dep-autoassigner

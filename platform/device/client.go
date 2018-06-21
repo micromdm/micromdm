@@ -27,8 +27,20 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 		).Endpoint()
 	}
 
+	var removeDevicesEndpoint endpoint.Endpoint
+	{
+		removeDevicesEndpoint = httptransport.NewClient(
+			"DELETE",
+			httputil.CopyURL(u, "/v1/devices"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			decodeRemoveDevicesResponse,
+			opts...,
+		).Endpoint()
+	}
+
 	return Endpoints{
-		ListDevicesEndpoint: listDevicesEndpoint,
+		ListDevicesEndpoint:   listDevicesEndpoint,
+		RemoveDevicesEndpoint: removeDevicesEndpoint,
 	}, nil
 
 }

@@ -64,6 +64,29 @@ func TestSave(t *testing.T) {
 
 }
 
+func TestDelete(t *testing.T) {
+	db := setupDB(t)
+	dev := &device.Device{
+		UUID:         "a-b-c-d",
+		UDID:         "UDID-FOO-BAR-BAZ",
+		SerialNumber: "foobarbaz",
+		ProductName:  "MacBook",
+	}
+
+	if err := db.Save(dev); err != nil {
+		t.Fatalf("saving device in datastore: %s", err)
+	}
+
+	if err := db.Delete(dev.UDID); err != nil {
+		t.Fatalf("deleting device in datastore: %s", err)
+	}
+
+	byUDID, _ := db.DeviceByUDID(dev.UDID)
+	if byUDID != nil {
+		t.Fatalf("expected device to be deleted")
+	}
+}
+
 func setupDB(t *testing.T) *DB {
 	f, _ := ioutil.TempFile("", "bolt-")
 	f.Close()
