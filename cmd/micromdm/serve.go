@@ -599,6 +599,9 @@ after:
 	c.pushService = apns.LoggingMiddleware(
 		log.With(level.Info(logger), "component", "apns"),
 	)(service)
+
+	pushinfoWorker := apns.NewWorker(db, c.pubclient, logger)
+	go pushinfoWorker.Run(context.Background())
 }
 
 func (c *server) setupEnrollmentService() {
