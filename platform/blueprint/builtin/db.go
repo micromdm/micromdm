@@ -47,17 +47,6 @@ func NewDB(
 	return datastore, nil
 }
 
-func (db *DB) Create(bp *blueprint.Blueprint) error {
-	_, err := db.BlueprintByName(bp.Name)
-	if err != nil && isNotFound(err) {
-		return errors.New("blueprint must have a unique name")
-	} else if err != nil {
-		return errors.Wrap(err, "creating blueprint")
-	}
-
-	return db.Save(bp)
-}
-
 func (db *DB) List() ([]blueprint.Blueprint, error) {
 	// TODO add filter/limit with ForEach
 	var blueprints []blueprint.Blueprint
