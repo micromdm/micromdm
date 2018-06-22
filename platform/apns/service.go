@@ -138,7 +138,10 @@ func newClient(cert tls.Certificate) (*http.Client, error) {
 		return nil, err
 	}
 
-	return &http.Client{Transport: transport}, nil
+	return &http.Client{
+		Transport: transport,
+		Timeout:   20 * time.Second,
+	}, nil
 }
 
 func NewPushService(provider PushCertificateProvider) (*push.Service, error) {
