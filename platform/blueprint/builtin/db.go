@@ -47,17 +47,6 @@ func NewDB(
 	return datastore, nil
 }
 
-func (db *DB) Create(bp *blueprint.Blueprint) error {
-	_, err := db.BlueprintByName(bp.Name)
-	if err != nil && isNotFound(err) {
-		return errors.New("blueprint must have a unique name")
-	} else if err != nil {
-		return errors.Wrap(err, "creating blueprint")
-	}
-
-	return db.Save(bp)
-}
-
 func (db *DB) List() ([]blueprint.Blueprint, error) {
 	// TODO add filter/limit with ForEach
 	var blueprints []blueprint.Blueprint
@@ -109,22 +98,16 @@ func (db *DB) Save(bp *blueprint.Blueprint) error {
 	if err != nil {
 		return errors.Wrap(err, "marshalling blueprint")
 	}
-	indexes := []string{bp.UUID, bp.Name}
 	idxBucket := tx.Bucket([]byte(blueprintIndexBucket))
 	if idxBucket == nil {
 		return fmt.Errorf("bucket %v not found!", idxBucket)
 	}
-	for _, idx := range indexes {
-		if idx == "" {
-			continue
-		}
-		key := []byte(idx)
-		if err := idxBucket.Put(key, []byte(bp.UUID)); err != nil {
-			return errors.Wrap(err, "put blueprint idx to boltdb")
-		}
+	key := []byte(bp.Name)
+	if err := idxBucket.Put(key, []byte(bp.UUID)); err != nil {
+		return errors.Wrap(err, "put blueprint idx to boltdb")
 	}
 
-	key := []byte(bp.UUID)
+	key = []byte(bp.UUID)
 	if err := bkt.Put(key, bpproto); err != nil {
 		return errors.Wrap(err, "put blueprint to boltdb")
 	}
@@ -189,10 +172,6 @@ func (db *DB) Delete(name string) error {
 		b := tx.Bucket([]byte(BlueprintBucket))
 		i := tx.Bucket([]byte(blueprintIndexBucket))
 		err := i.Delete([]byte(bp.Name))
-		if err != nil {
-			return err
-		}
-		err = i.Delete([]byte(bp.UUID))
 		if err != nil {
 			return err
 		}
