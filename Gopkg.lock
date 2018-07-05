@@ -24,7 +24,7 @@
     ".",
     "internal/x509util"
   ]
-  revision = "f41fa115eb76823dcfb8c45678da0fb6d7ecb792"
+  revision = "9cd374b2a0fc58c461b5b28d6b147fde5027c91f"
   source = "github.com/groob/pkcs7"
 
 [[projects]]
@@ -198,6 +198,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "151e504814f497d3591f423ebe5be4fca6dd047d33a35ba2f66bf6fad2a72bba"
+  inputs-digest = "d03c23e8fcb95ba1db396a3c3d1e6a235ebe31ee09f923e65e94ef33ea020a51"
   solver-name = "gps-cdcl"
   solver-version = 1
