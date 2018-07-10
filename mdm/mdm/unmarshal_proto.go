@@ -108,6 +108,13 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			PhoneNumber: pbc.GetPhoneNumber(),
 			Footnote:    pbc.GetFootnote(),
 		}
+	case "InstallEnterpriseApplication":
+		pbc := pb.GetInstallEnterpriseApplication()
+		cmd.InstallEnterpriseApplication = &InstallEnterpriseApplication{
+			ManifestURL:                    nilIfEmptyString(pbc.GetManifestUrl()),
+			ManifestURLPinningCerts:        pbc.GetManifestUrlPinningCerts(),
+			PinningRevocationCheckRequired: nilIfFalse(pbc.GetPinningRevocationCheckRequired()),
+		}
 	case "InstallApplication":
 		pbc := pb.GetInstallApplication()
 		var mgmt *int

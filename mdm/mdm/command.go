@@ -1,6 +1,7 @@
 package mdm
 
 import (
+	"github.com/micromdm/micromdm/mdm/appmanifest"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -39,6 +40,7 @@ type Command struct {
 	DeleteUser                      *DeleteUser
 	EnableLostMode                  *EnableLostMode
 	InstallApplication              *InstallApplication
+	InstallEnterpriseApplication    *InstallEnterpriseApplication
 	AccountConfiguration            *AccountConfiguration
 	ApplyRedemptionCode             *ApplyRedemptionCode
 	ManagedApplicationList          *ManagedApplicationList
@@ -126,6 +128,13 @@ type EnableLostMode struct {
 	Message     string `plist:",omitempty" json:"message,omitempty"`
 	PhoneNumber string `plist:",omitempty" json:"phone_number,omitempty"`
 	Footnote    string `plist:",omitempty" json:"footnote,omitempty"`
+}
+
+type InstallEnterpriseApplication struct {
+	Manifest                       *appmanifest.Manifest `plist:",omitempty" json:"manifest,omitempty"`
+	ManifestURL                    *string               `plist:",omitempty" json:"manifest_url,omitempty"`
+	ManifestURLPinningCerts        [][]byte              `plist:",omitempty" json:"manifest_url_pinning_certs,omitempty"`
+	PinningRevocationCheckRequired *bool                 `plist:",omitempty" json:"pinning_revocation_check_required,omitempty"`
 }
 
 type InstallApplication struct {
