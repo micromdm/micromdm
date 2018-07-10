@@ -148,6 +148,14 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 				Footnote:    cmd.EnableLostMode.Footnote,
 			},
 		}
+	case "InstallEnterpriseApplication":
+		cmdproto.Request = &mdmproto.Command_InstallEnterpriseApplication{
+			InstallEnterpriseApplication: &mdmproto.InstallEnterpriseApplication{
+				ManifestUrl:                    emptyStringIfNil(cmd.InstallEnterpriseApplication.ManifestURL),
+				ManifestUrlPinningCerts:        cmd.InstallEnterpriseApplication.ManifestURLPinningCerts,
+				PinningRevocationCheckRequired: falseIfNil(cmd.InstallEnterpriseApplication.PinningRevocationCheckRequired),
+			},
+		}
 	case "InstallApplication":
 		var (
 			options       *mdmproto.InstallApplicationOptions

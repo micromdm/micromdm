@@ -147,6 +147,13 @@ func (c *Command) UnmarshalJSON(data []byte) error {
 		}
 		c.EnableLostMode = &payload
 		return nil
+	case "InstallEnterpriseApplication":
+		var payload InstallEnterpriseApplication
+		if err := json.Unmarshal(data, &payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
+		}
+		c.InstallEnterpriseApplication = &payload
+		return nil
 	case "InstallApplication":
 		var payload InstallApplication
 		if err := json.Unmarshal(data, &payload); err != nil {

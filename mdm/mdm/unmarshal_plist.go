@@ -133,6 +133,13 @@ func (c *Command) UnmarshalPlist(unmarshal func(i interface{}) error) error {
 		}
 		c.EnableLostMode = &payload
 		return nil
+	case "InstallEnterpriseApplication":
+		var payload InstallEnterpriseApplication
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.InstallEnterpriseApplication = &payload
+		return nil
 	case "InstallApplication":
 		var payload InstallApplication
 		if err := unmarshal(&payload); err != nil {
