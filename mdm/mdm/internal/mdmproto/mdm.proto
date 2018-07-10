@@ -64,6 +64,7 @@ message Command {
     ScheduleOSUpdateScan schedule_os_update_scan = 33;
     ActiveNSExtensions active_ns_extensions = 34;
     RotateFileVaultKey rotate_filevault_key = 35;
+    InstallEnterpriseApplication install_enterprise_application = 36;
   }
 }
 
@@ -152,6 +153,44 @@ message InstallApplicationOptions {
 message InstallApplicationConfiguration {}
 
 message InstallApplicationAttributes {}
+
+
+message InstallEnterpriseApplication {
+  Manifest manifest = 1;
+  string manifest_url = 2;
+  repeated bytes manifest_url_pinning_certs = 3;
+  bool pinning_revocation_check_required = 4;
+}
+
+message Manifest {
+  repeated ManifestItem manifest_items = 1; 
+}
+
+message ManifestItem {
+  repeated Asset assets = 1;
+  Metadata metadata = 2;
+}
+
+message Asset {
+  string kind = 1;
+  int64 md5_size = 2;
+  repeated string md5s = 3;
+  string url = 4;
+}
+
+message Metadata {
+  string bundle_identifier = 1;
+  string bundle_version = 2;
+  repeated BundleInfo items = 3;
+  string kind = 4;
+  string subtitle = 5;
+  string title = 6;
+}
+
+message BundleInfo {
+  string bundle_identifier = 1;
+  string bundle_version = 2;
+}
 
 message ApplyRedemptionCode {
   string identifier = 1;

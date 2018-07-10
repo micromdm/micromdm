@@ -166,6 +166,15 @@ func (c *Command) MarshalJSON() ([]byte, error) {
 			InstallApplication: c.InstallApplication,
 		}
 		return json.Marshal(&x)
+	case "InstallEnterpriseApplication":
+		var x = struct {
+			RequestType string `json:"request_type"`
+			*InstallEnterpriseApplication
+		}{
+			RequestType:                  c.RequestType,
+			InstallEnterpriseApplication: c.InstallEnterpriseApplication,
+		}
+		return json.Marshal(&x)
 	case "AccountConfiguration":
 		var x = struct {
 			RequestType string `json:"request_type"`

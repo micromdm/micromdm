@@ -1,3 +1,11 @@
+## [v1.3.1](https://github.com/micromdm/micromdm/compare/v1.3.0...master) (Unreleased)
+
+* Update base container to Alpine 3.7 (#437)
+* Fix bugs in SCEP enrollment (#451)
+* Fix issue with APNS timeouts -- Issue #215 (#446)
+* Add device_information and security_info commands with curl API (#448)
+* Add support for InstallEnterpriseApplication command (#452)
+
 ## [v1.3.0](https://github.com/micromdm/micromdm/compare/v1.2.0...master) (Unreleased)
 
 ### Auto-assigner

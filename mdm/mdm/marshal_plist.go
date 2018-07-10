@@ -148,6 +148,14 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 			RequestType:        c.RequestType,
 			InstallApplication: c.InstallApplication,
 		}, nil
+	case "InstallEnterpriseApplication":
+		return &struct {
+			RequestType string
+			*InstallEnterpriseApplication
+		}{
+			RequestType:                  c.RequestType,
+			InstallEnterpriseApplication: c.InstallEnterpriseApplication,
+		}, nil
 	case "AccountConfiguration":
 		return &struct {
 			RequestType string
