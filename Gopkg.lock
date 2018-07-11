@@ -18,13 +18,13 @@
   version = "v1.3.1"
 
 [[projects]]
-  branch = "sha256"
+  branch = "aes_fix"
   name = "github.com/fullsailor/pkcs7"
   packages = [
     ".",
     "internal/x509util"
   ]
-  revision = "9cd374b2a0fc58c461b5b28d6b147fde5027c91f"
+  revision = "43a5f00f86940533f35c4a3d8b0fe8fe9b874d4b"
   source = "github.com/groob/pkcs7"
 
 [[projects]]
@@ -198,6 +198,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d03c23e8fcb95ba1db396a3c3d1e6a235ebe31ee09f923e65e94ef33ea020a51"
+  inputs-digest = "ceca2893e295b61c0074ae5ea408660e76a3dd56f93603a11ecc8772c00f8940"
   solver-name = "gps-cdcl"
   solver-version = 1

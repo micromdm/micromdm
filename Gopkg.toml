@@ -30,7 +30,7 @@
   name = "github.com/micromdm/scep"
   branch = "master"
 
-[[constraint]]
-  branch = "sha256"
+[[override]]
+  branch = "aes_fix"
   name = "github.com/fullsailor/pkcs7"
   source = "github.com/groob/pkcs7"
