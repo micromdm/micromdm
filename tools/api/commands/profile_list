@@ -7,6 +7,6 @@ jq -n \
   '.udid = $udid
   |.request_type = $request_type
   '|\
-  curl \
+  curl $CURL_OPTS \
     -H "Content-Type: application/json" \
     -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-

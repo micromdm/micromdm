@@ -2,4 +2,4 @@
 
 source $MICROMDM_ENV_PATH
 endpoint="push"
-curl -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint/$1"
+curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint/$1"
