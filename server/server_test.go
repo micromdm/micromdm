@@ -1,4 +1,4 @@
-package main
+package server
 
 import "testing"
 
@@ -8,24 +8,24 @@ func TestLoadPushCerts(t *testing.T) {
 	p12path := "testdata/pushcert.p12"
 	keysecret := "secret"
 
-	cfg := &server{
+	s := &Server{
 		APNSPrivateKeyPath:  keypath,
 		APNSCertificatePath: certpath,
 		APNSPrivateKeyPass:  keysecret,
 	}
 
 	// test separate key and cert
-	cfg.loadPushCerts()
-	if cfg.err != nil {
-		t.Fatal(cfg.err)
+	err := s.loadPushCerts()
+	if err != nil {
+		t.Fatal(err)
 	}
 
 	// test p12 with secret
-	cfg.APNSCertificatePath = p12path
-	cfg.APNSPrivateKeyPath = ""
-	cfg.loadPushCerts()
-	if cfg.err != nil {
-		t.Fatal(cfg.err)
+	s.APNSCertificatePath = p12path
+	s.APNSPrivateKeyPath = ""
+	err = s.loadPushCerts()
+	if err != nil {
+		t.Fatal(err)
 	}
 
 }
