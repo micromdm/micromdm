@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-kit/kit/endpoint"
-	"github.com/gorilla/mux"
 	"github.com/groob/plist"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
@@ -51,7 +50,11 @@ func (d *requestDecoder) decodeAcknowledgeRequest(ctx context.Context, r *http.R
 		return nil, errors.Wrap(err, "unmarshal MDM Response plist")
 	}
 
-	params := mux.Vars(r)
+	values := r.URL.Query()
+	params := make(map[string]string, len(values))
+	for k, v := range values {
+		params[k] = v[0]
+	}
 
 	event := AcknowledgeEvent{
 		ID:       uuid.NewV4().String(),
