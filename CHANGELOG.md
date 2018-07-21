@@ -1,3 +1,7 @@
+## [v1.3.2]() TBD
+
+* Fix URL params decoding.
+
 ## [v1.3.1](https://github.com/micromdm/micromdm/compare/v1.3.0...master) (Unreleased)
 
 * Update base container to Alpine 3.7 (#437)
