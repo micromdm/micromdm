@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-kit/kit/endpoint"
-	"github.com/gorilla/mux"
 	"github.com/groob/plist"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
@@ -84,7 +83,12 @@ func (d *requestDecoder) decodeCheckinRequest(ctx context.Context, r *http.Reque
 		return nil, errors.Wrap(err, "unmarshal MDM Checkin Request plist")
 	}
 
-	params := mux.Vars(r)
+	values := r.URL.Query()
+	params := make(map[string]string, len(values))
+	for k, v := range values {
+		params[k] = v[0]
+	}
+
 	event := CheckinEvent{
 		ID:      uuid.NewV4().String(),
 		Time:    time.Now().UTC(),
