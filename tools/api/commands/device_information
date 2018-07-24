@@ -4,7 +4,9 @@ endpoint="v1/commands"
 jq -n \
   --arg request_type "DeviceInformation" \
   --arg udid "$1" \
-  '.udid = $udid 
+   --arg query_strings "$2" \
+ '.udid = $udid 
   |.request_type = $request_type
+  |.queries = ($query_strings | split(","))
   '|\
   curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
