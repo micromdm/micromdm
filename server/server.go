@@ -310,6 +310,9 @@ after:
 		log.With(level.Info(logger), "component", "apns"),
 	)(service)
 
+	pushinfoWorker := apns.NewWorker(db, c.PubClient, logger)
+	go pushinfoWorker.Run(context.Background())
+
 	return nil
 }
 
