@@ -1,6 +1,7 @@
 vendor/
 build/
 *.zip
+*.DS_Store
 
 cmd/mdmctl/mdmdctl
 cmd/micromdm/micromdm
