@@ -1,0 +1,4 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/dep/syncnow"
+curl $CURL_OPTS -u "micromdm:$API_TOKEN" -X POST "$SERVER_URL/$endpoint"
