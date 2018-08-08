@@ -225,7 +225,7 @@ func (cmd *applyCommand) applyBlock(args []string) error {
 		return nil
 	}
 	req.SetBasicAuth("micromdm", cmd.config.APIToken)
-	http.DefaultClient.Do(req)
+	skipVerifyHTTPClient(cmd.config.SkipVerify).Do(req)
 	return nil
 }
 
