@@ -12,24 +12,24 @@ import (
 func (cmd *removeCommand) removeDevices(args []string) error {
 	flagset := flag.NewFlagSet("remove-devices", flag.ExitOnError)
 	var (
-		flIdentifier = flagset.String("udid", "", "device UDID, optionally comma separated")
+		flIdentifiers = flagset.String("udids", "", "comma separated list of device UDIDs")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl remove devices [flags]")
 	if err := flagset.Parse(args); err != nil {
 		return err
 	}
 
-	if *flIdentifier == "" {
+	if *flIdentifiers == "" {
 		return errors.New("bad input: device UDID must be provided")
 	}
 
 	ctx := context.Background()
-	err := cmd.devicesvc.RemoveDevices(ctx, strings.Split(*flIdentifier, ","))
+	err := cmd.devicesvc.RemoveDevices(ctx, strings.Split(*flIdentifiers, ","))
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("removed devices(s): %s\n", *flIdentifier)
+	fmt.Printf("removed devices(s): %s\n", *flIdentifiers)
 
 	return nil
 }
