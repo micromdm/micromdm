@@ -49,7 +49,11 @@ func (r getDevicesResponse) Failed() error { return r.Err }
 
 func decodeListDevicesRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var opts ListDevicesOption
-	err := httputil.DecodeJSONRequest(r, &opts)
+	var err error
+	// support an empty GET request without a body
+	if r.ContentLength > 0 {
+		err = httputil.DecodeJSONRequest(r, &opts)
+	}
 	req := getDevicesRequest{
 		Opts: opts,
 	}
