@@ -29,17 +29,9 @@ type Service interface {
 	OTAPhase3(ctx context.Context) (profile.Mobileconfig, error)
 }
 
-func NewService(topic TopicProvider, sub pubsub.Subscriber, caCertPath, scepURL, scepChallenge, url, tlsCertPath, scepSubject string, profileDB profile.Store) (Service, error) {
-	var caCert, tlsCert []byte
+func NewService(topic TopicProvider, sub pubsub.Subscriber, scepURL, scepChallenge, url, tlsCertPath, scepSubject string, profileDB profile.Store) (Service, error) {
+	var tlsCert []byte
 	var err error
-
-	if caCertPath != "" {
-		caCert, err = ioutil.ReadFile(caCertPath)
-
-		if err != nil {
-			return nil, err
-		}
-	}
 
 	if tlsCertPath != "" {
 		tlsCert, err = ioutil.ReadFile(tlsCertPath)
@@ -72,7 +64,6 @@ func NewService(topic TopicProvider, sub pubsub.Subscriber, caCertPath, scepURL,
 		SCEPURL:       scepURL,
 		SCEPSubject:   subject,
 		SCEPChallenge: scepChallenge,
-		CACert:        caCert,
 		TLSCert:       tlsCert,
 		ProfileDB:     profileDB,
 		Topic:         pushTopic,
@@ -118,7 +109,6 @@ type service struct {
 	SCEPURL       string
 	SCEPChallenge string
 	SCEPSubject   [][][]string
-	CACert        []byte
 	TLSCert       []byte
 	ProfileDB     profile.Store
 
@@ -231,16 +221,6 @@ func (svc *service) MakeEnrollmentProfile() (Profile, error) {
 	}
 
 	payloadContent = append(payloadContent, mdmPayloadContent)
-
-	if len(svc.CACert) > 0 {
-		caPayload := NewPayload("com.apple.security.root")
-		caPayload.PayloadDisplayName = "Root certificate for MicroMDM"
-		caPayload.PayloadDescription = "Installs the root CA certificate for MicroMDM"
-		caPayload.PayloadIdentifier = EnrollmentProfileId + ".cert.ca"
-		caPayload.PayloadContent = svc.CACert
-
-		payloadContent = append(payloadContent, *caPayload)
-	}
 
 	// Client needs to trust us at this point if we are using a self signed certificate.
 	if len(svc.TLSCert) > 0 {

@@ -60,11 +60,6 @@ type Server struct {
 	CommandWebhookURL   string
 	DEPClient           dep.Client
 
-	// TODO: refactor enroll service and remove the need to reference
-	// this on-disk cert. but it might be useful to keep the PEM
-	// around for anyone who will need to export the CA.
-	SCEPCACertPath string
-
 	PushService     *push.Service // bufford push
 	APNSPushService apns.Service
 	CommandService  command.Service
@@ -335,7 +330,6 @@ func (c *Server) setupEnrollmentService() error {
 	c.EnrollService, err = enroll.NewService(
 		topicProvider,
 		c.PubClient,
-		c.SCEPCACertPath,
 		c.ServerPublicURL+"/scep",
 		c.SCEPChallenge,
 		c.ServerPublicURL,
@@ -432,14 +426,7 @@ func (c *Server) setupSCEP(logger log.Logger) error {
 		return err
 	}
 
-	caCert, err := depot.CreateOrLoadCA(key, 5, "MicroMDM", "US")
-	if err != nil {
-		return err
-	}
-
-	c.SCEPCACertPath = filepath.Join(c.ConfigPath, "SCEPCACert.pem")
-
-	err = crypto.WritePEMCertificateFile(caCert, c.SCEPCACertPath)
+	_, err = depot.CreateOrLoadCA(key, 5, "MicroMDM", "US")
 	if err != nil {
 		return err
 	}
