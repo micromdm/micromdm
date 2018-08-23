@@ -59,8 +59,8 @@ type SCEPPayloadContent struct {
 	CAFingerprint []byte `plist:"CAFingerprint,omitempty"` // NSData
 	Challenge     string `plist:"Challenge,omitempty"`
 	Keysize       int
-	KeyType       string `plist:"Key Type"`
-	KeyUsage      int    `plist:"Key Usage"`
+	KeyType       string `plist:"KeyType"`
+	KeyUsage      int    `plist:"KeyUsage"`
 	Name          string
 	Subject       [][][]string `plist:"Subject,omitempty"`
 	URL           string
