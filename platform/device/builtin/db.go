@@ -101,8 +101,16 @@ func (db *DB) Save(dev *device.Device) error {
 	return tx.Commit()
 }
 
-func (db *DB) Delete(udid string) error {
-	device, err := db.DeviceByUDID(udid)
+func (db *DB) DeleteByUDID(udid string) error {
+	return db.deleteByIndex(udid)
+}
+
+func (db *DB) DeleteBySerial(serial string) error {
+	return db.deleteByIndex(serial)
+}
+
+func (db *DB) deleteByIndex(key string) error {
+	device, err := db.deviceByIndex(key)
 	if err != nil {
 		return err
 	}
@@ -114,12 +122,12 @@ func (db *DB) Delete(udid string) error {
 
 	bkt := tx.Bucket([]byte(DeviceBucket))
 	if err := bkt.Delete([]byte(device.UUID)); err != nil {
-		return errors.Wrapf(err, "delete device for UDID %s", udid)
+		return errors.Wrapf(err, "delete device for key %s", key)
 	}
 
 	idxBucket := tx.Bucket([]byte(deviceIndexBucket))
-	if err := idxBucket.Delete([]byte(udid)); err != nil {
-		return errors.Wrapf(err, "delete device index for UDID %s", udid)
+	if err := idxBucket.Delete([]byte(device.UDID)); err != nil {
+		return errors.Wrapf(err, "delete device index for UDID %s", device.UDID)
 	}
 	if err := idxBucket.Delete([]byte(device.SerialNumber)); err != nil {
 		return errors.Wrapf(err, "delete device index for serial %s", device.SerialNumber)
@@ -142,34 +150,21 @@ func (e *notFound) NotFound() bool {
 }
 
 func (db *DB) DeviceByUDID(udid string) (*device.Device, error) {
-	var dev device.Device
-	err := db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(DeviceBucket))
-		ib := tx.Bucket([]byte(deviceIndexBucket))
-		idx := ib.Get([]byte(udid))
-		if idx == nil {
-			return &notFound{"Device", fmt.Sprintf("udid %s", udid)}
-		}
-		v := b.Get(idx)
-		if idx == nil {
-			return &notFound{"Device", fmt.Sprintf("uuid %s", string(idx))}
-		}
-		return device.UnmarshalDevice(v, &dev)
-	})
-	if err != nil {
-		return nil, err
-	}
-	return &dev, nil
+	return db.deviceByIndex(udid)
 }
 
 func (db *DB) DeviceBySerial(serial string) (*device.Device, error) {
+	return db.deviceByIndex(serial)
+}
+
+func (db *DB) deviceByIndex(key string) (*device.Device, error) {
 	var dev device.Device
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(DeviceBucket))
 		ib := tx.Bucket([]byte(deviceIndexBucket))
-		idx := ib.Get([]byte(serial))
+		idx := ib.Get([]byte(key))
 		if idx == nil {
-			return &notFound{"Device", fmt.Sprintf("serial %s", serial)}
+			return &notFound{"Device", fmt.Sprintf("key %s", key)}
 		}
 		v := b.Get(idx)
 		if idx == nil {
