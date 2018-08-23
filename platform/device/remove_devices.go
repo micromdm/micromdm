@@ -8,9 +8,16 @@ import (
 	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
-func (svc *DeviceService) RemoveDevices(ctx context.Context, udids []string) error {
-	for _, udid := range udids {
-		err := svc.store.Delete(udid)
+func (svc *DeviceService) RemoveDevices(ctx context.Context, opt RemoveDevicesOptions) error {
+	for _, udid := range opt.UDIDs {
+		err := svc.store.DeleteByUDID(udid)
+		if err != nil {
+			return err
+		}
+	}
+
+	for _, serial := range opt.Serials {
+		err := svc.store.DeleteBySerial(serial)
 		if err != nil {
 			return err
 		}
@@ -19,9 +26,7 @@ func (svc *DeviceService) RemoveDevices(ctx context.Context, udids []string) err
 	return nil
 }
 
-type removeDevicesRequest struct {
-	Identifiers []string `json:"udids"`
-}
+type removeDevicesRequest struct{ Opts RemoveDevicesOptions }
 
 type removeDevicesResponse struct {
 	Err error `json:"err,omitempty"`
@@ -44,15 +49,15 @@ func decodeRemoveDevicesResponse(_ context.Context, r *http.Response) (interface
 func MakeRemoveDevicesEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
 		req := request.(removeDevicesRequest)
-		err = svc.RemoveDevices(ctx, req.Identifiers)
+		err = svc.RemoveDevices(ctx, req.Opts)
 		return removeDevicesResponse{
 			Err: err,
 		}, nil
 	}
 }
 
-func (e Endpoints) RemoveDevices(ctx context.Context, ids []string) error {
-	request := removeDevicesRequest{Identifiers: ids}
+func (e Endpoints) RemoveDevices(ctx context.Context, Opts RemoveDevicesOptions) error {
+	request := removeDevicesRequest{Opts: Opts}
 	resp, err := e.RemoveDevicesEndpoint(ctx, request)
 	if err != nil {
 		return err
