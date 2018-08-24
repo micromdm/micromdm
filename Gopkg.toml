@@ -31,6 +31,6 @@
   branch = "master"
 
 [[override]]
-  branch = "aes_fix"
+  branch = "sha256"
   name = "github.com/fullsailor/pkcs7"
   source = "github.com/groob/pkcs7"
