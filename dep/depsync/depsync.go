@@ -322,6 +322,9 @@ SYNC:
 		if err != nil && isCursorExpired(err) {
 			w.conf.Cursor.Value = ""
 			goto FETCH
+		} else if err != nil && isCursorInvalid(err) {
+			w.conf.Cursor.Value = ""
+			goto FETCH
 		} else if err != nil {
 			return err
 		}
