@@ -117,9 +117,10 @@ func New(pub pubsub.PublishSubscriber, db *bolt.DB, logger log.Logger, opts ...O
 			level.Info(logger).Log("msg", "waiting for DEP token to be added before starting sync")
 			<-sync.startSync
 		}
-		if err := sync.Run(); err != nil {
-			level.Info(logger).Log("err", err, "msg", "DEP watcher failed")
-		}
+		err := sync.Run()
+		// the DEP sync should never end without an error, but log
+		// unconditionally anyway so we never silently stop watching
+		level.Info(logger).Log("err", err, "msg", "DEP watcher stopped")
 	}()
 	return sync, nil
 }
@@ -292,6 +293,12 @@ FETCH:
 		if err != nil && isCursorExhausted(err) {
 			goto SYNC
 		} else if err != nil && isCursorInvalid(err) {
+			level.Info(w.logger).Log(
+				"msg", "DEP fetch cursor response",
+				"cursor", w.conf.Cursor.Value,
+				"err", err,
+				"msg", "retrying DEP fetch with empty cursor",
+			)
 			w.conf.Cursor.Value = ""
 			goto FETCH
 		} else if err != nil {
@@ -320,6 +327,12 @@ SYNC:
 	for {
 		resp, err := w.client.SyncDevices(w.conf.Cursor.Value, dep.Cursor(w.conf.Cursor.Value))
 		if err != nil && (isCursorExpired(err) || isCursorInvalid(err)) {
+			level.Info(w.logger).Log(
+				"msg", "DEP sync cursor response",
+				"cursor", w.conf.Cursor.Value,
+				"err", err,
+				"msg", "retrying DEP fetch with empty cursor",
+			)
 			w.conf.Cursor.Value = ""
 			goto FETCH
 		} else if err != nil {
