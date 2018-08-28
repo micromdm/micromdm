@@ -319,10 +319,7 @@ FETCH:
 SYNC:
 	for {
 		resp, err := w.client.SyncDevices(w.conf.Cursor.Value, dep.Cursor(w.conf.Cursor.Value))
-		if err != nil && isCursorExpired(err) {
-			w.conf.Cursor.Value = ""
-			goto FETCH
-		} else if err != nil && isCursorInvalid(err) {
+		if err != nil && (isCursorExpired(err) || isCursorInvalid(err)) {
 			w.conf.Cursor.Value = ""
 			goto FETCH
 		} else if err != nil {
