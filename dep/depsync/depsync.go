@@ -177,6 +177,10 @@ func isCursorExpired(err error) bool {
 	return strings.Contains(err.Error(), "EXPIRED_CURSOR")
 }
 
+func isCursorInvalid(err error) bool {
+	return strings.Contains(err.Error(), "INVALID_CURSOR")
+}
+
 // Process DEP messages and pull out filter-matching serial numbers
 // associated to profile UUIDs for auto-assignment.
 func (w *watcher) filteredAutoAssignments(devices []dep.Device) (map[string][]string, error) {
@@ -287,6 +291,9 @@ FETCH:
 		resp, err := w.client.FetchDevices(dep.Limit(100), dep.Cursor(w.conf.Cursor.Value))
 		if err != nil && isCursorExhausted(err) {
 			goto SYNC
+		} else if err != nil && isCursorInvalid(err) {
+			w.conf.Cursor.Value = ""
+			goto FETCH
 		} else if err != nil {
 			return err
 		}
