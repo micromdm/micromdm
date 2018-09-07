@@ -1,6 +1,6 @@
 ## [v1.5.0](https://github.com/micromdm/micromdm/compare/v1.4.0...master) (Unreleased)
 
-## [v1.4.0](https://github.com/micromdm/micromdm/compare/v1.3.1...v1.4.0) September 6th 2018
+## [v1.4.0](https://github.com/micromdm/micromdm/compare/v1.3.1...v1.4.0) September 6 2018
 
 ### Stability Improvements
 
