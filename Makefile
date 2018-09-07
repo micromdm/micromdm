@@ -103,3 +103,6 @@ docker-build:
 
 docker-tag: docker-build
 	docker tag ${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG} ${DOCKER_IMAGE_NAME}:latest
+
+ngrok:
+	@./tools/ngrok/screen
