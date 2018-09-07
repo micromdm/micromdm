@@ -1,9 +1,13 @@
-## [v1.3.2]() TBD
+## [v1.4.0](https://github.com/micromdm/micromdm/compare/v1.3.1...master) (Unreleased)
 
 * Handle DEP INVALID_CURSOR response (#497)
-* Fix URL params decoding.
+* Fix URL params decoding. (#
+* Allow setting curl options in environment variable (#455)
+* DeviceInformation command API example support query strings (#469)
+* Use config for block push (#480) Fixes #479
+* Re-fetch on invalid cursor (#497
 
-## [v1.3.1](https://github.com/micromdm/micromdm/compare/v1.3.0...master) (Unreleased)
+## [v1.3.1](https://github.com/micromdm/micromdm/compare/v1.3.0...master) July 10 2018
 
 * Update base container to Alpine 3.7 (#437)
 * Fix bugs in SCEP enrollment (#451)
@@ -11,7 +15,7 @@
 * Add device_information and security_info commands with curl API (#448)
 * Add support for InstallEnterpriseApplication command (#452)
 
-## [v1.3.0](https://github.com/micromdm/micromdm/compare/v1.2.0...master) (Unreleased)
+## [v1.3.0](https://github.com/micromdm/micromdm/compare/v1.2.0...master) 
 
 ### Auto-assigner
 
