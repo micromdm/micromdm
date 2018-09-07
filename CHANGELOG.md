@@ -1,4 +1,8 @@
-## [v1.4.0](https://github.com/micromdm/micromdm/compare/v1.3.1...master) (Unreleased)
+## [v1.5.0](https://github.com/micromdm/micromdm/compare/v1.4.0...master) (Unreleased)
+
+## [v1.4.0](https://github.com/micromdm/micromdm/compare/v1.3.1...v1.4.0) September 6th 2018
+
+### Stability Improvements
 
 * Handle DEP INVALID_CURSOR response (#497)
 * Use config for block push (#479, #480)
