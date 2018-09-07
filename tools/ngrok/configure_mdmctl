@@ -1,8 +1,7 @@
 #!/bin/bash
 source $MICROMDM_ENV_PATH
-micromdm_go_path="$(go env GOPATH)/src/github.com/micromdm/micromdm"
-mdmctl="$micromdm_go_path/build/$(uname |tr [:upper:] [:lower:])/mdmctl"
-config_root="$micromdm_go_path/tools/ngrok/config_root"
+mdmctl="$(PWD)/build/$(uname |tr [:upper:] [:lower:])/mdmctl"
+config_root="$(PWD)/tools/ngrok/config_root"
 
 $mdmctl config set -name ngrok -api-token=$API_TOKEN -server-url=$SERVER_URL
 $mdmctl config switch -name=ngrok
