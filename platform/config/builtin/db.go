@@ -77,6 +77,17 @@ func (db *DB) serverConfig() (*config.ServerConfig, error) {
 	return &conf, errors.Wrap(err, "get server config from bolt")
 }
 
+func (db *DB) GetPushCertificate() ([]byte, error) {
+	cert, err := db.PushCertificate()
+	if err != nil {
+		return nil, err
+	}
+	if len(cert.Certificate) > 0 {
+		return cert.Certificate[0], nil
+	}
+	return nil, nil
+}
+
 func (db *DB) PushCertificate() (*tls.Certificate, error) {
 	conf, err := db.serverConfig()
 	if err != nil {
