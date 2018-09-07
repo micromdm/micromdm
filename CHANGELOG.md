@@ -1,7 +1,7 @@
 ## [v1.4.0](https://github.com/micromdm/micromdm/compare/v1.3.1...master) (Unreleased)
 
 * Handle DEP INVALID_CURSOR response (#497)
-* Use config for block push (#480) Fixes #479
+* Use config for block push (#479, #480)
 * No longer store SCEP CA on disk or include in enrollment profile (#490)
 * Further SCEP fixes (#492, #493)
 * Base64 fixes for API CLI tools (#477)
