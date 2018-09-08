@@ -32,6 +32,7 @@ import (
 	"github.com/micromdm/micromdm/platform/config"
 	configbuiltin "github.com/micromdm/micromdm/platform/config/builtin"
 	"github.com/micromdm/micromdm/platform/dep/sync"
+	syncbuiltin "github.com/micromdm/micromdm/platform/dep/sync/builtin"
 	"github.com/micromdm/micromdm/platform/profile"
 	profilebuiltin "github.com/micromdm/micromdm/platform/profile/builtin"
 	"github.com/micromdm/micromdm/platform/pubsub"
@@ -60,6 +61,7 @@ type Server struct {
 	RemoveDB            block.Store
 	CommandWebhookURL   string
 	DEPClient           *dep.Client
+	SyncDB              *syncbuiltin.DB
 
 	PushService     *push.Service // bufford push
 	APNSPushService apns.Service
@@ -407,8 +409,14 @@ func (c *Server) CreateDEPSyncer(logger log.Logger) (sync.Syncer, error) {
 		opts = append(opts, sync.WithClient(client))
 	}
 
+	syncdb, err := syncbuiltin.NewDB(c.DB)
+	if err != nil {
+		return nil, err
+	}
+	c.SyncDB = syncdb
+
 	var syncer sync.Syncer
-	syncer, err := sync.New(c.PubClient, c.DB, logger, opts...)
+	syncer, err = sync.NewWatcher(c.SyncDB, c.PubClient, opts...)
 	if err != nil {
 		return nil, err
 	}

@@ -253,7 +253,7 @@ func serve(args []string) error {
 		depEndpoints := depapi.MakeServerEndpoints(depsvc, basicAuthEndpointMiddleware)
 		depapi.RegisterHTTPHandlers(r, depEndpoints, options...)
 
-		depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer), basicAuthEndpointMiddleware)
+		depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncDB), basicAuthEndpointMiddleware)
 		sync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
 	} else {
 		mainLogger.Log("msg", "no api key specified")

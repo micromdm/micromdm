@@ -8,8 +8,8 @@ import (
 	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
-func NewService(syncer Syncer) *DEPSyncService {
-	return &DEPSyncService{syncer: syncer}
+func NewService(syncer Syncer, db DB) *DEPSyncService {
+	return &DEPSyncService{syncer: syncer, db: db}
 }
 
 type Endpoints struct {
