@@ -3,10 +3,8 @@ package dep
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/http/httputil"
 	"net/url"
 	"path"
 	"strings"
@@ -200,8 +198,6 @@ func (c *Client) do(req *http.Request, into interface{}) error {
 	}
 	req.Header.Add("X-ADM-Auth-Session", c.authSessionToken)
 
-	out, _ := httputil.DumpRequestOut(req, false)
-	fmt.Println(string(out))
 	resp, err := c.client.Do(req)
 	if err != nil {
 		return errors.Wrap(err, "perform dep request")
