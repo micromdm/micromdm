@@ -10,9 +10,9 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	"github.com/micromdm/dep"
 	"github.com/pkg/errors"
 
+	"github.com/micromdm/micromdm/dep"
 	conf "github.com/micromdm/micromdm/platform/config"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
@@ -39,7 +39,7 @@ type AutoAssigner struct {
 type watcher struct {
 	mtx    sync.RWMutex
 	logger log.Logger
-	client dep.Client
+	client Client
 
 	publisher pubsub.Publisher
 	conf      *config
@@ -61,9 +61,15 @@ func (c cursor) Valid() bool {
 	return true
 }
 
+type Client interface {
+	FetchDevices(...dep.DeviceRequestOption) (*dep.DeviceResponse, error)
+	SyncDevices(string, ...dep.DeviceRequestOption) (*dep.DeviceResponse, error)
+	AssignProfile(string, ...string) (*dep.ProfileResponse, error)
+}
+
 type Option func(*watcher)
 
-func WithClient(client dep.Client) Option {
+func WithClient(client Client) Option {
 	return func(w *watcher) {
 		w.client = client
 	}
@@ -226,7 +232,7 @@ func (w *watcher) processAutoAssign(devices []dep.Device) error {
 	}
 
 	for profileUUID, serials := range assignments {
-		resp, err := w.client.AssignProfile(profileUUID, serials)
+		resp, err := w.client.AssignProfile(profileUUID, serials...)
 		if err != nil {
 			level.Info(w.logger).Log(
 				"err", err,

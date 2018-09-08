@@ -6,7 +6,8 @@ import (
 	"net/http"
 
 	"github.com/go-kit/kit/endpoint"
-	"github.com/micromdm/dep"
+
+	"github.com/micromdm/micromdm/dep"
 	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
@@ -14,7 +15,7 @@ func (svc *DEPService) GetDeviceDetails(ctx context.Context, serials []string) (
 	if svc.client == nil {
 		return nil, errors.New("DEP not configured yet. add a DEP token to enable DEP")
 	}
-	return svc.client.DeviceDetails(serials)
+	return svc.client.DeviceDetails(serials...)
 }
 
 type deviceDetailsRequest struct {

@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/gogo/protobuf/proto"
-	"github.com/micromdm/dep"
 	uuid "github.com/satori/go.uuid"
 
+	"github.com/micromdm/micromdm/dep"
 	"github.com/micromdm/micromdm/dep/depsync/internal/depsyncproto"
 )
 

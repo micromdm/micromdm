@@ -10,10 +10,10 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/micromdm/dep"
-	"github.com/micromdm/micromdm/dep/depsync"
 	"github.com/pkg/errors"
 
+	"github.com/micromdm/micromdm/dep"
+	"github.com/micromdm/micromdm/dep/depsync"
 	"github.com/micromdm/micromdm/pkg/crypto"
 )
 
