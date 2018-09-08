@@ -17,14 +17,13 @@ type DEPToken struct {
 }
 
 // create a DEP client from token.
-func (tok DEPToken) Client() (dep.Client, error) {
-	conf := &dep.Config{
+func (tok DEPToken) Client() (*dep.Client, error) {
+	conf := dep.OAuthParameters{
 		ConsumerKey:    tok.ConsumerKey,
 		ConsumerSecret: tok.ConsumerSecret,
 		AccessSecret:   tok.AccessSecret,
 		AccessToken:    tok.AccessToken,
 	}
-	depServerURL := "https://mdmenrollment.apple.com"
-	client, err := dep.NewClient(conf, dep.ServerURL(depServerURL))
-	return client, err
+	client := dep.NewClient(conf)
+	return client, nil
 }

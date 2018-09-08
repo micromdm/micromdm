@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"time"
 
@@ -58,7 +59,7 @@ type Server struct {
 	ConfigDB            config.Store
 	RemoveDB            block.Store
 	CommandWebhookURL   string
-	DEPClient           dep.Client
+	DEPClient           *dep.Client
 
 	PushService     *push.Service // bufford push
 	APNSPushService apns.Service
@@ -352,9 +353,12 @@ func (p staticTopicProvider) PushTopic() (string, error) {
 }
 
 func (c *Server) setupDepClient() error {
-	// depsim config
-	depsim := c.Depsim
-	var conf *dep.Config
+	var (
+		conf           dep.OAuthParameters
+		depsim         = c.Depsim
+		hasTokenConfig bool
+		opts           []dep.Option
+	)
 
 	// try getting the oauth config from bolt
 	tokens, err := c.ConfigDB.DEPTokens()
@@ -362,7 +366,7 @@ func (c *Server) setupDepClient() error {
 		return err
 	}
 	if len(tokens) >= 1 {
-		conf = new(dep.Config)
+		hasTokenConfig = true
 		conf.ConsumerSecret = tokens[0].ConsumerSecret
 		conf.ConsumerKey = tokens[0].ConsumerKey
 		conf.AccessSecret = tokens[0].AccessSecret
@@ -372,29 +376,25 @@ func (c *Server) setupDepClient() error {
 
 	// override with depsim keys if specified on CLI
 	if depsim != "" {
-		conf = &dep.Config{
+		hasTokenConfig = true
+		conf = dep.OAuthParameters{
 			ConsumerKey:    "CK_48dd68d198350f51258e885ce9a5c37ab7f98543c4a697323d75682a6c10a32501cb247e3db08105db868f73f2c972bdb6ae77112aea803b9219eb52689d42e6",
 			ConsumerSecret: "CS_34c7b2b531a600d99a0e4edcf4a78ded79b86ef318118c2f5bcfee1b011108c32d5302df801adbe29d446eb78f02b13144e323eb9aad51c79f01e50cb45c3a68",
 			AccessToken:    "AT_927696831c59ba510cfe4ec1a69e5267c19881257d4bca2906a99d0785b785a6f6fdeb09774954fdd5e2d0ad952e3af52c6d8d2f21c924ba0caf4a031c158b89",
 			AccessSecret:   "AS_c31afd7a09691d83548489336e8ff1cb11b82b6bca13f793344496a556b1f4972eaff4dde6deb5ac9cf076fdfa97ec97699c34d515947b9cf9ed31c99dded6ba",
 		}
+		depsimurl, err := url.Parse(depsim)
+		if err != nil {
+			return err
+		}
+		opts = append(opts, dep.WithServerURL(depsimurl))
 	}
 
-	if conf == nil {
+	if !hasTokenConfig {
 		return nil
 	}
 
-	depServerURL := "https://mdmenrollment.apple.com"
-	if depsim != "" {
-		depServerURL = depsim
-	}
-	client, err := dep.NewClient(conf, dep.ServerURL(depServerURL))
-	if err != nil {
-		return err
-	}
-
-	c.DEPClient = client
-
+	c.DEPClient = dep.NewClient(conf, opts...)
 	return nil
 }
 

@@ -15,9 +15,17 @@ type Service interface {
 	FetchProfile(ctx context.Context, uuid string) (*dep.Profile, error)
 }
 
+type DEPClient interface {
+	DefineProfile(*dep.Profile) (*dep.ProfileResponse, error)
+	AssignProfile(string, ...string) (*dep.ProfileResponse, error)
+	FetchProfile(string) (*dep.Profile, error)
+	Account() (*dep.Account, error)
+	DeviceDetails(...string) (*dep.DeviceDetailsResponse, error)
+}
+
 type DEPService struct {
 	mtx        sync.RWMutex
-	client     dep.Client
+	client     DEPClient
 	subscriber pubsub.Subscriber
 }
 
@@ -25,6 +33,6 @@ func (svc *DEPService) Run() error {
 	return svc.watchTokenUpdates(svc.subscriber)
 }
 
-func New(client dep.Client, subscriber pubsub.Subscriber) *DEPService {
+func New(client DEPClient, subscriber pubsub.Subscriber) *DEPService {
 	return &DEPService{client: client, subscriber: subscriber}
 }

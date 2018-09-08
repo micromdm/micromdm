@@ -1,8 +1,9 @@
 package dep
 
 import (
-	"fmt"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 const (
@@ -11,32 +12,12 @@ const (
 	deviceDetailsPath = "devices"
 )
 
-// DeviceService allows fetching and syncing devices, as well as requesting device details
-/*
-Use (Cursor() and Limit() as optional arguments for Fetch Devices, example:
-	fetchResponse, err := client.FetchDevices(dep.Limit(100))
-	if err != nil {
-		// handle err
-	}
-	fmt.Println(fetchResponse.Devices)
-*/
-type DeviceService interface {
-	FetchDevices(opts ...DeviceRequestOption) (*DeviceResponse, error)
-	SyncDevices(cursor string, opts ...DeviceRequestOption) (*DeviceResponse, error)
-	DeviceDetails(devices []string) (*DeviceDetailsResponse, error)
-}
-
-type deviceService struct {
-	client *depClient
-}
-
-// Device is a DEP device
 type Device struct {
 	SerialNumber       string    `json:"serial_number"`
 	Model              string    `json:"model"`
 	Description        string    `json:"description"`
 	Color              string    `json:"color"`
-	AssetTag           string    `json:"asset_tag"`
+	AssetTag           string    `json:"asset_tag,omitempty"`
 	ProfileStatus      string    `json:"profile_status"`
 	ProfileUUID        string    `json:"profile_uuid,omitempty"`
 	ProfileAssignTime  time.Time `json:"profile_assign_time,omitempty"`
@@ -48,6 +29,8 @@ type Device struct {
 	// sync fields
 	OpType string    `json:"op_type,omitempty"`
 	OpDate time.Time `json:"op_date,omitempty"`
+	// details fields
+	ResponseStatus string `json:"response_status,omitempty"`
 }
 
 // DeviceRequestOption is an optional parameter for the DeviceService API.
@@ -71,14 +54,13 @@ func Cursor(cursor string) DeviceRequestOption {
 func Limit(limit int) DeviceRequestOption {
 	return func(opts *deviceRequestOpts) error {
 		if limit > 1000 {
-			return fmt.Errorf("Limit must not be higher than 1000")
+			return errors.New("limit must not be higher than 1000")
 		}
 		opts.Limit = limit
 		return nil
 	}
 }
 
-// DeviceResponse is a DEP FetchDevices response
 type DeviceResponse struct {
 	Devices      []Device  `json:"devices"`
 	Cursor       string    `json:"cursor"`
@@ -86,8 +68,7 @@ type DeviceResponse struct {
 	MoreToFollow bool      `json:"more_to_follow"`
 }
 
-// FetchDevices returns the result of a Fetch Devices request from DEP
-func (s deviceService) FetchDevices(opts ...DeviceRequestOption) (*DeviceResponse, error) {
+func (c *Client) FetchDevices(opts ...DeviceRequestOption) (*DeviceResponse, error) {
 	request := &deviceRequestOpts{}
 	for _, option := range opts {
 		if err := option(request); err != nil {
@@ -95,19 +76,15 @@ func (s deviceService) FetchDevices(opts ...DeviceRequestOption) (*DeviceRespons
 		}
 	}
 	var response DeviceResponse
-	req, err := s.client.NewRequest("POST", fetchDevicesPath, request)
+	req, err := c.newRequest("POST", fetchDevicesPath, request)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "create fetch devices request")
 	}
-	err = s.client.Do(req, &response)
-	if err != nil {
-		return nil, err
-	}
-	return &response, nil
+	err = c.do(req, &response)
+	return &response, errors.Wrap(err, "fetch devices")
 }
 
-// SyncDevices returns the result of a Sync Devices request from DEP
-func (s deviceService) SyncDevices(cursor string, opts ...DeviceRequestOption) (*DeviceResponse, error) {
+func (c *Client) SyncDevices(cursor string, opts ...DeviceRequestOption) (*DeviceResponse, error) {
 	request := &deviceRequestOpts{Cursor: cursor}
 	for _, option := range opts {
 		if err := option(request); err != nil {
@@ -115,37 +92,30 @@ func (s deviceService) SyncDevices(cursor string, opts ...DeviceRequestOption) (
 		}
 	}
 	var response DeviceResponse
-	req, err := s.client.NewRequest("POST", syncDevicesPath, request)
+	req, err := c.newRequest("POST", syncDevicesPath, request)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "create sync devices request")
 	}
-	err = s.client.Do(req, &response)
-	if err != nil {
-		return nil, err
-	}
-	return &response, nil
+	err = c.do(req, &response)
+	return &response, errors.Wrap(err, "sync devices")
 }
 
-// DeviceDetailsResponse is a response for a DeviceDetails request
 type DeviceDetailsResponse struct {
 	Devices map[string]Device `json:"devices"`
 }
 
-// DeviceDetails returns the result of a Sync Devices request from DEP
-func (s deviceService) DeviceDetails(devices []string) (*DeviceDetailsResponse, error) {
+func (c *Client) DeviceDetails(serials ...string) (*DeviceDetailsResponse, error) {
 	request := struct {
 		Devices []string `json:"devices"`
 	}{
-		Devices: devices,
+		Devices: serials,
 	}
+
 	var response DeviceDetailsResponse
-	req, err := s.client.NewRequest("POST", deviceDetailsPath, request)
+	req, err := c.newRequest("POST", deviceDetailsPath, request)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "create device details request")
 	}
-	err = s.client.Do(req, &response)
-	if err != nil {
-		return nil, err
-	}
-	return &response, nil
+	err = c.do(req, &response)
+	return &response, errors.Wrap(err, "get device details")
 }

@@ -41,7 +41,8 @@ BUILD_VERSION = "\
 	-X github.com/micromdm/go4/version.buildUser=${USER} \
 	-X github.com/micromdm/go4/version.buildDate=${NOW} \
 	-X github.com/micromdm/go4/version.revision=${REVISION} \
-	-X github.com/micromdm/go4/version.goVersion=${GOVERSION}"
+	-X github.com/micromdm/go4/version.goVersion=${GOVERSION} \
+	-X github.com/micromdm/micromdm/dep.version=${VERSION}"
 
 gomodcheck: 
 	@go help mod > /dev/null || (@echo micromdm requires Go version 1.11 or higher && exit 1)

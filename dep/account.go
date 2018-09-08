@@ -1,22 +1,9 @@
 package dep
 
-const (
-	accountBasePath = "account"
-)
+import "github.com/pkg/errors"
 
-// AccountService communicates with the DEP Account Details endpoint
-/*
-	account, err := client.Account()
-*/
-type AccountService interface {
-	Account() (*Account, error)
-}
+const accountBasePath = "account"
 
-type accountService struct {
-	client *depClient
-}
-
-// Account is a DEP account
 type Account struct {
 	ServerName    string   `json:"server_name"`
 	ServerUUID    string   `json:"server_uuid"`
@@ -26,20 +13,20 @@ type Account struct {
 	OrgEmail      string   `json:"org_email"`
 	OrgPhone      string   `json:"org_phone"`
 	OrgAddress    string   `json:"org_address"`
+	OrgID         string   `json"org_id"`
+	OrgIDHash     string   `json"org_id_hash"`
 	URLs          []string `json:"urls"`
+	OrgType       string   `json:"org_type"`
+	OrgVersion    string   `json:"org_version"`
 }
 
-// Account returns account details
-func (s accountService) Account() (*Account, error) {
+func (c *Client) Account() (*Account, error) {
 	var account Account
-	req, err := s.client.NewRequest("GET", accountBasePath, nil)
+	req, err := c.newRequest("GET", accountBasePath, nil)
 	if err != nil {
-		return nil, err
-	}
-	err = s.client.Do(req, &account)
-	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "create account request")
 	}
 
-	return &account, nil
+	err = c.do(req, &account)
+	return &account, errors.Wrap(err, "account request")
 }
