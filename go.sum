@@ -32,8 +32,6 @@ github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORN
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
-github.com/micromdm/dep v0.0.0-20180512233915-03ff93db459f h1:WOeg7O6A5okKr5YOy6Sg+kCU3TS5TIg+djrRhBc3cd0=
-github.com/micromdm/dep v0.0.0-20180512233915-03ff93db459f/go.mod h1:lDmU6NHThG8AWOQIVTnbifE/uHU8iLnGDR8W32I6OCM=
 github.com/micromdm/go4 v0.0.0-20171021081444-deded5397014 h1:8Za9WLoGTSU96EAWFziRCiFmQuBAC6xj9/dKiN45LHw=
 github.com/micromdm/go4 v0.0.0-20171021081444-deded5397014/go.mod h1:8EzTEgA3q2ZdZotWXs1bWnFCXuaFHU0+jDNZbHlwduM=
 github.com/micromdm/scep v1.0.1-0.20180906231441-a136542b4bc9 h1:LGgQOrgBGOoye+MmS1YT1XpdlOEEkqc/1c0XBPBELnw=

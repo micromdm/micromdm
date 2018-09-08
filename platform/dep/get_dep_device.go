@@ -6,7 +6,8 @@ import (
 	"net/http"
 
 	"github.com/go-kit/kit/endpoint"
-	"github.com/micromdm/dep"
+
+	"github.com/micromdm/micromdm/dep"
 	"github.com/micromdm/micromdm/pkg/httputil"
 )
 

@@ -16,12 +16,12 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	"github.com/micromdm/dep"
 	boltdepot "github.com/micromdm/scep/depot/bolt"
 	scep "github.com/micromdm/scep/server"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/pkcs12"
 
+	"github.com/micromdm/micromdm/dep"
 	"github.com/micromdm/micromdm/dep/depsync"
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/mdm/enroll"

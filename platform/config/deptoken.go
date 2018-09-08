@@ -3,7 +3,7 @@ package config
 import (
 	"time"
 
-	"github.com/micromdm/dep"
+	"github.com/micromdm/micromdm/dep"
 )
 
 const DEPTokenTopic = "mdm.TokenAdded"

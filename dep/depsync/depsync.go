@@ -10,9 +10,9 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	"github.com/micromdm/dep"
 	"github.com/pkg/errors"
 
+	"github.com/micromdm/micromdm/dep"
 	conf "github.com/micromdm/micromdm/platform/config"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
