@@ -1,4 +1,4 @@
-package depsync
+package sync
 
 import (
 	"github.com/go-kit/kit/endpoint"

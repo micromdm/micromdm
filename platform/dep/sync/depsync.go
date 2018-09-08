@@ -1,4 +1,4 @@
-package depsync
+package sync
 
 import (
 	"context"
@@ -31,11 +31,6 @@ type Syncer interface {
 	GetConfig() *config // TODO: #302
 }
 
-type AutoAssigner struct {
-	Filter      string `json:"filter"`
-	ProfileUUID string `json:"profile_uuid"`
-}
-
 type watcher struct {
 	mtx    sync.RWMutex
 	logger log.Logger
@@ -45,11 +40,6 @@ type watcher struct {
 	conf      *config
 	startSync chan bool
 	syncNow   chan bool
-}
-
-type cursor struct {
-	Value     string    `json:"value"`
-	CreatedAt time.Time `json:"created_at"`
 }
 
 // A cursor is valid for a week.

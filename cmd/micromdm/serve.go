@@ -29,7 +29,6 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/acme/autocert"
 
-	"github.com/micromdm/micromdm/dep/depsync"
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/mdm/enroll"
 	httputil2 "github.com/micromdm/micromdm/pkg/httputil"
@@ -41,6 +40,7 @@ import (
 	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/config"
 	depapi "github.com/micromdm/micromdm/platform/dep"
+	"github.com/micromdm/micromdm/platform/dep/sync"
 	"github.com/micromdm/micromdm/platform/device"
 	devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
 	"github.com/micromdm/micromdm/platform/profile"
@@ -253,8 +253,8 @@ func serve(args []string) error {
 		depEndpoints := depapi.MakeServerEndpoints(depsvc, basicAuthEndpointMiddleware)
 		depapi.RegisterHTTPHandlers(r, depEndpoints, options...)
 
-		depsyncEndpoints := depsync.MakeServerEndpoints(depsync.NewService(syncer), basicAuthEndpointMiddleware)
-		depsync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
+		depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer), basicAuthEndpointMiddleware)
+		sync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
 	} else {
 		mainLogger.Log("msg", "no api key specified")
 	}

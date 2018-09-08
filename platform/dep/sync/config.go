@@ -1,7 +1,8 @@
-package depsync
+package sync
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/boltdb/bolt"
 	"github.com/pkg/errors"
@@ -10,6 +11,16 @@ import (
 type config struct {
 	*bolt.DB
 	Cursor cursor `json:"cursor"`
+}
+
+type cursor struct {
+	Value     string    `json:"value"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type AutoAssigner struct {
+	Filter      string `json:"filter"`
+	ProfileUUID string `json:"profile_uuid"`
 }
 
 func (cfg *config) Save() error {
