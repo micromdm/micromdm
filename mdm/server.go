@@ -69,7 +69,8 @@ func populateDeviceCertificateFromSignRequestHeader(ctx context.Context, r *http
 	bodyReader := r.Body
 	defer bodyReader.Close()
 
-	// We gracefully bubble up errors from this function, so we silently disregard them (terrible)
+	// We can't gracefully bubble up errors from this function,
+	// so we silently disregard them (terrible)
 	body, _ := ioutil.ReadAll(r.Body)
 
 	// Replace our body object with a fully buffered response

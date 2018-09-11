@@ -3,44 +3,13 @@ package mdm
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/fullsailor/pkcs7"
-	"github.com/micromdm/micromdm/pkg/crypto"
 )
-
-// immitate an Mdm-Signature header
-func mdmSignRequest(body []byte) (string, error) {
-	key, cert, err := crypto.SimpleSelfSignedRSAKeypair("test", 365)
-	if err != nil {
-		return "", err
-	}
-
-	sd, err := pkcs7.NewSignedData(body)
-	if err != nil {
-		return "", err
-	}
-
-	sd.AddSigner(cert, key, pkcs7.SignerInfoConfig{})
-	sd.Detach()
-	sig, err := sd.Finish()
-	if err != nil {
-		return "", err
-	}
-
-	return base64.StdEncoding.EncodeToString(sig), nil
-}
 
 func Test_decodeCheckinRequest(t *testing.T) {
 	// test that url values from checkin and acknowledge requests are passed to the event.
 	req := httptest.NewRequest("GET", "/mdm/checkin?id=1111", bytes.NewReader([]byte(sampleCheckinRequest)))
-	b64sig, err := mdmSignRequest([]byte(sampleCheckinRequest))
-	if err != nil {
-		t.Fatal(err)
-	}
-	req.Header.Set("Mdm-Signature", b64sig)
 	resp, err := decodeCheckinRequest(context.Background(), req)
 	if err != nil {
 		t.Fatal(err)
