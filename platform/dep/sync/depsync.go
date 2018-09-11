@@ -60,7 +60,10 @@ func NewWatcher(db WatcherDB, pub pubsub.PublishSubscriber, opts ...Option) (*wa
 	if err != nil {
 		return nil, err
 	}
-	w.cursor = *cursor
+	if cursor.Valid() {
+		level.Debug(w.logger).Log("msg", "loaded DEP config", "cursor", cursor.Value)
+		w.cursor = *cursor
+	}
 
 	if err := w.updateClient(pub); err != nil {
 		return nil, err
