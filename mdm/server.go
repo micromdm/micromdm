@@ -94,12 +94,12 @@ func mdmRequestBody(r *http.Request, s interface{}) ([]byte, error) {
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "reading MDM request HTTP body")
+		return nil, errors.Wrap(err, "reading MDM acknowledge HTTP body")
 	}
 
 	err = plist.Unmarshal(body, s)
 	if err != nil {
-		return body, errors.Wrap(err, "unmarshal MDM request plist")
+		return body, errors.Wrap(err, "unmarshal MDM acknowledge plist")
 	}
 
 	return body, nil

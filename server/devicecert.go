@@ -20,7 +20,7 @@ func VerifyCertificateMiddleware(store ScepVerifyDepot, logger log.Logger) mdm.M
 		return &verifyCertificateMiddleware{
 			store:  store,
 			next:   next,
-			logger: log.With(logger, "component", "verifycert"),
+			logger: logger,
 		}
 	}
 }

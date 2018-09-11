@@ -22,7 +22,7 @@ func UDIDCertAuthMiddleware(store UDIDCertAuthStore, logger log.Logger) mdm.Midd
 		return &udidCertAuthMiddleware{
 			store:  store,
 			next:   next,
-			logger: log.With(logger, "component", "udidcertauth"),
+			logger: logger,
 		}
 	}
 }
@@ -56,11 +56,11 @@ func (mw *udidCertAuthMiddleware) validateUDIDCertAuth(udid, certHash []byte) (b
 		}
 		return true, nil
 	}
-	if 1 == subtle.ConstantTimeCompare(certHash, dbCertHash) {
-		return true, nil
+	if 1 != subtle.ConstantTimeCompare(certHash, dbCertHash) {
+		level.Info(mw.logger).Log("msg", "device cert hash mismatch", "udid", string(udid))
+		return false, nil
 	}
-	level.Info(mw.logger).Log("msg", "device cert hash mismatch", "udid", string(udid))
-	return false, nil
+	return true, nil
 }
 
 func (mw *udidCertAuthMiddleware) Acknowledge(ctx context.Context, req mdm.AcknowledgeEvent) ([]byte, error) {
@@ -85,7 +85,7 @@ func (mw *udidCertAuthMiddleware) Checkin(ctx context.Context, req mdm.CheckinEv
 	}
 	switch req.Command.MessageType {
 	case "Authenticate":
-		// unconditionally save the certificate on the Authenticate step
+		// unconditionally save the cert hash on Authenticate message
 		if err := mw.store.SaveUDIDCertHash([]byte(req.Command.UDID), hashCertRaw(devcert.Raw)); err != nil {
 			return err
 		}

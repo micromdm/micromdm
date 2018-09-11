@@ -33,6 +33,8 @@ import (
 	configbuiltin "github.com/micromdm/micromdm/platform/config/builtin"
 	"github.com/micromdm/micromdm/platform/dep/sync"
 	syncbuiltin "github.com/micromdm/micromdm/platform/dep/sync/builtin"
+	"github.com/micromdm/micromdm/platform/device"
+	devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
 	"github.com/micromdm/micromdm/platform/profile"
 	profilebuiltin "github.com/micromdm/micromdm/platform/profile/builtin"
 	"github.com/micromdm/micromdm/platform/pubsub"
@@ -178,12 +180,22 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 	if err != nil {
 		return err
 	}
+	devDB, err := devicebuiltin.NewDB(c.DB)
+	if err != nil {
+		return errors.Wrap(err, "new device db")
+	}
 
 	var mdmService mdm.Service
 	{
 		svc := mdm.NewService(c.PubClient, q)
 		mdmService = svc
 		mdmService = block.RemoveMiddleware(c.RemoveDB)(mdmService)
+
+		udidauthLogger := log.With(logger, "component", "udidcertauth")
+		mdmService = device.UDIDCertAuthMiddleware(devDB, udidauthLogger)(mdmService)
+
+		verifycertLogger := log.With(logger, "component", "verifycert")
+		mdmService = VerifyCertificateMiddleware(c.SCEPDepot, verifycertLogger)(mdmService)
 	}
 	c.MDMService = mdmService
 
