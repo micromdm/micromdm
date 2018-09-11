@@ -1,4 +1,4 @@
-package depsync
+package sync
 
 import (
 	"context"
@@ -6,11 +6,12 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/micromdm/pkg/httputil"
+	"github.com/pkg/errors"
 )
 
 func (s DEPSyncService) RemoveAutoAssigner(ctx context.Context, filter string) error {
-	conf := s.syncer.GetConfig()
-	return conf.deleteAutoAssigner(filter)
+	err := s.db.DeleteAutoAssigner(filter)
+	return errors.Wrap(err, "remove AutoAssigner")
 }
 
 type removeAutoAssignerRequest struct {

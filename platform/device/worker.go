@@ -9,8 +9,8 @@ import (
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 
-	"github.com/micromdm/micromdm/dep/depsync"
 	"github.com/micromdm/micromdm/mdm"
+	"github.com/micromdm/micromdm/platform/dep/sync"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
@@ -48,9 +48,9 @@ func (w *Worker) Run(ctx context.Context) error {
 	if err != nil {
 		return errors.Wrapf(err, "subscribing %s to %s", subscription, mdm.CheckoutTopic)
 	}
-	depSyncEvents, err := w.ps.Subscribe(ctx, subscription, depsync.SyncTopic)
+	depSyncEvents, err := w.ps.Subscribe(ctx, subscription, sync.SyncTopic)
 	if err != nil {
-		return errors.Wrapf(err, "subscribing %s to %s", subscription, depsync.SyncTopic)
+		return errors.Wrapf(err, "subscribing %s to %s", subscription, sync.SyncTopic)
 	}
 	connectEvents, err := w.ps.Subscribe(ctx, subscription, mdm.ConnectTopic)
 	if err != nil {
@@ -84,8 +84,8 @@ func (w *Worker) Run(ctx context.Context) error {
 }
 
 func (w *Worker) updateFromDEPSync(ctx context.Context, message []byte) error {
-	var ev depsync.Event
-	if err := depsync.UnmarshalEvent(message, &ev); err != nil {
+	var ev sync.Event
+	if err := sync.UnmarshalEvent(message, &ev); err != nil {
 		return errors.Wrap(err, "unmarshal depsync event")
 	}
 	level.Debug(w.logger).Log(

@@ -1,4 +1,4 @@
-package depsync
+package sync
 
 import (
 	"time"
@@ -7,7 +7,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 
 	"github.com/micromdm/micromdm/dep"
-	"github.com/micromdm/micromdm/dep/depsync/internal/depsyncproto"
+	"github.com/micromdm/micromdm/platform/dep/sync/internal/depsyncproto"
 )
 
 type Event struct {

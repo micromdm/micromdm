@@ -23,7 +23,6 @@ import (
 	"golang.org/x/crypto/pkcs12"
 
 	"github.com/micromdm/micromdm/dep"
-	"github.com/micromdm/micromdm/dep/depsync"
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/mdm/enroll"
 	"github.com/micromdm/micromdm/pkg/crypto"
@@ -32,6 +31,8 @@ import (
 	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/config"
 	configbuiltin "github.com/micromdm/micromdm/platform/config/builtin"
+	"github.com/micromdm/micromdm/platform/dep/sync"
+	syncbuiltin "github.com/micromdm/micromdm/platform/dep/sync/builtin"
 	"github.com/micromdm/micromdm/platform/profile"
 	profilebuiltin "github.com/micromdm/micromdm/platform/profile/builtin"
 	"github.com/micromdm/micromdm/platform/pubsub"
@@ -60,6 +61,7 @@ type Server struct {
 	RemoveDB            block.Store
 	CommandWebhookURL   string
 	DEPClient           *dep.Client
+	SyncDB              *syncbuiltin.DB
 
 	PushService     *push.Service // bufford push
 	APNSPushService apns.Service
@@ -398,17 +400,23 @@ func (c *Server) setupDepClient() error {
 	return nil
 }
 
-func (c *Server) CreateDEPSyncer(logger log.Logger) (depsync.Syncer, error) {
+func (c *Server) CreateDEPSyncer(logger log.Logger) (sync.Syncer, error) {
 	client := c.DEPClient
-	opts := []depsync.Option{
-		depsync.WithLogger(log.With(logger, "component", "depsync")),
+	opts := []sync.Option{
+		sync.WithLogger(log.With(logger, "component", "depsync")),
 	}
 	if client != nil {
-		opts = append(opts, depsync.WithClient(client))
+		opts = append(opts, sync.WithClient(client))
 	}
 
-	var syncer depsync.Syncer
-	syncer, err := depsync.New(c.PubClient, c.DB, logger, opts...)
+	syncdb, err := syncbuiltin.NewDB(c.DB)
+	if err != nil {
+		return nil, err
+	}
+	c.SyncDB = syncdb
+
+	var syncer sync.Syncer
+	syncer, err = sync.NewWatcher(c.SyncDB, c.PubClient, opts...)
 	if err != nil {
 		return nil, err
 	}

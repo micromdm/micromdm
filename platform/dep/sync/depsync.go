@@ -1,4 +1,4 @@
-package depsync
+package sync
 
 import (
 	"context"
@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	"github.com/pkg/errors"
@@ -18,47 +17,81 @@ import (
 )
 
 const (
-	SyncTopic        = "mdm.DepSync"
-	ConfigBucket     = "mdm.DEPConfig"
-	AutoAssignBucket = "mdm.DEPAutoAssign"
+	SyncTopic = "mdm.DepSync"
 
 	syncDuration        = 30 * time.Minute
 	cursorValidDuration = 7 * 24 * time.Hour
 )
 
-type Syncer interface {
-	SyncNow()
-	GetConfig() *config // TODO: #302
+type Syncer interface{ SyncNow() }
+
+type WatcherDB interface {
+	LoadCursor() (*Cursor, error)
+	SaveCursor(c Cursor) error
+	LoadAutoAssigners() ([]AutoAssigner, error)
 }
 
-type AutoAssigner struct {
-	Filter      string `json:"filter"`
-	ProfileUUID string `json:"profile_uuid"`
-}
-
-type watcher struct {
+type Watcher struct {
 	mtx    sync.RWMutex
 	logger log.Logger
 	client Client
 
 	publisher pubsub.Publisher
-	conf      *config
+	db        WatcherDB
 	startSync chan bool
 	syncNow   chan bool
+
+	cursor Cursor
 }
 
-type cursor struct {
-	Value     string    `json:"value"`
-	CreatedAt time.Time `json:"created_at"`
-}
-
-// A cursor is valid for a week.
-func (c cursor) Valid() bool {
-	expiration := time.Now().Add(cursorValidDuration)
-	if c.CreatedAt.After(expiration) {
-		return false
+func NewWatcher(db WatcherDB, pub pubsub.PublishSubscriber, opts ...Option) (*Watcher, error) {
+	w := Watcher{
+		logger:    log.NewNopLogger(),
+		db:        db,
+		publisher: pub,
+		startSync: make(chan bool),
+		syncNow:   make(chan bool),
 	}
-	return true
+	for _, optFn := range opts {
+		optFn(&w)
+	}
+
+	cursor, err := w.db.LoadCursor()
+	if err != nil {
+		return nil, err
+	}
+	if cursor.Valid() {
+		level.Debug(w.logger).Log("msg", "loaded DEP config", "cursor", cursor.Value)
+		w.cursor = *cursor
+	}
+
+	if err := w.updateClient(pub); err != nil {
+		return nil, err
+	}
+
+	saveCursor := func() {
+		if err := db.SaveCursor(w.cursor); err != nil {
+			level.Info(w.logger).Log("err", err, "msg", "saving cursor")
+			return
+		}
+		level.Info(w.logger).Log("msg", "saved DEP config", "cursor", w.cursor.Value)
+	}
+
+	go func() {
+		defer saveCursor()
+		if w.client == nil {
+			panic("boom")
+			// block until we have a DEP client to start sync process
+			level.Info(w.logger).Log("msg", "waiting for DEP token to be added before starting sync")
+			<-w.startSync
+		}
+		err := w.Run()
+		// the DEP sync should never end without an error, but log
+		// unconditionally anyway so we never silently stop watching
+		level.Info(w.logger).Log("err", err, "msg", "DEP watcher stopped")
+	}()
+
+	return &w, nil
 }
 
 type Client interface {
@@ -67,71 +100,21 @@ type Client interface {
 	AssignProfile(string, ...string) (*dep.ProfileResponse, error)
 }
 
-type Option func(*watcher)
+type Option func(*Watcher)
 
 func WithClient(client Client) Option {
-	return func(w *watcher) {
+	return func(w *Watcher) {
 		w.client = client
 	}
 }
 
 func WithLogger(logger log.Logger) Option {
-	return func(w *watcher) {
+	return func(w *Watcher) {
 		w.logger = logger
 	}
 }
 
-func New(pub pubsub.PublishSubscriber, db *bolt.DB, logger log.Logger, opts ...Option) (Syncer, error) {
-	conf, err := LoadConfig(db)
-	if err != nil {
-		return nil, err
-	}
-	if conf.Cursor.Valid() {
-		level.Info(logger).Log("msg", "loaded DEP config", "cursor", conf.Cursor.Value)
-	} else {
-		conf.Cursor.Value = ""
-	}
-
-	sync := &watcher{
-		logger:    log.NewNopLogger(),
-		publisher: pub,
-		conf:      conf,
-		startSync: make(chan bool),
-		syncNow:   make(chan bool),
-	}
-
-	for _, opt := range opts {
-		opt(sync)
-	}
-
-	if err := sync.updateClient(pub); err != nil {
-		return nil, err
-	}
-
-	saveCursor := func() {
-		if err := conf.Save(); err != nil {
-			level.Info(logger).Log("err", err, "msg", "saving cursor")
-			return
-		}
-		level.Info(logger).Log("msg", "saved DEP config", "cursor", conf.Cursor.Value)
-	}
-
-	go func() {
-		defer saveCursor()
-		if sync.client == nil {
-			// block until we have a DEP client to start sync process
-			level.Info(logger).Log("msg", "waiting for DEP token to be added before starting sync")
-			<-sync.startSync
-		}
-		err := sync.Run()
-		// the DEP sync should never end without an error, but log
-		// unconditionally anyway so we never silently stop watching
-		level.Info(logger).Log("err", err, "msg", "DEP watcher stopped")
-	}()
-	return sync, nil
-}
-
-func (w *watcher) updateClient(pubsub pubsub.Subscriber) error {
+func (w *Watcher) updateClient(pubsub pubsub.Subscriber) error {
 	tokenAdded, err := pubsub.Subscribe(context.TODO(), "token-events", conf.DEPTokenTopic)
 	if err != nil {
 		return err
@@ -163,16 +146,12 @@ func (w *watcher) updateClient(pubsub pubsub.Subscriber) error {
 	return nil
 }
 
-func (w *watcher) SyncNow() {
+func (w *Watcher) SyncNow() {
 	if w.client == nil {
 		level.Info(w.logger).Log("msg", "waiting for DEP token to be added before starting sync")
 		return
 	}
 	w.syncNow <- true
-}
-
-func (w *watcher) GetConfig() *config {
-	return w.conf
 }
 
 // TODO this needs to be a proper error in the micromdm/dep package.
@@ -190,12 +169,12 @@ func isCursorInvalid(err error) bool {
 
 // Process DEP messages and pull out filter-matching serial numbers
 // associated to profile UUIDs for auto-assignment.
-func (w *watcher) filteredAutoAssignments(devices []dep.Device) (map[string][]string, error) {
+func (w *Watcher) filteredAutoAssignments(devices []dep.Device) (map[string][]string, error) {
 	// load auto-assigners every run to make sure we get the latest set of
 	// auto-assigner profile UUIDs/filters. Note this makes every *watcher
 	// (i.e. every DEP sync instance) share the current DB set of auto-
 	// assigners. perhaps to refactor to be more separated.
-	assigners, err := w.conf.loadAutoAssigners()
+	assigners, err := w.db.LoadAutoAssigners()
 	if err != nil {
 		return nil, err
 	}
@@ -225,7 +204,7 @@ func (w *watcher) filteredAutoAssignments(devices []dep.Device) (map[string][]st
 	return assigned, nil
 }
 
-func (w *watcher) processAutoAssign(devices []dep.Device) error {
+func (w *Watcher) processAutoAssign(devices []dep.Device) error {
 	assignments, err := w.filteredAutoAssignments(devices)
 	if err != nil {
 		return err
@@ -267,7 +246,7 @@ func (w *watcher) processAutoAssign(devices []dep.Device) error {
 	return nil
 }
 
-func (w *watcher) publishAndProcessDevices(devices []dep.Device) error {
+func (w *Watcher) publishAndProcessDevices(devices []dep.Device) error {
 	e := NewEvent(devices)
 	data, err := MarshalEvent(e)
 	if err != nil {
@@ -291,21 +270,21 @@ func (w *watcher) publishAndProcessDevices(devices []dep.Device) error {
 	return nil
 }
 
-func (w *watcher) Run() error {
+func (w *Watcher) Run() error {
 	ticker := time.NewTicker(syncDuration).C
 FETCH:
 	for {
-		resp, err := w.client.FetchDevices(dep.Limit(100), dep.Cursor(w.conf.Cursor.Value))
+		resp, err := w.client.FetchDevices(dep.Limit(100), dep.Cursor(w.cursor.Value))
 		if err != nil && isCursorExhausted(err) {
 			goto SYNC
 		} else if err != nil && isCursorInvalid(err) {
 			level.Info(w.logger).Log(
 				"msg", "DEP fetch cursor response",
-				"cursor", w.conf.Cursor.Value,
+				"cursor", w.cursor.Value,
 				"err", err,
 				"msg", "retrying DEP fetch with empty cursor",
 			)
-			w.conf.Cursor.Value = ""
+			w.cursor.Value = ""
 			goto FETCH
 		} else if err != nil {
 			return err
@@ -317,8 +296,8 @@ FETCH:
 			"fetched", resp.FetchedUntil,
 			"devices", len(resp.Devices),
 		)
-		w.conf.Cursor = cursor{Value: resp.Cursor, CreatedAt: time.Now()}
-		if err := w.conf.Save(); err != nil {
+		w.cursor = Cursor{Value: resp.Cursor, CreatedAt: time.Now()}
+		if err := w.db.SaveCursor(w.cursor); err != nil {
 			return errors.Wrap(err, "saving cursor from fetch")
 		}
 		if err := w.publishAndProcessDevices(resp.Devices); err != nil {
@@ -331,15 +310,15 @@ FETCH:
 
 SYNC:
 	for {
-		resp, err := w.client.SyncDevices(w.conf.Cursor.Value, dep.Cursor(w.conf.Cursor.Value))
+		resp, err := w.client.SyncDevices(w.cursor.Value, dep.Cursor(w.cursor.Value))
 		if err != nil && (isCursorExpired(err) || isCursorInvalid(err)) {
 			level.Info(w.logger).Log(
 				"msg", "DEP sync cursor response",
-				"cursor", w.conf.Cursor.Value,
+				"cursor", w.cursor.Value,
 				"err", err,
 				"msg", "retrying DEP fetch with empty cursor",
 			)
-			w.conf.Cursor.Value = ""
+			w.cursor.Value = ""
 			goto FETCH
 		} else if err != nil {
 			return err
@@ -351,8 +330,8 @@ SYNC:
 			"fetched", resp.FetchedUntil,
 			"devices", len(resp.Devices),
 		)
-		w.conf.Cursor = cursor{Value: resp.Cursor, CreatedAt: time.Now()}
-		if err := w.conf.Save(); err != nil {
+		w.cursor = Cursor{Value: resp.Cursor, CreatedAt: time.Now()}
+		if err := w.db.SaveCursor(w.cursor); err != nil {
 			return errors.Wrap(err, "saving cursor from sync")
 		}
 		if err := w.publishAndProcessDevices(resp.Devices); err != nil {
