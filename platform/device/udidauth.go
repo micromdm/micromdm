@@ -34,10 +34,10 @@ type udidCertAuthMiddleware struct {
 }
 
 func hashCertRaw(c []byte) []byte {
-	ret_bytes := make([]byte, 32)
+	retBytes := make([]byte, 32)
 	sum := sha256.Sum256(c)
-	copy(ret_bytes, sum[:])
-	return ret_bytes
+	copy(retBytes, sum[:])
+	return retBytes
 }
 
 func (mw *udidCertAuthMiddleware) validateUDIDCertAuth(udid, certHash []byte) (bool, error) {
