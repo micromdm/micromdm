@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/micromdm/micromdm/dep/depsync"
+	"github.com/micromdm/micromdm/platform/dep/sync"
 	"github.com/pkg/errors"
 )
 
@@ -24,7 +24,7 @@ func (cmd *applyCommand) applyDEPAutoAssigner(args []string) error {
 		return errors.New("bad input: must provide both -filter and -uuid")
 	}
 
-	assigner := depsync.AutoAssigner{*flFilter, *flProfileUUID}
+	assigner := sync.AutoAssigner{*flFilter, *flProfileUUID}
 
 	err := cmd.depsyncsvc.ApplyAutoAssigner(context.TODO(), &assigner)
 	if err != nil {

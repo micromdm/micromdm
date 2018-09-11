@@ -1,17 +1,18 @@
-package depsync
+package sync
 
 import (
 	"context"
 	"net/http"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
 func (s DEPSyncService) ApplyAutoAssigner(ctx context.Context, aa *AutoAssigner) error {
-	conf := s.syncer.GetConfig()
-	return conf.saveAutoAssigner(aa)
+	err := s.db.SaveAutoAssigner(aa)
+	return errors.Wrap(err, "saving AutoAssigner")
 }
 
 type applyAutoAssignerRequest struct {

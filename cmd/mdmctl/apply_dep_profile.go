@@ -13,8 +13,8 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/dep"
-	"github.com/micromdm/micromdm/dep/depsync"
 	"github.com/micromdm/micromdm/pkg/crypto"
+	"github.com/micromdm/micromdm/platform/dep/sync"
 )
 
 func certificatesFromURL(serverURL string, insecure bool) ([]*x509.Certificate, error) {
@@ -101,7 +101,7 @@ func (cmd *applyCommand) applyDEPProfile(args []string) error {
 	fmt.Printf("Defined DEP Profile with UUID %s\n", resp.ProfileUUID)
 
 	if *flFilter != "" {
-		assigner := depsync.AutoAssigner{*flFilter, resp.ProfileUUID}
+		assigner := sync.AutoAssigner{*flFilter, resp.ProfileUUID}
 		err := cmd.depsyncsvc.ApplyAutoAssigner(context.TODO(), &assigner)
 		if err != nil {
 			return errors.Wrap(err, "set auto-assigner")
