@@ -31,7 +31,7 @@ type WatcherDB interface {
 	LoadAutoAssigners() ([]AutoAssigner, error)
 }
 
-type watcher struct {
+type Watcher struct {
 	mtx    sync.RWMutex
 	logger log.Logger
 	client Client
@@ -44,8 +44,8 @@ type watcher struct {
 	cursor Cursor
 }
 
-func NewWatcher(db WatcherDB, pub pubsub.PublishSubscriber, opts ...Option) (*watcher, error) {
-	w := watcher{
+func NewWatcher(db WatcherDB, pub pubsub.PublishSubscriber, opts ...Option) (*Watcher, error) {
+	w := Watcher{
 		logger:    log.NewNopLogger(),
 		db:        db,
 		publisher: pub,
@@ -80,6 +80,7 @@ func NewWatcher(db WatcherDB, pub pubsub.PublishSubscriber, opts ...Option) (*wa
 	go func() {
 		defer saveCursor()
 		if w.client == nil {
+			panic("boom")
 			// block until we have a DEP client to start sync process
 			level.Info(w.logger).Log("msg", "waiting for DEP token to be added before starting sync")
 			<-w.startSync
@@ -99,21 +100,21 @@ type Client interface {
 	AssignProfile(string, ...string) (*dep.ProfileResponse, error)
 }
 
-type Option func(*watcher)
+type Option func(*Watcher)
 
 func WithClient(client Client) Option {
-	return func(w *watcher) {
+	return func(w *Watcher) {
 		w.client = client
 	}
 }
 
 func WithLogger(logger log.Logger) Option {
-	return func(w *watcher) {
+	return func(w *Watcher) {
 		w.logger = logger
 	}
 }
 
-func (w *watcher) updateClient(pubsub pubsub.Subscriber) error {
+func (w *Watcher) updateClient(pubsub pubsub.Subscriber) error {
 	tokenAdded, err := pubsub.Subscribe(context.TODO(), "token-events", conf.DEPTokenTopic)
 	if err != nil {
 		return err
@@ -145,7 +146,7 @@ func (w *watcher) updateClient(pubsub pubsub.Subscriber) error {
 	return nil
 }
 
-func (w *watcher) SyncNow() {
+func (w *Watcher) SyncNow() {
 	if w.client == nil {
 		level.Info(w.logger).Log("msg", "waiting for DEP token to be added before starting sync")
 		return
@@ -168,7 +169,7 @@ func isCursorInvalid(err error) bool {
 
 // Process DEP messages and pull out filter-matching serial numbers
 // associated to profile UUIDs for auto-assignment.
-func (w *watcher) filteredAutoAssignments(devices []dep.Device) (map[string][]string, error) {
+func (w *Watcher) filteredAutoAssignments(devices []dep.Device) (map[string][]string, error) {
 	// load auto-assigners every run to make sure we get the latest set of
 	// auto-assigner profile UUIDs/filters. Note this makes every *watcher
 	// (i.e. every DEP sync instance) share the current DB set of auto-
@@ -203,7 +204,7 @@ func (w *watcher) filteredAutoAssignments(devices []dep.Device) (map[string][]st
 	return assigned, nil
 }
 
-func (w *watcher) processAutoAssign(devices []dep.Device) error {
+func (w *Watcher) processAutoAssign(devices []dep.Device) error {
 	assignments, err := w.filteredAutoAssignments(devices)
 	if err != nil {
 		return err
@@ -245,7 +246,7 @@ func (w *watcher) processAutoAssign(devices []dep.Device) error {
 	return nil
 }
 
-func (w *watcher) publishAndProcessDevices(devices []dep.Device) error {
+func (w *Watcher) publishAndProcessDevices(devices []dep.Device) error {
 	e := NewEvent(devices)
 	data, err := MarshalEvent(e)
 	if err != nil {
@@ -269,7 +270,7 @@ func (w *watcher) publishAndProcessDevices(devices []dep.Device) error {
 	return nil
 }
 
-func (w *watcher) Run() error {
+func (w *Watcher) Run() error {
 	ticker := time.NewTicker(syncDuration).C
 FETCH:
 	for {
