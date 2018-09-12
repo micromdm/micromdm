@@ -2,9 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/subtle"
-	"crypto/x509"
-	"encoding/base64"
 	"flag"
 	"fmt"
 	"io"
@@ -16,8 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/boltdb/bolt"
-	"github.com/fullsailor/pkcs7"
 	"github.com/go-kit/kit/auth/basic"
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
@@ -48,7 +43,6 @@ import (
 	"github.com/micromdm/micromdm/platform/user"
 	userbuiltin "github.com/micromdm/micromdm/platform/user/builtin"
 	"github.com/micromdm/micromdm/server"
-	boltdepot "github.com/micromdm/scep/depot/bolt"
 )
 
 const homePage = `<!doctype html>
@@ -208,9 +202,8 @@ func serve(args []string) error {
 		})
 	}
 
-	signatureVerifier := &mdmSignatureVerifier{db: sm.SCEPDepot}
 	mdmEndpoints := mdm.MakeServerEndpoints(sm.MDMService)
-	mdm.RegisterHTTPHandlers(r, mdmEndpoints, signatureVerifier, logger)
+	mdm.RegisterHTTPHandlers(r, mdmEndpoints, logger)
 
 	// API commands. Only handled if the user provides an api key.
 	if *flAPIKey != "" {
@@ -336,60 +329,4 @@ func printExamples() {
 
 		`
 	fmt.Println(exampleText)
-}
-
-type mdmSignatureVerifier struct {
-	db *boltdepot.Depot
-}
-
-func (v *mdmSignatureVerifier) VerifySignature(b64sig string, message []byte) error {
-	if b64sig == "" {
-		return errors.New("signature missing")
-	}
-	sig, err := base64.StdEncoding.DecodeString(b64sig)
-	if err != nil {
-		return errors.Wrap(err, "decode MDM SignMessage header")
-	}
-	p7, err := pkcs7.Parse(sig)
-	if err != nil {
-		return errors.Wrap(err, "parse MDM SignMessage signature")
-	}
-	p7.Content = message
-	if err := p7.Verify(); err != nil {
-		return errors.Wrap(err, "verify MDM Signed Message")
-	}
-	cert := p7.GetOnlySigner()
-	if cert == nil {
-		return errors.New("invalid signer")
-	}
-	hasCN, err := HasCN(v.db, cert.Subject.CommonName, 0, cert, false)
-	if err != nil {
-		return errors.Wrap(err, "unable to validate signature")
-	}
-	if !hasCN {
-		return errors.Wrap(err, "Unauthorized client")
-	}
-	return nil
-}
-
-// implement HasCN function that belongs in micromdm/scep/depot/bolt
-//   note: added bool return, different from micromdm/scep interface
-func HasCN(db *boltdepot.Depot, cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool) (bool, error) {
-	// TODO: implement allowTime
-	// TODO: implement revocation
-	if cert == nil {
-		return false, errors.New("nil certificate provided")
-	}
-	var hasCN bool
-	err := db.View(func(tx *bolt.Tx) error {
-		// TODO: "scep_certificates" is internal const in micromdm/scep
-		bucket := tx.Bucket([]byte("scep_certificates"))
-		certKey := []byte(cert.Subject.CommonName + "." + cert.SerialNumber.String())
-		certCandidate := bucket.Get(certKey)
-		if certCandidate != nil {
-			hasCN = 1 == subtle.ConstantTimeCompare(certCandidate, cert.Raw)
-		}
-		return nil
-	})
-	return hasCN, err
 }
