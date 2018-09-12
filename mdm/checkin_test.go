@@ -10,8 +10,7 @@ import (
 func Test_decodeCheckinRequest(t *testing.T) {
 	// test that url values from checkin and acknowledge requests are passed to the event.
 	req := httptest.NewRequest("GET", "/mdm/checkin?id=1111", bytes.NewReader([]byte(sampleCheckinRequest)))
-	dec := &requestDecoder{}
-	resp, err := dec.decodeCheckinRequest(context.Background(), req)
+	resp, err := decodeCheckinRequest(context.Background(), req)
 	if err != nil {
 		t.Fatal(err)
 	}

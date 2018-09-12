@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/go-kit/kit/endpoint"
-	"github.com/groob/plist"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 )
@@ -72,15 +71,11 @@ type checkinResponse struct {
 
 func (r checkinResponse) Failed() error { return r.Err }
 
-func (d *requestDecoder) decodeCheckinRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	body, err := d.readBody(r)
-	if err != nil {
-		return nil, errors.Wrap(err, "read checkin request body")
-	}
-
+func decodeCheckinRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var cmd CheckinCommand
-	if err := plist.Unmarshal(body, &cmd); err != nil {
-		return nil, errors.Wrap(err, "unmarshal MDM Checkin Request plist")
+	body, err := mdmRequestBody(r, &cmd)
+	if err != nil {
+		return nil, errors.Wrap(err, "read MDM request")
 	}
 
 	values := r.URL.Query()
