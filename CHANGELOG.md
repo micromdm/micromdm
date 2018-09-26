@@ -1,5 +1,6 @@
 ## [v1.5.0](https://github.com/micromdm/micromdm/compare/v1.4.0...master) (Unreleased)
 
+* Fix DEP token update issue (#513, #510)
 * Refactor certificate verification and implement UDID-cert authentication (#358, #429)
 * Cleanup DEP library and integrate into main project (#504, #505)
 * Add API endpoint to retrieve APNS certificate (#503)
