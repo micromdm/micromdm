@@ -80,7 +80,6 @@ func NewWatcher(db WatcherDB, pub pubsub.PublishSubscriber, opts ...Option) (*Wa
 	go func() {
 		defer saveCursor()
 		if w.client == nil {
-			panic("boom")
 			// block until we have a DEP client to start sync process
 			level.Info(w.logger).Log("msg", "waiting for DEP token to be added before starting sync")
 			<-w.startSync
