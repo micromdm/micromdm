@@ -243,6 +243,7 @@ func serve(args []string) error {
 		command.RegisterHTTPHandlers(r, commandEndpoints, options...)
 
 		depsvc := depapi.New(dc, sm.PubClient)
+		depsvc.Run()
 		depEndpoints := depapi.MakeServerEndpoints(depsvc, basicAuthEndpointMiddleware)
 		depapi.RegisterHTTPHandlers(r, depEndpoints, options...)
 
