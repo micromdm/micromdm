@@ -96,7 +96,7 @@ func Create(file File, url string, opts ...Option) (*Manifest, error) {
 	// make a manifest
 	m := Manifest{
 		ManifestItems: []Item{
-			Item{
+			{
 				Assets: []Asset{ast},
 			},
 		},

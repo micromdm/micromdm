@@ -182,7 +182,7 @@ type RemoveApplication struct {
 }
 
 type InviteToProgram struct {
-	ProgramID     string `plist:",omitempty" json"program_id,omitempty"`
+	ProgramID     string `plist:",omitempty" json:"program_id,omitempty"`
 	InvitationURL string `plist:",omitempty" json:"invitation_url,omitempty"`
 }
 
@@ -262,7 +262,7 @@ type ScheduleOSUpdateScan struct {
 }
 
 type ActiveNSExtensions struct {
-	FilterExtensionPoints []string `plist:",omitempty json:"filter_extensions_points,omitempty"`
+	FilterExtensionPoints []string `plist:",omitempty" json:"filter_extensions_points,omitempty"`
 }
 
 type RotateFileVaultKey struct {
