@@ -24,8 +24,8 @@ type Account struct {
 	OrgEmail      string `json:"org_email"`
 	OrgPhone      string `json:"org_phone"`
 	OrgAddress    string `json:"org_address"`
-	OrgID         string `json"org_id"`
-	OrgIDHash     string `json"org_id_hash"`
+	OrgID         string `json:"org_id"`
+	OrgIDHash     string `json:"org_id_hash"`
 	URLs          []URL  `json:"urls"`
 	OrgType       string `json:"org_type"`
 	OrgVersion    string `json:"org_version"`

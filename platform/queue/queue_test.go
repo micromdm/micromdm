@@ -109,7 +109,7 @@ func TestNext_Idle(t *testing.T) {
 		CommandUUID: "xCmd",
 		Status:      "Idle",
 	}
-	for i, _ := range dc.Commands {
+	for i := range dc.Commands {
 		cmd, err := store.nextCommand(ctx, resp)
 		if err != nil {
 			t.Fatalf("expected nil, but got err: %s", err)
