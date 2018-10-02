@@ -12,7 +12,7 @@ import (
 	"github.com/micromdm/micromdm/pkg/crypto"
 )
 
-// immitate an Mdm-Signature header
+// imitate a Mdm-Signature header
 func mdmSignRequest(body []byte) (*x509.Certificate, string, error) {
 	key, cert, err := crypto.SimpleSelfSignedRSAKeypair("test", 365)
 	if err != nil {

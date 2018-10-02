@@ -27,10 +27,8 @@ func (db *DB) AddToken(consumerKey string, json []byte) error {
 	if err != nil {
 		return err
 	}
-	if err := db.Publisher.Publish(context.TODO(), config.DEPTokenTopic, json); err != nil {
-		return err
-	}
-	return nil
+	err := db.Publisher.Publish(context.TODO(), config.DEPTokenTopic, json)
+	return err
 }
 
 func (db *DB) DEPTokens() ([]config.DEPToken, error) {
