@@ -53,7 +53,7 @@ func NewService(topic TopicProvider, sub pubsub.Subscriber, scepURL, scepChallen
 			continue
 		}
 		subjectKeyValue := strings.Split(element, "=")
-		subject = append(subject, [][]string{[]string{subjectKeyValue[0], subjectKeyValue[1]}})
+		subject = append(subject, [][]string{{subjectKeyValue[0], subjectKeyValue[1]}})
 	}
 
 	// fetch the push topic from the db.

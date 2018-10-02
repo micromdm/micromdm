@@ -125,11 +125,9 @@ func (c *Server) Setup(logger log.Logger) error {
 		return err
 	}
 
-	if err := c.setupEnrollmentService(); err != nil {
-		return err
-	}
+	err := c.setupEnrollmentService()
 
-	return nil
+	return err
 }
 
 func (c *Server) setupProfileDB() error {

@@ -84,7 +84,7 @@ func populateDeviceCertificateFromSignRequestHeader(ctx context.Context, r *http
 }
 
 // TODO: If we ever use Go client cert auth we can use
-//       r.TLS.PeerCertificates to return the client cert. Unecessary
+//       r.TLS.PeerCertificates to return the client cert. Unnecessary
 //       now as default config is uses Mdm-Signature header method instead
 //       (for better compatilibity with proxies, etc.)
 // func populateDeviceCertificateFromTLSPeerCertificates()

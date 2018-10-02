@@ -32,7 +32,7 @@ func (db *DB) ApplyToDevice(ctx context.Context, svc command.Service, bp *bluepr
 					SkipPrimarySetupAccountCreation:     bp.SkipPrimarySetupAccountCreation,
 					SetPrimarySetupAccountAsRegularUser: bp.SetPrimarySetupAccountAsRegularUser,
 					AutoSetupAdminAccounts: []mdm.AdminAccount{
-						mdm.AdminAccount{
+						{
 							ShortName:    u.UserShortname,
 							FullName:     u.UserLongname,
 							PasswordHash: u.PasswordHash,

@@ -102,5 +102,4 @@ func (mw *udidCertAuthMiddleware) Checkin(ctx context.Context, req mdm.CheckinEv
 	default:
 		return errors.Errorf("unknown checkin message type %s", req.Command.MessageType)
 	}
-	return mw.next.Checkin(ctx, req)
 }
