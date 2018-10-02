@@ -27,7 +27,7 @@ func (db *DB) AddToken(consumerKey string, json []byte) error {
 	if err != nil {
 		return err
 	}
-	err := db.Publisher.Publish(context.TODO(), config.DEPTokenTopic, json)
+	err = db.Publisher.Publish(context.TODO(), config.DEPTokenTopic, json)
 	return err
 }
 
