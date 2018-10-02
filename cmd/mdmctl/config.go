@@ -18,9 +18,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-type configCommand struct {
-	config *ClientConfig
-}
+type configCommand struct{}
 
 // skipVerifyHTTPClient returns an *http.Client with InsecureSkipVerify set
 // to true for its TLS config. This allows self-signed SSL certificates.
@@ -35,12 +33,18 @@ func skipVerifyHTTPClient(skipVerify bool) *http.Client {
 
 func (cmd *configCommand) Run(args []string) error {
 	if len(args) < 1 {
-		cmd.Usage()
+		err := cmd.Usage()
+		if err != nil {
+			return err
+		}
 		os.Exit(1)
 	}
 
 	if strings.ToLower(args[0]) != "migrate" {
-		checkForOldConfig()
+		err := checkForOldConfig()
+		if err != nil {
+			return err
+		}
 	}
 
 	var run func([]string) error
@@ -55,7 +59,10 @@ func (cmd *configCommand) Run(args []string) error {
 		printConfig()
 		return nil
 	default:
-		cmd.Usage()
+		err := cmd.Usage()
+		if err != nil {
+			return err
+		}
 		os.Exit(1)
 	}
 

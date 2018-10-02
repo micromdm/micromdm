@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -49,10 +50,13 @@ func (w *Worker) Run(ctx context.Context) error {
 		}
 
 		if err != nil {
-			level.Info(w.logger).Log(
+			innerErr := level.Info(w.logger).Log(
 				"msg", "update user from event",
 				"err", err,
 			)
+			if innerErr != nil {
+				fmt.Println(err)
+			}
 			continue
 		}
 	}

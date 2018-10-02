@@ -3,7 +3,6 @@ package httputil
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -12,6 +11,7 @@ import (
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 )
 
 func NewRouter(logger log.Logger) (*mux.Router, []httptransport.ServerOption) {
@@ -69,7 +69,10 @@ func ErrorEncoder(_ context.Context, err error, w http.ResponseWriter) {
 	}
 	w.WriteHeader(code)
 
-	enc.Encode(errMap)
+	err = enc.Encode(errMap)
+	if err != nil {
+		fmt.Println(errors.Wrap(err, "encoding errMap"))
+	}
 }
 
 // failer is an interface that should be implemented by response types.

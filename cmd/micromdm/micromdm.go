@@ -18,7 +18,10 @@ func init() {
 
 func main() {
 	if len(os.Args) < 2 {
-		usage()
+		err := usage()
+		if err != nil {
+			fmt.Println(err)
+		}
 		os.Exit(1)
 	}
 	var run func([]string) error
@@ -29,7 +32,10 @@ func main() {
 	case "serve":
 		run = serve
 	default:
-		usage()
+		err := usage()
+		if err != nil {
+			fmt.Println(err)
+		}
 		os.Exit(1)
 	}
 

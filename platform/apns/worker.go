@@ -2,6 +2,7 @@ package apns
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
@@ -45,10 +46,13 @@ func (w *Worker) Run(ctx context.Context) error {
 			err = w.updatePushInfoFromTokenUpdate(ctx, event.Message)
 		}
 		if err != nil {
-			level.Info(w.logger).Log(
+			innerErr := level.Info(w.logger).Log(
 				"msg", "update pushinfo from event",
 				"err", err,
 			)
+			if innerErr != nil {
+				fmt.Println(innerErr)
+			}
 			continue
 		}
 	}

@@ -135,7 +135,10 @@ func makeCertChain(mdmPEM, wwdrPEM, rootPEM []byte) string {
 
 func signPushCSR(csrData []byte, key *rsa.PrivateKey) ([]byte, error) {
 	h := sha1.New()
-	h.Write(csrData)
+	_, err := h.Write(csrData)
+	if err != nil {
+		return nil, errors.Wrap(err, "writing CSR data")
+	}
 	signature, err := rsa.SignPKCS1v15(rand.Reader, key, crypto.SHA1, h.Sum(nil))
 	return signature, errors.Wrap(err, "signing push CSR")
 }

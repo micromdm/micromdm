@@ -68,7 +68,10 @@ Commands:
 
 func (cmd *mdmcertCommand) Run(args []string) error {
 	if len(args) < 1 {
-		cmd.Usage()
+		err := cmd.Usage()
+		if err != nil {
+			fmt.Println(errors.Wrap(err, "calling usage"))
+		}
 		os.Exit(1)
 	}
 
@@ -85,7 +88,10 @@ func (cmd *mdmcertCommand) Run(args []string) error {
 	case "upload":
 		run = cmd.runUpload
 	default:
-		cmd.Usage()
+		err := cmd.Usage()
+		if err != nil {
+			fmt.Println(errors.Wrap(err, "calling usage"))
+		}
 		os.Exit(1)
 	}
 
@@ -178,7 +184,10 @@ func (cmd *mdmcertCommand) runPush(args []string) error {
 	}
 
 	if err := os.MkdirAll(filepath.Dir(*flCSRPath), 0755); err != nil {
-		errors.Wrapf(err, "create directory %s", filepath.Dir(*flCSRPath))
+		innerErr := errors.Wrapf(err, "create directory %s", filepath.Dir(*flCSRPath))
+		if innerErr != nil {
+			return innerErr
+		}
 	}
 
 	password := []byte(*flPKeyPass)

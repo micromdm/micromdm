@@ -8,15 +8,22 @@ import (
 	"text/tabwriter"
 
 	"github.com/micromdm/go4/version"
+	"github.com/pkg/errors"
 )
 
 func main() {
 	if len(os.Args) < 2 {
-		usage()
+		err := usage()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+		}
 		os.Exit(1)
 	}
 	if strings.ToLower(os.Args[1]) != "config" {
-		checkForOldConfig()
+		err := checkForOldConfig()
+		if err != nil {
+			fmt.Println(errors.Wrap(err, "calling usage"))
+		}
 	}
 	var run func([]string) error
 	switch strings.ToLower(os.Args[1]) {
@@ -42,7 +49,10 @@ func main() {
 		cmd := new(mdmcertDownloadCommand)
 		run = cmd.Run
 	default:
-		usage()
+		err := usage()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+		}
 		os.Exit(1)
 	}
 

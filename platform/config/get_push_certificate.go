@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/go-kit/kit/endpoint"
-	"github.com/micromdm/micromdm/pkg/httputil"
 	"github.com/pkg/errors"
 )
 
@@ -26,12 +25,6 @@ func (r getResponse) Failed() error { return r.Err }
 
 func decodeGetPushCertificateRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	return nil, nil
-}
-
-func decodeGetPushCertificateResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	var resp getResponse
-	err := httputil.DecodeJSONResponse(r, &resp)
-	return resp, err
 }
 
 func MakeGetPushCertificateEndpoint(svc Service) endpoint.Endpoint {

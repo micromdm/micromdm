@@ -44,7 +44,10 @@ func (cmd *getCommand) setup() error {
 
 func (cmd *getCommand) Run(args []string) error {
 	if len(args) < 1 {
-		cmd.Usage()
+		err := cmd.Usage()
+		if err != nil {
+			return err
+		}
 		os.Exit(1)
 	}
 
@@ -75,7 +78,10 @@ func (cmd *getCommand) Run(args []string) error {
 	case "dep-autoassigners":
 		run = cmd.getDEPAutoAssigners
 	default:
-		cmd.Usage()
+		err := cmd.Usage()
+		if err != nil {
+			return err
+		}
 		os.Exit(1)
 	}
 

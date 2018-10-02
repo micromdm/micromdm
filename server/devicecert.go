@@ -42,7 +42,10 @@ func (mw *verifyCertificateMiddleware) Acknowledge(ctx context.Context, req mdm.
 	}
 	if !hasCN {
 		err := errors.New("unauthorized client")
-		level.Info(mw.logger).Log("err", err)
+		loggerErr := level.Info(mw.logger).Log("err", err)
+		if loggerErr != nil {
+			return nil, loggerErr
+		}
 		return nil, err
 	}
 	return mw.next.Acknowledge(ctx, req)
@@ -59,7 +62,10 @@ func (mw *verifyCertificateMiddleware) Checkin(ctx context.Context, req mdm.Chec
 	}
 	if !hasCN {
 		err := errors.New("unauthorized client")
-		level.Info(mw.logger).Log("err", err)
+		loggerErr := level.Info(mw.logger).Log("err", err)
+		if loggerErr != nil {
+			return loggerErr
+		}
 		return err
 	}
 	return mw.next.Checkin(ctx, req)

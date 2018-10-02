@@ -12,8 +12,6 @@ import (
 	"github.com/go-kit/kit/endpoint"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
-
-	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
 func (svc *PushService) Push(ctx context.Context, deviceUDID string) (string, error) {
@@ -61,12 +59,6 @@ func decodePushRequest(ctx context.Context, r *http.Request) (interface{}, error
 	return pushRequest{
 		UDID: udid,
 	}, nil
-}
-
-func decodePushResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	var resp pushResponse
-	err := httputil.DecodeJSONResponse(r, &resp)
-	return resp, err
 }
 
 func MakePushEndpoint(svc Service) endpoint.Endpoint {

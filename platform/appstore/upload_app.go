@@ -79,7 +79,10 @@ func encodeUploadAppRequest(_ context.Context, r *http.Request, request interfac
 		if err != nil {
 			return errors.Wrap(err, "copying appmanifest file to multipart writer")
 		}
-		writer.WriteField("app_manifest_filename", req.ManifestName)
+		err = writer.WriteField("app_manifest_filename", req.ManifestName)
+		if err != nil {
+			return errors.Wrap(err, "writing app_manifest_filename")
+		}
 	}
 
 	if req.PKGFilename != "" {
@@ -91,7 +94,10 @@ func encodeUploadAppRequest(_ context.Context, r *http.Request, request interfac
 		if err != nil {
 			return errors.Wrap(err, "copying pkg file to multipart writer")
 		}
-		writer.WriteField("pkg_name", req.PKGFilename)
+		err = writer.WriteField("pkg_name", req.PKGFilename)
+		if err != nil {
+			return errors.Wrap(err, "writing pkg_name")
+		}
 	}
 	if err := writer.Close(); err != nil {
 		return errors.Wrap(err, "closing multipart writer")

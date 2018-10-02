@@ -25,7 +25,10 @@ func TestDecodeUploadRequest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	writer.WriteField("app_manifest_filename", "manifest.plist")
+	err = writer.WriteField("app_manifest_filename", "manifest.plist")
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	partPkg, err := writer.CreateFormFile("pkg_filedata", "foo.pkg")
 	if err != nil {
@@ -35,7 +38,10 @@ func TestDecodeUploadRequest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	writer.WriteField("pkg_name", "hello.pkg")
+	err = writer.WriteField("pkg_name", "hello.pkg")
+	if err != nil {
+		t.Fatal(err)
+	}
 	writer.Close()
 
 	req := httptest.NewRequest("POST", "https://mdm.acme.co/", body)
@@ -54,8 +60,14 @@ func TestDecodeUploadRequest(t *testing.T) {
 	}
 
 	var a, b bytes.Buffer
-	io.Copy(&a, decoded.ManifestFile)
-	io.Copy(&b, decoded.PKGFile)
+	_, err = io.Copy(&a, decoded.ManifestFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = io.Copy(&b, decoded.PKGFile)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if have, want := a.String(), "hello"; have != want {
 		t.Errorf("have %s, want %s", have, want)
 	}

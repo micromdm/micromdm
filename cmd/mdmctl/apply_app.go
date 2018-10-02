@@ -185,13 +185,6 @@ func repoURL(server string) (string, error) {
 	return serverURL.String(), nil
 }
 
-// replaces .pkg with .plist
-func manifestURL(repoURL, pkgPath string) string {
-	pu := pkgURL(repoURL, pkgPath)
-	trimmed := strings.TrimSuffix(pu, path.Ext(pu))
-	return trimmed + ".plist"
-}
-
 type appFile struct {
 	*os.File
 }

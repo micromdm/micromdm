@@ -13,12 +13,11 @@ func (s *DEPSyncService) SyncNow(_ context.Context) error {
 }
 
 type syncNowResponse struct{}
-type syncNowRequest struct{}
 
 func MakeSyncNowEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, _ interface{}) (interface{}, error) {
-		s.SyncNow(ctx)
-		return syncNowResponse{}, nil
+		err := s.SyncNow(ctx)
+		return syncNowResponse{}, err
 	}
 }
 

@@ -50,15 +50,18 @@ func (mw *udidCertAuthMiddleware) validateUDIDCertAuth(udid, certHash []byte) (b
 		// its UDID-cert association. at some later late, when most/all
 		// micromdm instances have stored udid-cert associations
 		// this can be an outright failure.
-		level.Info(mw.logger).Log("msg", "device cert hash not found, saving anyway", "udid", string(udid))
-		if err := mw.store.SaveUDIDCertHash(udid, certHash); err != nil {
+		err := level.Info(mw.logger).Log("msg", "device cert hash not found, saving anyway", "udid", string(udid))
+		if err != nil {
+			return false, err
+		}
+		if err = mw.store.SaveUDIDCertHash(udid, certHash); err != nil {
 			return false, err
 		}
 		return true, nil
 	}
 	if 1 != subtle.ConstantTimeCompare(certHash, dbCertHash) {
-		level.Info(mw.logger).Log("msg", "device cert hash mismatch", "udid", string(udid))
-		return false, nil
+		err := level.Info(mw.logger).Log("msg", "device cert hash mismatch", "udid", string(udid))
+		return false, err
 	}
 	return true, nil
 }

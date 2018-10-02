@@ -51,16 +51,6 @@ func (e *rejectUserAuth) UserAuthReject() bool {
 	return true
 }
 
-func isRejectedUserAuth(err error) bool {
-	type rejectUserAuthError interface {
-		error
-		UserAuthReject() bool
-	}
-
-	_, ok := errors.Cause(err).(rejectUserAuthError)
-	return ok
-}
-
 type checkinRequest struct {
 	Event CheckinEvent
 }

@@ -99,7 +99,10 @@ func unwrapSMIME(smime []byte) ([]byte, error) {
 	}
 	dec := base64.NewDecoder(base64.StdEncoding, tr.DotReader())
 	buf := new(bytes.Buffer)
-	io.Copy(buf, dec)
+	_, err := io.Copy(buf, dec)
+	if err != nil {
+		return nil, err
+	}
 	return buf.Bytes(), nil
 }
 

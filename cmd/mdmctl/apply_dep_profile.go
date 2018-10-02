@@ -101,7 +101,7 @@ func (cmd *applyCommand) applyDEPProfile(args []string) error {
 	fmt.Printf("Defined DEP Profile with UUID %s\n", resp.ProfileUUID)
 
 	if *flFilter != "" {
-		assigner := sync.AutoAssigner{*flFilter, resp.ProfileUUID}
+		assigner := sync.AutoAssigner{Filter: *flFilter, ProfileUUID: resp.ProfileUUID}
 		err := cmd.depsyncsvc.ApplyAutoAssigner(context.TODO(), &assigner)
 		if err != nil {
 			return errors.Wrap(err, "set auto-assigner")

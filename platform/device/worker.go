@@ -2,6 +2,7 @@ package device
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/go-kit/kit/log"
@@ -74,10 +75,13 @@ func (w *Worker) Run(ctx context.Context) error {
 			err = w.updateFromAcknowledge(ctx, ev.Message)
 		}
 		if err != nil {
-			level.Info(w.logger).Log(
+			innerErr := level.Info(w.logger).Log(
 				"msg", "update device from event",
 				"err", err,
 			)
+			if innerErr != nil {
+				fmt.Println(innerErr)
+			}
 			continue
 		}
 	}
@@ -88,10 +92,13 @@ func (w *Worker) updateFromDEPSync(ctx context.Context, message []byte) error {
 	if err := sync.UnmarshalEvent(message, &ev); err != nil {
 		return errors.Wrap(err, "unmarshal depsync event")
 	}
-	level.Debug(w.logger).Log(
+	err := level.Debug(w.logger).Log(
 		"msg", "updating devices from DEP",
 		"device_count", len(ev.Devices),
 	)
+	if err != nil {
+		return errors.Wrap(err, "logging updating devices from DEP")
+	}
 
 	for _, dd := range ev.Devices {
 		dev, err := getOrCreateDeviceBySerial(w.db, dd.SerialNumber)
@@ -104,12 +111,15 @@ func (w *Worker) updateFromDEPSync(ctx context.Context, message []byte) error {
 			(notSeenBefore && dd.OpType == "added") ||
 			(!notSeenBefore && dd.OpType == "modified")
 		if logEvent {
-			level.Debug(w.logger).Log(
+			err = level.Debug(w.logger).Log(
 				"msg", "updating devices from dep sync",
 				"op_type", dd.OpType,
 				"serial", dd.SerialNumber,
 				"previously_known", !notSeenBefore,
 			)
+			if err != nil {
+				return errors.Wrap(err, "logging updating devices")
+			}
 		}
 
 		if dev.UUID == "" {
@@ -219,15 +229,21 @@ func (w *Worker) updateFromAuthenticate(ctx context.Context, message []byte) err
 	}
 
 	if reenrolling {
-		level.Debug(w.logger).Log(
+		err := level.Debug(w.logger).Log(
 			"msg", "re-enrolling device",
 			"serial", ev.Command.SerialNumber,
 		)
+		if err != nil {
+			return errors.Wrap(err, "re-enrolling device")
+		}
 	} else {
-		level.Debug(w.logger).Log(
+		err := level.Debug(w.logger).Log(
 			"msg", "enrolling new device",
 			"serial", ev.Command.SerialNumber,
 		)
+		if err != nil {
+			return errors.Wrap(err, "enrolling new device")
+		}
 	}
 
 	if device.UUID == "" {

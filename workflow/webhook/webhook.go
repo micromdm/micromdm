@@ -100,18 +100,24 @@ func (w *Worker) Run(ctx context.Context) error {
 		}
 
 		if err != nil {
-			level.Info(w.logger).Log(
+			loggerErr := level.Info(w.logger).Log(
 				"msg", "create webhook event",
 				"err", err,
 			)
+			if loggerErr != nil {
+				return errors.Wrap(loggerErr, "logging create webhook event")
+			}
 			continue
 		}
 
 		if err := postWebhookEvent(ctx, w.client, w.url, event); err != nil {
-			level.Info(w.logger).Log(
+			loggerErr := level.Info(w.logger).Log(
 				"msg", "post webhook event",
 				"err", err,
 			)
+			if loggerErr != nil {
+				return errors.Wrap(loggerErr, "logging create webhook event")
+			}
 			continue
 		}
 

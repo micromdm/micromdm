@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/go-kit/kit/log"
+	"github.com/pkg/errors"
 )
 
 type removeCommand struct {
@@ -30,7 +31,10 @@ func (cmd *removeCommand) setup() error {
 
 func (cmd *removeCommand) Run(args []string) error {
 	if len(args) < 1 {
-		cmd.Usage()
+		err := cmd.Usage()
+		if err != nil {
+			fmt.Println(errors.Wrap(err, "calling usage"))
+		}
 		os.Exit(1)
 	}
 
@@ -51,7 +55,10 @@ func (cmd *removeCommand) Run(args []string) error {
 	case "dep-autoassigner":
 		run = cmd.removeDEPAutoAssigner
 	default:
-		cmd.Usage()
+		err := cmd.Usage()
+		if err != nil {
+			fmt.Println(errors.Wrap(err, "calling usage"))
+		}
 		os.Exit(1)
 	}
 

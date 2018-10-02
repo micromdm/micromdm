@@ -110,7 +110,10 @@ func serve(args []string) error {
 	logger := log.NewLogfmtLogger(os.Stderr)
 	stdlog.SetOutput(log.NewStdlibAdapter(logger)) // force structured logs
 	mainLogger := log.With(logger, "component", "main")
-	mainLogger.Log("msg", "started")
+	err := mainLogger.Log("msg", "started")
+	if err != nil {
+		return errors.Wrap(err, "starting logger")
+	}
 
 	if err := os.MkdirAll(*flConfigPath, 0755); err != nil {
 		return errors.Wrapf(err, "creating config directory %s", *flConfigPath)
@@ -198,7 +201,11 @@ func serve(args []string) error {
 	r.Handle("/scep", scepHandler)
 	if *flHomePage {
 		r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			io.WriteString(w, homePage)
+			_, err := io.WriteString(w, homePage)
+			if err != nil {
+				fmt.Println(errors.Wrap(err, "WriteString to homePage"))
+				return
+			}
 		})
 	}
 
@@ -243,14 +250,20 @@ func serve(args []string) error {
 		command.RegisterHTTPHandlers(r, commandEndpoints, options...)
 
 		depsvc := depapi.New(dc, sm.PubClient)
-		depsvc.Run()
+		err := depsvc.Run()
+		if err != nil {
+			return errors.Wrap(err, "running depsvc.Run()")
+		}
 		depEndpoints := depapi.MakeServerEndpoints(depsvc, basicAuthEndpointMiddleware)
 		depapi.RegisterHTTPHandlers(r, depEndpoints, options...)
 
 		depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncDB), basicAuthEndpointMiddleware)
 		sync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
 	} else {
-		mainLogger.Log("msg", "no api key specified")
+		err := mainLogger.Log("msg", "no api key specified")
+		if err != nil {
+			return errors.Wrap(err, "error logging")
+		}
 	}
 
 	if *flRepoPath != "" {

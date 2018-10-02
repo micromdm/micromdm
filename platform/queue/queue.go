@@ -241,7 +241,10 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 					continue
 				}
 
-				pubsub.Publish(context.TODO(), CommandQueuedTopic, msgBytes)
+				err = pubsub.Publish(context.TODO(), CommandQueuedTopic, msgBytes)
+				if err != nil {
+					fmt.Println(err)
+				}
 			}
 		}
 	}()

@@ -3,6 +3,7 @@ package sync
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -61,7 +62,10 @@ func NewWatcher(db WatcherDB, pub pubsub.PublishSubscriber, opts ...Option) (*Wa
 		return nil, err
 	}
 	if cursor.Valid() {
-		level.Debug(w.logger).Log("msg", "loaded DEP config", "cursor", cursor.Value)
+		err := level.Debug(w.logger).Log("msg", "loaded DEP config", "cursor", cursor.Value)
+		if err != nil {
+			return nil, err
+		}
 		w.cursor = *cursor
 	}
 
@@ -71,23 +75,38 @@ func NewWatcher(db WatcherDB, pub pubsub.PublishSubscriber, opts ...Option) (*Wa
 
 	saveCursor := func() {
 		if err := db.SaveCursor(w.cursor); err != nil {
-			level.Info(w.logger).Log("err", err, "msg", "saving cursor")
+			innerErr := level.Info(w.logger).Log("err", err, "msg", "saving cursor")
+			if innerErr != nil {
+				fmt.Println(innerErr)
+			}
 			return
 		}
-		level.Info(w.logger).Log("msg", "saved DEP config", "cursor", w.cursor.Value)
+		err = level.Info(w.logger).Log("msg", "saved DEP config", "cursor", w.cursor.Value)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 
 	go func() {
 		defer saveCursor()
 		if w.client == nil {
 			// block until we have a DEP client to start sync process
-			level.Info(w.logger).Log("msg", "waiting for DEP token to be added before starting sync")
+			err := level.Info(w.logger).Log("msg", "waiting for DEP token to be added before starting sync")
+			if err != nil {
+				fmt.Println(err)
+			}
 			<-w.startSync
 		}
 		err := w.Run()
+		if err != nil {
+			fmt.Println(err)
+		}
 		// the DEP sync should never end without an error, but log
 		// unconditionally anyway so we never silently stop watching
-		level.Info(w.logger).Log("err", err, "msg", "DEP watcher stopped")
+		err = level.Info(w.logger).Log("err", err, "msg", "DEP watcher stopped")
+		if err != nil {
+			fmt.Println(err)
+		}
 	}()
 
 	return &w, nil
@@ -125,13 +144,19 @@ func (w *Watcher) updateClient(pubsub pubsub.Subscriber) error {
 			case event := <-tokenAdded:
 				var token conf.DEPToken
 				if err := json.Unmarshal(event.Message, &token); err != nil {
-					level.Info(w.logger).Log("err", err, "msg", "unmarshalling tokenAdd to token")
+					innerErr := level.Info(w.logger).Log("err", err, "msg", "unmarshalling tokenAdd to token")
+					if innerErr != nil {
+						fmt.Println(innerErr)
+					}
 					continue
 				}
 
 				client, err := token.Client()
 				if err != nil {
-					level.Info(w.logger).Log("err", err, "msg", "creating new DEP client")
+					innerErr := level.Info(w.logger).Log("err", err, "msg", "creating new DEP client")
+					if innerErr != nil {
+						fmt.Println(innerErr)
+					}
 					continue
 				}
 
@@ -147,7 +172,10 @@ func (w *Watcher) updateClient(pubsub pubsub.Subscriber) error {
 
 func (w *Watcher) SyncNow() {
 	if w.client == nil {
-		level.Info(w.logger).Log("msg", "waiting for DEP token to be added before starting sync")
+		err := level.Info(w.logger).Log("msg", "waiting for DEP token to be added before starting sync")
+		if err != nil {
+			fmt.Println(err)
+		}
 		return
 	}
 	w.syncNow <- true
@@ -212,11 +240,14 @@ func (w *Watcher) processAutoAssign(devices []dep.Device) error {
 	for profileUUID, serials := range assignments {
 		resp, err := w.client.AssignProfile(profileUUID, serials...)
 		if err != nil {
-			level.Info(w.logger).Log(
+			innerErr := level.Info(w.logger).Log(
 				"err", err,
 				"msg", "auto-assign error assigning serials to profile",
 				"profile", profileUUID,
 			)
+			if innerErr != nil {
+				fmt.Println(innerErr)
+			}
 			continue
 		}
 		// count our results for logging
@@ -233,13 +264,16 @@ func (w *Watcher) processAutoAssign(devices []dep.Device) error {
 		}
 		// TODO: alternate strategy is to log all failed devices
 		// TODO: handle/requeue failed devices?
-		level.Info(w.logger).Log(
+		err = level.Info(w.logger).Log(
 			"msg", "DEP auto-assigned",
 			"profile", profileUUID,
 			"success", resultCounts["SUCCESS"],
 			"not_accessible", resultCounts["NOT_ACCESSIBLE"],
 			"failed", resultCounts["FAILED"],
 		)
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 
 	return nil
@@ -263,7 +297,10 @@ func (w *Watcher) publishAndProcessDevices(devices []dep.Device) error {
 	go func() {
 		err := w.processAutoAssign(devices)
 		if err != nil {
-			level.Info(w.logger).Log("err", err, "msg", "auto-assign error")
+			innerErr := level.Info(w.logger).Log("err", err, "msg", "auto-assign error")
+			if innerErr != nil {
+				fmt.Println(innerErr)
+			}
 		}
 	}()
 	return nil
@@ -277,24 +314,30 @@ FETCH:
 		if err != nil && isCursorExhausted(err) {
 			goto SYNC
 		} else if err != nil && isCursorInvalid(err) {
-			level.Info(w.logger).Log(
+			innerErr := level.Info(w.logger).Log(
 				"msg", "DEP fetch cursor response",
 				"cursor", w.cursor.Value,
 				"err", err,
 				"msg", "retrying DEP fetch with empty cursor",
 			)
+			if innerErr != nil {
+				fmt.Println(err)
+			}
 			w.cursor.Value = ""
 			goto FETCH
 		} else if err != nil {
 			return err
 		}
-		level.Info(w.logger).Log(
+		err = level.Info(w.logger).Log(
 			"msg", "DEP fetch",
 			"more", resp.MoreToFollow,
 			"cursor", resp.Cursor,
 			"fetched", resp.FetchedUntil,
 			"devices", len(resp.Devices),
 		)
+		if err != nil {
+			return errors.Wrap(err, "logging DEP fetch")
+		}
 		w.cursor = Cursor{Value: resp.Cursor, CreatedAt: time.Now()}
 		if err := w.db.SaveCursor(w.cursor); err != nil {
 			return errors.Wrap(err, "saving cursor from fetch")
@@ -311,24 +354,30 @@ SYNC:
 	for {
 		resp, err := w.client.SyncDevices(w.cursor.Value, dep.Cursor(w.cursor.Value))
 		if err != nil && (isCursorExpired(err) || isCursorInvalid(err)) {
-			level.Info(w.logger).Log(
+			innerErr := level.Info(w.logger).Log(
 				"msg", "DEP sync cursor response",
 				"cursor", w.cursor.Value,
 				"err", err,
 				"msg", "retrying DEP fetch with empty cursor",
 			)
+			if innerErr != nil {
+				fmt.Println(err)
+			}
 			w.cursor.Value = ""
 			goto FETCH
 		} else if err != nil {
 			return err
 		}
-		level.Info(w.logger).Log(
+		err = level.Info(w.logger).Log(
 			"msg", "DEP sync",
 			"more", resp.MoreToFollow,
 			"cursor", resp.Cursor,
 			"fetched", resp.FetchedUntil,
 			"devices", len(resp.Devices),
 		)
+		if err != nil {
+			return err
+		}
 		w.cursor = Cursor{Value: resp.Cursor, CreatedAt: time.Now()}
 		if err := w.db.SaveCursor(w.cursor); err != nil {
 			return errors.Wrap(err, "saving cursor from sync")
@@ -340,7 +389,10 @@ SYNC:
 			select {
 			case <-ticker:
 			case <-w.syncNow:
-				level.Info(w.logger).Log("msg", "explicit DEP sync requested")
+				err = level.Info(w.logger).Log("msg", "explicit DEP sync requested")
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}

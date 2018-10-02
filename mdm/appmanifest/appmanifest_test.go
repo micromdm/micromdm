@@ -39,7 +39,10 @@ func benchmarkSize(b *testing.B, size int) {
 	r := bytes.NewReader(buf)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		calculateMD5s(r, DefaultMD5Size)
+		_, err := calculateMD5s(r, DefaultMD5Size)
+		if err != nil {
+			return
+		}
 	}
 }
 

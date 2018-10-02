@@ -96,13 +96,19 @@ func (cmd *mdmcertDownloadCommand) Run(args []string) error {
 	)
 
 	if err := flagset.Parse(args); err != nil {
-		cmd.Usage()
-		return err
+		innerErr := cmd.Usage()
+		if innerErr != nil {
+			return errors.Wrap(innerErr, "calling usage")
+		}
+		return errors.Wrap(err, "failed parsing")
 	}
 
 	// neither flag was used
 	if !*flNew && *flDecrypt == "" {
-		cmd.Usage()
+		innerErr := cmd.Usage()
+		if innerErr != nil {
+			return errors.Wrap(innerErr, "calling usage")
+		}
 		return errors.New("bad input: must either use -new or -decrypt")
 	}
 
@@ -213,7 +219,10 @@ func (cmd *mdmcertDownloadCommand) Run(args []string) error {
 		if err != nil {
 			return errors.Wrap(err, "reading PKI private key")
 		}
-		ioutil.WriteFile("/tmp/fubar.p7", pkcsBytes, 0666)
+		err = ioutil.WriteFile("/tmp/fubar.p7", pkcsBytes, 0666)
+		if err != nil {
+			return errors.Wrap(err, "writing /tmp/fubar.p7")
+		}
 		p7, err := pkcs7.Parse(pkcsBytes)
 		if err != nil {
 			return errors.Wrap(err, "parsing mdmcert PKCS7 response")

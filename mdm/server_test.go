@@ -24,7 +24,10 @@ func mdmSignRequest(body []byte) (*x509.Certificate, string, error) {
 		return nil, "", err
 	}
 
-	sd.AddSigner(cert, key, pkcs7.SignerInfoConfig{})
+	err = sd.AddSigner(cert, key, pkcs7.SignerInfoConfig{})
+	if err != nil {
+		return nil, "", err
+	}
 	sd.Detach()
 	sig, err := sd.Finish()
 	if err != nil {

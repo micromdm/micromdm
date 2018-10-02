@@ -42,7 +42,10 @@ func (cmd *applyCommand) setup() error {
 
 func (cmd *applyCommand) Run(args []string) error {
 	if len(args) < 1 {
-		cmd.Usage()
+		err := cmd.Usage()
+		if err != nil {
+			return err
+		}
 		os.Exit(1)
 	}
 	if err := cmd.setup(); err != nil {
@@ -67,7 +70,10 @@ func (cmd *applyCommand) Run(args []string) error {
 	case "dep-autoassigner":
 		run = cmd.applyDEPAutoAssigner
 	default:
-		cmd.Usage()
+		err := cmd.Usage()
+		if err != nil {
+			return err
+		}
 		os.Exit(1)
 	}
 	return run(args[1:])
@@ -215,18 +221,16 @@ func (cmd *applyCommand) applyBlock(args []string) error {
 	// trigger a push
 	u, err := url.Parse(cmd.config.ServerURL)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return err
 	}
 	u.Path = "/push/" + url.QueryEscape(*flUDID)
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
-		fmt.Println(err)
-		return nil
+		return err
 	}
 	req.SetBasicAuth("micromdm", cmd.config.APIToken)
-	skipVerifyHTTPClient(cmd.config.SkipVerify).Do(req)
-	return nil
+	_, err = skipVerifyHTTPClient(cmd.config.SkipVerify).Do(req)
+	return err
 }
 
 func (cmd *applyCommand) applyProfile(args []string) error {
