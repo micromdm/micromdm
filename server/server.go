@@ -125,7 +125,7 @@ func (c *Server) Setup(logger log.Logger) error {
 		return err
 	}
 
-	err = c.setupEnrollmentService()
+	err := c.setupEnrollmentService()
 
 	return err
 }
