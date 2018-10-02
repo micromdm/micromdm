@@ -40,7 +40,7 @@ See the [CONTRIBUTING](CONTRIBUTING.md) page for additional info.
 
 ## Design Goals
 
-As mentioned in the introduction, a primary use case is bootstraping Macs. That's the short term (from now until WWDC).
+As mentioned in the introduction, a primary use case is bootstrapping Macs. That's the short term (from now until WWDC).
 But there's a larger design goal we have in mind — what will differentiate MicroMDM from other vendor projects. Here it is in brief:
 
 > MicroMDM aims to provide a declarative approach to device management. Too often vendor tools expect you to manage devices by filling out various forms in a web interface. While MicroMDM might have a web interface of it's own one day, the tool itself is inspired by popular DevOps processes like Configuration Management (chef/puppet/ansible, terraform) and orchestration frameworks (Kubernetes, Docker).
