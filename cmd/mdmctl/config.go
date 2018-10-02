@@ -120,7 +120,7 @@ func migrateServerConfig(configName string) error {
 	if err != nil {
 		err = fmt.Errorf("Failed to set %s as active config", configName)
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "Failed to set %s as active config", configName)
 		}
 	}
 	fmt.Println("Successfully migrated old config.")
