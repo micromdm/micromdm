@@ -29,7 +29,7 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	var getBlueprintsEndpoint endpoint.Endpoint
 	{
 		getBlueprintsEndpoint = httptransport.NewClient(
-			"GET",
+			"POST",
 			httputil.CopyURL(u, "/v1/blueprints"),
 			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
 			decodeGetBlueprintsResponse,
