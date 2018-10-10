@@ -21,10 +21,10 @@ func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoin
 }
 
 func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
-	// GET     /v1/devices		get a list of devices managed by the server
+	// POST     /v1/devices		get a list of devices managed by the server
 	// DELETE  /v1/devices		remove one or more devices from the server
 
-	r.Methods("GET").Path("/v1/devices").Handler(httptransport.NewServer(
+	r.Methods("POST").Path("/v1/devices").Handler(httptransport.NewServer(
 		e.ListDevicesEndpoint,
 		decodeListDevicesRequest,
 		httputil.EncodeJSONResponse,
