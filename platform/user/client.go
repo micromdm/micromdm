@@ -29,7 +29,7 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	var listUsersEndpoint endpoint.Endpoint
 	{
 		listUsersEndpoint = httptransport.NewClient(
-			"GET",
+			"POST",
 			httputil.CopyURL(u, "/v1/users"),
 			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
 			decodeListUsersResponse,
