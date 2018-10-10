@@ -1,6 +1,11 @@
 package mdm
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/groob/plist"
+	"github.com/pkg/errors"
+)
 
 func (c *Command) MarshalPlist() (interface{}, error) {
 	switch c.RequestType {
@@ -221,6 +226,16 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 			RemoveMedia: c.RemoveMedia,
 		}, nil
 	case "Settings":
+		// convert all the data plists into the dictionary inside settings before serialization.
+		for _, set := range c.Settings.Settings {
+			if len(set.ConfigurationData) > 0 {
+				var configuration map[string]interface{}
+				if err := plist.Unmarshal(set.ConfigurationData, &configuration); err != nil {
+					return nil, errors.Wrap(err, "turning the configuration data plist into a dictionary")
+				}
+				set.Configuration = configuration
+			}
+		}
 		return &struct {
 			RequestType string
 			*Settings

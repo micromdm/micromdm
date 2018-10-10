@@ -305,6 +305,7 @@ func protoToSetting(s *mdmproto.Setting) Setting {
 	case "ApplicationConfiguration":
 		pbs := s.GetApplicationConfiguration()
 		setting.Identifier = nilIfEmptyString(pbs.GetIdentifier())
+		setting.ConfigurationData = pbs.GetConfigurationDictionaryData()
 	case "VoiceRoaming":
 		pbs := s.GetVoiceRoaming()
 		setting.Enabled = nilIfFalse(pbs.GetEnabled())

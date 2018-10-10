@@ -348,7 +348,8 @@ func settingToProto(s Setting) *mdmproto.Setting {
 	switch s.Item {
 	case "ApplicationConfiguration":
 		pbs.ApplicationConfiguration = &mdmproto.ApplicationConfigurationSetting{
-			Identifier: emptyStringIfNil(s.Identifier),
+			Identifier:                  emptyStringIfNil(s.Identifier),
+			ConfigurationDictionaryData: s.ConfigurationData,
 		}
 	case "VoiceRoaming":
 		pbs.VoiceRoaming = &mdmproto.VoiceRoamingSetting{

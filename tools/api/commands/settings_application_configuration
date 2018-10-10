@@ -1,0 +1,15 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+jq -n \
+  --arg request_type "Settings" \
+  --arg udid "$1" \
+  --arg identifier "$2" \
+  --arg payload "$(cat $3|openssl base64 -A)" \ # path to a plist containing the configuration dictionary (top level)
+ '.udid = $udid 
+  |.request_type = $request_type
+  |.settings[0].item = "ApplicationConfiguration"
+  |.settings[0].identifier = $identifier
+  |.settings[0].configuration = $payload
+  '|\
+  curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-

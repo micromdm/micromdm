@@ -218,6 +218,8 @@ type Setting struct {
 	MDMOptions              map[string]interface{} `plist:",omitempty" json:"mdm_options,omitempty"`
 	PasscodeLockGracePeriod *int                   `plist:",omitempty" json:"passcode_lock_grace_period,omitempty"`
 	MaximumResidentUsers    *int                   `plist:",omitempty" json:"maximum_resident_users,omitempty"`
+	Configuration           map[string]interface{} `plist:",omitempty" json:"-"`
+	ConfigurationData       []byte                 `plist:"-" json:"configuration"` // used to build the dictionary
 }
 
 type ManagedApplicationConfiguration struct {

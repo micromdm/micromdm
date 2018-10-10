@@ -290,6 +290,7 @@ message ApplicationAttributesSetting {
 
 message ApplicationConfigurationSetting {
   string identifier = 1;
+  bytes configuration_dictionary_data = 2; // A serialized plist of the dictionary. 
 }
 
 message ApplicationAttributes {
