@@ -23,7 +23,7 @@ func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoin
 
 func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
 	// PUT     /v1/blueprints			create or replace a blueprint on the server
-	// GET     /v1/blueprints			get a list of blueprints managed by the server
+	// POST    /v1/blueprints			get a list of blueprints managed by the server
 	// DELETE  /v1/blueprints			remove one or more blueprints from the server
 
 	r.Methods("PUT").Path("/v1/blueprints").Handler(httptransport.NewServer(
@@ -33,7 +33,7 @@ func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.S
 		options...,
 	))
 
-	r.Methods("GET").Path("/v1/blueprints").Handler(httptransport.NewServer(
+	r.Methods("POST").Path("/v1/blueprints").Handler(httptransport.NewServer(
 		e.GetBlueprintsEndpoint,
 		decodeGetBlueprintsRequest,
 		httputil.EncodeJSONResponse,
