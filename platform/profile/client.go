@@ -29,7 +29,7 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	var getProfilesEndpoint endpoint.Endpoint
 	{
 		getProfilesEndpoint = httptransport.NewClient(
-			"GET",
+			"POST",
 			httputil.CopyURL(u, "/v1/profiles"),
 			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
 			decodeGetProfilesResponse,

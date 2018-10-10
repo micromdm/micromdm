@@ -22,11 +22,11 @@ func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoin
 }
 
 func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
-	// GET     /v1/profiles		get a list of profiles managed by the server
+	// POST    /v1/profiles		get a list of profiles managed by the server
 	// PUT     /v1/profiles		create or replace a profile on the server
 	// DELETE  /v1/profiles		remove one or more profiles from the server
 
-	r.Methods("GET").Path("/v1/profiles").Handler(httptransport.NewServer(
+	r.Methods("POST").Path("/v1/profiles").Handler(httptransport.NewServer(
 		e.GetProfilesEndpoint,
 		decodeGetProfilesRequest,
 		httputil.EncodeJSONResponse,
