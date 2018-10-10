@@ -19,7 +19,7 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	var appUploadEndpoint endpoint.Endpoint
 	{
 		appUploadEndpoint = httptransport.NewClient(
-			"POST",
+			"PUT",
 			httputil.CopyURL(u, "/v1/apps"),
 			httputil.EncodeRequestWithToken(token, encodeUploadAppRequest),
 			decodeUploadAppResponse,
@@ -30,7 +30,7 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	var listAppsEndpoint endpoint.Endpoint
 	{
 		listAppsEndpoint = httptransport.NewClient(
-			"GET",
+			"POST",
 			httputil.CopyURL(u, "/v1/apps"),
 			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
 			decodeListAppsResponse,

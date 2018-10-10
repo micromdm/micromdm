@@ -21,17 +21,17 @@ func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoin
 }
 
 func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
-	// POST    /v1/apps			upload an app to the server
-	// GET     /v1/apps			list apps managed by the server
+	// PUT		/v1/apps			upload an app to the server
+	// POST   /v1/apps			list apps managed by the server
 
-	r.Methods("POST").Path("/v1/apps").Handler(httptransport.NewServer(
+	r.Methods("PUT").Path("/v1/apps").Handler(httptransport.NewServer(
 		e.AppUploadEndpoint,
 		decodeAppUploadRequest,
 		httputil.EncodeJSONResponse,
 		options...,
 	))
 
-	r.Methods("GET").Path("/v1/apps").Handler(httptransport.NewServer(
+	r.Methods("POST").Path("/v1/apps").Handler(httptransport.NewServer(
 		e.ListAppsEndpoint,
 		decodeListAppsRequest,
 		httputil.EncodeJSONResponse,
