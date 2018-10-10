@@ -22,7 +22,7 @@ func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoin
 
 func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
 	// PUT     /v1/users		create or replace an user
-	// GET     /v1/users		get a list of users managed by the server
+	// POST    /v1/users		get a list of users managed by the server
 
 	r.Methods("PUT").Path("/v1/users").Handler(httptransport.NewServer(
 		e.ApplyUserEndpoint,
@@ -31,7 +31,7 @@ func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.S
 		options...,
 	))
 
-	r.Methods("GET").Path("/v1/users").Handler(httptransport.NewServer(
+	r.Methods("POST").Path("/v1/users").Handler(httptransport.NewServer(
 		e.ListUsersEndpoint,
 		decodeListUsersRequest,
 		httputil.EncodeJSONResponse,
