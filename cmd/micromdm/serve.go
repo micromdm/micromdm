@@ -70,9 +70,6 @@ func serve(args []string) error {
 		flConfigPath        = flagset.String("config-path", "/var/db/micromdm", "path to configuration directory")
 		flServerURL         = flagset.String("server-url", "", "public HTTPS url of your server")
 		flAPIKey            = flagset.String("api-key", env.String("MICROMDM_API_KEY", ""), "API Token for mdmctl command")
-		flAPNSCertPath      = flagset.String("apns-cert", "", "path to APNS certificate")
-		flAPNSKeyPass       = flagset.String("apns-password", env.String("MICROMDM_APNS_KEY_PASSWORD", ""), "password for your p12 APNS cert file (if using)")
-		flAPNSKeyPath       = flagset.String("apns-key", "", "path to key file if using .pem push cert")
 		flTLS               = flagset.Bool("tls", true, "use https")
 		flTLSCert           = flagset.String("tls-cert", "", "path to TLS certificate")
 		flTLSKey            = flagset.String("tls-key", "", "path to TLS private key")
@@ -103,9 +100,6 @@ func serve(args []string) error {
 	if !*flTLS && (*flTLSCert != "" || *flTLSKey != "") {
 		return errors.New("cannot set -tls=false and supply -tls-cert or -tls-key")
 	}
-	if *flAPNSCertPath != "" || *flAPNSKeyPass != "" || *flAPNSKeyPath != "" {
-		stdlog.Println("-apns-cert, -apns-password, and -apns-key switches are deprecated. please transition to `mdmctl mdmcert upload` instead")
-	}
 
 	logger := log.NewLogfmtLogger(os.Stderr)
 	stdlog.SetOutput(log.NewStdlibAdapter(logger)) // force structured logs
@@ -116,14 +110,11 @@ func serve(args []string) error {
 		return errors.Wrapf(err, "creating config directory %s", *flConfigPath)
 	}
 	sm := &server.Server{
-		ConfigPath:          *flConfigPath,
-		ServerPublicURL:     strings.TrimRight(*flServerURL, "/"),
-		APNSCertificatePath: *flAPNSCertPath,
-		APNSPrivateKeyPass:  *flAPNSKeyPass,
-		APNSPrivateKeyPath:  *flAPNSKeyPath,
-		Depsim:              *flDepSim,
-		TLSCertPath:         *flTLSCert,
-		CommandWebhookURL:   *flCommandWebhookURL,
+		ConfigPath:        *flConfigPath,
+		ServerPublicURL:   strings.TrimRight(*flServerURL, "/"),
+		Depsim:            *flDepSim,
+		TLSCertPath:       *flTLSCert,
+		CommandWebhookURL: *flCommandWebhookURL,
 
 		WebhooksHTTPClient: &http.Client{Timeout: time.Second * 30},
 
@@ -322,12 +313,7 @@ func serveOptions(
 func printExamples() {
 	const exampleText = `
 		Quickstart:
-		sudo micromdm serve -apns-cert /path/to/mdm_push_cert.p12 -apns-password=password_for_p12 -server-url=https://my-server-url
-
-		Using self-signed certs:
-		*Note, -apns flags are still required!*
-		sudo micromdm serve -tls-cert=/path/to/server.crt -tls-key=/path/to/server.key
-
+		micromdm serve -server-url=https://my-server-url -tls-cert tls.crt -tls-key tls.key
 		`
 	fmt.Println(exampleText)
 }

@@ -1,31 +1,23 @@
 package server
 
 import (
-	"bytes"
 	"context"
-	"crypto/tls"
 	"crypto/x509"
-	"encoding/pem"
-	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"path/filepath"
 	"time"
 
-	"github.com/RobotsAndPencils/buford/push"
 	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	boltdepot "github.com/micromdm/scep/depot/bolt"
 	scep "github.com/micromdm/scep/server"
 	"github.com/pkg/errors"
-	"golang.org/x/crypto/pkcs12"
 
 	"github.com/micromdm/micromdm/dep"
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/mdm/enroll"
-	"github.com/micromdm/micromdm/pkg/crypto"
 	"github.com/micromdm/micromdm/platform/apns"
 	apnsbuiltin "github.com/micromdm/micromdm/platform/apns/builtin"
 	"github.com/micromdm/micromdm/platform/command"
@@ -46,26 +38,21 @@ import (
 )
 
 type Server struct {
-	ConfigPath          string
-	Depsim              string
-	PubClient           pubsub.PublishSubscriber
-	DB                  *bolt.DB
-	PushCert            pushServiceCert
-	ServerPublicURL     string
-	SCEPChallenge       string
-	APNSPrivateKeyPath  string
-	APNSCertificatePath string
-	APNSPrivateKeyPass  string
-	TLSCertPath         string
-	SCEPDepot           *boltdepot.Depot
-	ProfileDB           profile.Store
-	ConfigDB            config.Store
-	RemoveDB            block.Store
-	CommandWebhookURL   string
-	DEPClient           *dep.Client
-	SyncDB              *syncbuiltin.DB
+	ConfigPath        string
+	Depsim            string
+	PubClient         pubsub.PublishSubscriber
+	DB                *bolt.DB
+	ServerPublicURL   string
+	SCEPChallenge     string
+	TLSCertPath       string
+	SCEPDepot         *boltdepot.Depot
+	ProfileDB         profile.Store
+	ConfigDB          config.Store
+	RemoveDB          block.Store
+	CommandWebhookURL string
+	DEPClient         *dep.Client
+	SyncDB            *syncbuiltin.DB
 
-	PushService     *push.Service // bufford push
 	APNSPushService apns.Service
 	CommandService  command.Service
 	MDMService      mdm.Service
@@ -90,10 +77,6 @@ func (c *Server) Setup(logger log.Logger) error {
 	}
 
 	if err := c.setupConfigStore(); err != nil {
-		return err
-	}
-
-	if err := c.loadPushCerts(); err != nil {
 		return err
 	}
 
@@ -211,61 +194,6 @@ func (c *Server) setupBolt() error {
 	return nil
 }
 
-func (c *Server) loadPushCerts() error {
-	if c.APNSCertificatePath == "" && c.APNSPrivateKeyPass == "" && c.APNSPrivateKeyPath == "" {
-		// this is optional, config could also be provided with mdmctl
-		return nil
-	}
-	var err error
-
-	if c.APNSPrivateKeyPath == "" {
-		var pkcs12Data []byte
-
-		pkcs12Data, err = ioutil.ReadFile(c.APNSCertificatePath)
-		if err != nil {
-			return err
-		}
-		c.PushCert.PrivateKey, c.PushCert.Certificate, err =
-			pkcs12.Decode(pkcs12Data, c.APNSPrivateKeyPass)
-		return err
-	}
-
-	c.PushCert.Certificate, err = crypto.ReadPEMCertificateFile(c.APNSCertificatePath)
-	if err != nil {
-		return err
-	}
-
-	var pemData []byte
-	pemData, err = ioutil.ReadFile(c.APNSPrivateKeyPath)
-	if err != nil {
-		return err
-	}
-
-	pkeyBlock := new(bytes.Buffer)
-	pemBlock, _ := pem.Decode(pemData)
-	if pemBlock == nil {
-		return errors.New("invalid PEM data for privkey")
-	}
-
-	if x509.IsEncryptedPEMBlock(pemBlock) {
-		b, err := x509.DecryptPEMBlock(pemBlock, []byte(c.APNSPrivateKeyPass))
-		if err != nil {
-			return fmt.Errorf("decrypting DES private key %s", err)
-		}
-		pkeyBlock.Write(b)
-	} else {
-		pkeyBlock.Write(pemBlock.Bytes)
-	}
-
-	priv, err := x509.ParsePKCS1PrivateKey(pkeyBlock.Bytes())
-	if err != nil {
-		return fmt.Errorf("parsing pkcs1 private key: %s", err)
-	}
-	c.PushCert.PrivateKey = priv
-
-	return nil
-}
-
 type pushServiceCert struct {
 	*x509.Certificate
 	PrivateKey interface{}
@@ -283,34 +211,12 @@ func (c *Server) setupConfigStore() error {
 }
 
 func (c *Server) setupPushService(logger log.Logger) error {
-	var opts []apns.Option
-	{
-		cert, _ := c.ConfigDB.PushCertificate()
-		if c.PushCert.Certificate != nil && cert == nil {
-			cert = &tls.Certificate{
-				Certificate: [][]byte{c.PushCert.Certificate.Raw},
-				PrivateKey:  c.PushCert.PrivateKey,
-				Leaf:        c.PushCert.Certificate,
-			}
-		}
-		if cert == nil {
-			goto after
-		}
-		client, err := push.NewClient(*cert)
-		if err != nil {
-			return err
-		}
-		svc := push.NewService(client, push.Production)
-		opts = append(opts, apns.WithPushService(svc))
-	}
-after:
-
 	db, err := apnsbuiltin.NewDB(c.DB, c.PubClient)
 	if err != nil {
 		return err
 	}
 
-	service, err := apns.New(db, c.ConfigDB, c.PubClient, opts...)
+	service, err := apns.New(db, c.ConfigDB, c.PubClient)
 	if err != nil {
 		return errors.Wrap(err, "starting micromdm push service")
 	}
@@ -325,23 +231,14 @@ after:
 }
 
 func (c *Server) setupEnrollmentService() error {
-	var topicProvider enroll.TopicProvider
-	var err error
-	if c.PushCert.Certificate != nil {
-		pushTopic, err := crypto.TopicFromCert(c.PushCert.Certificate)
-		if err != nil {
-			return errors.Wrap(err, "get apns topic from certificate")
-		}
-		topicProvider = staticTopicProvider{topic: pushTopic}
-	} else {
-		topicProvider = c.ConfigDB
-	}
-
-	var SCEPCertificateSubject string
+	var (
+		SCEPCertificateSubject string
+		err                    error
+	)
 	// TODO: clean up order of inputs. Maybe pass *SCEPConfig as an arg?
 	// but if you do, the packages are coupled, better not.
 	c.EnrollService, err = enroll.NewService(
-		topicProvider,
+		c.ConfigDB,
 		c.PubClient,
 		c.ServerPublicURL+"/scep",
 		c.SCEPChallenge,
@@ -350,18 +247,7 @@ func (c *Server) setupEnrollmentService() error {
 		SCEPCertificateSubject,
 		c.ProfileDB,
 	)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// if the apns-cert flags are specified this provider will be used in the enroll service.
-type staticTopicProvider struct{ topic string }
-
-func (p staticTopicProvider) PushTopic() (string, error) {
-	return p.topic, nil
+	return errors.Wrap(err, "setting up enrollment service")
 }
 
 func (c *Server) setupDepClient() error {
