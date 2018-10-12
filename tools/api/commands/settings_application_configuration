@@ -5,7 +5,7 @@ jq -n \
   --arg request_type "Settings" \
   --arg udid "$1" \
   --arg identifier "$2" \
-  --arg payload "$(cat $3|openssl base64 -A)" \ # path to a plist containing the configuration dictionary (top level)
+  --arg payload "$(cat $3|openssl base64 -A)" \
  '.udid = $udid 
   |.request_type = $request_type
   |.settings[0].item = "ApplicationConfiguration"
