@@ -56,6 +56,12 @@ func New(db Store, provider PushCertificateProvider, sub pubsub.Subscriber, opts
 	for _, opt := range opts {
 		opt(&pushSvc)
 	}
+
+	pushsvc, _ := NewPushService(provider)
+	if pushsvc != nil {
+		pushSvc.pushsvc = pushsvc
+	}
+
 	// if there is no push service, the push certificate hasn't been provided.
 	// start a goroutine that delays the run of this service.
 	if err := updateClient(&pushSvc, sub); err != nil {
