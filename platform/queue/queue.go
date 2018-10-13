@@ -6,6 +6,8 @@ import (
 	"fmt"
 
 	"github.com/boltdb/bolt"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	"github.com/groob/plist"
 	"github.com/pkg/errors"
 
@@ -22,6 +24,15 @@ const (
 
 type Store struct {
 	*bolt.DB
+	logger log.Logger
+}
+
+type Option func(*Store)
+
+func WithLogger(logger log.Logger) Option {
+	return func(s *Store) {
+		s.logger = logger
+	}
 }
 
 func (db *Store) Next(ctx context.Context, resp mdm.Response) ([]byte, error) {
@@ -133,7 +144,7 @@ func cut(all []Command, uuid string) (*Command, []Command) {
 	return nil, all
 }
 
-func NewQueue(db *bolt.DB, pubsub pubsub.PublishSubscriber) (*Store, error) {
+func NewQueue(db *bolt.DB, pubsub pubsub.PublishSubscriber, opts ...Option) (*Store, error) {
 	err := db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(DeviceCommandBucket))
 		return err
@@ -141,10 +152,16 @@ func NewQueue(db *bolt.DB, pubsub pubsub.PublishSubscriber) (*Store, error) {
 	if err != nil {
 		return nil, errors.Wrapf(err, "creating %s bucket", DeviceCommandBucket)
 	}
-	datastore := &Store{DB: db}
+
+	datastore := &Store{DB: db, logger: log.NewNopLogger()}
+	for _, fn := range opts {
+		fn(datastore)
+	}
+
 	if err := datastore.pollCommands(pubsub); err != nil {
 		return nil, err
 	}
+
 	return datastore, nil
 }
 
@@ -205,7 +222,7 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 			case event := <-commandEvents:
 				var ev command.Event
 				if err := command.UnmarshalEvent(event.Message, &ev); err != nil {
-					fmt.Println(err)
+					level.Info(db.logger).Log("msg", "unmarshal command event in queue", "err", err)
 					continue
 				}
 
@@ -217,7 +234,7 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 				}
 				newPayload, err := plist.Marshal(ev.Payload)
 				if err != nil {
-					fmt.Println(errors.Wrap(err, "marshal event payload"))
+					level.Info(db.logger).Log("msg", "marshal event payload", "err", err)
 					continue
 				}
 				newCmd := Command{
@@ -226,10 +243,15 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 				}
 				cmd.Commands = append(cmd.Commands, newCmd)
 				if err := db.Save(cmd); err != nil {
-					fmt.Println(err)
+					level.Info(db.logger).Log("msg", "save command in db", "err", err)
 					continue
 				}
-				fmt.Printf("queued event for device: %s\n", ev.DeviceUDID)
+				level.Info(db.logger).Log(
+					"msg", "queued event for device",
+					"device_udid", ev.DeviceUDID,
+					"command_uuid", ev.Payload.CommandUUID,
+					"request_type", ev.Payload.Command.RequestType,
+				)
 
 				cq := new(QueueCommandQueued)
 				cq.DeviceUDID = ev.DeviceUDID
@@ -237,11 +259,13 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 
 				msgBytes, err := MarshalQueuedCommand(cq)
 				if err != nil {
-					fmt.Println(err)
+					level.Info(db.logger).Log("msg", "marshal queued command", "err", err)
 					continue
 				}
 
-				pubsub.Publish(context.TODO(), CommandQueuedTopic, msgBytes)
+				if err := pubsub.Publish(context.TODO(), CommandQueuedTopic, msgBytes); err != nil {
+					level.Info(db.logger).Log("msg", "publish command to queued topic", "err", err)
+				}
 			}
 		}
 	}()

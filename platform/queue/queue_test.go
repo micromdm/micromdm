@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/boltdb/bolt"
+	"github.com/go-kit/kit/log"
 	"github.com/micromdm/micromdm/mdm"
 )
 
@@ -172,6 +173,6 @@ func setupDB(t *testing.T) (*Store, func()) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	store := &Store{db}
+	store := &Store{DB: db, logger: log.NewNopLogger()}
 	return store, teardown
 }
