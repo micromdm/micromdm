@@ -227,13 +227,14 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 		}, nil
 	case "Settings":
 		// convert all the data plists into the dictionary inside settings before serialization.
-		for _, set := range c.Settings.Settings {
+		for i, set := range c.Settings.Settings {
 			if len(set.ConfigurationData) > 0 {
 				var configuration map[string]interface{}
 				if err := plist.Unmarshal(set.ConfigurationData, &configuration); err != nil {
 					return nil, errors.Wrap(err, "turning the configuration data plist into a dictionary")
 				}
 				set.Configuration = configuration
+				c.Settings.Settings[i] = set
 			}
 		}
 		return &struct {

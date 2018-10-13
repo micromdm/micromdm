@@ -1,4 +1,22 @@
 #!/bin/bash
+
+# Documentation:
+# The configuration values must be provided to $3 must be a property list with the key/values for the configuration dictionary.
+# Example:
+#
+# <?xml version="1.0" encoding="UTF-8"?>
+# <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+# <plist version="1.0">
+#   <dict>
+#     <key>baz</key>
+#     <string>qux</string>
+#     <key>count</key>
+#     <integer>1</integer>
+#     <key>foo</key>
+#     <string>bar</string>
+#   </dict>
+# </plist>
+
 source $MICROMDM_ENV_PATH
 endpoint="v1/commands"
 jq -n \
