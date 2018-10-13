@@ -12,35 +12,32 @@ import (
 const DeviceEnrolledTopic = "mdm.DeviceEnrolled"
 
 type Device struct {
-	UUID                   string
-	UDID                   string
-	SerialNumber           string
-	OSVersion              string
-	BuildVersion           string
-	ProductName            string
-	IMEI                   string
-	MEID                   string
-	MDMTopic               string
-	PushMagic              string
-	AwaitingConfiguration  bool
-	Token                  string
-	UnlockToken            string
-	Enrolled               bool
-	DEPDevice              bool
-	Description            string
-	Model                  string
-	ModelName              string
-	DeviceName             string
-	Color                  string
-	AssetTag               string
-	DEPProfileStatus       DEPProfileStatus
-	DEPProfileUUID         string
-	DEPProfileAssignTime   time.Time
-	DEPProfilePushTime     time.Time
-	DEPProfileAssignedDate time.Time
-	DEPProfileAssignedBy   string
-	LastSeen               time.Time
-	LastQueryResponse      []byte
+	UUID                   string           `db:"uuid"`
+	UDID                   string           `db:"udid"`
+	SerialNumber           string           `db:"serial_number"`
+	OSVersion              string           `db:"os_version"`
+	BuildVersion           string           `db:"build_version"`
+	ProductName            string           `db:"product_name"`
+	IMEI                   string           `db:"imei"`
+	MEID                   string           `db:"meid"`
+	PushMagic              string           `db:"push_magic"`
+	AwaitingConfiguration  bool             `db:"awaiting_configuration"`
+	Token                  string           `db:"token"`
+	UnlockToken            string           `db:"unlock_token"`
+	Enrolled               bool             `db:"enrolled"`
+	Description            string           `db:"description"`
+	Model                  string           `db:"model"`
+	ModelName              string           `db:"model_name"`
+	DeviceName             string           `db:"device_name"`
+	Color                  string           `db:"color"`
+	AssetTag               string           `db:"asset_tag"`
+	DEPProfileStatus       DEPProfileStatus `db:"dep_profile_status"`
+	DEPProfileUUID         string           `db:"dep_profile_uuid"`
+	DEPProfileAssignTime   time.Time        `db:"dep_profile_assign_time"`
+	DEPProfilePushTime     time.Time        `db:"dep_profile_push_time"`
+	DEPProfileAssignedDate time.Time        `db:"dep_profile_assigned_date"`
+	DEPProfileAssignedBy   string           `db:"dep_profile_assigned_by"`
+	LastSeen               time.Time        `db:"last_seen"`
 }
 
 // DEPProfileStatus is the status of the DEP Profile
@@ -67,7 +64,6 @@ func MarshalDevice(dev *Device) ([]byte, error) {
 		Meid:                   dev.MEID,
 		Token:                  dev.Token,
 		PushMagic:              dev.PushMagic,
-		MdmTopic:               dev.MDMTopic,
 		UnlockToken:            dev.UnlockToken,
 		Enrolled:               dev.Enrolled,
 		AwaitingConfiguration:  dev.AwaitingConfiguration,
@@ -77,7 +73,6 @@ func MarshalDevice(dev *Device) ([]byte, error) {
 		Description:            dev.Description,
 		Color:                  dev.Color,
 		AssetTag:               dev.AssetTag,
-		DepDevice:              dev.DEPDevice,
 		DepProfileStatus:       string(dev.DEPProfileStatus),
 		DepProfileUuid:         dev.DEPProfileUUID,
 		DepProfileAssignTime:   timeToNano(dev.DEPProfileAssignTime),
@@ -85,7 +80,6 @@ func MarshalDevice(dev *Device) ([]byte, error) {
 		DepProfileAssignedDate: timeToNano(dev.DEPProfileAssignedDate),
 		DepProfileAssignedBy:   dev.DEPProfileAssignedBy,
 		LastSeen:               timeToNano(dev.LastSeen),
-		LastQueryResponse:      dev.LastQueryResponse,
 	}
 	return proto.Marshal(&protodev)
 }
@@ -105,7 +99,6 @@ func UnmarshalDevice(data []byte, dev *Device) error {
 	dev.MEID = pb.GetMeid()
 	dev.Token = pb.GetToken()
 	dev.PushMagic = pb.GetPushMagic()
-	dev.MDMTopic = pb.GetMdmTopic()
 	dev.UnlockToken = pb.GetUnlockToken()
 	dev.Enrolled = pb.GetEnrolled()
 	dev.AwaitingConfiguration = pb.GetAwaitingConfiguration()
@@ -115,7 +108,6 @@ func UnmarshalDevice(data []byte, dev *Device) error {
 	dev.Description = pb.GetDescription()
 	dev.Color = pb.GetColor()
 	dev.AssetTag = pb.GetAssetTag()
-	dev.DEPDevice = pb.GetDepDevice()
 	dev.DEPProfileStatus = DEPProfileStatus(pb.GetDepProfileStatus())
 	dev.DEPProfileUUID = pb.GetDepProfileUuid()
 	dev.DEPProfileAssignTime = timeFromNano(pb.GetDepProfileAssignTime())
@@ -123,7 +115,6 @@ func UnmarshalDevice(data []byte, dev *Device) error {
 	dev.DEPProfileAssignedDate = timeFromNano(pb.GetDepProfileAssignedDate())
 	dev.DEPProfileAssignedBy = pb.GetDepProfileAssignedBy()
 	dev.LastSeen = timeFromNano(pb.GetLastSeen())
-	dev.LastQueryResponse = pb.GetLastQueryResponse()
 	return nil
 }
 

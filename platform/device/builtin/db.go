@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/boltdb/bolt"
@@ -45,7 +46,7 @@ func NewDB(db *bolt.DB) (*DB, error) {
 	return datastore, nil
 }
 
-func (db *DB) List(opt device.ListDevicesOption) ([]device.Device, error) {
+func (db *DB) List(ctx context.Context, opt device.ListDevicesOption) ([]device.Device, error) {
 	var devices []device.Device
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(DeviceBucket))
@@ -71,7 +72,7 @@ func (db *DB) List(opt device.ListDevicesOption) ([]device.Device, error) {
 	return devices, err
 }
 
-func (db *DB) Save(dev *device.Device) error {
+func (db *DB) Save(ctx context.Context, dev *device.Device) error {
 	tx, err := db.DB.Begin(true)
 	if err != nil {
 		return errors.Wrap(err, "begin transaction")
@@ -109,11 +110,11 @@ func (db *DB) Save(dev *device.Device) error {
 	return tx.Commit()
 }
 
-func (db *DB) DeleteByUDID(udid string) error {
+func (db *DB) DeleteByUDID(ctx context.Context, udid string) error {
 	return db.deleteByIndex(udid)
 }
 
-func (db *DB) DeleteBySerial(serial string) error {
+func (db *DB) DeleteBySerial(ctx context.Context, serial string) error {
 	return db.deleteByIndex(serial)
 }
 
@@ -157,11 +158,11 @@ func (e *notFound) NotFound() bool {
 	return true
 }
 
-func (db *DB) DeviceByUDID(udid string) (*device.Device, error) {
+func (db *DB) DeviceByUDID(ctx context.Context, udid string) (*device.Device, error) {
 	return db.deviceByIndex(udid)
 }
 
-func (db *DB) DeviceBySerial(serial string) (*device.Device, error) {
+func (db *DB) DeviceBySerial(ctx context.Context, serial string) (*device.Device, error) {
 	return db.deviceByIndex(serial)
 }
 
