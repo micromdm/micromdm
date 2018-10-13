@@ -1,8 +1,6 @@
 package mdm
 
 import (
-	"fmt"
-
 	"github.com/gogo/protobuf/proto"
 	"github.com/micromdm/micromdm/mdm/mdm/internal/mdmproto"
 )
@@ -54,7 +52,6 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			ManagedAppsOnly: pbcmd.GetManagedAppsOnly(),
 		}
 	case "DeviceInformation":
-		fmt.Println("x", pb.GetDeviceInformation().GetQueries())
 		cmd.DeviceInformation = &DeviceInformation{
 			Queries: pb.GetDeviceInformation().GetQueries(),
 		}

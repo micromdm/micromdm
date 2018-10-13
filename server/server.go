@@ -157,7 +157,7 @@ func (c *Server) setupCommandService() error {
 }
 
 func (c *Server) setupCommandQueue(logger log.Logger) error {
-	q, err := queue.NewQueue(c.DB, c.PubClient)
+	q, err := queue.NewQueue(c.DB, c.PubClient, queue.WithLogger(logger))
 	if err != nil {
 		return err
 	}
