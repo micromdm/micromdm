@@ -346,6 +346,11 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 func settingToProto(s Setting) *mdmproto.Setting {
 	pbs := mdmproto.Setting{Item: s.Item}
 	switch s.Item {
+	case "ApplicationConfiguration":
+		pbs.ApplicationConfiguration = &mdmproto.ApplicationConfigurationSetting{
+			Identifier:                  emptyStringIfNil(s.Identifier),
+			ConfigurationDictionaryData: s.ConfigurationData,
+		}
 	case "VoiceRoaming":
 		pbs.VoiceRoaming = &mdmproto.VoiceRoamingSetting{
 			Enabled: falseIfNil(s.Enabled),

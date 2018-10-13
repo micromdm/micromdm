@@ -259,6 +259,7 @@ message Setting {
   MaximumResidentUsersSetting maximum_resident_users = 12;
   DiagnosticSubmissionSetting diagnostic_submission = 13;
   AppAnalyticsSetting app_analytics = 14;
+  ApplicationConfigurationSetting application_configuration = 15;
 }
 
 message VoiceRoamingSetting {
@@ -285,6 +286,11 @@ message BluetoothSetting {
 message ApplicationAttributesSetting {
   string identifier = 1;
   ApplicationAttributes application_attributes = 2;
+}
+
+message ApplicationConfigurationSetting {
+  string identifier = 1;
+  bytes configuration_dictionary_data = 2; // A serialized plist of the dictionary. 
 }
 
 message ApplicationAttributes {

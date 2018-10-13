@@ -135,49 +135,106 @@ func testCommandUnmarshal(
 }
 
 func TestEndToEnd(t *testing.T) {
-	// given an request that came over http as JSON
-	requestBytes := []byte(`{"udid": "BC5E2DA4-7FB6-5E70-9928-4981680DAFBF", "payload":"PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCFET0NUWVBFIHBsaXN0IFBVQkxJQyAiLS8vQXBwbGUvL0RURCBQTElTVCAxLjAvL0VOIiAiaHR0cDovL3d3dy5hcHBsZS5jb20vRFREcy9Qcm9wZXJ0eUxpc3QtMS4wLmR0ZCI+CjxwbGlzdCB2ZXJzaW9uPSIxLjAiPgo8ZGljdD4KCTxrZXk+UGF5bG9hZENvbnRlbnQ8L2tleT4KCTxhcnJheT4KCQk8ZGljdD4KCQkJPGtleT5QYXlsb2FkQ29udGVudDwva2V5PgoJCQk8ZGljdD4KCQkJCTxrZXk+Y29tLmFwcGxlLmFzc2lzdGFudC5zdXBwb3J0PC9rZXk+CgkJCQk8ZGljdD4KCQkJCQk8a2V5PkZvcmNlZDwva2V5PgoJCQkJCTxhcnJheT4KCQkJCQkJPGRpY3Q+CgkJCQkJCQk8a2V5Pm1jeF9wcmVmZXJlbmNlX3NldHRpbmdzPC9rZXk+CgkJCQkJCQk8ZGljdD4KCQkJCQkJCQk8a2V5PkFzc2lzdGFudCBFbmFibGVkPC9rZXk+CgkJCQkJCQkJPGZhbHNlLz4KCQkJCQkJCTwvZGljdD4KCQkJCQkJPC9kaWN0PgoJCQkJCTwvYXJyYXk+CgkJCQk8L2RpY3Q+CgkJCTwvZGljdD4KCQkJPGtleT5QYXlsb2FkRW5hYmxlZDwva2V5PgoJCQk8dHJ1ZS8+CgkJCTxrZXk+UGF5bG9hZElkZW50aWZpZXI8L2tleT4KCQkJPHN0cmluZz5NQ1hUb1Byb2ZpbGUuOWM3MzgwZDItNWJmZS00ZTYwLWJhZDMtMjVhZDg2ZDYxNTBkLmFsYWNhcnRlLmN1c3RvbXNldHRpbmdzLmZiOTU4ZDk2LWE0MzEtNDUzNi04NGQwLTFiZTQ4MjM4NWZiMjwvc3RyaW5nPgoJCQk8a2V5PlBheWxvYWRUeXBlPC9rZXk+CgkJCTxzdHJpbmc+Y29tLmFwcGxlLk1hbmFnZWRDbGllbnQucHJlZmVyZW5jZXM8L3N0cmluZz4KCQkJPGtleT5QYXlsb2FkVVVJRDwva2V5PgoJCQk8c3RyaW5nPmZiOTU4ZDk2LWE0MzEtNDUzNi04NGQwLTFiZTQ4MjM4NWZiMjwvc3RyaW5nPgoJCQk8a2V5PlBheWxvYWRWZXJzaW9uPC9rZXk+CgkJCTxpbnRlZ2VyPjE8L2ludGVnZXI+CgkJPC9kaWN0PgoJPC9hcnJheT4KCTxrZXk+UGF5bG9hZERlc2NyaXB0aW9uPC9rZXk+Cgk8c3RyaW5nPlN0b3BzIFNpcmkgZnJvbSBiZWluZyBlbmFibGVkLjwvc3RyaW5nPgoJPGtleT5QYXlsb2FkRGlzcGxheU5hbWU8L2tleT4KCTxzdHJpbmc+RGlzYWJsZSBTaXJpPC9zdHJpbmc+Cgk8a2V5PlBheWxvYWRJZGVudGlmaWVyPC9rZXk+Cgk8c3RyaW5nPkRpc2FibGVTaXJpPC9zdHJpbmc+Cgk8a2V5PlBheWxvYWRPcmdhbml6YXRpb248L2tleT4KCTxzdHJpbmc+PC9zdHJpbmc+Cgk8a2V5PlBheWxvYWRSZW1vdmFsRGlzYWxsb3dlZDwva2V5PgoJPHRydWUvPgoJPGtleT5QYXlsb2FkU2NvcGU8L2tleT4KCTxzdHJpbmc+U3lzdGVtPC9zdHJpbmc+Cgk8a2V5PlBheWxvYWRUeXBlPC9rZXk+Cgk8c3RyaW5nPkNvbmZpZ3VyYXRpb248L3N0cmluZz4KCTxrZXk+UGF5bG9hZFVVSUQ8L2tleT4KCTxzdHJpbmc+OWM3MzgwZDItNWJmZS00ZTYwLWJhZDMtMjVhZDg2ZDYxNTBkPC9zdHJpbmc+Cgk8a2V5PlBheWxvYWRWZXJzaW9uPC9rZXk+Cgk8aW50ZWdlcj4xPC9pbnRlZ2VyPgo8L2RpY3Q+CjwvcGxpc3Q+Cg==", "request_type": "InstallProfile"}`)
+	var tests = []struct {
+		name         string
+		requestBytes []byte
+		testFn       func(t *testing.T, parts endToEndParts)
+	}{
+		{
+			name: "Settings_ApplicationConfiguration",
+			requestBytes: []byte(
+				`{"udid":"BC5E2DA4-7FB6-5E70-9928-4981680DAFBF","request_type":"Settings","settings":[{"item":"ApplicationConfiguration","identifier":"anidentifier","configuration":"PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCFET0NUWVBFIHBsaXN0IFBVQkxJQyAiLS8vQXBwbGUvL0RURCBQTElTVCAxLjAvL0VOIiAiaHR0cDovL3d3dy5hcHBsZS5jb20vRFREcy9Qcm9wZXJ0eUxpc3QtMS4wLmR0ZCI+CjxwbGlzdCB2ZXJzaW9uPSIxLjAiPgogIDxkaWN0PgogICAgPGtleT5iYXo8L2tleT4KICAgIDxzdHJpbmc+cXV4PC9zdHJpbmc+CiAgICA8a2V5PmNvdW50PC9rZXk+CiAgICA8aW50ZWdlcj4xPC9pbnRlZ2VyPgogICAgPGtleT5mb288L2tleT4KICAgIDxzdHJpbmc+YmFyPC9zdHJpbmc+CiAgPC9kaWN0Pgo8L3BsaXN0Pgo="}]}`,
+			),
+			testFn: func(t *testing.T, parts endToEndParts) {
+				if len(parts.req.Command.Settings.Settings) == 0 {
+					t.Error("expected settings command to include at least one setting")
+				}
 
-	// unmarshal the request into a go structure
-	var req CommandRequest
-	if err := json.Unmarshal(requestBytes, &req); err != nil {
+				if len(parts.fromProto.Command.Settings.Settings) == 0 {
+					t.Error("expected settings command from proto to include at least one setting")
+				}
+
+				// unmarshal plist and check that the settings in the configuration dictionary are there
+				var cmd struct {
+					Command struct{ Settings []map[string]interface{} }
+				}
+				if err := plist.Unmarshal(parts.plistData, &cmd); err != nil {
+					t.Fatal(err)
+				}
+				setting := cmd.Command.Settings[0]["Configuration"].(map[string]interface{})
+				if have, want := setting["foo"], "bar"; have != want {
+					t.Errorf("have key %s, want key %s", have, want)
+				}
+
+			},
+		},
+
+		{
+			name: "InstallProfile",
+			requestBytes: []byte(
+				`{"udid": "BC5E2DA4-7FB6-5E70-9928-4981680DAFBF", "payload":"PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCFET0NUWVBFIHBsaXN0IFBVQkxJQyAiLS8vQXBwbGUvL0RURCBQTElTVCAxLjAvL0VOIiAiaHR0cDovL3d3dy5hcHBsZS5jb20vRFREcy9Qcm9wZXJ0eUxpc3QtMS4wLmR0ZCI+CjxwbGlzdCB2ZXJzaW9uPSIxLjAiPgo8ZGljdD4KCTxrZXk+UGF5bG9hZENvbnRlbnQ8L2tleT4KCTxhcnJheT4KCQk8ZGljdD4KCQkJPGtleT5QYXlsb2FkQ29udGVudDwva2V5PgoJCQk8ZGljdD4KCQkJCTxrZXk+Y29tLmFwcGxlLmFzc2lzdGFudC5zdXBwb3J0PC9rZXk+CgkJCQk8ZGljdD4KCQkJCQk8a2V5PkZvcmNlZDwva2V5PgoJCQkJCTxhcnJheT4KCQkJCQkJPGRpY3Q+CgkJCQkJCQk8a2V5Pm1jeF9wcmVmZXJlbmNlX3NldHRpbmdzPC9rZXk+CgkJCQkJCQk8ZGljdD4KCQkJCQkJCQk8a2V5PkFzc2lzdGFudCBFbmFibGVkPC9rZXk+CgkJCQkJCQkJPGZhbHNlLz4KCQkJCQkJCTwvZGljdD4KCQkJCQkJPC9kaWN0PgoJCQkJCTwvYXJyYXk+CgkJCQk8L2RpY3Q+CgkJCTwvZGljdD4KCQkJPGtleT5QYXlsb2FkRW5hYmxlZDwva2V5PgoJCQk8dHJ1ZS8+CgkJCTxrZXk+UGF5bG9hZElkZW50aWZpZXI8L2tleT4KCQkJPHN0cmluZz5NQ1hUb1Byb2ZpbGUuOWM3MzgwZDItNWJmZS00ZTYwLWJhZDMtMjVhZDg2ZDYxNTBkLmFsYWNhcnRlLmN1c3RvbXNldHRpbmdzLmZiOTU4ZDk2LWE0MzEtNDUzNi04NGQwLTFiZTQ4MjM4NWZiMjwvc3RyaW5nPgoJCQk8a2V5PlBheWxvYWRUeXBlPC9rZXk+CgkJCTxzdHJpbmc+Y29tLmFwcGxlLk1hbmFnZWRDbGllbnQucHJlZmVyZW5jZXM8L3N0cmluZz4KCQkJPGtleT5QYXlsb2FkVVVJRDwva2V5PgoJCQk8c3RyaW5nPmZiOTU4ZDk2LWE0MzEtNDUzNi04NGQwLTFiZTQ4MjM4NWZiMjwvc3RyaW5nPgoJCQk8a2V5PlBheWxvYWRWZXJzaW9uPC9rZXk+CgkJCTxpbnRlZ2VyPjE8L2ludGVnZXI+CgkJPC9kaWN0PgoJPC9hcnJheT4KCTxrZXk+UGF5bG9hZERlc2NyaXB0aW9uPC9rZXk+Cgk8c3RyaW5nPlN0b3BzIFNpcmkgZnJvbSBiZWluZyBlbmFibGVkLjwvc3RyaW5nPgoJPGtleT5QYXlsb2FkRGlzcGxheU5hbWU8L2tleT4KCTxzdHJpbmc+RGlzYWJsZSBTaXJpPC9zdHJpbmc+Cgk8a2V5PlBheWxvYWRJZGVudGlmaWVyPC9rZXk+Cgk8c3RyaW5nPkRpc2FibGVTaXJpPC9zdHJpbmc+Cgk8a2V5PlBheWxvYWRPcmdhbml6YXRpb248L2tleT4KCTxzdHJpbmc+PC9zdHJpbmc+Cgk8a2V5PlBheWxvYWRSZW1vdmFsRGlzYWxsb3dlZDwva2V5PgoJPHRydWUvPgoJPGtleT5QYXlsb2FkU2NvcGU8L2tleT4KCTxzdHJpbmc+U3lzdGVtPC9zdHJpbmc+Cgk8a2V5PlBheWxvYWRUeXBlPC9rZXk+Cgk8c3RyaW5nPkNvbmZpZ3VyYXRpb248L3N0cmluZz4KCTxrZXk+UGF5bG9hZFVVSUQ8L2tleT4KCTxzdHJpbmc+OWM3MzgwZDItNWJmZS00ZTYwLWJhZDMtMjVhZDg2ZDYxNTBkPC9zdHJpbmc+Cgk8a2V5PlBheWxvYWRWZXJzaW9uPC9rZXk+Cgk8aW50ZWdlcj4xPC9pbnRlZ2VyPgo8L2RpY3Q+CjwvcGxpc3Q+Cg==", "request_type": "InstallProfile"}`,
+			),
+			testFn: func(t *testing.T, parts endToEndParts) {
+				if len(parts.req.Command.InstallProfile.Payload) == 0 {
+					t.Error("InstallProfile payload is empty after json unmarshal")
+				}
+				if len(parts.fromProto.Command.InstallProfile.Payload) == 0 {
+					t.Error("unmarshaled proto payload is missing payload")
+				}
+				if !bytes.Contains(parts.plistData, []byte(`PD94bWwgdm`)) {
+					t.Error("marshaled plist does not contain the required payload")
+				}
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			parts := endToEnd(t, tt.requestBytes)
+			tt.testFn(t, parts)
+		})
+	}
+}
+
+type endToEndParts struct {
+	requestBytes []byte          // some json, our API request
+	req          CommandRequest  // after unmarshal
+	payload      *CommandPayload // new payload
+	protoData    []byte          // stored as
+	fromProto    CommandPayload  // back from proto
+	plistData    []byte          // final representation
+}
+
+func endToEnd(t *testing.T, requestBytes []byte) endToEndParts {
+	t.Helper()
+	var (
+		err   error
+		parts = endToEndParts{requestBytes: requestBytes}
+	)
+
+	if err = json.Unmarshal(parts.requestBytes, &parts.req); err != nil {
 		t.Fatal(err)
 	}
-	if len(req.Command.InstallProfile.Payload) == 0 {
-		t.Fatal("InstallProfile payload is empty after json unmarshal")
-	}
 
-	// create a payload from the request
-	payload, err := NewCommandPayload(&req)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !reflect.DeepEqual(payload.Command.InstallProfile.Payload, req.Command.InstallProfile.Payload) {
-		t.Fatal("mdm payload and request do not have the same payload data")
-	}
-
-	// marshal to proto (for storage)
-	data, err := MarshalCommandPayload(payload)
-	if err != nil {
+	if parts.payload, err = NewCommandPayload(&parts.req); err != nil {
 		t.Fatal(err)
 	}
 
-	// unmarshal the proto back into go (from storage)
-	var newPayload CommandPayload
-	err = UnmarshalCommandPayload(data, &newPayload)
-	if err != nil {
+	if parts.protoData, err = MarshalCommandPayload(parts.payload); err != nil {
 		t.Fatal(err)
-	}
-	if len(newPayload.Command.InstallProfile.Payload) == 0 {
-		t.Fatal("unmarshaled proto payload is missing payload")
 	}
 
-	// marshal it into a plist to send to the device
-	pd, err := plist.MarshalIndent(newPayload, "  ")
-	if err != nil {
+	if err := UnmarshalCommandPayload(parts.protoData, &parts.fromProto); err != nil {
 		t.Fatal(err)
 	}
-	if !bytes.Contains(pd, []byte(`PD94bWwgdm`)) {
-		t.Fatal("marshaled plist does not contain the required payload")
+
+	if !reflect.DeepEqual(*parts.payload, parts.fromProto) {
+		t.Errorf("command from json request does not match command from proto")
 	}
+
+	if parts.plistData, err = plist.MarshalIndent(parts.fromProto, "  "); err != nil {
+		t.Fatal(err)
+	}
+
+	return parts
 }
