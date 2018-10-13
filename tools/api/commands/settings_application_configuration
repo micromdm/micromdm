@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Documentation:
+# The configuration values must be provided to $3 must be a property list with the key/values for the configuration dictionary.
+# Example:
+#
+# <?xml version="1.0" encoding="UTF-8"?>
+# <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+# <plist version="1.0">
+#   <dict>
+#     <key>baz</key>
+#     <string>qux</string>
+#     <key>count</key>
+#     <integer>1</integer>
+#     <key>foo</key>
+#     <string>bar</string>
+#   </dict>
+# </plist>
+
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+jq -n \
+  --arg request_type "Settings" \
+  --arg udid "$1" \
+  --arg identifier "$2" \
+  --arg payload "$(cat $3|openssl base64 -A)" \
+ '.udid = $udid 
+  |.request_type = $request_type
+  |.settings[0].item = "ApplicationConfiguration"
+  |.settings[0].identifier = $identifier
+  |.settings[0].configuration = $payload
+  '|\
+  curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
