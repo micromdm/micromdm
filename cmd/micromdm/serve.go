@@ -157,14 +157,20 @@ func serve(args []string) error {
 	userWorker := user.NewWorker(userDB, sm.PubClient, logger)
 	go userWorker.Run(context.Background())
 
-	bpDB, err := blueprintbuiltin.NewDB(sm.DB, sm.ProfileDB, userDB)
+	bpDB, err := blueprintbuiltin.NewDB(sm.DB, sm.ProfileDB)
 	if err != nil {
 		stdlog.Fatal(err)
 	}
 
-	if err := bpDB.StartListener(sm.PubClient, sm.CommandService); err != nil {
-		stdlog.Fatal(err)
-	}
+	blueprintWorker := blueprint.NewWorker(
+		bpDB,
+		userDB,
+		sm.ProfileDB,
+		sm.CommandService,
+		sm.PubClient,
+		logger,
+	)
+	go blueprintWorker.Run(context.Background())
 
 	ctx := context.Background()
 	httpLogger := log.With(logger, "transport", "http")

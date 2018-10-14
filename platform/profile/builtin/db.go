@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/boltdb/bolt"
@@ -71,7 +72,7 @@ func (db *DB) Save(p *profile.Profile) error {
 	return tx.Commit()
 }
 
-func (db *DB) ProfileById(id string) (*profile.Profile, error) {
+func (db *DB) ProfileById(ctx context.Context, id string) (*profile.Profile, error) {
 	var p profile.Profile
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(ProfileBucket))
