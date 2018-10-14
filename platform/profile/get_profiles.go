@@ -11,7 +11,7 @@ import (
 
 func (svc *ProfileService) GetProfiles(ctx context.Context, opt GetProfilesOption) ([]Profile, error) {
 	if opt.Identifier != "" {
-		foundProf, err := svc.store.ProfileById(opt.Identifier)
+		foundProf, err := svc.store.ProfileById(ctx, opt.Identifier)
 		if err != nil {
 			return nil, err
 		}

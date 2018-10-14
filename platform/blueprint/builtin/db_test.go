@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"context"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -8,7 +9,6 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/micromdm/micromdm/platform/blueprint"
 	profile "github.com/micromdm/micromdm/platform/profile/builtin"
-	user "github.com/micromdm/micromdm/platform/user/builtin"
 )
 
 func TestSave(t *testing.T) {
@@ -58,7 +58,7 @@ func TestSave(t *testing.T) {
 		t.Fatalf("have %s, want %s", byName.UUID, "a-b-c-d")
 	}
 
-	byApplyAt, err := db.BlueprintsByApplyAt("Enroll")
+	byApplyAt, err := db.BlueprintsByApplyAt(context.Background(), "Enroll")
 	if err != nil {
 		t.Fatalf("getting blueprint by ApplyAt: %s", err)
 	}
@@ -129,11 +129,8 @@ func setupDB(t *testing.T) *DB {
 	if err != nil {
 		t.Fatalf("couldn't create profile DB, err %s\n", err)
 	}
-	userDB, err := user.NewDB(db)
-	if err != nil {
-		t.Fatalf("couldn't create user DB, err %s\n", err)
-	}
-	blueprintDB, err := NewDB(db, profileDB, userDB)
+
+	blueprintDB, err := NewDB(db, profileDB)
 	if err != nil {
 		t.Fatalf("couldn't create blueprint DB, err %s\n", err)
 	}

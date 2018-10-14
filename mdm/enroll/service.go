@@ -142,8 +142,8 @@ func profileOrPayloadToMobileconfig(in interface{}) (profile.Mobileconfig, error
 	return buf.Bytes(), err
 }
 
-func (svc *service) findOrMakeMobileconfig(id string, f interface{}) (profile.Mobileconfig, error) {
-	p, err := svc.ProfileDB.ProfileById(id)
+func (svc *service) findOrMakeMobileconfig(ctx context.Context, id string, f interface{}) (profile.Mobileconfig, error) {
+	p, err := svc.ProfileDB.ProfileById(ctx, id)
 	if err != nil {
 		if profile.IsNotFound(err) {
 			profile, err := profileOrPayloadFromFunc(f)
@@ -158,7 +158,7 @@ func (svc *service) findOrMakeMobileconfig(id string, f interface{}) (profile.Mo
 }
 
 func (svc *service) Enroll(ctx context.Context) (profile.Mobileconfig, error) {
-	return svc.findOrMakeMobileconfig(EnrollmentProfileId, svc.MakeEnrollmentProfile)
+	return svc.findOrMakeMobileconfig(ctx, EnrollmentProfileId, svc.MakeEnrollmentProfile)
 }
 
 const perUserConnections = "com.apple.mdm.per-user-connections"
@@ -240,7 +240,7 @@ func (svc *service) MakeEnrollmentProfile() (Profile, error) {
 
 // OTAEnroll returns an Over-the-Air "Profile Service" Payload for enrollment.
 func (svc *service) OTAEnroll(ctx context.Context) (profile.Mobileconfig, error) {
-	return svc.findOrMakeMobileconfig(OTAProfileId, svc.MakeOTAEnrollPayload)
+	return svc.findOrMakeMobileconfig(ctx, OTAProfileId, svc.MakeOTAEnrollPayload)
 }
 
 func (svc *service) MakeOTAEnrollPayload() (Payload, error) {
@@ -261,7 +261,7 @@ func (svc *service) MakeOTAEnrollPayload() (Payload, error) {
 
 // OTAPhase2 returns a SCEP Profile for use in phase 2 of Over-the-Air enrollment.
 func (svc *service) OTAPhase2(ctx context.Context) (profile.Mobileconfig, error) {
-	return svc.findOrMakeMobileconfig(OTAProfileId+".phase2", svc.MakeOTAPhase2Profile)
+	return svc.findOrMakeMobileconfig(ctx, OTAProfileId+".phase2", svc.MakeOTAPhase2Profile)
 }
 
 func (svc *service) MakeOTAPhase2Profile() (Profile, error) {

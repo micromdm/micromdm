@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
@@ -9,7 +10,6 @@ import (
 
 	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/profile"
-	"github.com/micromdm/micromdm/platform/user"
 )
 
 const (
@@ -20,13 +20,11 @@ const (
 type DB struct {
 	*bolt.DB
 	profDB profile.Store
-	userDB user.Store
 }
 
 func NewDB(
 	db *bolt.DB,
-	profileDB profile.Store,
-	userDB user.Store,
+	profDB profile.Store,
 ) (*DB, error) {
 	err := db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(blueprintIndexBucket))
@@ -41,8 +39,7 @@ func NewDB(
 	}
 	datastore := &DB{
 		DB:     db,
-		profDB: profileDB,
-		userDB: userDB,
+		profDB: profDB,
 	}
 	return datastore, nil
 }
@@ -66,6 +63,7 @@ func (db *DB) List() ([]blueprint.Blueprint, error) {
 }
 
 func (db *DB) Save(bp *blueprint.Blueprint) error {
+	ctx := context.TODO()
 	err := bp.Verify()
 	if err != nil {
 		return err
@@ -79,7 +77,7 @@ func (db *DB) Save(bp *blueprint.Blueprint) error {
 	}
 	// verify that each Profile ID represents a profile we know about
 	for _, p := range bp.ProfileIdentifiers {
-		if _, err := db.profDB.ProfileById(p); err != nil {
+		if _, err := db.profDB.ProfileById(ctx, p); err != nil {
 			if profile.IsNotFound(err) {
 				return fmt.Errorf("Profile ID %s in Blueprint %s does not exist", p, bp.Name)
 			}
@@ -135,8 +133,8 @@ func (db *DB) BlueprintByName(name string) (*blueprint.Blueprint, error) {
 	return &bp, nil
 }
 
-func (db *DB) BlueprintsByApplyAt(name string) ([]*blueprint.Blueprint, error) {
-	var bps []*blueprint.Blueprint
+func (db *DB) BlueprintsByApplyAt(ctx context.Context, name string) ([]blueprint.Blueprint, error) {
+	var bps []blueprint.Blueprint
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(BlueprintBucket))
 		c := b.Cursor()
@@ -152,7 +150,7 @@ func (db *DB) BlueprintsByApplyAt(name string) ([]*blueprint.Blueprint, error) {
 			}
 			for _, n := range bp.ApplyAt {
 				if strings.ToLower(n) == strings.ToLower(name) {
-					bps = append(bps, &bp)
+					bps = append(bps, bp)
 					break
 				}
 			}
