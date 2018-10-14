@@ -5,13 +5,14 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+	"github.com/pkg/errors"
+
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/pubsub"
-	"github.com/pkg/errors"
 )
 
 type WorkerStore interface {
-	Save(*PushInfo) error
+	Save(context.Context, *PushInfo) error
 }
 
 type Worker struct {
@@ -69,6 +70,6 @@ func (w *Worker) updatePushInfoFromTokenUpdate(ctx context.Context, message []by
 		// use the GUID if this is a user TokenUpdate.
 		info.UDID = ev.Command.UserID
 	}
-	err := w.db.Save(&info)
+	err := w.db.Save(ctx, &info)
 	return errors.Wrapf(err, "saving pushinfo for udid=%s", info.UDID)
 }

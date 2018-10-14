@@ -28,5 +28,15 @@ CREATE TABLE IF NOT EXISTS devices (
     last_seen TIMESTAMP DEFAULT '1970-01-01 00:00:00'
 );
 
+
+CREATE TABLE IF NOT EXISTS push_info (
+    udid TEXT PRIMARY KEY,
+    token TEXT DEFAULT '',
+    push_magic TEXT DEFAULT '',
+    mdm_topic TEXT DEFAULT ''
+);
+
+
 -- +goose Down
 DROP TABLE IF EXISTS devices;
+DROP TABLE IF EXISTS push_info;

@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/boltdb/bolt"
@@ -39,7 +40,7 @@ func (e *notFound) Error() string {
 	return fmt.Sprintf("not found: %s %s", e.ResourceType, e.Message)
 }
 
-func (db *DB) PushInfo(udid string) (*apns.PushInfo, error) {
+func (db *DB) PushInfo(ctx context.Context, udid string) (*apns.PushInfo, error) {
 	var info apns.PushInfo
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(PushBucket))
@@ -55,7 +56,7 @@ func (db *DB) PushInfo(udid string) (*apns.PushInfo, error) {
 	return &info, nil
 }
 
-func (db *DB) Save(info *apns.PushInfo) error {
+func (db *DB) Save(ctx context.Context, info *apns.PushInfo) error {
 	tx, err := db.DB.Begin(true)
 	if err != nil {
 		return errors.Wrap(err, "begin transaction")
