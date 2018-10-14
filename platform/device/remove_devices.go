@@ -10,14 +10,14 @@ import (
 
 func (svc *DeviceService) RemoveDevices(ctx context.Context, opt RemoveDevicesOptions) error {
 	for _, udid := range opt.UDIDs {
-		err := svc.store.DeleteByUDID(udid)
+		err := svc.store.DeleteByUDID(ctx, udid)
 		if err != nil {
 			return err
 		}
 	}
 
 	for _, serial := range opt.Serials {
-		err := svc.store.DeleteBySerial(serial)
+		err := svc.store.DeleteBySerial(ctx, serial)
 		if err != nil {
 			return err
 		}

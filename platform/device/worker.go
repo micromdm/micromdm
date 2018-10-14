@@ -15,9 +15,9 @@ import (
 )
 
 type DeviceWorkerStore interface {
-	Save(*Device) error
-	DeviceByUDID(udid string) (*Device, error)
-	DeviceBySerial(udid string) (*Device, error)
+	Save(ctx context.Context, d *Device) error
+	DeviceByUDID(ctx context.Context, udid string) (*Device, error)
+	DeviceBySerial(ctx context.Context, serial string) (*Device, error)
 }
 
 type Worker struct {
@@ -94,7 +94,7 @@ func (w *Worker) updateFromDEPSync(ctx context.Context, message []byte) error {
 	)
 
 	for _, dd := range ev.Devices {
-		dev, err := getOrCreateDeviceBySerial(w.db, dd.SerialNumber)
+		dev, err := getOrCreateDeviceBySerial(ctx, w.db, dd.SerialNumber)
 		if err != nil {
 			return errors.Wrap(err, "get device by serial")
 		}
@@ -127,7 +127,7 @@ func (w *Worker) updateFromDEPSync(ctx context.Context, message []byte) error {
 		dev.DEPProfileAssignedDate = dd.DeviceAssignedDate
 		dev.DEPProfileAssignedBy = dd.DeviceAssignedBy
 
-		if err := w.db.Save(dev); err != nil {
+		if err := w.db.Save(ctx, dev); err != nil {
 			return errors.Wrap(err, "save device %s from DEP sync")
 		}
 	}
@@ -141,13 +141,13 @@ func (w *Worker) updateFromAcknowledge(ctx context.Context, message []byte) erro
 		return errors.Wrap(err, "unmarshal acknowledge event")
 	}
 
-	dev, err := w.db.DeviceByUDID(ev.Response.UDID)
+	dev, err := w.db.DeviceByUDID(ctx, ev.Response.UDID)
 	if err != nil {
 		return errors.Wrapf(err, "retrieve device with udid %s", ev.Response.UDID)
 	}
 	dev.LastSeen = time.Now()
 
-	err = w.db.Save(dev)
+	err = w.db.Save(ctx, dev)
 	return errors.Wrapf(err, "saving updated device for acknowledge event")
 
 }
@@ -158,7 +158,7 @@ func (w *Worker) updateFromCheckout(ctx context.Context, message []byte) error {
 		return errors.Wrap(err, "unmarshal checkin event")
 	}
 
-	dev, err := w.db.DeviceByUDID(ev.Command.UDID)
+	dev, err := w.db.DeviceByUDID(ctx, ev.Command.UDID)
 	if err != nil {
 		return errors.Wrapf(err, "retrieve device with udid %s", ev.Command.UDID)
 	}
@@ -166,7 +166,7 @@ func (w *Worker) updateFromCheckout(ctx context.Context, message []byte) error {
 	dev.Enrolled = false
 	dev.LastSeen = time.Now()
 
-	err = w.db.Save(dev)
+	err = w.db.Save(ctx, dev)
 	return errors.Wrapf(err, "saving updated device for checkout event")
 
 }
@@ -182,7 +182,7 @@ func (w *Worker) updateFromTokenUpdate(ctx context.Context, message []byte) erro
 		return nil
 	}
 
-	dev, err := w.db.DeviceByUDID(ev.Command.UDID)
+	dev, err := w.db.DeviceByUDID(ctx, ev.Command.UDID)
 	if err != nil {
 		return errors.Wrapf(err, "retrieve device with udid %s", ev.Command.UDID)
 	}
@@ -194,7 +194,7 @@ func (w *Worker) updateFromTokenUpdate(ctx context.Context, message []byte) erro
 	// first TokenUpdate event will have the enrollment status set to false.
 	newlyEnrolled := !dev.Enrolled
 	dev.Enrolled = true
-	if err := w.db.Save(dev); err != nil {
+	if err := w.db.Save(ctx, dev); err != nil {
 		return errors.Wrapf(err, "saving updated device for Token event udid=%s", ev.Command.UDID)
 	}
 
@@ -213,7 +213,7 @@ func (w *Worker) updateFromAuthenticate(ctx context.Context, message []byte) err
 		return errors.Wrap(err, "unmarshal checkin event")
 	}
 
-	device, reenrolling, err := getOrCreateDevice(w.db, ev.Command.SerialNumber, ev.Command.UDID)
+	device, reenrolling, err := getOrCreateDevice(ctx, w.db, ev.Command.SerialNumber, ev.Command.UDID)
 	if err != nil {
 		return errors.Wrap(err, "get device for authenticate event")
 	}
@@ -244,16 +244,16 @@ func (w *Worker) updateFromAuthenticate(ctx context.Context, message []byte) err
 	device.Model = ev.Command.Model
 	device.ModelName = ev.Command.ModelName
 	device.LastSeen = time.Now()
-	err = w.db.Save(device)
+	err = w.db.Save(ctx, device)
 	return errors.Wrapf(err, "saving updated device for authenticate event")
 }
 
-func getOrCreateDevice(db DeviceWorkerStore, serial, udid string) (dev *Device, reenrolling bool, err error) {
+func getOrCreateDevice(ctx context.Context, db DeviceWorkerStore, serial, udid string) (dev *Device, reenrolling bool, err error) {
 	if udid != "" {
 		// first try to fetch a device by UDID.
 		// If the device was previously enrolled it will exist.
 		// In case the device is known, set the enrolled status to false before returning.
-		byUDID, err := db.DeviceByUDID(udid)
+		byUDID, err := db.DeviceByUDID(ctx, udid)
 		if err == nil {
 			byUDID.Enrolled = false
 			return byUDID, true, nil
@@ -265,12 +265,12 @@ func getOrCreateDevice(db DeviceWorkerStore, serial, udid string) (dev *Device, 
 
 	// next try to find the device by serial. If found, it's a DEP device, which contains only the
 	// serials but not a udid.
-	dev, err = getOrCreateDeviceBySerial(db, serial)
+	dev, err = getOrCreateDeviceBySerial(ctx, db, serial)
 	return dev, false, err
 }
 
-func getOrCreateDeviceBySerial(db DeviceWorkerStore, serial string) (*Device, error) {
-	bySerial, err := db.DeviceBySerial(serial)
+func getOrCreateDeviceBySerial(ctx context.Context, db DeviceWorkerStore, serial string) (*Device, error) {
+	bySerial, err := db.DeviceBySerial(ctx, serial)
 	if err == nil && bySerial != nil {
 		return bySerial, nil
 	}

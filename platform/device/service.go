@@ -15,9 +15,9 @@ type Service interface {
 }
 
 type Store interface {
-	List(opt ListDevicesOption) ([]Device, error)
-	DeleteByUDID(udid string) error
-	DeleteBySerial(serial string) error
+	List(ctx context.Context, opt ListDevicesOption) ([]Device, error)
+	DeleteByUDID(ctx context.Context, udid string) error
+	DeleteBySerial(ctx context.Context, serial string) error
 }
 
 type DeviceService struct {
