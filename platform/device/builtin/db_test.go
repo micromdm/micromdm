@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"context"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -18,17 +19,18 @@ func TestSave(t *testing.T) {
 		SerialNumber: "foobarbaz",
 		ProductName:  "MacBook",
 	}
+	ctx := context.Background()
 
-	if err := db.Save(dev); err != nil {
+	if err := db.Save(ctx, dev); err != nil {
 		t.Fatalf("saving device in datastore: %s", err)
 	}
 
-	byUDID, err := db.DeviceByUDID(dev.UDID)
+	byUDID, err := db.DeviceByUDID(ctx, dev.UDID)
 	if err != nil {
 		t.Fatalf("getting device by UDID: %s", err)
 	}
 
-	bySerial, err := db.DeviceBySerial(dev.SerialNumber)
+	bySerial, err := db.DeviceBySerial(ctx, dev.SerialNumber)
 	if err != nil {
 		t.Fatalf("getting device by UDID: %s", err)
 	}
@@ -72,16 +74,17 @@ func TestDeleteByUDID(t *testing.T) {
 		SerialNumber: "foobarbaz",
 		ProductName:  "MacBook",
 	}
+	ctx := context.Background()
 
-	if err := db.Save(dev); err != nil {
+	if err := db.Save(ctx, dev); err != nil {
 		t.Fatalf("saving device in datastore: %s", err)
 	}
 
-	if err := db.DeleteByUDID(dev.UDID); err != nil {
+	if err := db.DeleteByUDID(ctx, dev.UDID); err != nil {
 		t.Fatalf("deleting device in datastore: %s", err)
 	}
 
-	byUDID, _ := db.DeviceByUDID(dev.UDID)
+	byUDID, _ := db.DeviceByUDID(ctx, dev.UDID)
 	if byUDID != nil {
 		t.Fatalf("expected device to be deleted")
 	}
@@ -96,15 +99,17 @@ func TestDeleteBySerial(t *testing.T) {
 		ProductName:  "MacBook",
 	}
 
-	if err := db.Save(dev); err != nil {
+	ctx := context.Background()
+
+	if err := db.Save(ctx, dev); err != nil {
 		t.Fatalf("saving device in datastore: %s", err)
 	}
 
-	if err := db.DeleteBySerial(dev.SerialNumber); err != nil {
+	if err := db.DeleteBySerial(ctx, dev.SerialNumber); err != nil {
 		t.Fatalf("deleting device in datastore: %s", err)
 	}
 
-	byUDID, _ := db.DeviceBySerial(dev.SerialNumber)
+	byUDID, _ := db.DeviceBySerial(ctx, dev.SerialNumber)
 	if byUDID != nil {
 		t.Fatalf("expected device to be deleted")
 	}

@@ -28,7 +28,7 @@ func TestPGCrud(t *testing.T) {
 	}
 
 	// update
-	dev.LastSeen = time.Now().Add(10 * time.Hour).UTC()
+	dev.DEPProfileStatus = device.PUSHED
 	err = db.Save(ctx, dev)
 	if err != nil {
 		t.Fatal(err)
@@ -40,7 +40,7 @@ func TestPGCrud(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if have, want := found.LastSeen, dev.LastSeen; !want.Equal(have) {
+	if have, want := found.DEPProfileStatus, dev.DEPProfileStatus; have != want {
 		t.Errorf("have %v, want %v", have, want)
 	}
 

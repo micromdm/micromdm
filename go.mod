@@ -28,8 +28,10 @@ require (
 	github.com/micromdm/scep v1.0.1-0.20180906231441-a136542b4bc9
 	github.com/pkg/errors v0.8.0
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/pressly/goose v2.3.0+incompatible
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.2.2 // indirect
+	github.com/ziutek/mymysql v1.5.4 // indirect
 	golang.org/x/crypto v0.0.0-20180614174826-fd5f17ee7299
 	golang.org/x/net v0.0.0-20180724234803-3673e40ba225
 	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f // indirect
