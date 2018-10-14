@@ -18,7 +18,7 @@ type Service interface {
 }
 
 type Store interface {
-	User(string) (*User, error)
+	User(context.Context, string) (*User, error)
 	Save(*User) error
 	List() ([]User, error)
 }

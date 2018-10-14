@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/boltdb/bolt"
@@ -95,7 +96,7 @@ func (db *DB) Save(u *user.User) error {
 	return tx.Commit()
 }
 
-func (db *DB) User(uuid string) (*user.User, error) {
+func (db *DB) User(ctx context.Context, uuid string) (*user.User, error) {
 	var u user.User
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(UserBucket))

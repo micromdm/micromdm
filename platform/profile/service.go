@@ -15,7 +15,7 @@ type GetProfilesOption struct {
 }
 
 type Store interface {
-	ProfileById(id string) (*Profile, error)
+	ProfileById(ctx context.Context, id string) (*Profile, error)
 	Save(p *Profile) error
 	List() ([]Profile, error)
 	Delete(id string) error
