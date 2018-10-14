@@ -17,7 +17,7 @@ import (
 )
 
 func (svc *PushService) Push(ctx context.Context, deviceUDID string) (string, error) {
-	info, err := svc.store.PushInfo(deviceUDID)
+	info, err := svc.store.PushInfo(ctx, deviceUDID)
 	if err != nil {
 		return "", errors.Wrap(err, "retrieving PushInfo by UDID")
 	}
