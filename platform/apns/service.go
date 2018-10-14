@@ -23,7 +23,7 @@ type Service interface {
 }
 
 type Store interface {
-	PushInfo(udid string) (*PushInfo, error)
+	PushInfo(ctx context.Context, udid string) (*PushInfo, error)
 }
 
 type PushService struct {

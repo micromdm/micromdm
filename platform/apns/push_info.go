@@ -8,10 +8,10 @@ import (
 )
 
 type PushInfo struct {
-	UDID      string
-	PushMagic string
-	Token     string
-	MDMTopic  string
+	UDID      string `db:"udid"`
+	PushMagic string `db:"push_magic"`
+	Token     string `db:"token"`
+	MDMTopic  string `db:"mdm_topic"`
 }
 
 func MarshalPushInfo(p *PushInfo) ([]byte, error) {
