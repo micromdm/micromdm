@@ -2,6 +2,7 @@ package httputil
 
 import (
 	"context"
+	"crypto/subtle"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -123,4 +124,17 @@ func DecodeJSONResponse(r *http.Response, into interface{}) error {
 
 	err := json.NewDecoder(r.Body).Decode(into)
 	return err
+}
+
+func RequireBasicAuth(h http.HandlerFunc, username, password, realm string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		u, p, ok := r.BasicAuth()
+		if !ok || subtle.ConstantTimeCompare([]byte(u), []byte(username)) != 1 || subtle.ConstantTimeCompare([]byte(p), []byte(password)) != 1 {
+			w.Header().Set("WWW-Authenticate", `Basic realm="`+realm+`"`)
+			w.WriteHeader(401)
+			w.Write([]byte("Authorization Required\n"))
+			return
+		}
+		h(w, r)
+	}
 }
