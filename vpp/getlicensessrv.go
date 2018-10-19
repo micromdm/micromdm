@@ -2,6 +2,7 @@ package vpp
 
 import "github.com/pkg/errors"
 
+// Contains information about the VPP Licenses associated with a VPP account token
 type LicensesSrv struct {
 	IfModifiedSinceMillisOrig string    `json:"ifModifiedSinceMillisOrig"`
 	TotalCount                int       `json:"totalCount"`
@@ -11,56 +12,75 @@ type LicensesSrv struct {
 	BatchToken                string    `json:"batchToken"`
 	BatchCount                int       `json:"batchCount"`
 	ClientContext             string    `json:"clientContext"`
-	UId                       string    `json:"uId"`
+	UID                       string    `json:"uId"`
 	Location                  Location  `json:"location"`
 }
 
+// Contains information about VPP Licenses
 type License struct {
-	LicenseId       int    `json:"licenseId"`
-	ProductTypeId   int    `json:"productTypeId"`
+	LicenseID       int    `json:"licenseId"`
+	ProductTypeID   int    `json:"productTypeId"`
 	IsIrrevocable   bool   `json:"isIrrevocable"`
 	Status          string `json:"status"`
 	PricingParam    string `json:"pricingParam"`
-	AdamIdStr       string `json:"adamIdStr"`
-	LicenseIdStr    string `json:"licenseIdStr"`
+	AdamIDStr       string `json:"adamIdStr"`
+	LicenseIDStr    string `json:"licenseIdStr"`
 	ProductTypeName string `json:"productTypeName"`
-	AdamId          int    `json:"adamId"`
+	AdamID          int    `json:"adamId"`
 	SerialNumber    string `json:"serialNumber"`
 }
 
-func (c *Client) GetLicensesSrv(serial string) (*LicensesSrv, error) {
-	request := map[string]interface{}{
-		"sToken": c.sToken,
+// Options for the LicensesSrv
+type GetLicensesSrvOptions struct {
+	SToken       string `json:"sToken"`
+	SerialNumber string `json:"serialNumber,omitempty"`
+}
+
+// Gets licenses with specified serial associated
+func (c *Client) GetLicensesForSerial(serial string) ([]License, error) {
+	options := GetLicensesSrvOptions{
+		SerialNumber: serial,
 	}
-	if serial != "" {
-		request["serialNumber"] = serial
-	}
 
-	licensesSrvUrl := c.VPPServiceConfigSrv.GetLicensesSrvUrl
+	response, err := c.GetLicensesSrv(options)
+	licenses := response.Licenses
+	return licenses, err
+}
 
-	var response LicensesSrv
+// Gets the LicensesSrv information
+func (c *Client) GetLicensesSrv(options GetLicensesSrvOptions) (*LicensesSrv, error) {
+	// Sends the sToken string
+	options.SToken = c.SToken
 
-	req, err := c.newRequest("POST", licensesSrvUrl, request)
+	// Get the LicensesSrvURL
+	licensesSrvURL := c.VPPServiceConfigSrv.GetLicensesSrvURL
+
+	// Create the LicensesSrv request
+	req, err := c.newRequest("POST", licensesSrvURL, options)
 	if err != nil {
 		return nil, errors.Wrap(err, "create LicensesSrv request")
 	}
 
+	// Make the request
+	var response LicensesSrv
 	err = c.do(req, &response)
 
 	return &response, errors.Wrap(err, "LicensesSrv request")
 }
 
-func (c *Client) CheckAssignedLicense(serial string, appId string) (bool, error) {
-	response, err := c.GetLicensesSrv(serial)
+// Checks if a particular serial is associated with an appID
+func (c *Client) CheckAssignedLicense(serial string, appID string) (bool, error) {
+	// Get all licenses with serial associated
+	licenses, err := c.GetLicensesForSerial(serial)
 	if err != nil {
 		return false, errors.Wrap(err, "create LicensesSrv request")
 	}
-	licenses := response.Licenses
 
+	// Check for the particular appID
 	for i := 0; i < len(licenses); i++ {
 		license := licenses[i]
-		id := license.AdamIdStr
-		if id == appId {
+		id := license.AdamIDStr
+		if id == appID {
 			return true, nil
 		}
 	}

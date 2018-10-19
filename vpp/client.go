@@ -25,29 +25,31 @@ type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
+// Contains the sToken string used to authenticate to the various VPP services
+// Contains the return VPPServiceConfigSrv information
 type Client struct {
-	sToken              string
+	SToken              string
 	VPPServiceConfigSrv *VPPServiceConfigSrv
-	userAgent           string
-	client              HTTPClient
-	baseURL             *url.URL
+	UserAgent           string
+	Client              HTTPClient
+	BaseURL             *url.URL
 }
 
 func NewClient(sToken string) (*Client, error) {
 	baseURL, _ := url.Parse(defaultBaseURL)
 	c := Client{
-		sToken:    sToken,
-		userAgent: path.Join("micromdm", version),
-		client:    http.DefaultClient,
-		baseURL:   baseURL,
+		SToken:    sToken,
+		UserAgent: path.Join("micromdm", version),
+		Client:    http.DefaultClient,
+		BaseURL:   baseURL,
 	}
 
 	// Get VPPServiceConfigSrv Data
-	vppServiceConfigSrv, err := c.GetVPPServiceConfigSrv()
+	VPPServiceConfigSrv, err := c.GetVPPServiceConfigSrv()
 	if err != nil {
 		return nil, errors.Wrap(err, "create VPPServiceConfigSrv request")
 	}
-	c.VPPServiceConfigSrv = vppServiceConfigSrv
+	c.VPPServiceConfigSrv = VPPServiceConfigSrv
 
 	// Set Client Context If Needed
 	context, err := c.GetClientContext()
@@ -65,13 +67,13 @@ func NewClient(sToken string) (*Client, error) {
 	return &c, nil
 }
 
-func (c *Client) newRequest(method, urlStr string, body interface{}) (*http.Request, error) {
-	rel, err := url.Parse(urlStr)
+func (c *Client) newRequest(method, URLStr string, body interface{}) (*http.Request, error) {
+	rel, err := url.Parse(URLStr)
 	if err != nil {
-		return nil, errors.Wrapf(err, "parse vpp request url %s", urlStr)
+		return nil, errors.Wrapf(err, "parse vpp request url %s", URLStr)
 	}
 
-	u := c.baseURL.ResolveReference(rel)
+	u := c.BaseURL.ResolveReference(rel)
 	var buf bytes.Buffer
 	if body != nil {
 		if err := json.NewEncoder(&buf).Encode(body); err != nil {
@@ -84,7 +86,7 @@ func (c *Client) newRequest(method, urlStr string, body interface{}) (*http.Requ
 		return nil, errors.Wrapf(err, "creating %s request to vpp %s", method, u.String())
 	}
 
-	req.Header.Add("User-Agent", c.userAgent)
+	req.Header.Add("User-Agent", c.UserAgent)
 	req.Header.Add("Content-Type", mediaType)
 	req.Header.Add("Accept", mediaType)
 	req.Header.Add(XServerProtocolVersionHeader, XServerProtocolVersion)
@@ -92,7 +94,7 @@ func (c *Client) newRequest(method, urlStr string, body interface{}) (*http.Requ
 }
 
 func (c *Client) do(req *http.Request, into interface{}) error {
-	resp, err := c.client.Do(req)
+	resp, err := c.Client.Do(req)
 	if err != nil {
 		return errors.Wrap(err, "perform vpp request")
 	}
