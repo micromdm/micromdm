@@ -81,7 +81,7 @@ func (c *Client) GetClientConfigSrv(opts ...GetClientConfigSrvOptions) (*ClientC
 	var response ClientConfigSrv
 	err = c.do(req, &response)
 
-	return &response, errors.Wrap(err, "ClientConfigSrv request")
+	return &response, errors.Wrap(err, "make ClientConfigSrv request")
 }
 
 // Gets the appleID field along with the standard information
@@ -89,7 +89,7 @@ func (c *Client) GetClientConfigSrvVerbose() (*ClientConfigSrv, error) {
 	options := VerboseOption(true)
 	response, err := c.GetClientConfigSrv(options)
 	if err != nil {
-		return nil, errors.Wrap(err, "create ClientConfigSrv request")
+		return nil, errors.Wrap(err, "using verbose option")
 	}
 
 	return response, nil
@@ -100,14 +100,18 @@ func (c *Client) GetClientContext() (*ClientContext, error) {
 	// Get the ClientConfigSrv info
 	clientConfigSrv, err := c.GetClientConfigSrv()
 	if err != nil {
-		return nil, errors.Wrap(err, "create ClientConfigSrv request")
+		return nil, errors.Wrap(err, "get ClientContext request")
 	}
 
 	// Get the ClientContext string
 	var context = clientConfigSrv.ClientContext
-	var clientContext ClientContext
+
 	// Convert the string to a ClientContext type
-	json.NewDecoder(strings.NewReader(context)).Decode(&clientContext)
+	var clientContext ClientContext
+	decodeError := json.NewDecoder(strings.NewReader(context)).Decode(&clientContext)
+	if decodeError != nil {
+		return nil, errors.Wrap(decodeError, "decode ClientContext")
+	}
 
 	return &clientContext, nil
 }
@@ -134,14 +138,18 @@ func (c *Client) SetClientContext(serverURL string) (*ClientContext, error) {
 	// Set the new ClientContext into the VPP account token
 	response, err := c.GetClientConfigSrv(options)
 	if err != nil {
-		return nil, errors.Wrap(err, "create ClientConfigSrv request")
+		return nil, errors.Wrap(err, "set ClientContext request")
 	}
 
 	// Get the new ClientContext string
 	var contextString = response.ClientContext
+
 	// Convert the string to a ClientContext type
 	var clientContext ClientContext
-	json.NewDecoder(strings.NewReader(contextString)).Decode(&clientContext)
+	decodeError := json.NewDecoder(strings.NewReader(contextString)).Decode(&clientContext)
+	if decodeError != nil {
+		return nil, errors.Wrap(decodeError, "decode new ClientContext")
+	}
 
-	return &clientContext, errors.Wrap(err, "set Client Context ClientConfigSrv request")
+	return &clientContext, nil
 }
