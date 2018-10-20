@@ -44,7 +44,7 @@ func (c *Client) GetVPPAssetsSrv() (*VPPAssetsSrv, error) {
 	var response VPPAssetsSrv
 	err = c.do(req, &response)
 
-	return &response, errors.Wrap(err, "VPPAssetsSrv request")
+	return &response, errors.Wrap(err, "get VPPAssetsSrv request")
 }
 
 // Gets the pricing param for a particular VPP asset
@@ -52,18 +52,23 @@ func (c *Client) GetPricingParamForApp(appID string) (string, error) {
 	// Get a list of assets
 	response, err := c.GetVPPAssetsSrv()
 	if err != nil {
-		return "", errors.Wrap(err, "create VppAssetsSrv request")
+		return "", err
 	}
 	var assets = response.Assets
 
 	// Find the pricing param for the asset with matching appId
 	var pricing string
-	for i := 0; i < len(assets); i++ {
-		asset := assets[i]
+	for _, asset := range assets {
 		if asset.AdamIDStr == appID {
 			pricing = asset.PricingParam
 			break
 		}
+	}
+
+	// Check for err finding Pricing Param
+	if pricing == "" {
+		err := errors.New("Unable to find Pricing Param")
+		return pricing, err
 	}
 	return pricing, nil
 }
