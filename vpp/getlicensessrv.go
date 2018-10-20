@@ -36,17 +36,6 @@ type GetLicensesSrvOptions struct {
 	SerialNumber string `json:"serialNumber,omitempty"`
 }
 
-// Gets licenses with specified serial associated
-func (c *Client) GetLicensesForSerial(serial string) ([]License, error) {
-	options := GetLicensesSrvOptions{
-		SerialNumber: serial,
-	}
-
-	response, err := c.GetLicensesSrv(options)
-	licenses := response.Licenses
-	return licenses, err
-}
-
 // Gets the LicensesSrv information
 func (c *Client) GetLicensesSrv(options GetLicensesSrvOptions) (*LicensesSrv, error) {
 	// Sends the sToken string
@@ -65,7 +54,21 @@ func (c *Client) GetLicensesSrv(options GetLicensesSrvOptions) (*LicensesSrv, er
 	var response LicensesSrv
 	err = c.do(req, &response)
 
-	return &response, errors.Wrap(err, "LicensesSrv request")
+	return &response, errors.Wrap(err, "make LicensesSrv request")
+}
+
+// Gets licenses with specified serial associated
+func (c *Client) GetLicensesForSerial(serial string) ([]License, error) {
+	options := GetLicensesSrvOptions{
+		SerialNumber: serial,
+	}
+
+	response, err := c.GetLicensesSrv(options)
+	if err != nil {
+		return nil, err
+	}
+	licenses := response.Licenses
+	return licenses, err
 }
 
 // Checks if a particular serial is associated with an appID
@@ -73,14 +76,12 @@ func (c *Client) CheckAssignedLicense(serial string, appID string) (bool, error)
 	// Get all licenses with serial associated
 	licenses, err := c.GetLicensesForSerial(serial)
 	if err != nil {
-		return false, errors.Wrap(err, "create LicensesSrv request")
+		return false, err
 	}
 
 	// Check for the particular appID
-	for i := 0; i < len(licenses); i++ {
-		license := licenses[i]
-		id := license.AdamIDStr
-		if id == appID {
+	for _, lic := range licenses {
+		if lic.AdamIDStr == appID {
 			return true, nil
 		}
 	}
