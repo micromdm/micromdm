@@ -1,0 +1,12 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+
+API_TOKEN="secret"
+SERVER_URL="localhost:9000"
+
+endpoint="v1/workflow/profiles"
+jq -n \
+  --arg payload "$(cat $1|openssl base64 -A)" \
+  '.mobileconfig_data = $payload 
+  '|\
+  curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-

@@ -1,0 +1,8 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+
+API_TOKEN="secret"
+SERVER_URL="localhost:9000"
+
+endpoint="v1/workflow/profiles"
+curl $CURL_OPTS -X GET -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint"

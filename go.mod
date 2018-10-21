@@ -22,8 +22,10 @@ require (
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/lib/pq v1.0.0
 	github.com/mattn/go-sqlite3 v1.9.0 // indirect
+	github.com/micromdm/flow v0.0.0-20180724041057-f9e0f4cfaf32
 	github.com/micromdm/go4 v0.0.0-20171021081444-deded5397014
 	github.com/micromdm/scep v1.0.1-0.20181014170139-9be65e185499
+	github.com/oklog/ulid v1.3.1
 	github.com/pkg/errors v0.8.0
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/pressly/goose v2.3.0+incompatible
