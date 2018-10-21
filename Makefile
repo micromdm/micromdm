@@ -129,6 +129,10 @@ db-reset-test:
 	$(call psql_exec,'DROP DATABASE IF EXISTS micromdm_test;')
 	$(call psql_exec,'CREATE DATABASE micromdm_test;')
 
+db-reset:
+	$(call psql_exec,'DROP DATABASE IF EXISTS micromdm;')
+	$(call psql_exec,'CREATE DATABASE micromdm;')
+
 define psql_exec
 	PGPASSWORD=micromdm psql --host=${PG_HOST} --port=5432 --username=micromdm -c $(1)
 endef
