@@ -119,13 +119,10 @@ func (c *Client) GetClientContext() (*ClientContext, error) {
 // Sets the values that determine which mdm server is associated with a VPP account token
 func (c *Client) SetClientContext(serverURL string) (*ClientContext, error) {
 	// Generate a UUID that is tracked to ensure VPP licenses are up to date
-	uuid, err := uuid.NewV4()
-	if err != nil {
-		return nil, errors.Wrap(err, "create uuid")
-	}
+	uuid := uuid.NewV4().String()
 
 	// Generate a ClientContext string with the new UUID and the current serverURL
-	context := ClientContext{serverURL, uuid.String()}
+	context := ClientContext{serverURL, uuid}
 	data, err := json.Marshal(context)
 	if err != nil {
 		return nil, errors.Wrap(err, "create new ClientContext")
