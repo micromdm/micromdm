@@ -108,9 +108,9 @@ func (c *Client) GetClientContext() (*ClientContext, error) {
 
 	// Convert the string to a ClientContext type
 	var clientContext ClientContext
-	decodeError := json.NewDecoder(strings.NewReader(context)).Decode(&clientContext)
-	if decodeError != nil {
-		return nil, errors.Wrap(decodeError, "decode ClientContext")
+	err = json.NewDecoder(strings.NewReader(context)).Decode(&clientContext)
+	if err != nil {
+		return nil, errors.Wrap(err, "decode ClientContext")
 	}
 
 	return &clientContext, nil
@@ -143,9 +143,9 @@ func (c *Client) SetClientContext(serverURL string) (*ClientContext, error) {
 
 	// Convert the string to a ClientContext type
 	var clientContext ClientContext
-	decodeError := json.NewDecoder(strings.NewReader(contextString)).Decode(&clientContext)
-	if decodeError != nil {
-		return nil, errors.Wrap(decodeError, "decode new ClientContext")
+	err = json.NewDecoder(strings.NewReader(contextString)).Decode(&clientContext)
+	if err != nil {
+		return nil, errors.Wrap(err, "decode new ClientContext")
 	}
 
 	return &clientContext, nil
