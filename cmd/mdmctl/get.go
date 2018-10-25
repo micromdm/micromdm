@@ -52,11 +52,7 @@ func (cmd *getCommand) Run(args []string) error {
 
 	var run func([]string) error
 	switch strings.ToLower(args[0]) {
-	case "devices":
-		run = cmd.getDevices
-	case "dev":
-		run = cmd.getDevices
-	case "device":
+	case "dev", "device", "devices":
 		run = cmd.getDevices
 	case "dep-devices":
 		run = cmd.getDEPDevices
