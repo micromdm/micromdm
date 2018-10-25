@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/x509"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -10,15 +11,12 @@ import (
 	"strings"
 	"text/tabwriter"
 
-	"crypto/x509"
-
 	"github.com/go-kit/kit/log"
-	"github.com/pkg/errors"
-
 	"github.com/micromdm/micromdm/pkg/crypto"
 	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/device"
 	"github.com/micromdm/micromdm/platform/profile"
+	"github.com/pkg/errors"
 )
 
 type getCommand struct {
@@ -54,7 +52,7 @@ func (cmd *getCommand) Run(args []string) error {
 
 	var run func([]string) error
 	switch strings.ToLower(args[0]) {
-	case "devices":
+	case "dev", "device", "devices":
 		run = cmd.getDevices
 	case "dep-devices":
 		run = cmd.getDEPDevices
