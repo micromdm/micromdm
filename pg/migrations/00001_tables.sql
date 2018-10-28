@@ -58,17 +58,23 @@ CREATE TABLE IF NOT EXISTS wf_profile_devices (
 CREATE TABLE IF NOT EXISTS wf_device_profiles (
                 id TEXT PRIMARY KEY,
                 command_uuid TEXT DEFAULT '',
-                profile_id TEXT REFERENCES wf_profiles (id) ON DELETE CASCADE,
-                profile_uuid TEXT NOT NULL CHECK (profile_uuid <> ''),
+                profile_uuid TEXT NOT NULL CHECK (profile_uuid <> ''), -- top level PayloadUUID
+                profile_identifier TEXT NOT NULL CHECK (profile_identifier <> ''), -- top level PayloadIdentifier
                 device_udid TEXT REFERENCES wf_profile_devices (udid) ON DELETE CASCADE,
+                has_removal_passcode BOOLEAN DEFAULT FALSE,
+                is_encrypted BOOLEAN DEFAULT FALSE,
+                payload_description TEXT DEFAULT '',
+                payload_organization TEXT DEFAULT '',
+                payload_display_name TEXT DEFAULT '',
+                payload_removal_disallowed BOOLEAN DEFAULT FALSE,
+                payload_version INTEGER DEFAULT 1,
                 created_by_workflow BOOLEAN DEFAULT TRUE,
                 acknowledged BOOLEAN DEFAULT FALSE,
                 acknowledged_at TIMESTAMP DEFAULT '1970-01-01 00:00:00',
                 created_at TIMESTAMP DEFAULT '1970-01-01 00:00:00',
                 updated_at TIMESTAMP DEFAULT '1970-01-01 00:00:00',
                 last_seen_on_device TIMESTAMP DEFAULT '1970-01-01 00:00:00',
-                UNIQUE (profile_uuid,
-                        device_udid)
+                UNIQUE (profile_identifier,profile_uuid,device_udid)
 );
 
 CREATE TABLE IF NOT EXISTS wf_profile_ca (

@@ -9,6 +9,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+	"github.com/groob/plist"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 
@@ -16,23 +17,32 @@ import (
 	"github.com/micromdm/micromdm/pkg/httputil"
 	"github.com/micromdm/micromdm/workflow/profile"
 	"github.com/micromdm/micromdm/workflow/profile/device"
+	"github.com/micromdm/micromdm/workflow/profile/inventory"
 	"github.com/micromdm/micromdm/workflow/webhook"
 )
 
 type Server struct {
 	db            DeviceStore
 	profileDB     ProfileStore
+	inventoryDB   InventoryStore
 	logger        log.Logger
 	profileClient ProfileClient
 	cabytes       []byte
 }
 
-func New(db DeviceStore, logger log.Logger, cabytes []byte, profileDB ProfileStore) *Server {
+func New(
+	db DeviceStore,
+	logger log.Logger,
+	cabytes []byte,
+	profileDB ProfileStore,
+	inventoryDB InventoryStore,
+) *Server {
 	return &Server{
-		db:        db,
-		logger:    logger,
-		cabytes:   cabytes,
-		profileDB: profileDB,
+		db:          db,
+		profileDB:   profileDB,
+		inventoryDB: inventoryDB,
+		logger:      logger,
+		cabytes:     cabytes,
 	}
 }
 
@@ -49,6 +59,10 @@ type ProfileClient interface {
 	Send(ctx context.Context, profile []byte) (uuid string, err error)
 }
 
+type InventoryStore interface {
+	UpdateFromListResponse(ctx context.Context, udid string, resp inventory.ListProfilesResponse) error
+}
+
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var event webhook.Event
 	if err := httputil.DecodeJSONRequest(r, &event); err != nil {
@@ -57,13 +71,36 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch event.Topic {
 	case mdm.TokenUpdateTopic, mdm.AuthenticateTopic:
-		spew.Dump(event.CheckinEvent)
 		s.ensureDevice(r.Context(), event.CheckinEvent.UDID)
 	case mdm.ConnectTopic:
-		spew.Dump(event.AcknowledgeEvent)
+		if err := s.updateFromWebhook(r.Context(), event.AcknowledgeEvent); err != nil {
+			level.Info(s.logger).Log(
+				"err", err,
+			)
+		}
 	case mdm.CheckoutTopic:
 		spew.Dump(event.CheckinEvent)
 	}
+}
+
+func (s *Server) updateFromWebhook(ctx context.Context, event *webhook.AcknowledgeEvent) error {
+	level.Debug(s.logger).Log(
+		"msg", "handling ack event",
+		"command_uuid", event.CommandUUID,
+		"device_udid", event.UDID,
+		"status", event.Status,
+	)
+	var resp inventory.ListProfilesResponse
+	if err := plist.Unmarshal(event.RawPayload, &resp); err != nil {
+		return errors.Wrap(err, "unmarshal raw payload plist")
+	}
+	switch {
+	case len(resp.ProfileList) > 0:
+		return s.inventoryDB.UpdateFromListResponse(ctx, event.UDID, resp)
+	default:
+		// not what we are looking for, just update last seen
+	}
+	return nil
 }
 
 func (s *Server) ensureDevice(ctx context.Context, udid string) {
@@ -100,7 +137,13 @@ func (s *Server) ensureDevice(ctx context.Context, udid string) {
 		// update last seen
 		return
 	case isNotFound(err):
-		// handle new device
+		if err := s.newDevice(ctx, udid); err != nil {
+			level.Info(s.logger).Log(
+				"msg", "creating new device ",
+				"err", err,
+			)
+		}
+		return
 	default:
 		level.Info(s.logger).Log(
 			"msg", "looking up profile device by udid",

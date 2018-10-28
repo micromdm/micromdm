@@ -22,7 +22,7 @@ const stub = `<?xml version="1.0" encoding="UTF-8"?>
                     <key>RetryDelay</key>
                     <integer>10</integer>
                     <key>URL</key>
-                    <string>https://953d4dcd.ngrok.io/scep</string>
+					<string>https://2d8517bb.ngrok.io/scep</string>
                     <key>Subject</key>
                     <array>
                         <array>

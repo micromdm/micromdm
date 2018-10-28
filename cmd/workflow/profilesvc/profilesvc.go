@@ -18,6 +18,7 @@ import (
 	"github.com/micromdm/micromdm/workflow/profile"
 	"github.com/micromdm/micromdm/workflow/profile/ca"
 	"github.com/micromdm/micromdm/workflow/profile/device"
+	"github.com/micromdm/micromdm/workflow/profile/inventory"
 	"github.com/micromdm/micromdm/workflow/profile/webhook"
 )
 
@@ -66,7 +67,8 @@ func main() {
 	profile.RegisterHTTPHandlers(r, e, options...)
 
 	devdb := device.New(db)
-	webhookHandler := webhook.New(devdb, logger, buf.Bytes(), svc)
+	inventorydb := inventory.New(db)
+	webhookHandler := webhook.New(devdb, logger, buf.Bytes(), svc, inventorydb)
 
 	r.Handle("/", webhookHandler)
 	r.Handle("/scep", scepHandler)

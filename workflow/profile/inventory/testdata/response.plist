@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CommandUUID</key>
+	<string>1a82029c-4a30-46ca-9ca3-18a4daf5e3a9</string>
+	<key>ProfileList</key>
+	<array>
+		<dict>
+			<key>HasRemovalPasscode</key>
+			<false/>
+			<key>IsEncrypted</key>
+			<false/>
+			<key>PayloadContent</key>
+			<array>
+				<dict>
+					<key>PayloadDescription</key>
+					<string>Enrolls with the MDM server</string>
+					<key>PayloadDisplayName</key>
+					<string></string>
+					<key>PayloadIdentifier</key>
+					<string>com.github.micromdm.micromdm.enroll.mdm</string>
+					<key>PayloadOrganization</key>
+					<string>MicroMDM</string>
+					<key>PayloadType</key>
+					<string>com.apple.mdm</string>
+					<key>PayloadUUID</key>
+					<string>2b6b5a79-60d7-4f28-a307-a14b7a5456da</string>
+					<key>PayloadVersion</key>
+					<integer>1</integer>
+				</dict>
+				<dict>
+					<key>PayloadDescription</key>
+					<string>Configures SCEP</string>
+					<key>PayloadDisplayName</key>
+					<string>SCEP</string>
+					<key>PayloadIdentifier</key>
+					<string>com.github.micromdm.micromdm.enroll.scep</string>
+					<key>PayloadOrganization</key>
+					<string>MicroMDM</string>
+					<key>PayloadType</key>
+					<string>com.apple.security.scep</string>
+					<key>PayloadUUID</key>
+					<string>1cebedee-dff0-4556-a5fc-4360d1afe2c7</string>
+					<key>PayloadVersion</key>
+					<integer>1</integer>
+				</dict>
+			</array>
+			<key>PayloadDescription</key>
+			<string>The server may alter your settings</string>
+			<key>PayloadDisplayName</key>
+			<string>Enrollment Profile</string>
+			<key>PayloadIdentifier</key>
+			<string>com.github.micromdm.micromdm.enroll</string>
+			<key>PayloadOrganization</key>
+			<string>MicroMDM</string>
+			<key>PayloadRemovalDisallowed</key>
+			<false/>
+			<key>PayloadUUID</key>
+			<string>2e343e61-a846-4e39-9a30-123aec253fc4</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>SignerCertificates</key>
+			<array/>
+		</dict>
+	</array>
+	<key>Status</key>
+	<string>Acknowledged</string>
+	<key>UDID</key>
+	<string>BC5E2DA4-7FB6-5E70-9928-4981680DAFBF</string>
+</dict>
+</plist>
