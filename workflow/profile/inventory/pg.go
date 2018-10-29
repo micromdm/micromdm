@@ -82,6 +82,20 @@ type Payload struct {
 func (d *Postgres) UpdateFromListResponse(ctx context.Context, udid string, resp ListProfilesResponse) error {
 	// bulk upsert.
 	now := time.Now().UTC()
+	deleteQuery, deleteArgs, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
+		Delete(tableName).
+		Where(sq.Eq{"device_udid": udid}).
+		ToSql()
+	if err != nil {
+		return errors.Wrap(err, "building sql")
+	}
+
+	tx, err := d.db.BeginTxx(ctx, nil)
+	if _, err := tx.ExecContext(ctx, deleteQuery, deleteArgs...); err != nil {
+		tx.Rollback()
+		return err
+	}
+
 	builder := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Insert(tableName).
 		Columns(
@@ -127,10 +141,14 @@ func (d *Postgres) UpdateFromListResponse(ctx context.Context, udid string, resp
 	}
 	query, args, err := builder.ToSql()
 	if err != nil {
+		tx.Rollback()
 		return errors.Wrap(err, "building update from list repsonse sql")
 	}
-	_, err = d.db.ExecContext(ctx, query, args...)
-	return errors.Wrap(err, "exec update device profile from list profiles save in pg")
+	if _, err := tx.ExecContext(ctx, query, args...); err != nil {
+		tx.Rollback()
+		return errors.Wrap(err, "exec update device profile from list profiles save in pg")
+	}
+	return tx.Commit()
 }
 
 func (d *Postgres) DeviceProfileByUUID(ctx context.Context, deviceUDID, uuid string) (DeviceProfile, error) {
