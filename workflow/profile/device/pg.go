@@ -68,6 +68,23 @@ func (d *Postgres) Save(ctx context.Context, device Device) error {
 	return errors.Wrap(err, "exec device save in pg")
 }
 
+func (d *Postgres) List(ctx context.Context) ([]Device, error) {
+	// TODO add pagination
+	var devices []Device
+	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
+		Select(columns()...).
+		From(tableName).
+		ToSql()
+	if err != nil {
+		return devices, errors.Wrap(err, "building sql to list devices")
+	}
+	err = d.db.SelectContext(ctx, &devices, query, args...)
+	if errors.Cause(err) == sql.ErrNoRows {
+		return devices, notFoundErr{}
+	}
+	return devices, errors.Wrap(err, "finding all devices")
+}
+
 func (d *Postgres) DeviceByUDID(ctx context.Context, udid string) (Device, error) {
 	var dev Device
 	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).

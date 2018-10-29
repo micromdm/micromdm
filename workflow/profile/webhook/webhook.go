@@ -22,12 +22,11 @@ import (
 )
 
 type Server struct {
-	db            DeviceStore
-	profileDB     ProfileStore
-	inventoryDB   InventoryStore
-	logger        log.Logger
-	profileClient ProfileClient
-	cabytes       []byte
+	db          DeviceStore
+	profileDB   ProfileStore
+	inventoryDB InventoryStore
+	logger      log.Logger
+	cabytes     []byte
 }
 
 func New(
@@ -55,10 +54,6 @@ type ProfileStore interface {
 	Create(ctx context.Context, payload []byte) (profile.Profile, error)
 }
 
-type ProfileClient interface {
-	Send(ctx context.Context, profile []byte) (uuid string, err error)
-}
-
 type InventoryStore interface {
 	UpdateFromListResponse(ctx context.Context, udid string, resp inventory.ListProfilesResponse) error
 }
@@ -66,17 +61,24 @@ type InventoryStore interface {
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var event webhook.Event
 	if err := httputil.DecodeJSONRequest(r, &event); err != nil {
-		panic(err)
+		level.Info(s.logger).Log("err", err)
+		return
 	}
 
 	switch event.Topic {
 	case mdm.TokenUpdateTopic, mdm.AuthenticateTopic:
-		s.ensureDevice(r.Context(), event.CheckinEvent.UDID)
+		if err := s.ensureDevice(r.Context(), event.CheckinEvent.UDID); err != nil {
+			level.Info(s.logger).Log("msg", "ensure device from checkin", "err", err)
+			return
+		}
 	case mdm.ConnectTopic:
+		if err := s.ensureDevice(r.Context(), event.AcknowledgeEvent.UDID); err != nil {
+			level.Info(s.logger).Log("msg", "ensure device from connect", "err", err)
+			return
+		}
 		if err := s.updateFromWebhook(r.Context(), event.AcknowledgeEvent); err != nil {
-			level.Info(s.logger).Log(
-				"err", err,
-			)
+			level.Info(s.logger).Log("err", err)
+			return
 		}
 	case mdm.CheckoutTopic:
 		spew.Dump(event.CheckinEvent)
@@ -103,7 +105,22 @@ func (s *Server) updateFromWebhook(ctx context.Context, event *webhook.Acknowled
 	return nil
 }
 
-func (s *Server) ensureDevice(ctx context.Context, udid string) {
+func (s *Server) ensureDevice(ctx context.Context, udid string) error {
+	_, err := s.db.DeviceByUDID(ctx, udid)
+	switch {
+	case err == nil:
+		// update last seen
+		return nil
+	case isNotFound(err):
+		level.Debug(s.logger).Log("msg", "creating new device", "udid", udid)
+		err = s.newDevice(ctx, udid)
+		return errors.Wrapf(err, "create new device for udid %s", udid)
+	default:
+		return errors.Wrapf(err, "ensuring device exists for udid %s", udid)
+	}
+}
+
+func (s *Server) scepProfileForDevice(ctx context.Context, udid string) error {
 	params := struct {
 		UDID              string
 		ProfileUUID       string
@@ -119,11 +136,11 @@ func (s *Server) ensureDevice(ctx context.Context, udid string) {
 	}
 	var buf bytes.Buffer
 	if err := tmplStr.Execute(&buf, params); err != nil {
-		panic(err)
+		return errors.Wrapf(err, "generate scep profile for udid %s", udid)
 	}
 	profile, err := s.profileDB.Create(ctx, buf.Bytes())
 	if err != nil {
-		panic(err)
+		return errors.Wrapf(err, "create scep profile for udid %s", udid)
 	}
 	level.Debug(s.logger).Log(
 		"msg", "generated scep profile",
@@ -131,26 +148,7 @@ func (s *Server) ensureDevice(ctx context.Context, udid string) {
 		"device_udid", params.UDID,
 		"id", profile.ID,
 	)
-	_, err = s.db.DeviceByUDID(ctx, udid)
-	switch {
-	case err == nil:
-		// update last seen
-		return
-	case isNotFound(err):
-		if err := s.newDevice(ctx, udid); err != nil {
-			level.Info(s.logger).Log(
-				"msg", "creating new device ",
-				"err", err,
-			)
-		}
-		return
-	default:
-		level.Info(s.logger).Log(
-			"msg", "looking up profile device by udid",
-			"err", err,
-		)
-		return
-	}
+	return nil
 }
 
 func (s *Server) newDevice(ctx context.Context, udid string) error {
@@ -160,10 +158,8 @@ func (s *Server) newDevice(ctx context.Context, udid string) error {
 		CreatedAt: now,
 		UpdatedAt: now,
 	}
-	if err := s.db.Save(ctx, dev); err != nil {
-		return errors.Wrapf(err, "save new device with udid %s", udid)
-	}
-	return nil
+	err := s.db.Save(ctx, dev)
+	return errors.Wrapf(err, "save new device with udid %s", udid)
 }
 
 func isNotFound(err error) bool {

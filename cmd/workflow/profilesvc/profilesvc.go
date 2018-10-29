@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/pem"
 	"net/http"
@@ -69,6 +70,9 @@ func main() {
 	devdb := device.New(db)
 	inventorydb := inventory.New(db)
 	webhookHandler := webhook.New(devdb, logger, buf.Bytes(), svc, inventorydb)
+	listWorker := webhook.NewWorker(logger, devdb)
+	ctx := context.Background()
+	go listWorker.Run(ctx)
 
 	r.Handle("/", webhookHandler)
 	r.Handle("/scep", scepHandler)

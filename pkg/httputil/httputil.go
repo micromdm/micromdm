@@ -110,7 +110,6 @@ func CopyURL(base *url.URL, path string) *url.URL {
 }
 
 func DecodeJSONRequest(r *http.Request, into interface{}) error {
-	defer r.Body.Close()
 	err := json.NewDecoder(r.Body).Decode(into)
 	return err
 }
