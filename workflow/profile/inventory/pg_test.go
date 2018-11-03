@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/go-kit/kit/log"
 	"github.com/groob/plist"
 	"github.com/kolide/kit/dbutil"
@@ -16,6 +15,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
+const testDeviceIdentifier = "foo"
+
 func Test_Decode(t *testing.T) {
 	data, err := ioutil.ReadFile("testdata/response.plist")
 	if err != nil {
@@ -25,10 +26,13 @@ func Test_Decode(t *testing.T) {
 	if err := plist.Unmarshal(data, &resp); err != nil {
 		t.Fatal(err)
 	}
-	spew.Dump(resp)
+
+	if have, want := len(resp.ProfileList), 1; have != want {
+		t.Errorf("expected %d, got %d profiles in response", want, have)
+	}
 }
 
-func TestCrud(t *testing.T) {
+func TestUpdateFromList(t *testing.T) {
 	db := setup(t)
 	ctx := context.Background()
 
@@ -40,19 +44,33 @@ func TestCrud(t *testing.T) {
 		}
 		payloads = append(payloads, payload)
 	}
-	err := db.UpdateFromListResponse(ctx, "foo", ListProfilesResponse{
-		ProfileList: payloads,
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = db.UpdateFromListResponse(ctx, "foo", ListProfilesResponse{
-		ProfileList: payloads,
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
 
+	updatePayloads(t, db, payloads)
+
+	// remove one and do it again
+	removeID := payloads[1].PayloadUUID
+	payloads = append(payloads[:1], payloads[1+1:]...)
+	updatePayloads(t, db, payloads)
+
+	// check that it's gone
+	_, err := db.DeviceProfileByUUID(ctx, testDeviceIdentifier, removeID)
+	if have, want := isNotFound(err), true; have != want {
+		t.Errorf("expected a not found error, got %v", err)
+	}
+}
+
+func updatePayloads(t *testing.T, db *Postgres, payloads []Payload) {
+	t.Helper()
+	ctx := context.Background()
+	if err := db.UpdateFromListResponse(
+		ctx,
+		testDeviceIdentifier,
+		ListProfilesResponse{
+			ProfileList: payloads,
+		},
+	); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func setup(t *testing.T) *Postgres {
@@ -67,7 +85,7 @@ func setup(t *testing.T) *Postgres {
 	}
 	devdb := device.New(db)
 	devdb.Save(context.TODO(), device.Device{
-		UDID: "foo",
+		UDID: testDeviceIdentifier,
 	})
 
 	return New(db)

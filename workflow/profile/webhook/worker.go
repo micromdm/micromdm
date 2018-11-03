@@ -89,7 +89,7 @@ func (w *ListWorker) sendProfileListCommand(ctx context.Context, udid string) er
 	if err := json.NewEncoder(&postBody).Encode(&request); err != nil {
 		return err
 	}
-	req, err := http.NewRequest("POST", "https://3470b1a1.ngrok.io/v1/commands", &postBody)
+	req, err := http.NewRequest("POST", "https://a7087938.ngrok.io/v1/commands", &postBody)
 	if err != nil {
 		return err
 	}

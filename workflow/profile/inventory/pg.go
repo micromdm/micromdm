@@ -79,6 +79,14 @@ type Payload struct {
 	PayloadVersion           int
 }
 
+/*  UpdateFromListResponse updates the known profiles on a device aquired through a ListProfiles MDM query.
+First all the profiles for the udid key will be removed, and then new profiles will be added.
+The action is done in a transaction, so if the insert fails the removal would be rolled back.
+Known issues:
+- Updating with zero payloads would fail. It should not happen since the ProfileList
+response returns at least the enrollment profile of the MDM. Still, the caller should validate.
+- Updating with too many payloads would fail the bulk insert. What's too many? Postgres allows up to 65535 arguments, which roughly means over 9000 profiles with the current argument list.
+*/
 func (d *Postgres) UpdateFromListResponse(ctx context.Context, udid string, resp ListProfilesResponse) error {
 	// bulk upsert.
 	now := time.Now().UTC()
