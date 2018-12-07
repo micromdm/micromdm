@@ -59,6 +59,16 @@ make db-mysql-test
 ```
 
 #### Assign Apple Push Certificate
+To assign an Apple Push Certificate, start the server first (no Mysql database connection required, we won't store the certificate in the Mysql database, but locally in a document store.)
+```
+sudo ./micromdm serve \
+    -api-key secret
+    -tls-cert ./fullchain.pem
+    -tls-key ./privkey.pem
+    -server-url https://mdm.abacus.ch/
+```
+
+Now, when the server is running, add the Push certificate, from a second Console to the server.
 ```
 ./mdmctl mdmcert upload \
     -password secret \
