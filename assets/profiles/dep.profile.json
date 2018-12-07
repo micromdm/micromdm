@@ -1,0 +1,18 @@
+{
+  "profile_name": "Abacus Research AG",
+  "url": "https://tobis.jumpingcrab.com/mdm/enroll",
+  "allow_pairing": true,
+  "is_supervised": true,
+  "is_multi_user": false,
+  "is_mandatory": false,
+  "await_device_configured": true,
+  "is_mdm_removable": true,
+  "support_phone_number": "+41 71 29 22 525",
+  "support_email_address": "support@abacus.ch",
+  "org_magic": "(Optional)",
+  "anchor_certs": [],
+  "supervising_host_certs": [],
+  "skip_setup_items": ["AppleID", "Android"],
+  "department": "",
+  "devices": ["F9FWF6U1GHKL","SERIAL2"]
+}

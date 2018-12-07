@@ -1,0 +1,12 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+jq -n \
+  --arg request_type "RemoveProfile" \
+  --arg udid "$1" \
+  --arg identifier $2 \
+  '.udid = $udid
+  |.identifier = $identifier
+  |.request_type = $request_type
+  '|\
+  curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-

@@ -1,0 +1,12 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+jq -n \
+  --arg request_type "InstallProvisioningProfile" \
+  --arg udid "$1" \
+  --arg provisioning_profile "$(cat "$2"|openssl base64 -A)" \
+  '.udid = $udid
+  |.provisioning_profile = $provisioning_profile
+  |.request_type = $request_type
+  '|\
+  curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-

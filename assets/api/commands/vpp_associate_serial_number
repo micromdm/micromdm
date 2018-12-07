@@ -1,0 +1,14 @@
+#!/bin/bash
+
+VPP_SERVER_URL="https://vpp.itunes.apple.com/WebObjects/MZFinance.woa/wa"
+
+# param1:
+# ./api/vpp/sToken_for_Abacus_Research_AG.vpptoken
+
+# param2
+# F9FWF8SWGHKL
+
+# Sample
+# ./api/commands/vpp_associate_serial_number ./api/vpp/sToken_for_Abacus_Research_AG.vpptoken F9FWF8SWGHKL
+
+curl -XPOST -H "Content-Type: application/json" --data "{\"sToken\":\"$(cat $1)\", \"adamIdStr\": \"1301278477\", \"pricingParam\": \"STDQ\", \"associateSerialNumbers\": [\"$2\"]}" -s "$VPP_SERVER_URL/manageVPPLicensesByAdamIdSrv"
