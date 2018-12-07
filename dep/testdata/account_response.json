@@ -1,0 +1,136 @@
+{
+  "server_name": "dev",
+  "server_uuid": "6666ED66666666666666666666666666",
+  "facilitator_id": "apple-dep@acme.co",
+  "admin_id": "apple-dep@acme.co",
+  "org_name": "Acme, Inc",
+  "org_email": "apple-dep@acme.co",
+  "org_phone": "8775277454",
+  "org_address": "1600 Pennsylvania Ave NW, Washington, DC 20500",
+  "org_id": "6666666",
+  "org_id_hash": "01cpx35ceg4bt5jzrvs6s0h18201cpx35ceg4bt5jzrvs6s0h182",
+  "urls": [
+    {
+      "uri": "/session",
+      "http_method": [
+        "GET"
+      ]
+    },
+    {
+      "uri": "/devices",
+      "http_method": [
+        "POST"
+      ]
+    },
+    {
+      "uri": "/roster/class/person/sync",
+      "http_method": [
+        "POST"
+      ]
+    },
+    {
+      "uri": "/server/devices",
+      "http_method": [
+        "POST"
+      ],
+      "limit": {
+        "default": 1000,
+        "maximum": 5000
+      }
+    },
+    {
+      "uri": "/roster/class",
+      "http_method": [
+        "POST"
+      ]
+    },
+    {
+      "uri": "/roster/course/sync",
+      "http_method": [
+        "POST"
+      ]
+    },
+    {
+      "uri": "/devices/sync",
+      "http_method": [
+        "POST"
+      ],
+      "limit": {
+        "default": 1000,
+        "maximum": 5000
+      }
+    },
+    {
+      "uri": "/roster/class/person",
+      "http_method": [
+        "POST"
+      ]
+    },
+    {
+      "uri": "/profile/devices",
+      "http_method": [
+        "DELETE",
+        "POST",
+        "PUT"
+      ]
+    },
+    {
+      "uri": "/roster/class/location",
+      "http_method": [
+        "POST"
+      ]
+    },
+    {
+      "uri": "/roster/class/sync",
+      "http_method": [
+        "POST"
+      ]
+    },
+    {
+      "uri": "/account",
+      "http_method": [
+        "GET"
+      ]
+    },
+    {
+      "uri": "/roster/class/location/sync",
+      "http_method": [
+        "POST"
+      ]
+    },
+    {
+      "uri": "/devices/disown",
+      "http_method": [
+        "POST"
+      ]
+    },
+    {
+      "uri": "/roster/course",
+      "http_method": [
+        "POST"
+      ]
+    },
+    {
+      "uri": "/profile/tvprovider",
+      "http_method": [
+        "POST",
+        "GET"
+      ]
+    },
+    {
+      "uri": "/device/activationlock",
+      "http_method": [
+        "POST"
+      ]
+    },
+    {
+      "uri": "/profile",
+      "http_method": [
+        "POST",
+        "GET"
+      ]
+    }
+  ],
+  "org_type": "org",
+  "org_version": "v2"
+}

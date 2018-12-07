@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package userproto;
+
+
+message User {
+    string uuid = 1; 
+    string udid = 2;
+    string user_id = 3;
+    string user_shortname = 4;
+    string user_longname = 5;
+    string auth_token = 6;
+    bytes password_hash = 7;
+    bool hidden = 8; 
+}
+

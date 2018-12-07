@@ -1,0 +1,12 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+jq -n \
+  --arg request_type "ScheduleOSUpdateScan" \
+  --arg udid "$1" \
+  --argjson force "$2" \
+  '.udid = $udid 
+  |.request_type = $request_type
+  |.force = $force
+  '|\
+  curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
