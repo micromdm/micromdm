@@ -14,6 +14,9 @@ import (
 	boltdepot "github.com/micromdm/scep/depot/bolt"
 	scep "github.com/micromdm/scep/server"
 	"github.com/pkg/errors"
+	
+	"github.com/jmoiron/sqlx"
+	"github.com/kolide/kit/dbutil"
 
 	"github.com/micromdm/micromdm/dep"
 	"github.com/micromdm/micromdm/mdm"
@@ -52,6 +55,13 @@ type Server struct {
 	CommandWebhookURL string
 	DEPClient         *dep.Client
 	SyncDB            *syncbuiltin.DB
+	
+	MysqlDB			  *sqlx.DB
+	MysqlUsername     string
+	MysqlPassword     string
+	MysqlDatabase     string
+	MysqlHost 	      string
+	MysqlPort 	      string
 
 	APNSPushService apns.Service
 	CommandService  command.Service
@@ -69,6 +79,10 @@ func (c *Server) Setup(logger log.Logger) error {
 	}
 
 	if err := c.setupBolt(); err != nil {
+		return err
+	}
+	
+	if err := c.setupMysql(); err != nil {
 		return err
 	}
 
@@ -174,7 +188,7 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 
 		udidauthLogger := log.With(logger, "component", "udidcertauth")
 		mdmService = device.UDIDCertAuthMiddleware(devDB, udidauthLogger)(mdmService)
-
+	
 		verifycertLogger := log.With(logger, "component", "verifycert")
 		mdmService = VerifyCertificateMiddleware(c.SCEPDepot, verifycertLogger)(mdmService)
 	}
@@ -190,6 +204,28 @@ func (c *Server) setupBolt() error {
 		return errors.Wrap(err, "opening boltdb")
 	}
 	c.DB = db
+
+	return nil
+}
+
+func (c *Server) setupMysql() error {
+	
+	if (c.MysqlUsername == "" || c.MysqlPassword == "" || c.MysqlHost == "" || c.MysqlPort == "" || c.MysqlDatabase == "") {
+		return nil
+	}
+
+	
+	db, err := dbutil.OpenDBX(
+		"mysql",
+//		"micromdm:micromdm@tcp(127.0.0.1:3306)/micromdm_test?parseTime=true",
+		c.MysqlUsername+":"+c.MysqlPassword+"@tcp("+c.MysqlHost+":"+c.MysqlPort+")/"+c.MysqlDatabase+"?parseTime=true",
+		dbutil.WithLogger(log.NewNopLogger()),
+		dbutil.WithMaxAttempts(1),
+	)
+	if err != nil {
+		return errors.Wrap(err, "opening mysql")
+	}
+	c.MysqlDB = db
 
 	return nil
 }
