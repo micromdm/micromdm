@@ -7,7 +7,7 @@ require (
 	github.com/fullsailor/pkcs7 v0.0.0-20180824154052-36585635cb64
 	github.com/garyburd/go-oauth v0.0.0-20180319155456-bca2e7f09a17
 	github.com/go-kit/kit v0.7.0
-	github.com/go-sql-driver/mysql v1.4.0 // indirect
+	github.com/go-sql-driver/mysql v1.4.0
 	github.com/go-stack/stack v1.7.0 // indirect
 	github.com/gogo/protobuf v1.0.0
 	github.com/golang/protobuf v1.2.0
@@ -26,7 +26,7 @@ require (
 	github.com/micromdm/scep v1.0.1-0.20181014170139-9be65e185499
 	github.com/pkg/errors v0.8.0
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/pressly/goose v2.3.0+incompatible
+	github.com/pressly/goose v2.4.5+incompatible
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.2.2 // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect

@@ -40,6 +40,7 @@ import (
 	"github.com/micromdm/micromdm/platform/dep/sync"
 	"github.com/micromdm/micromdm/platform/device"
 	devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
+	devicemysql "github.com/micromdm/micromdm/platform/device/mysql"
 	"github.com/micromdm/micromdm/platform/profile"
 	block "github.com/micromdm/micromdm/platform/remove"
 	"github.com/micromdm/micromdm/platform/user"
@@ -82,6 +83,12 @@ func serve(args []string) error {
 		flExamples          = flagset.Bool("examples", false, "prints some example usage")
 		flCommandWebhookURL = flagset.String("command-webhook-url", "", "URL to send command responses.")
 		flHomePage          = flagset.Bool("homepage", true, "hosts a simple built-in webpage at the / address")
+		
+		flMysqlUsername 	= flagset.String("mysql-username", "", "Username to login to Mysql")
+		flMysqlPassword 	= flagset.String("mysql-password", "", "Password to login to Mysql")
+		flMysqlDatabase 	= flagset.String("mysql-database", "", "Name of the Mysql Database")
+		flMysqlHost 		= flagset.String("mysql-host", "", "IP or URL to the Mysql Host")
+		flMysqlPort 		= flagset.String("mysql-port", "", "Port to use for Mysql connection")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -125,6 +132,13 @@ func serve(args []string) error {
 		// (non-DEP) enrollment. While security is not improved it is at least
 		// no less secure and prevents a useless dialog from showing.
 		SCEPChallenge: "micromdm",
+		
+		MysqlUsername: *flMysqlUsername,
+		MysqlPassword: *flMysqlPassword,
+		MysqlDatabase: *flMysqlDatabase,
+		MysqlHost:	   *flMysqlHost,
+		MysqlPort:	   *flMysqlPort,
+		
 	}
 
 	if err := sm.Setup(logger); err != nil {
@@ -148,8 +162,11 @@ func serve(args []string) error {
 	if err != nil {
 		stdlog.Fatal(err)
 	}
+	
+	devMysqlDB := devicemysql.NewDB(sm.MysqlDB)
 
-	devWorker := device.NewWorker(devDB, sm.PubClient, logger)
+	//devWorker := device.NewWorker(devDB, sm.PubClient, logger)
+	devWorker := device.NewWorker(devMysqlDB, sm.PubClient, logger)
 	go devWorker.Run(context.Background())
 
 	userDB, err := userbuiltin.NewDB(sm.DB)
@@ -216,6 +233,7 @@ func serve(args []string) error {
 		apns.RegisterHTTPHandlers(r, apnsEndpoints, options...)
 
 		devicesvc := device.New(devDB)
+		//devicesvc := device.New(devMysqlDB)
 		deviceEndpoints := device.MakeServerEndpoints(devicesvc, basicAuthEndpointMiddleware)
 		device.RegisterHTTPHandlers(r, deviceEndpoints, options...)
 
