@@ -1,0 +1,14 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+jq -n \
+  --arg request_type "InviteToProgram" \
+  --arg udid "$1" \
+  --arg program_id "com.apple.cloudvpp" \
+  --arg invitation_url "$2" \
+  '.udid = $udid
+  |.request_type = $request_type
+  |.program_id = $program_id
+  |.invitation_url = $invitation_url
+  '|\
+ curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-

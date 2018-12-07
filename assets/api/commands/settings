@@ -1,0 +1,17 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+jq -n \
+  --arg request_type "Settings" \
+  --arg udid "$1" \
+  --arg device_name "${2:-""}" \
+  '.udid = $udid 
+  |.request_type = $request_type
+  |.settings = [
+  	{ "item": "Bluetooth", "enabled": true },
+  	{ "item": "AppAnalytics", "enabled": true },
+  	{ "item": "DiagnosticSubmission", "enabled": true },
+  	{ "item": "DeviceName", "device_name": $device_name }
+  ]
+  '
+ echo curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-

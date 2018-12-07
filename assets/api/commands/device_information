@@ -1,0 +1,16 @@
+#!/bin/bash
+
+#sample: 
+# ./api/commands/device_information 30f6da9a85ff1c4b9ba36fc1f339d9b9b2d41726 UDID,DeviceName,IsSupervised
+
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+jq -n \
+  --arg request_type "DeviceInformation" \
+  --arg udid "$1" \
+   --arg query_strings "$2" \
+ '.udid = $udid 
+  |.request_type = $request_type
+  |.queries = ($query_strings | split(","))
+  '|\
+  curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-

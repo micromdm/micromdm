@@ -1,0 +1,14 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="registerVPPUserSrv"
+jq -n \
+  --arg request_type "Settings" \
+  --arg udid "$1" \
+  --arg device_name "${2:-""}" \
+  '.udid = $udid 
+  |.request_type = $request_type
+  |.settings = [
+  	{ "item": "ApplicationConfiguration", "identifier": "ch.abacus.abaclock.client2", "configuration": { "udid": $udid } }
+  ]
+  '|\
+  curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$VPP_SERVER_URL/$endpoint" -d@-

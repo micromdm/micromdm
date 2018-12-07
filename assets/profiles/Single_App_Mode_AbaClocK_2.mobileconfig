@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>App</key>
+			<dict>
+				<key>Identifier</key>
+				<string>ch.abacus.abaclock.client2</string>
+				<key>Options</key>
+				<dict>
+					<key>DisableAutoLock</key>
+					<true/>
+					<key>DisableSleepWakeButton</key>
+					<true/>
+				</dict>
+			</dict>
+			<key>PayloadDisplayName</key>
+			<string>Single App Mode</string>
+			<key>PayloadIdentifier</key>
+			<string>ch.abacus.abaclock.client2.EF21A748-D41A-444F-9F71-F5B5CDFEC19C.com.apple.app.lock.5C615F9A-9904-4ADE-8601-78909917FBDE</string>
+			<key>PayloadOrganization</key>
+			<string></string>
+			<key>PayloadType</key>
+			<string>com.apple.app.lock</string>
+			<key>PayloadUUID</key>
+			<string>5C615F9A-9904-4ADE-8601-78909917FBDE</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+		</dict>
+	</array>
+	<key>PayloadDisplayName</key>
+	<string>Single App Mode AbaClocK 2</string>
+	<key>PayloadIdentifier</key>
+	<string>ch.abacus.abaclock.client2.EF21A748-D41A-444F-9F71-F5B5CDFEC19C</string>
+	<key>PayloadOrganization</key>
+	<string>Abacus Research AG</string>
+	<key>PayloadScope</key>
+	<string>System</string>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>EF21A748-D41A-444F-9F71-F5B5CDFEC19C</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+</dict>
+</plist>

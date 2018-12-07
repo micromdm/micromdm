@@ -1,0 +1,16 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+jq -n \
+  --arg request_type "InstallApplication" \
+  --arg udid "$1" \
+  '.udid = $udid
+  |.request_type = $request_type
+  |.i_tunes_store_id = 1301278477
+  |.management_flags = 1
+  |.change_management_state = "Managed"
+  |.options = { "management_flags": 1 }
+  '|\
+  curl $CURL_OPTS \
+    -H "Content-Type: application/json" \
+    -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
