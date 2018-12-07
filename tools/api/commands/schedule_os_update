@@ -1,0 +1,16 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+jq -n \
+  --arg request_type "ScheduleOSUpdate" \
+  --arg udid "$1" \
+  --arg product_key "$2" \
+  --arg install_action "$3" \
+  '.udid = $udid 
+  |.request_type = $request_type
+  |.updates = [
+      .product_key = $product_key
+      |.install_action = $install_action
+      ]
+  '|\
+  curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-

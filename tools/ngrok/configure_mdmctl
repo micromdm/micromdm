@@ -1,0 +1,20 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+mdmctl="$(PWD)/build/$(uname |tr [:upper:] [:lower:])/mdmctl"
+config_root="$(PWD)/tools/ngrok/config_root"
+
+$mdmctl config set -name ngrok -api-token=$API_TOKEN -server-url=$SERVER_URL
+$mdmctl config switch -name=ngrok
+
+# DEP profile configuration. Comment out if not using DEP.
+$mdmctl apply dep-profiles -template | jq \
+  --arg server_url "$SERVER_URL/mdm/enroll" \
+  --arg org_magic "$(uuidgen)" \
+  --arg serial_number "$1" \
+  --arg profile_name "$(whoami)-ngrok" \
+  '.profile_name |= $profile_name
+  |.url |= $server_url
+  |.devices |= [$serial_number]
+  |.org_magic |= $org_magic 
+  |.await_device_configured |= true' > $config_root/dep_profile.json
+$mdmctl apply dep-profiles  -f $config_root/dep_profile.json

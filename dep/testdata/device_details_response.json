@@ -1,0 +1,18 @@
+{
+  "devices": {
+    "C02T0HL0GGC0": {
+      "serial_number": "C02T0HL0GGC0",
+      "description": "MBP 13.3 SPACE GRAY/2.0GHZ/8GB/256GB-USA",
+      "model": "MacBook Pro",
+      "os": "OSX",
+      "device_family": "Mac",
+      "color": "SPACE GRAY",
+      "profile_uuid": "C1F123098EB5074580041E69883004C3",
+      "profile_assign_time": "2018-09-08T16:49:09Z",
+      "profile_status": "assigned",
+      "device_assigned_by": "apple-dep@acme.co",
+      "device_assigned_date": "2017-10-16T01:55:30Z",
+      "response_status": "SUCCESS"
+    }
+  }
+}
