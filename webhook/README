@@ -1,0 +1,3 @@
+Environment Variable required:
+
+export FLASK_APP=webhook.py
