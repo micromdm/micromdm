@@ -1,0 +1,4 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/devices"
+curl $CURL_OPTS -X POST --data-binary {} -s -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint"

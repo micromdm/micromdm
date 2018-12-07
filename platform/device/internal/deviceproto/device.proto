@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package deviceproto;
+
+
+message Device {
+    string uuid = 1;
+    string udid = 2;
+    string serial_number = 3;
+    string os_version = 4;
+    string build_version = 5;
+    string product_name = 6;
+    string imei = 7;
+    string meid = 8;
+    string  token = 9;
+    string push_magic = 10;
+    string mdm_topic = 11;
+    string  unlock_token = 12;
+    bool enrolled = 13;
+    bool   awaiting_configuration = 14;
+    string device_name = 15;
+    string model = 16;
+    string model_name =17;
+    string description =18;
+    string color =19;
+    string asset_tag =20;
+    bool dep_device =21;
+    string dep_profile_status =22;
+    string dep_profile_uuid =23;
+    int64 dep_profile_assign_time =24;
+    int64 dep_profile_push_time =25;
+    int64 dep_profile_assigned_date =26;
+    string dep_profile_assigned_by =27;
+    int64 last_seen =28;
+    bytes last_query_response =29;
+
+}

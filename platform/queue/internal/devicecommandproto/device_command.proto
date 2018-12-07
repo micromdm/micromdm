@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package devicecommandproto;
+
+message Command {
+    string uuid = 1;
+    bytes payload = 2;
+
+    int64 created_at = 3;
+    int64 last_sent_at = 4;
+    int64 acknowledged = 5;
+
+    int64 times_sent = 6;
+
+    string last_status = 7;
+    bytes failure_message = 8;
+}
+
+message DeviceCommand {
+    string device_udid = 1;
+    repeated Command commands = 2;
+    repeated Command completed = 3;
+    repeated Command failed = 4;
+    repeated Command not_now = 5;
+}

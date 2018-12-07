@@ -1,0 +1,14 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+jq -n \
+  --arg request_type "InstallEnterpriseApplication" \
+  --arg udid "$1" \
+  --arg manifest_url "$2" \
+  '.udid = $udid
+  |.request_type = $request_type
+  |.manifest_url = $manifest_url
+  '|\
+  curl $CURL_OPTS \
+    -H "Content-Type: application/json" \
+    -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
