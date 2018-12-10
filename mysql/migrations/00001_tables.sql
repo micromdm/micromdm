@@ -4,8 +4,8 @@
 SET sql_mode = '';
 
 CREATE TABLE IF NOT EXISTS devices (
-    uuid VARCHAR(36) PRIMARY KEY,
-    udid VARCHAR(36) DEFAULT '',
+    uuid VARCHAR(40) PRIMARY KEY,
+    udid VARCHAR(40) DEFAULT '',
     serial_number VARCHAR(12) DEFAULT '',
     os_version TEXT DEFAULT NULL,
     build_version TEXT DEFAULT NULL,
@@ -29,12 +29,13 @@ CREATE TABLE IF NOT EXISTS devices (
     dep_profile_push_time TIMESTAMP DEFAULT 0,
     dep_profile_assigned_date TIMESTAMP DEFAULT 0,
     dep_profile_assigned_by TEXT DEFAULT NULL,
+	udid_cert_auth TEXT DEFAULT NULL,
     last_seen TIMESTAMP DEFAULT 0
 );
 
 
 CREATE TABLE IF NOT EXISTS push_info (
-    udid VARCHAR(36) PRIMARY KEY,
+    udid VARCHAR(40) PRIMARY KEY,
     token TEXT DEFAULT '',
     push_magic TEXT DEFAULT '',
     mdm_topic TEXT DEFAULT ''

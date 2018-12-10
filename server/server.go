@@ -22,14 +22,16 @@ import (
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/mdm/enroll"
 	"github.com/micromdm/micromdm/platform/apns"
-	apnsbuiltin "github.com/micromdm/micromdm/platform/apns/builtin"
+	//apnsbuiltin "github.com/micromdm/micromdm/platform/apns/builtin"
+	apnsmysql "github.com/micromdm/micromdm/platform/apns/mysql"
 	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/config"
 	configbuiltin "github.com/micromdm/micromdm/platform/config/builtin"
 	"github.com/micromdm/micromdm/platform/dep/sync"
 	syncbuiltin "github.com/micromdm/micromdm/platform/dep/sync/builtin"
 	"github.com/micromdm/micromdm/platform/device"
-	devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
+	//devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
+	devicemysql "github.com/micromdm/micromdm/platform/device/mysql"
 	"github.com/micromdm/micromdm/platform/profile"
 	profilebuiltin "github.com/micromdm/micromdm/platform/profile/builtin"
 	"github.com/micromdm/micromdm/platform/pubsub"
@@ -175,7 +177,8 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 	if err != nil {
 		return err
 	}
-	devDB, err := devicebuiltin.NewDB(c.DB)
+	//devDB, err := devicebuiltin.NewDB(c.DB)
+	devDB, err := devicemysql.NewDB(c.MysqlDB)
 	if err != nil {
 		return errors.Wrap(err, "new device db")
 	}
@@ -247,7 +250,8 @@ func (c *Server) setupConfigStore() error {
 }
 
 func (c *Server) setupPushService(logger log.Logger) error {
-	db, err := apnsbuiltin.NewDB(c.DB, c.PubClient)
+	//db, err := apnsbuiltin.NewDB(c.DB, c.PubClient)
+	db, err := apnsmysql.NewDB(c.MysqlDB, c.PubClient)
 	if err != nil {
 		return err
 	}

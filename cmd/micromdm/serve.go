@@ -39,7 +39,7 @@ import (
 	depapi "github.com/micromdm/micromdm/platform/dep"
 	"github.com/micromdm/micromdm/platform/dep/sync"
 	"github.com/micromdm/micromdm/platform/device"
-	devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
+	//devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
 	devicemysql "github.com/micromdm/micromdm/platform/device/mysql"
 	"github.com/micromdm/micromdm/platform/profile"
 	block "github.com/micromdm/micromdm/platform/remove"
@@ -158,12 +158,12 @@ func serve(args []string) error {
 		removeService = block.LoggingMiddleware(logger)(svc)
 	}
 
-	devDB, err := devicebuiltin.NewDB(sm.DB)
-	if err != nil {
-		stdlog.Fatal(err)
-	}
+	//devDB, err := devicebuiltin.NewDB(sm.DB)
+	//if err != nil {
+	//	stdlog.Fatal(err)
+	//}
 	
-	devMysqlDB := devicemysql.NewDB(sm.MysqlDB)
+	devMysqlDB, err := devicemysql.NewDB(sm.MysqlDB)
 
 	//devWorker := device.NewWorker(devDB, sm.PubClient, logger)
 	devWorker := device.NewWorker(devMysqlDB, sm.PubClient, logger)
@@ -232,8 +232,8 @@ func serve(args []string) error {
 		apnsEndpoints := apns.MakeServerEndpoints(sm.APNSPushService, basicAuthEndpointMiddleware)
 		apns.RegisterHTTPHandlers(r, apnsEndpoints, options...)
 
-		devicesvc := device.New(devDB)
-		//devicesvc := device.New(devMysqlDB)
+		//devicesvc := device.New(devDB)
+		devicesvc := device.New(devMysqlDB)
 		deviceEndpoints := device.MakeServerEndpoints(devicesvc, basicAuthEndpointMiddleware)
 		device.RegisterHTTPHandlers(r, deviceEndpoints, options...)
 
