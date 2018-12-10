@@ -51,6 +51,7 @@ make db-mysql-test
 Once a year certificates need to be updated. Please perform the following 2 steps\
 1. Assign Apple DEP Token
 2. Assign Apple Push Certificate (APNS Cert)
+
 Use the updated/generated `micromdm.db`and provide it as secret in your OpenShift Cluster.
 
 ### mdmctl 
