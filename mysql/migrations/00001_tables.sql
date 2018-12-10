@@ -33,6 +33,11 @@ CREATE TABLE IF NOT EXISTS devices (
     last_seen TIMESTAMP DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS uuid_cert_auth (
+    udid VARCHAR(40) PRIMARY KEY,
+    cert_auth BLOB DEFAULT NULL
+);
+
 
 CREATE TABLE IF NOT EXISTS push_info (
     udid VARCHAR(40) PRIMARY KEY,
@@ -44,4 +49,5 @@ CREATE TABLE IF NOT EXISTS push_info (
 
 -- +goose Down
 DROP TABLE IF EXISTS devices;
+DROP TABLE IF EXISTS uuid_cert_auth;
 DROP TABLE IF EXISTS push_info;
