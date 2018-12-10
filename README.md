@@ -118,9 +118,9 @@ sudo ./micromdm serve \
 ```
 
 ### BoltDB - Document Store
-Currently, some data is still being stored in the Mysql independant document store.
-If you run this MDM in OpenShift, this file needs to be provided as "secret" in OpenShift.
-`/assets/micromdm.db`
+Currently, some data is still being stored in the Mysql independant document store.\
+If you run this MDM in OpenShift, this file needs to be provided as "secret" in OpenShift.\
+`./assets/micromdm.db`
 
 By using the Bolter
 `bolter -f ./assets/micromdm.db`
