@@ -40,6 +40,11 @@ type Device struct {
 	LastSeen               time.Time        `db:"last_seen"`
 }
 
+type DeviceCertAuth struct {
+	UDID                   string           `db:"udid"`
+	CertAuth               []byte	        `db:"cert_auth"`
+}
+
 // DEPProfileStatus is the status of the DEP Profile
 // can be either "empty", "assigned", "pushed", or "removed"
 type DEPProfileStatus string
