@@ -13,8 +13,8 @@ import (
 )
 
 type UDIDCertAuthStore interface {
-	SaveUDIDCertHash(udid, certHash []byte) error
-	GetUDIDCertHash(udid []byte) ([]byte, error)
+	SaveUDIDCertHash(ctx context.Context, udid, certHash []byte) error
+	GetUDIDCertHash(ctx context.Context, udid []byte) ([]byte, error)
 }
 
 func UDIDCertAuthMiddleware(store UDIDCertAuthStore, logger log.Logger) mdm.Middleware {
@@ -40,8 +40,8 @@ func hashCertRaw(c []byte) []byte {
 	return retBytes
 }
 
-func (mw *udidCertAuthMiddleware) validateUDIDCertAuth(udid, certHash []byte) (bool, error) {
-	dbCertHash, err := mw.store.GetUDIDCertHash(udid)
+func (mw *udidCertAuthMiddleware) validateUDIDCertAuth(ctx context.Context, udid, certHash []byte) (bool, error) {
+	dbCertHash, err := mw.store.GetUDIDCertHash(ctx, udid)
 	if err != nil && !isNotFound(err) {
 		return false, err
 	} else if err != nil && isNotFound(err) {
@@ -51,7 +51,7 @@ func (mw *udidCertAuthMiddleware) validateUDIDCertAuth(udid, certHash []byte) (b
 		// micromdm instances have stored udid-cert associations
 		// this can be an outright failure.
 		level.Info(mw.logger).Log("msg", "device cert hash not found, saving anyway", "udid", string(udid))
-		if err := mw.store.SaveUDIDCertHash(udid, certHash); err != nil {
+		if err := mw.store.SaveUDIDCertHash(ctx, udid, certHash); err != nil {
 			return false, err
 		}
 		return true, nil
@@ -68,7 +68,7 @@ func (mw *udidCertAuthMiddleware) Acknowledge(ctx context.Context, req mdm.Ackno
 	if err != nil {
 		return nil, errors.Wrap(err, "error retrieving device certificate")
 	}
-	matched, err := mw.validateUDIDCertAuth([]byte(req.Response.UDID), hashCertRaw(devcert.Raw))
+	matched, err := mw.validateUDIDCertAuth(ctx, []byte(req.Response.UDID), hashCertRaw(devcert.Raw))
 	if err != nil {
 		return nil, err
 	}
@@ -86,12 +86,12 @@ func (mw *udidCertAuthMiddleware) Checkin(ctx context.Context, req mdm.CheckinEv
 	switch req.Command.MessageType {
 	case "Authenticate":
 		// unconditionally save the cert hash on Authenticate message
-		if err := mw.store.SaveUDIDCertHash([]byte(req.Command.UDID), hashCertRaw(devcert.Raw)); err != nil {
+		if err := mw.store.SaveUDIDCertHash(ctx, []byte(req.Command.UDID), hashCertRaw(devcert.Raw)); err != nil {
 			return err
 		}
 		return mw.next.Checkin(ctx, req)
 	case "TokenUpdate", "CheckOut":
-		matched, err := mw.validateUDIDCertAuth([]byte(req.Command.UDID), hashCertRaw(devcert.Raw))
+		matched, err := mw.validateUDIDCertAuth(ctx, []byte(req.Command.UDID), hashCertRaw(devcert.Raw))
 		if err != nil {
 			return err
 		}

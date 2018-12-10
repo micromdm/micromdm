@@ -16,8 +16,48 @@ import (
 
 type Mysql struct{ db *sqlx.DB }
 
-func NewDB(db *sqlx.DB) *Mysql {
-	return &Mysql{db: db}
+func NewDB(db *sqlx.DB) (*Mysql, error) {
+	_,err := db.Exec(`CREATE TABLE IF NOT EXISTS `+tableName+` (
+		    uuid VARCHAR(40) PRIMARY KEY,
+		    udid VARCHAR(40) DEFAULT '',
+		    serial_number VARCHAR(12) DEFAULT '',
+		    os_version TEXT DEFAULT NULL,
+		    build_version TEXT DEFAULT NULL,
+		    product_name TEXT DEFAULT NULL,
+		    imei TEXT DEFAULT NULL,
+		    meid TEXT DEFAULT NULL,
+		    push_magic TEXT DEFAULT NULL,
+		    awaiting_configuration BOOLEAN DEFAULT false,
+		    token TEXT DEFAULT NULL,
+		    unlock_token TEXT DEFAULT NULL,
+		    enrolled BOOLEAN DEFAULT false,
+		    description TEXT DEFAULT NULL,
+		    model TEXT DEFAULT NULL,
+		    model_name TEXT DEFAULT NULL,
+		    device_name TEXT DEFAULT NULL,
+		    color TEXT DEFAULT NULL,
+		    asset_tag TEXT DEFAULT NULL,
+		    dep_profile_status TEXT DEFAULT NULL,
+		    dep_profile_uuid TEXT DEFAULT NULL,
+		    dep_profile_assign_time TIMESTAMP DEFAULT 0,
+		    dep_profile_push_time TIMESTAMP DEFAULT 0,
+		    dep_profile_assigned_date TIMESTAMP DEFAULT 0,
+		    dep_profile_assigned_by TEXT DEFAULT NULL,
+		    last_seen TIMESTAMP DEFAULT 0
+		);`)
+	if err != nil {
+	   return nil, errors.Wrap(err, "creating devices sql table failed")
+	}
+	
+	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS uuid_cert_auth (
+		    udid VARCHAR(40) PRIMARY KEY,
+		    cert_auth BLOB DEFAULT NULL
+		);`)
+	if err != nil {
+	   return nil, errors.Wrap(err, "creating devices sql table failed")
+	}
+	
+	return &Mysql{db: db}, nil
 }
 
 func columns() []string {
@@ -203,7 +243,7 @@ func (d *Mysql) DeviceBySerial(ctx context.Context, serial string) (*device.Devi
 	
 }
 
-func (d *Mysql) ListDevices(ctx context.Context, opt device.ListDevicesOption) ([]device.Device, error) {
+func (d *Mysql) List(ctx context.Context, opt device.ListDevicesOption) ([]device.Device, error) {
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Select(columns()...).
@@ -252,4 +292,68 @@ func (e deviceNotFoundErr) Error() string {
 
 func (e deviceNotFoundErr) NotFound() bool {
 	return true
+}
+
+func (d *Mysql) SaveUDIDCertHash(ctx context.Context, udid, certHash []byte) error {
+	updateQuery, args_update, err := sq.StatementBuilder.
+		PlaceholderFormat(sq.Question).
+		Update("uuid_cert_auth").
+		Prefix("ON DUPLICATE KEY").
+		Set("udid", udid).
+		Set("cert_auth", certHash).
+		ToSql()
+	if err != nil {
+		return errors.Wrap(err, "building update query for save udid cert hash")
+	}
+	
+	// MySql Convention
+	// Replace "ON DUPLICATE KEY UPDATE TABLE_NAME SET" to "ON DUPLICATE KEY UPDATE"
+	updateQuery = strings.Replace(updateQuery, "uuid_cert_auth SET ", "", -1)
+
+	query, args, err := sq.StatementBuilder.
+		PlaceholderFormat(sq.Question).
+		Insert("uuid_cert_auth").
+		Columns("udid", "cert_auth").
+		Values(
+			udid,
+			certHash,
+		).
+		Suffix(updateQuery).
+		ToSql()
+	
+	var all_args = append(args, args_update...)
+	
+	if err != nil {
+		return errors.Wrap(err, "building udid cert auth save query")
+	}
+	
+	_, err = d.db.ExecContext(ctx, query, all_args...)
+	
+	return errors.Wrap(err, "exec udid cert auth save in mysql")
+}
+
+func (d *Mysql) GetUDIDCertHash(ctx context.Context, udid []byte) ([]byte, error) {
+	query, args, err := sq.StatementBuilder.
+		PlaceholderFormat(sq.Question).
+		Select("udid", "cert_auth").
+		From("uuid_cert_auth").
+		Where(sq.Eq{"udid": udid}).
+		ToSql()
+	
+	if err != nil {
+		return nil, errors.Wrap(err, "building sql")
+	}
+
+	var i device.DeviceCertAuth
+	err = d.db.QueryRowxContext(ctx, query, args...).StructScan(&i)
+	if errors.Cause(err) == sql.ErrNoRows {
+		return nil, errors.Wrap(err, "udidCertAuthBucket not found!")
+	}
+	
+	certHash := i.CertAuth
+	if certHash == nil {
+		return nil, errors.Wrap(err, "certhash for udid is empty")
+	}
+	
+	return certHash, errors.Wrap(err, "finding uuid cert hash by udid")
 }

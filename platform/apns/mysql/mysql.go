@@ -5,7 +5,7 @@ import (
 	"strings"
 	"database/sql"
 	
-	//"fmt"
+	"fmt"
 
 	"github.com/pkg/errors"
 	"github.com/jmoiron/sqlx"
@@ -13,12 +13,13 @@ import (
 	sq "gopkg.in/Masterminds/squirrel.v1"
 
 	"github.com/micromdm/micromdm/platform/apns"
+	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
 type Mysql struct{ db *sqlx.DB }
 
-func NewDB(db *sqlx.DB) *Mysql {
-	return &Mysql{db: db}
+func NewDB(db *sqlx.DB, sub pubsub.Subscriber) (*Mysql, error) {
+	return &Mysql{db: db}, nil
 }
 
 func columns() []string {
@@ -33,6 +34,9 @@ func columns() []string {
 const tableName = "push_info"
 
 func (d *Mysql) Save(ctx context.Context, i *apns.PushInfo) error {
+	
+	fmt.Println("apns.Save")
+	
 	updateQuery, args_update, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Update(tableName).
@@ -62,6 +66,9 @@ func (d *Mysql) Save(ctx context.Context, i *apns.PushInfo) error {
 	if err != nil {
 		return errors.Wrap(err, "building push_info save query")
 	}
+	
+	fmt.Println(query)
+	fmt.Println(args)
 
 	var all_args = append(args, args_update...)
 	_, err = d.db.ExecContext(ctx, query, all_args...)
