@@ -19,6 +19,18 @@ import (
 type Mysql struct{ db *sqlx.DB }
 
 func NewDB(db *sqlx.DB, sub pubsub.Subscriber) (*Mysql, error) {
+	
+	_,err := db.Exec(`CREATE TABLE IF NOT EXISTS push_info (
+		    udid VARCHAR(40) PRIMARY KEY,
+		    token TEXT DEFAULT '',
+		    push_magic TEXT DEFAULT '',
+		    mdm_topic TEXT DEFAULT ''
+		);`)
+		
+	if err != nil {
+	   return nil, errors.Wrap(err, "creating push_info table failed")
+	}
+	
 	return &Mysql{db: db}, nil
 }
 
