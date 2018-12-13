@@ -31,7 +31,7 @@ func NewDB(db *bolt.DB) (*DB, error) {
 	return datastore, nil
 }
 
-func (db *DB) List() ([]profile.Profile, error) {
+func (db *DB) List(ctx context.Context) ([]profile.Profile, error) {
 	// TODO add filter/limit with ForEach
 	var list []profile.Profile
 	err := db.View(func(tx *bolt.Tx) error {
@@ -49,7 +49,7 @@ func (db *DB) List() ([]profile.Profile, error) {
 	return list, err
 }
 
-func (db *DB) Save(p *profile.Profile) error {
+func (db *DB) Save(ctx context.Context, p *profile.Profile) error {
 	err := p.Validate()
 	if err != nil {
 		return err
@@ -85,7 +85,7 @@ func (db *DB) ProfileById(ctx context.Context, id string) (*profile.Profile, err
 	return &p, err
 }
 
-func (db *DB) Delete(id string) error {
+func (db *DB) Delete(ctx context.Context, id string) error {
 	err := db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(ProfileBucket))
 		v := b.Get([]byte(id))

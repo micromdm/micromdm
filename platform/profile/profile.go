@@ -42,8 +42,8 @@ func (mc *Mobileconfig) GetPayloadIdentifier() (string, error) {
 }
 
 type Profile struct {
-	Identifier   string
-	Mobileconfig Mobileconfig
+	Identifier   string			`db:"identifier"`
+	Mobileconfig Mobileconfig	`db:"mobileconfig"`
 }
 
 // Validate checks the internal consistency and validity of a Profile structure

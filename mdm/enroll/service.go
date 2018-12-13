@@ -58,7 +58,7 @@ func NewService(topic TopicProvider, sub pubsub.Subscriber, scepURL, scepChallen
 
 	// fetch the push topic from the db.
 	// will be "" if the push certificate hasn't been uploaded yet
-	pushTopic, _ := topic.PushTopic()
+	pushTopic, _ := topic.PushTopic(context.Background())
 	svc := &service{
 		URL:           url,
 		SCEPURL:       scepURL,
@@ -86,7 +86,7 @@ func updateTopic(svc *service, sub pubsub.Subscriber) error {
 		for {
 			select {
 			case <-configEvents:
-				topic, err := svc.topicProvier.PushTopic()
+				topic, err := svc.topicProvier.PushTopic(context.Background())
 				if err != nil {
 					log.Printf("enroll: get push topic %s\n", topic)
 				}
@@ -119,7 +119,7 @@ type service struct {
 }
 
 type TopicProvider interface {
-	PushTopic() (string, error)
+	PushTopic(ctx context.Context) (string, error)
 }
 
 func profileOrPayloadFromFunc(f interface{}) (interface{}, error) {
