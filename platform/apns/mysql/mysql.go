@@ -20,7 +20,10 @@ type Mysql struct{ db *sqlx.DB }
 
 func NewDB(db *sqlx.DB, sub pubsub.Subscriber) (*Mysql, error) {
 	
-	_,err := db.Exec(`CREATE TABLE IF NOT EXISTS push_info (
+	// Required for TIMESTAMP DEFAULT 0
+	_,err := db.Exec(`SET sql_mode = '';`)
+	
+	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS push_info (
 		    udid VARCHAR(40) PRIMARY KEY,
 		    token TEXT DEFAULT '',
 		    push_magic TEXT DEFAULT '',
