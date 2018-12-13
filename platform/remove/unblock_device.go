@@ -13,7 +13,7 @@ import (
 )
 
 func (svc *RemoveService) UnblockDevice(ctx context.Context, udid string) error {
-	return svc.store.Delete(udid)
+	return svc.store.Delete(ctx, udid)
 }
 
 type unblockDeviceRequest struct {

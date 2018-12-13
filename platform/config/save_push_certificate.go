@@ -9,8 +9,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (svc *ConfigService) SavePushCertificate(ctx context.Context, cert, key []byte) error {
-	err := svc.store.SavePushCertificate(cert, key)
+func (svc *ConfigService) SavePushCertificate(ctx context.Context, cert []byte, key []byte) error {
+	err := svc.store.SavePushCertificate(ctx, cert, key)
 	return errors.Wrap(err, "save push certificate")
 }
 

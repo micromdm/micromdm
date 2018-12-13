@@ -84,6 +84,7 @@ func serve(args []string) error {
 		flCommandWebhookURL = flagset.String("command-webhook-url", "", "URL to send command responses.")
 		flHomePage          = flagset.Bool("homepage", true, "hosts a simple built-in webpage at the / address")
 		
+		flImmutable		 	= flagset.Bool("immutable", true, "If flag is set, it is considered the bolt db is immutable.")
 		flMysqlUsername 	= flagset.String("mysql-username", "", "Username to login to Mysql")
 		flMysqlPassword 	= flagset.String("mysql-password", "", "Password to login to Mysql")
 		flMysqlDatabase 	= flagset.String("mysql-database", "", "Name of the Mysql Database")
@@ -133,6 +134,7 @@ func serve(args []string) error {
 		// no less secure and prevents a useless dialog from showing.
 		SCEPChallenge: "micromdm",
 		
+		DataStoreImmutable: *flImmutable,
 		MysqlUsername: *flMysqlUsername,
 		MysqlPassword: *flMysqlPassword,
 		MysqlDatabase: *flMysqlDatabase,
@@ -265,9 +267,10 @@ func serve(args []string) error {
 		depapi.RegisterHTTPHandlers(r, depEndpoints, options...)
 
 		depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncDB), basicAuthEndpointMiddleware)
+		//depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncMysqlDB), basicAuthEndpointMiddleware)
 		sync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
 
-		r.HandleFunc("/boltbackup", httputil2.RequireBasicAuth(boltBackup(sm.DB), "micromdm", *flAPIKey, "micromdm"))
+		//r.HandleFunc("/boltbackup", httputil2.RequireBasicAuth(boltBackup(sm.DB), "micromdm", *flAPIKey, "micromdm"))
 	} else {
 		mainLogger.Log("msg", "no api key specified")
 	}

@@ -21,7 +21,7 @@ func (svc *ConfigService) ApplyDEPToken(ctx context.Context, P7MContent []byte) 
 	if err != nil {
 		return err
 	}
-	key, cert, err := svc.store.DEPKeypair()
+	key, cert, err := svc.store.DEPKeypair(ctx)
 	if err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func (svc *ConfigService) ApplyDEPToken(ctx context.Context, P7MContent []byte) 
 	if err != nil {
 		return err
 	}
-	err = svc.store.AddToken(depToken.ConsumerKey, tokenJSON)
+	err = svc.store.AddToken(ctx, depToken.ConsumerKey, tokenJSON)
 	if err != nil {
 		return err
 	}
