@@ -23,21 +23,21 @@ import (
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/mdm/enroll"
 	"github.com/micromdm/micromdm/platform/apns"
-	//apnsbuiltin "github.com/micromdm/micromdm/platform/apns/builtin"
-	apnsmysql "github.com/micromdm/micromdm/platform/apns/mysql"
+	apnsbuiltin "github.com/micromdm/micromdm/platform/apns/builtin"
+	//apnsmysql "github.com/micromdm/micromdm/platform/apns/mysql"
 	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/config"
-	//configbuiltin "github.com/micromdm/micromdm/platform/config/builtin"
-	configmysql "github.com/micromdm/micromdm/platform/config/mysql"
+	configbuiltin "github.com/micromdm/micromdm/platform/config/builtin"
+	//configmysql "github.com/micromdm/micromdm/platform/config/mysql"
 	"github.com/micromdm/micromdm/platform/dep/sync"
 	syncbuiltin "github.com/micromdm/micromdm/platform/dep/sync/builtin"
-	syncmysql "github.com/micromdm/micromdm/platform/dep/sync/mysql"
+	//syncmysql "github.com/micromdm/micromdm/platform/dep/sync/mysql"
 	"github.com/micromdm/micromdm/platform/device"
-	//devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
-	devicemysql "github.com/micromdm/micromdm/platform/device/mysql"
+	devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
+	//devicemysql "github.com/micromdm/micromdm/platform/device/mysql"
 	"github.com/micromdm/micromdm/platform/profile"
-	//profilebuiltin "github.com/micromdm/micromdm/platform/profile/builtin"
-	profilemysql "github.com/micromdm/micromdm/platform/profile/mysql"
+	profilebuiltin "github.com/micromdm/micromdm/platform/profile/builtin"
+	//profilemysql "github.com/micromdm/micromdm/platform/profile/mysql"
 	"github.com/micromdm/micromdm/platform/pubsub"
 	"github.com/micromdm/micromdm/platform/pubsub/inmem"
 	
@@ -66,7 +66,7 @@ type Server struct {
 	CommandWebhookURL string
 	DEPClient         *dep.Client
 	SyncDB            *syncbuiltin.DB
-	SyncMysqlDB       *syncmysql.Mysql
+	//SyncMysqlDB       *syncmysql.Mysql
 	
 	DataStoreImmutable bool
 	MysqlDB			  *sqlx.DB
@@ -91,11 +91,9 @@ func (c *Server) Setup(logger log.Logger) error {
 		return err
 	}
 
-	//if !c.DataStoreImmutable {
-		if err := c.setupBolt(); err != nil {
-			return err
-		}
-	//}
+	if err := c.setupBolt(); err != nil {
+		return err
+	}
 	
 	if err := c.setupMysql(); err != nil {
 		return err
@@ -105,11 +103,11 @@ func (c *Server) Setup(logger log.Logger) error {
 		return err
 	}
 
-	if err := c.setupSCEP(logger); err != nil {
+	if err := c.setupConfigStore(); err != nil {
 		return err
 	}
-	
-	if err := c.setupConfigStore(); err != nil {
+
+	if err := c.setupSCEP(logger); err != nil {
 		return err
 	}
 
@@ -143,8 +141,8 @@ func (c *Server) Setup(logger log.Logger) error {
 }
 
 func (c *Server) setupProfileDB() error {
-	//profileDB, err := profilebuiltin.NewDB(c.DB)
-	profileDB, err := profilemysql.NewDB(c.MysqlDB)
+	profileDB, err := profilebuiltin.NewDB(c.DB)
+	//profileDB, err := profilemysql.NewDB(c.MysqlDB)
 	if err != nil {
 		return err
 	}
@@ -193,8 +191,8 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 	if err != nil {
 		return err
 	}
-	//devDB, err := devicebuiltin.NewDB(c.DB)
-	devDB, err := devicemysql.NewDB(c.MysqlDB)
+	devDB, err := devicebuiltin.NewDB(c.DB)
+	//devDB, err := devicemysql.NewDB(c.MysqlDB)
 	if err != nil {
 		return errors.Wrap(err, "new device db")
 	}
@@ -257,8 +255,8 @@ type pushServiceCert struct {
 }
 
 func (c *Server) setupConfigStore() error {
-	//db, err := configbuiltin.NewDB(c.DB, c.PubClient)
-	db, err := configmysql.NewDB(c.MysqlDB, c.PubClient)
+	db, err := configbuiltin.NewDB(c.DB, c.PubClient)
+	//db, err := configmysql.NewDB(c.MysqlDB, c.PubClient)
 	if err != nil {
 		return err
 	}
@@ -269,8 +267,8 @@ func (c *Server) setupConfigStore() error {
 }
 
 func (c *Server) setupPushService(logger log.Logger) error {
-	//db, err := apnsbuiltin.NewDB(c.DB, c.PubClient)
-	db, err := apnsmysql.NewDB(c.MysqlDB, c.PubClient)
+	db, err := apnsbuiltin.NewDB(c.DB, c.PubClient)
+	//db, err := apnsmysql.NewDB(c.MysqlDB, c.PubClient)
 	if err != nil {
 		return err
 	}
@@ -366,12 +364,12 @@ func (c *Server) CreateDEPSyncer(logger log.Logger) (sync.Syncer, error) {
 	}
 
 	syncdb, err := syncbuiltin.NewDB(c.DB)
-	syncmysqldb, err := syncmysql.NewDB(c.MysqlDB)
+	//syncmysqldb, err := syncmysql.NewDB(c.MysqlDB)
 	if err != nil {
 		return nil, err
 	}
 	c.SyncDB = syncdb
-	c.SyncMysqlDB = syncmysqldb
+	//c.SyncMysqlDB = syncmysqldb
 
 	var syncer sync.Syncer
 	syncer, err = sync.NewWatcher(c.SyncDB, c.PubClient, opts...)

@@ -22,7 +22,7 @@ func NewDB(db *sqlx.DB) (*Mysql, error) {
 	_,err := db.Exec(`SET sql_mode = '';`)
 
 	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS cursors (
-		    value TEXT,
+		    value VARCHAR(128) PRIMARY KEY,
 		    created_at TIMESTAMP DEFAULT 0
 		);`)
 	if err != nil {
@@ -55,19 +55,17 @@ func (d *Mysql) LoadCursor(ctx context.Context) (*sync.Cursor, error) {
 	var cursor = struct {
 		Cursor sync.Cursor `json:"cursor"`
 	}{}
-	fmt.Println(cursor)
 	
 	err = d.db.QueryRowxContext(ctx, query, args...).StructScan(&cursor.Cursor)
 	if errors.Cause(err) == sql.ErrNoRows {
 		return &sync.Cursor{}, nil
 		return nil, cursorNotFoundErr{}
 	}
-	fmt.Println(cursor)
 	return &cursor.Cursor, errors.Wrap(err, "loading cursor")
 }
 
 func (d *Mysql) SaveCursor(ctx context.Context, cursor sync.Cursor) error {
-// Make sure we take the time offset into account for "zero" dates	
+	// Make sure we take the time offset into account for "zero" dates	
 	t := time.Now()
 	_, offset := t.Zone()
 	var min_timestamp_sec int64 = int64(offset) * 60 * 60
@@ -75,12 +73,12 @@ func (d *Mysql) SaveCursor(ctx context.Context, cursor sync.Cursor) error {
 	if (cursor.CreatedAt.IsZero() || cursor.CreatedAt.Unix() < min_timestamp_sec) {
 		cursor.CreatedAt = time.Unix(min_timestamp_sec, 0)
 	}
-		
+	
 	updateQuery, args_update, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Update(tableName).
 		Prefix("ON DUPLICATE KEY").
-		Set("identifier", cursor.Value).
+		Set("value", cursor.Value).
 		Set("created_at", cursor.CreatedAt).
 		ToSql()
 	if err != nil {

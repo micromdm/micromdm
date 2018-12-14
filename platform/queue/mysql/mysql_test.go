@@ -152,6 +152,18 @@ func TestNext_zeroCommands(t *testing.T) {
 
 }
 
+func Test_SaveCommand(t *testing.T) {
+	store := setupDB(t)
+
+	dc := &queue.DeviceCommand{DeviceUDID: "TestDevice"}
+	ctx := context.Background()
+	if err := store.Save(ctx, dc); err != nil {
+		t.Fatal(err)
+	}
+
+}
+
+
 func setupDB(t *testing.T) *Store {
 	// https://stackoverflow.com/a/23550874/464016
 	db, err := dbutil.OpenDBX(

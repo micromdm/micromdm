@@ -18,31 +18,40 @@ import (
 
 func (svc *ConfigService) ApplyDEPToken(ctx context.Context, P7MContent []byte) error {
 	unwrapped, err := unwrapSMIME(P7MContent)
+	fmt.Println("1")
 	if err != nil {
 		return err
 	}
 	key, cert, err := svc.store.DEPKeypair(ctx)
+	fmt.Println(key)
+	fmt.Println(cert)
+	fmt.Println("2")
 	if err != nil {
 		return err
 	}
 	p7, err := pkcs7.Parse(unwrapped)
+	fmt.Println("3")
 	if err != nil {
 		return err
 	}
 	decrypted, err := p7.Decrypt(cert, key)
+	fmt.Println("4")
 	if err != nil {
 		return err
 	}
 	tokenJSON, err := unwrapTokenJSON(decrypted)
+	fmt.Println("5")
 	if err != nil {
 		return err
 	}
 	var depToken DEPToken
 	err = json.Unmarshal(tokenJSON, &depToken)
+	fmt.Println("6")
 	if err != nil {
 		return err
 	}
 	err = svc.store.AddToken(ctx, depToken.ConsumerKey, tokenJSON)
+	fmt.Println("7")
 	if err != nil {
 		return err
 	}
@@ -103,6 +112,10 @@ func unwrapSMIME(smime []byte) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+func UnwrapSMIME(smime []byte) ([]byte, error) {
+	return unwrapSMIME(smime)
+}
+
 // unwrapTokenJSON removes the MIME-like headers and text surrounding the DEP token JSON
 func unwrapTokenJSON(wrapped []byte) ([]byte, error) {
 	tr := textproto.NewReader(bufio.NewReader(bytes.NewReader(wrapped)))
@@ -124,4 +137,8 @@ func unwrapTokenJSON(wrapped []byte) ([]byte, error) {
 		}
 	}
 	return tokenJSON.Bytes(), nil
+}
+
+func UnwrapTokenJSON(wrapped []byte) ([]byte, error) {
+	return unwrapTokenJSON(wrapped)
 }
