@@ -11,12 +11,13 @@ import (
 	sq "gopkg.in/Masterminds/squirrel.v1"
 	
 	"github.com/go-kit/kit/log"
-	//"github.com/go-kit/kit/log/level"
-	//"github.com/groob/plist"
+	"github.com/go-kit/kit/log/level"
+	"github.com/groob/plist"
 	"github.com/pkg/errors"
 	_ "github.com/go-sql-driver/mysql"
 
 	"github.com/micromdm/micromdm/mdm"
+	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/queue"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
@@ -222,7 +223,8 @@ func NewQueue(db *sqlx.DB, pubsub pubsub.PublishSubscriber, opts ...Option) (*St
 		fn(datastore)
 	}
 
-	if err := datastore.pollCommands(pubsub); err != nil {
+	ctx := context.Background()
+	if err := datastore.pollCommands(ctx, pubsub); err != nil {
 		return nil, err
 	}
 
@@ -347,8 +349,7 @@ func (e *notFound) Error() string {
 	return fmt.Sprintf("not found: %s %s", e.ResourceType, e.Message)
 }
 
-func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
-	/*
+func (db *Store) pollCommands(ctx context.Context, pubsub pubsub.PublishSubscriber) error {
 	commandEvents, err := pubsub.Subscribe(context.TODO(), "command-queue", command.CommandTopic)
 	if err != nil {
 		return errors.Wrapf(err,
@@ -366,7 +367,7 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 
 				cmd := new(queue.DeviceCommand)
 				cmd.DeviceUDID = ev.DeviceUDID
-				byUDID, err := db.queue.DeviceCommand(ctx, ev.DeviceUDID)
+				byUDID, err := db.DeviceCommand(ctx, ev.DeviceUDID)
 				if err == nil && byUDID != nil {
 					cmd = byUDID
 				}
@@ -375,12 +376,12 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 					level.Info(db.logger).Log("msg", "marshal event payload", "err", err)
 					continue
 				}
-				newCmd := Command{
+				newCmd := queue.Command{
 					UUID:    ev.Payload.CommandUUID,
 					Payload: newPayload,
 				}
 				cmd.Commands = append(cmd.Commands, newCmd)
-				if err := db.Save(cmd); err != nil {
+				if err := db.Save(ctx, cmd); err != nil {
 					level.Info(db.logger).Log("msg", "save command in db", "err", err)
 					continue
 				}
@@ -391,11 +392,11 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 					"request_type", ev.Payload.Command.RequestType,
 				)
 
-				cq := new(QueueCommandQueued)
+				cq := new(queue.QueueCommandQueued)
 				cq.DeviceUDID = ev.DeviceUDID
 				cq.CommandUUID = ev.Payload.CommandUUID
 
-				msgBytes, err := MarshalQueuedCommand(cq)
+				msgBytes, err := queue.MarshalQueuedCommand(cq)
 				if err != nil {
 					level.Info(db.logger).Log("msg", "marshal queued command", "err", err)
 					continue
@@ -407,7 +408,6 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 			}
 		}
 	}()
-	*/
 	return nil
 }
 
