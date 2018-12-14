@@ -261,6 +261,10 @@ func (d *Mysql) List(ctx context.Context, opt device.ListDevicesOption) ([]devic
 	return list, errors.Wrap(err, "list devices")
 }
 
+func (d *Mysql) ListDevices(ctx context.Context, opt device.ListDevicesOption) ([]device.Device, error) {
+	return d.List(ctx, opt)
+}
+
 func (d *Mysql) DeleteByUDID(ctx context.Context, udid string) error {
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).

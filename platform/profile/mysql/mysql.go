@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 	"database/sql"
+	"fmt"
 
 	"github.com/pkg/errors"
 	"github.com/jmoiron/sqlx"
@@ -57,6 +58,9 @@ func (d *Mysql) List(ctx context.Context) ([]profile.Profile, error) {
 
 func (d *Mysql) Save(ctx context.Context, p *profile.Profile) error {
 
+	fmt.Println("Save Profile")
+	fmt.Println(p.Identifier)
+	fmt.Println(p.Mobileconfig)
 	updateQuery, args_update, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Update(tableName).
