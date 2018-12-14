@@ -31,7 +31,8 @@ func NewDB(db *sqlx.DB) (*Mysql, error) {
 	_,err := db.Exec(`SET sql_mode = '';`)
 	
 	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS profiles (
-		    identifier VARCHAR(40) PRIMARY KEY,
+			profile_id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+		    identifier TEXT DEFAULT NULL,
 		    mobileconfig BLOB DEFAULT NULL
 		);`)
 	if err != nil {
@@ -59,46 +60,52 @@ func (d *Mysql) List(ctx context.Context) ([]profile.Profile, error) {
 
 func (d *Mysql) Save(ctx context.Context, p *profile.Profile) error {
 
-	fmt.Println("Save Profile")
-	fmt.Println(p.Identifier)
-	fmt.Println(p.Mobileconfig)
-	
-	updateQuery, args_update, err := sq.StatementBuilder.
-		PlaceholderFormat(sq.Question).
-		Update(tableName).
-		Prefix("ON DUPLICATE KEY").
-		Set("identifier", p.Identifier).
-		Set("mobileconfig", p.Mobileconfig).
-		ToSql()
-	fmt.Println(updateQuery)
-	if err != nil {
-		fmt.Println(err)
-		return errors.Wrap(err, "building update query for device save")
+	_, err := d.ProfileById(ctx,p.Identifier)
+	// Empty object => insert
+	if (err != nil) {
+		
+		query, args, err := sq.StatementBuilder.
+			PlaceholderFormat(sq.Question).
+			Insert(tableName).
+			Columns(columns()...).
+			Values(
+				p.Identifier,
+				p.Mobileconfig,
+			).
+			//Suffix(updateQuery).
+			ToSql()
+		
+		var all_args = append(args, args...)
+		fmt.Println(query)
+		fmt.Println(args)
+		if err != nil {
+			return errors.Wrap(err, "building profile save query")
+		}
+		
+		_, err = d.db.ExecContext(ctx, query, all_args...)
+		
+	} else {
+		// Update existing entry
+		updateQuery, args_update, err := sq.StatementBuilder.
+			PlaceholderFormat(sq.Question).
+			Update(tableName).
+			//Prefix("ON DUPLICATE KEY").
+			//Set("identifier", p.Identifier).
+			Set("mobileconfig", p.Mobileconfig).
+			Where("identifier LIKE ?", fmt.Sprint("", p.Identifier, "")).
+			ToSql()
+		fmt.Println(updateQuery)
+		if err != nil {
+			fmt.Println(err)
+			return errors.Wrap(err, "building update query for device save")
+		}
+		
+		// MySql Convention
+		// Replace "ON DUPLICATE KEY UPDATE TABLE_NAME SET" to "ON DUPLICATE KEY UPDATE"
+		updateQuery = strings.Replace(updateQuery, tableName+" SET ", "", -1)
+		
+		_, err = d.db.ExecContext(ctx, updateQuery, args_update...)
 	}
-	
-	// MySql Convention
-	// Replace "ON DUPLICATE KEY UPDATE TABLE_NAME SET" to "ON DUPLICATE KEY UPDATE"
-	updateQuery = strings.Replace(updateQuery, tableName+" SET ", "", -1)
-
-	query, args, err := sq.StatementBuilder.
-		PlaceholderFormat(sq.Question).
-		Insert(tableName).
-		Columns(columns()...).
-		Values(
-			p.Identifier,
-			p.Mobileconfig,
-		).
-		Suffix(updateQuery).
-		ToSql()
-	
-	var all_args = append(args, args_update...)
-	fmt.Println(query)
-	fmt.Println(args)
-	if err != nil {
-		return errors.Wrap(err, "building profile save query")
-	}
-	
-	_, err = d.db.ExecContext(ctx, query, all_args...)
 	
 	return errors.Wrap(err, "exec profile save in mysql")
 }
@@ -108,7 +115,8 @@ func (d *Mysql) ProfileById(ctx context.Context, id string) (*profile.Profile, e
 		PlaceholderFormat(sq.Question).
 		Select(columns()...).
 		From(tableName).
-		Where(sq.Eq{"identifier": id}).
+		Where("identifier LIKE ?", fmt.Sprint("", id, "")).
+		//Where(sq.Eq{"identifier": id}).
 		ToSql()
 	
 	fmt.Println(query)
@@ -131,7 +139,8 @@ func (d *Mysql) Delete(ctx context.Context, id string) error {
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Delete(tableName).
-		Where(sq.Eq{"identifier": id}).
+		Where("identifier LIKE ?", fmt.Sprint("", id, "")).
+		//Where(sq.Eq{"identifier": id}).		
 		ToSql()
 	if err != nil {
 		return errors.Wrap(err, "building sql")
