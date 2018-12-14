@@ -46,6 +46,8 @@ func (db *DB) List(ctx context.Context) ([]profile.Profile, error) {
 		}
 		return nil
 	})
+	fmt.Println("List of Profiles")
+	fmt.Println(list)
 	return list, err
 }
 
@@ -66,6 +68,10 @@ func (db *DB) Save(ctx context.Context, p *profile.Profile) error {
 	if err != nil {
 		return errors.Wrap(err, "marshalling profile")
 	}
+	fmt.Println("Saving Profile")
+	fmt.Println(p.Identifier)
+	fmt.Println(p.Mobileconfig)
+	
 	if err := bkt.Put([]byte(p.Identifier), pproto); err != nil {
 		return errors.Wrap(err, "put profile to boltdb")
 	}

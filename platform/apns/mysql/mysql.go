@@ -4,8 +4,6 @@ import (
 	"context"
 	"strings"
 	"database/sql"
-	
-	"fmt"
 
 	"github.com/pkg/errors"
 	"github.com/jmoiron/sqlx"
@@ -50,8 +48,6 @@ const tableName = "push_info"
 
 func (d *Mysql) Save(ctx context.Context, i *apns.PushInfo) error {
 	
-	fmt.Println("apns.Save")
-	
 	updateQuery, args_update, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Update(tableName).
@@ -82,9 +78,6 @@ func (d *Mysql) Save(ctx context.Context, i *apns.PushInfo) error {
 		return errors.Wrap(err, "building push_info save query")
 	}
 	
-	fmt.Println(query)
-	fmt.Println(args)
-
 	var all_args = append(args, args_update...)
 	_, err = d.db.ExecContext(ctx, query, all_args...)
 	return errors.Wrap(err, "exec push_info save in pg")
