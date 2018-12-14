@@ -13,5 +13,5 @@ jq -n \
   	{ "item": "DiagnosticSubmission", "enabled": true },
   	{ "item": "DeviceName", "device_name": $device_name }
   ]
-  '
- echo curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
+  '|\
+ curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
