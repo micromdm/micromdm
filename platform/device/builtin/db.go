@@ -187,7 +187,7 @@ func (db *DB) deviceByIndex(key string) (*device.Device, error) {
 	return &dev, nil
 }
 
-func (db *DB) SaveUDIDCertHash(udid, certHash []byte) error {
+func (db *DB) SaveUDIDCertHash(ctx context.Context, udid, certHash []byte) error {
 	tx, err := db.DB.Begin(true)
 	if err != nil {
 		return errors.Wrap(err, "begin transaction")
@@ -202,7 +202,7 @@ func (db *DB) SaveUDIDCertHash(udid, certHash []byte) error {
 	return tx.Commit()
 }
 
-func (db *DB) GetUDIDCertHash(udid []byte) ([]byte, error) {
+func (db *DB) GetUDIDCertHash(ctx context.Context, udid []byte) ([]byte, error) {
 	var certHash []byte
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(udidCertAuthBucket))

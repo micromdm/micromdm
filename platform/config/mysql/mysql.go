@@ -38,9 +38,9 @@ func NewDB(db *sqlx.DB, sub pubsub.Subscriber) (*Mysql, error) {
 	
 	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS dep_tokens (
 			consumer_key VARCHAR(36) PRIMARY KEY,
-			consumer_secret TEXT,
-			access_token TEXT,
-			access_secret TEXT,
+			consumer_secret TEXT NULL,
+			access_token TEXT NULL,
+			access_secret TEXT NULL,
 		    access_token_expiry TIMESTAMP DEFAULT 0
 		);`)
 	if err != nil {
@@ -79,7 +79,7 @@ func (d *Mysql) SavePushCertificate(ctx context.Context, cert []byte, key []byte
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Insert(tableName).
-		Columns(columns()...).
+		Columns("config_id", "push_certificate", "private_key").
 		Values(
 			1,
 			cert,

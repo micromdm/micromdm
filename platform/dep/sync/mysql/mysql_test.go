@@ -3,15 +3,41 @@ package mysql
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/go-kit/kit/log"
 	"github.com/kolide/kit/dbutil"
 	_ "github.com/go-sql-driver/mysql"
-	//"github.com/micromdm/micromdm/platform/dep/sync"
+	"github.com/micromdm/micromdm/platform/dep/sync"
 )
 
+func Test_SaveCursor(t *testing.T) {
+	db, err := setup(t)
+	if err != nil {
+		t.Fatal(err)
+	}
+	
+	ctx := context.Background()
+
+	// create
+	cursor := sync.Cursor{
+		Value:     "foobar",
+		CreatedAt: time.Now().UTC(),
+	}
+	
+	err = db.SaveCursor(ctx, cursor)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func Test_LoadCursor(t *testing.T) {
-	db := setup(t)
+	db, err := setup(t)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	ctx := context.Background()
 
 	cursor, err := db.LoadCursor(ctx)
@@ -25,7 +51,7 @@ func Test_LoadCursor(t *testing.T) {
 	}
 }
 
-func setup(t *testing.T) *Mysql {
+func setup(t *testing.T) (*Mysql, error) {
 	// https://stackoverflow.com/a/23550874/464016
 	db, err := dbutil.OpenDBX(
 		"mysql",
@@ -39,6 +65,5 @@ func setup(t *testing.T) *Mysql {
 		t.Fatal(err)
 	}
 	
-	store, _ := NewDB(db)
-	return store
+	return NewDB(db)
 }
