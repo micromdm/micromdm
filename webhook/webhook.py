@@ -16,6 +16,8 @@ def webhook():
 		payload = base64.b64decode(raw_payload).decode('utf-8')
 		print(payload)
 	return ''
+	
 
 if __name__ == '__main__':
     app.run()
+    #DeviceSetup.DeviceSetup("5852cd48347416928de781b6c3f756696e0dcb31", "F9FWF8SWGHKL", setup_completed)
