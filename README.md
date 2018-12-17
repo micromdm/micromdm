@@ -47,7 +47,13 @@ make db-mysql-migrate-test
 make db-mysql-test
 ```
 
-## Setup
+## Setup / Update micromdm.db
+Once a year certificates need to be updated. Please perform the following 2 steps\
+1. Assign Apple DEP Token
+2. Assign Apple Push Certificate (APNS Cert)
+
+Use the updated/generated `micromdm.db`and provide it as secret in your OpenShift Cluster.
+
 ### mdmctl 
 #### Configure later MDM Service
 ```
@@ -118,9 +124,9 @@ sudo ./micromdm serve \
 ```
 
 ### BoltDB - Document Store
-Currently, some data is still being stored in the Mysql independant document store.
-If you run this MDM in OpenShift, this file needs to be provided as "secret" in OpenShift.
-`/assets/micromdm.db`
+Currently, some data is still being stored in the Mysql independant document store.\
+If you run this MDM in OpenShift, this file needs to be provided as "secret" in OpenShift.\
+`./assets/micromdm.db`
 
 By using the Bolter
 `bolter -f ./assets/micromdm.db`
