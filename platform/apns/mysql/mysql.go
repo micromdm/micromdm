@@ -23,9 +23,9 @@ func NewDB(db *sqlx.DB, sub pubsub.Subscriber) (*Mysql, error) {
 	
 	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS push_info (
 		    udid VARCHAR(40) PRIMARY KEY,
-		    token TEXT DEFAULT '',
-		    push_magic TEXT DEFAULT '',
-		    mdm_topic TEXT DEFAULT ''
+		    token TEXT,
+		    push_magic TEXT,
+		    mdm_topic TEXT
 		);`)
 		
 	if err != nil {
