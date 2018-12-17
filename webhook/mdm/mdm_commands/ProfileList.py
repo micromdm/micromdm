@@ -25,8 +25,8 @@ class ProfileList( MDMCommand ):
             "request_type": self._request_type(),
         }
 
-    def _command_identifier(self):
+    def command_identifier(self):
         return "profile_list"
 
-    def _command_id(self):
+    def command_id(self):
         return 8
