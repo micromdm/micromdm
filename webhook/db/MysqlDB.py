@@ -58,8 +58,7 @@ class MysqlDB ( DB ):
 
             # Insert new command
             cursor.execute(add_log, data_log)
-
-            print(cursor.statement)
+            #print(cursor.statement)
 
             # Make sure data is committed to the database
             cnx.commit()
