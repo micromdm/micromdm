@@ -89,6 +89,10 @@ func serve(args []string) error {
 		flMysqlDatabase 	= flagset.String("mysql-database", "", "Name of the Mysql Database")
 		flMysqlHost 		= flagset.String("mysql-host", "", "IP or URL to the Mysql Host")
 		flMysqlPort 		= flagset.String("mysql-port", "", "Port to use for Mysql connection")
+		
+//		flAPNSKeyPass  		= flagset.String("password", "", "Password to encrypt/read the RSA key.")
+//		flAPNSKeyPath  		= flagset.String("private-key", filepath.Join(mdmcertdir, pushCertificatePrivateKeyFilename), "Path to the push certificate private key.")
+//		flAPNSCertPath 		= flagset.String("cert", "", "Path to the MDM Push Certificate.")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -267,7 +271,7 @@ func serve(args []string) error {
 		depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncDB), basicAuthEndpointMiddleware)
 		sync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
 
-		r.HandleFunc("/boltbackup", httputil2.RequireBasicAuth(boltBackup(sm.DB), "micromdm", *flAPIKey, "micromdm"))
+		//r.HandleFunc("/boltbackup", httputil2.RequireBasicAuth(boltBackup(sm.DB), "micromdm", *flAPIKey, "micromdm"))
 	} else {
 		mainLogger.Log("msg", "no api key specified")
 	}
