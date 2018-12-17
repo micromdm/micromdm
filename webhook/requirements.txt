@@ -1,0 +1,4 @@
+Flask==1.0.2
+plists==0.0.4
+request==1.0.2
+requests==2.20.1
