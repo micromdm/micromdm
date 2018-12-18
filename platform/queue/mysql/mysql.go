@@ -191,8 +191,6 @@ func cut(all []queue.Command, uuid string) (*queue.Command, []queue.Command) {
 }
 
 func SetupDB(db *sqlx.DB) error {
-	//fmt.Println("Create Table here")
-	
 	// Required for TIMESTAMP DEFAULT 0
 	_,err := db.Exec(`SET sql_mode = '';`)
 

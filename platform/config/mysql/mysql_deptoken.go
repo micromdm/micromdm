@@ -83,14 +83,16 @@ func (d *Mysql) DEPTokens(ctx context.Context) ([]config.DEPToken, error) {
 		// If multiple keys need to be supported, use separate table or use something like
 		// Where("push_certificate LIKE ?", fmt.Sprint("%CK_")).
 		ToSql()
-	if err != nil {
-		return result, err
-	}
+
 	var server_config config.ServerConfig
 	err = d.db.QueryRowxContext(ctx, query, args...).StructScan(&server_config)
-	if errors.Cause(err) == sql.ErrNoRows {
+	if err != nil {
+		if errors.Cause(err) == sql.ErrNoRows {
+			return nil, nil
+		}
 		return result, err
 	}
+
 	
 	var depToken config.DEPToken
 	err = json.Unmarshal(server_config.PrivateKey, &depToken)
