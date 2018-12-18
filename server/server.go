@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"path/filepath"
 	"time"
-	"fmt"
 
 	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/log"
@@ -94,7 +93,7 @@ func (c *Server) Setup(logger log.Logger) error {
 	if err := c.setupBolt(); err != nil {
 		return err
 	}
-	
+
 	if err := c.setupMysql(); err != nil {
 		return err
 	}
@@ -134,9 +133,9 @@ func (c *Server) Setup(logger log.Logger) error {
 	if err := c.setupProfileDB(); err != nil {
 		return err
 	}
-
+	
 	err := c.setupEnrollmentService()
-
+	
 	return err
 }
 
@@ -216,12 +215,12 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 
 func (c *Server) setupBolt() error {
 	dbPath := filepath.Join(c.ConfigPath, "micromdm.db")
-	fmt.Println("Accessing bolt db")
+
 	db, err := bolt.Open(dbPath, 0644, &bolt.Options{Timeout: time.Second})
 	if err != nil {
 		return errors.Wrap(err, "opening boltdb")
 	}
-	fmt.Println("Accessed bolt db")
+
 	c.DB = db
 
 	return nil

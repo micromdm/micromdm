@@ -48,8 +48,6 @@ func (d *Mysql) List(ctx context.Context) ([]profile.Profile, error) {
 		Select(columns()...).
 		From(tableName).
 		ToSql()
-	fmt.Println(query)
-	fmt.Println(args)
 	if err != nil {
 		return nil, errors.Wrap(err, "building sql")
 	}
@@ -76,8 +74,6 @@ func (d *Mysql) Save(ctx context.Context, p *profile.Profile) error {
 			ToSql()
 		
 		var all_args = append(args, args...)
-		fmt.Println(query)
-		fmt.Println(args)
 		if err != nil {
 			return errors.Wrap(err, "building profile save query")
 		}
@@ -94,9 +90,7 @@ func (d *Mysql) Save(ctx context.Context, p *profile.Profile) error {
 			Set("mobileconfig", p.Mobileconfig).
 			Where("identifier LIKE ?", fmt.Sprint("", p.Identifier, "")).
 			ToSql()
-		fmt.Println(updateQuery)
 		if err != nil {
-			fmt.Println(err)
 			return errors.Wrap(err, "building update query for device save")
 		}
 		
@@ -119,9 +113,7 @@ func (d *Mysql) ProfileById(ctx context.Context, id string) (*profile.Profile, e
 		//Where(sq.Eq{"identifier": id}).
 		ToSql()
 	
-	fmt.Println(query)
 	if err != nil {
-		fmt.Println(err)
 		return nil, errors.Wrap(err, "building sql")
 	}
 
@@ -129,7 +121,6 @@ func (d *Mysql) ProfileById(ctx context.Context, id string) (*profile.Profile, e
 	
 	err = d.db.QueryRowxContext(ctx, query, args...).StructScan(&p)
 	if errors.Cause(err) == sql.ErrNoRows {
-		fmt.Println(err)
 		return nil, profileNotFoundErr{}
 	}
 	return &p, errors.Wrap(err, "finding profile by identifier")

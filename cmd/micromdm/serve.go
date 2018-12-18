@@ -90,10 +90,6 @@ func serve(args []string) error {
 		flMysqlDatabase 	= flagset.String("mysql-database", "", "Name of the Mysql Database")
 		flMysqlHost 		= flagset.String("mysql-host", "", "IP or URL to the Mysql Host")
 		flMysqlPort 		= flagset.String("mysql-port", "", "Port to use for Mysql connection")
-		
-//		flAPNSKeyPass  		= flagset.String("password", "", "Password to encrypt/read the RSA key.")
-//		flAPNSKeyPath  		= flagset.String("private-key", filepath.Join(mdmcertdir, pushCertificatePrivateKeyFilename), "Path to the push certificate private key.")
-//		flAPNSCertPath 		= flagset.String("cert", "", "Path to the MDM Push Certificate.")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -324,6 +320,7 @@ func serveOptions(
 	configPath string,
 	tls bool,
 ) []httputil.Option {
+	
 	tlsFromFile := (certPath != "" && keyPath != "")
 	serveOpts := []httputil.Option{
 		httputil.WithACMEHosts([]string{hostname}),
@@ -333,6 +330,7 @@ func serveOptions(
 	if tlsFromFile {
 		serveOpts = append(serveOpts, httputil.WithKeyPair(certPath, keyPath))
 	}
+	
 	if !tls && addr == ":https" {
 		serveOpts = append(serveOpts, httputil.WithAddress(":8080"))
 	}
