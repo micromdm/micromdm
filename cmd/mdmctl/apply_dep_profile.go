@@ -24,7 +24,7 @@ func certificatesFromURL(serverURL string, insecure bool) ([]*x509.Certificate, 
 	}
 	addr := urlParsed.Host
 	if urlParsed.Port() == "" {
-		addr += ":443"
+		addr += ":8443"
 	}
 	conn, err := tls.Dial("tcp", addr, &tls.Config{InsecureSkipVerify: insecure})
 	if err != nil {
