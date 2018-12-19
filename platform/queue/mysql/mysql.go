@@ -233,7 +233,7 @@ func (db *Store) SaveCommand(ctx context.Context, cmd queue.Command, deviceUDID 
 	// Make sure we take the time offset into account for "zero" dates	
 	t := time.Now()
 	_, offset := t.Zone()
-	var min_timestamp_sec int64 = int64(offset) * 60 * 60
+	var min_timestamp_sec int64 = int64(offset) * 60 * 60 * 24
 	
 	if (cmd.CreatedAt.IsZero() || cmd.CreatedAt.Unix() < min_timestamp_sec) {
 		cmd.CreatedAt = time.Unix(min_timestamp_sec, 0)
