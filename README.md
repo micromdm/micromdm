@@ -112,15 +112,14 @@ After configuring the MDM Service, run it.
 sudo ./micromdm serve \
     -config-path $(echo $(pwd)/../../assets/) \
     -api-key secret \
-    -tls-cert ./fullchain.pem \
-    -tls-key ./privkey.pem \
     -server-url https://mdm.abacus.ch/ \
     -command-webhook-url http://127.0.0.1:5000/webhook \
     -mysql-username micromdm \
     -mysql-password micromdm \
     -mysql-database micromdm_test \
     -mysql-host 127.0.0.1 \
-    -mysql-port 3306
+    -mysql-port 3306 \
+    -tls=false
 ```
 
 ### BoltDB - Document Store
@@ -163,5 +162,6 @@ docker run -v /absolute/path/to/micromdm/assets/:/data  micromdm \
     -mysql-password micromdm \
     -mysql-database micromdm_test \
     -mysql-host 127.0.0.1 \
-    -mysql-port 3306
+    -mysql-port 3306 \
+    -tls=false
 ```
