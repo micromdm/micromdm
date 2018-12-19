@@ -68,7 +68,7 @@ func (d *Mysql) SaveCursor(ctx context.Context, cursor sync.Cursor) error {
 	// Make sure we take the time offset into account for "zero" dates	
 	t := time.Now()
 	_, offset := t.Zone()
-	var min_timestamp_sec int64 = int64(offset) * 60 * 60
+	var min_timestamp_sec int64 = int64(offset) * 60 * 60 * 24
 	
 	if (cursor.CreatedAt.IsZero() || cursor.CreatedAt.Unix() < min_timestamp_sec) {
 		cursor.CreatedAt = time.Unix(min_timestamp_sec, 0)
