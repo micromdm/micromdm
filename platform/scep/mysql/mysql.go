@@ -1,6 +1,7 @@
 package mysql
 
 import (
+	"bytes"
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
@@ -51,12 +52,11 @@ func NewBoltDepot(db *sqlx.DB) (*Depot, error) {
 	   return nil, errors.Wrap(err, "creating server_config sql table failed")
 	}
 	
-	// TODO create table for serials/identities
 	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS scep_certificates (
 			scep_id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 			cert_name TEXT NULL,
 			scep_cert BLOB DEFAULT NULL
-		);`)
+		) AUTO_INCREMENT=2;`)
 	if err != nil {
 	   return nil, errors.Wrap(err, "creating scep_certificates sql table failed")
 	}
@@ -145,13 +145,23 @@ func (d *Depot) Put(cn string, crt *x509.Certificate) error {
 		return fmt.Errorf("%q does not specify a valid certificate for storage", cn)
 	}
 	
+	serial, err := d.Serial()
+	if err != nil {
+		return err
+	}
+
+	name := cn + "." + serial.String()
+	fmt.Println("--- scep/builtin/db.go Put")
+	fmt.Println(name)
+	fmt.Println(crt.Raw)
+	
 	// No need to get serial, we have an auto_increment in place
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Insert("scep_certificates").
 		Columns("cert_name", "scep_cert").
 		Values(
-			cn,
+			name,
 			crt.Raw,
 		).
 		ToSql()
@@ -165,38 +175,41 @@ func (d *Depot) Put(cn string, crt *x509.Certificate) error {
 	return errors.Wrap(err, "exec scep_certificates save in mysql")
 }
 
-func (db *Depot) Serial() (*big.Int, error) {
-	return big.NewInt(2), nil
-/*
-	fmt.Println("--- scep/builtin/db.go Serial()")
-		
-	s := big.NewInt(2)
-	if !db.hasKey([]byte("serial")) {
-		if err := db.writeSerial(s); err != nil {
-			return nil, err
-		}
-		fmt.Println(s)
-		return s, nil
-	}
-	err := db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(certBucket))
-		if bucket == nil {
-			return fmt.Errorf("bucket %q not found!", certBucket)
-		}
-		k := bucket.Get([]byte("serial"))
-		if k == nil {
-			return fmt.Errorf("key %q not found", "serial")
-		}
-		s = s.SetBytes(k)
-		fmt.Println(s)
-		return nil
-	})
+type AutoIncrement struct {
+	Index int64 `db:"AUTO_INCREMENT"`
+}
+
+func (d *Depot) Serial() (*big.Int, error) {
+/*	
+	result,err := d.db.Exec(`SELECT AUTO_INCREMENT
+		FROM  INFORMATION_SCHEMA.TABLES
+		WHERE   TABLE_NAME   = 'scep_certificates';
+		`)
 	if err != nil {
-		return nil, err
+	   return nil, errors.Wrap(err, "retrieving serial count from scep_certificates sql table failed")
 	}
-	fmt.Println(s)
-	return s, nil
+	fmt.Println(result)
+	return big.NewInt(2), nil
 */
+	query, args, err := sq.StatementBuilder.
+		PlaceholderFormat(sq.Question).
+		Select("AUTO_INCREMENT").
+		From("INFORMATION_SCHEMA.TABLES").
+		Where("TABLE_NAME = 'scep_certificates'").
+		ToSql()	
+	
+		
+	if err != nil {
+	   return nil, errors.Wrap(err, "retrieving serial count from scep_certificates sql table failed")
+	}
+	var auto_increment AutoIncrement
+	ctx := context.Background()
+	err = d.db.QueryRowxContext(ctx, query, args...).StructScan(&auto_increment)
+	if errors.Cause(err) == sql.ErrNoRows {
+		return big.NewInt(2), nil
+	}
+	fmt.Println(auto_increment.Index)
+	return big.NewInt(auto_increment.Index), nil
 }
 
 func (d *Depot) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool) (bool, error) {
@@ -209,9 +222,30 @@ func (d *Depot) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOl
 	if cert == nil {
 		return false, errors.New("nil certificate provided")
 	}
-	
-	prefix := []byte(cert.Subject.CommonName)
-		
+
+	var hasCN bool
+	scep_certs, err := d.listCertificates(context.Background(),cert.Subject.CommonName)
+	if err != nil {
+		return false, err
+	}
+	for _, v := range scep_certs {
+		fmt.Println("Comparing")
+		fmt.Println(v)
+		fmt.Println(cert.Raw)
+		if bytes.Compare(v.SCEPCert, cert.Raw) == 0 {
+			hasCN = true
+			fmt.Println("Has CN?")
+			fmt.Println(hasCN)
+			return true, nil
+		}
+	}
+	fmt.Println("Has CN?")
+	fmt.Println(hasCN)
+	return false, nil
+}
+
+func (d *Depot) listCertificates(ctx context.Context, prefix string) ([]SCEPCertificate, error) {
+	fmt.Println("listCertificates")
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Select("scep_id", "cert_name", "scep_cert").
@@ -220,16 +254,12 @@ func (d *Depot) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOl
 		ToSql()
 		
 	if err != nil {
-		return false, errors.Wrap(err, "building sql")
+		return nil, errors.Wrap(err, "building sql")
 	}
-
-	var scep_cert SCEPCertificate
-	ctx := context.Background()
-	err = d.db.QueryRowxContext(ctx, query, args...).StructScan(&scep_cert)
-	if errors.Cause(err) == sql.ErrNoRows {
-		return false, nil
-	}
-	return true, nil
+	var list []SCEPCertificate
+	err = d.db.SelectContext(ctx, &list, query, args...)
+	fmt.Println(list)
+	return list, errors.Wrap(err, "list scep certs")
 }
 
 func (d *Depot) CreateOrLoadKey(bits int) (*rsa.PrivateKey, error) {

@@ -12,7 +12,8 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
 	//boltdepot "github.com/micromdm/scep/depot/bolt"
-	boltdepot "github.com/micromdm/micromdm/platform/scep/builtin"
+	//boltdepot "github.com/micromdm/micromdm/platform/scep/builtin"
+	boltdepot "github.com/micromdm/micromdm/platform/scep/mysql"
 	scep "github.com/micromdm/scep/server"
 	"github.com/pkg/errors"
 	
@@ -381,7 +382,8 @@ func (c *Server) CreateDEPSyncer(logger log.Logger) (sync.Syncer, error) {
 }
 
 func (c *Server) setupSCEP(logger log.Logger) error {
-	depot, err := boltdepot.NewBoltDepot(c.DB)
+	//depot, err := boltdepot.NewBoltDepot(c.DB)
+	depot, err := boltdepot.NewBoltDepot(c.MysqlDB)
 	if err != nil {
 		return err
 	}
