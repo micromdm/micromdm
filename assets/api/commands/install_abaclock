@@ -13,6 +13,4 @@ jq -n \
   |.attributes = { "vpnuuid": $udid, "udid": $udid }
   |.change_management_state = "Managed"
   '|\
-  curl $CURL_OPTS \
-    -H "Content-Type: application/json" \
-    -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
+  curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
