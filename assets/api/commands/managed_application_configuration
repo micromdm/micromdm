@@ -7,4 +7,5 @@ jq -n -c \
   '.udid = $udid 
   |.request_type = $request_type
   |.identifiers = [ "ch.abacus.abaclock.client2" ]
-  '
+  '|\
+  curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
