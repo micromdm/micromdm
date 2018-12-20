@@ -16,17 +16,17 @@ class DeviceSetup:
             print("UDID should be provided as lower cased")
             udid = udid.lower()
 
-        Settings(udid, "New AbaClocK iPad")
-        RestrictApps(udid)
-        HomescreenLayout(udid)
-        InstallVPPAbaClocKUnmanaged(udid, int(config.MDM.adam_id_str))
-        ManagedApplicationConfiguration(udid, "ch.abacus.abaclock.client2")
-        SingleAppModeAbaClocK(udid)
-        ProfileList(udid)
-        ManagedApplicationFeedback(udid, "ch.abacus.abaclock.client2")
-        RemoveSingleAppModeAbaClocK(udid)
-        setup_completed(udid, None)
-        return
+        #Settings(udid, "New AbaClocK iPad")
+        #RestrictApps(udid)
+        #HomescreenLayout(udid)
+        #InstallVPPAbaClocKUnmanaged(udid, int(config.MDM.adam_id_str))
+        #ManagedApplicationConfiguration(udid, "ch.abacus.abaclock.client2")
+        #SingleAppModeAbaClocK(udid)
+        #ProfileList(udid)
+        #ManagedApplicationFeedback(udid, "ch.abacus.abaclock.client2")
+        #RemoveSingleAppModeAbaClocK(udid)
+        #setup_completed(udid, None)
+
         try:
             Settings(udid, "New AbaClocK iPad")
             RestrictApps(udid)

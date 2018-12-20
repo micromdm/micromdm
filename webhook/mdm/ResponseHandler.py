@@ -5,7 +5,10 @@ import plistlib
 import os
 import DeviceSetup
 import VPPAssociate
-import db.MysqlDB
+import MDMDevice
+import MDMProfile
+import MDMOSUpdateStatus
+from db import DB
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import config
@@ -46,6 +49,9 @@ def parseResponseJSON(response_json):
 
             if 'SerialNumber' in pl:
                 serial_number = pl['SerialNumber']
+                device = MDMDevice.MDMDevice(udid, pl)
+                DB.DB.log_device(device)
+
                 VPPAssociate.VPPAssociate(udid, serial_number, vpp_associate_completed)
                 DeviceSetup.DeviceSetup(udid, setup_completed)
 
@@ -54,8 +60,22 @@ def parseResponseJSON(response_json):
         udid = response_json['acknowledge_event']['udid'].decode('utf-8')
         command__uuid = response_json['acknowledge_event']['command_uuid'].decode('utf-8')
         status = response_json['acknowledge_event']['status'].decode('utf-8')
-        from db import DB
         DB.DB.log_command_response(udid, command__uuid, status)
+
+        pl = pl_payload(response_json, 'acknowledge_event')
+        if 'ProfileList' in pl:
+            print(pl)
+            for profilePlist in pl['ProfileList']:
+                profile = MDMProfile.MDMProfile(udid, profilePlist)
+                DB.DB.log_profile(profile)
+
+        elif 'OSUpdateStatus' in pl:
+            print(pl)
+            for os_update_status_plist in pl['OSUpdateStatus']:
+                os_update_status = MDMOSUpdateStatus.MDMOSUpdateStatus(udid, os_update_status_plist)
+                DB.DB.log_os_update_status(os_update_status)
+
+
     else:
         print(json)
 

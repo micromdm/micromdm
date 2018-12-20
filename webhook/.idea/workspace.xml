@@ -14,8 +14,8 @@
       <file leaf-file-name="ResponseHandler.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mdm/ResponseHandler.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="682">
-              <caret line="56" column="8" lean-forward="true" selection-start-line="56" selection-start-column="8" selection-end-line="56" selection-end-column="8" />
+            <state relative-caret-position="284">
+              <caret line="20" selection-start-line="20" selection-end-line="20" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -23,35 +23,29 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DeviceSetup.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mdm/DeviceSetup.py">
+      <file leaf-file-name="MDMOSUpdateStatus.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mdm/MDMOSUpdateStatus.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
-              <caret line="28" column="14" selection-start-line="28" selection-start-column="8" selection-end-line="28" selection-end-column="14" />
-              <folding>
-                <element signature="e#0#13#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="45">
+              <caret line="3" selection-start-line="3" selection-end-line="3" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MDMCommand.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mdm/mdm_commands/MDMCommand.py">
+      <file leaf-file-name="MDMProfile.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mdm/MDMProfile.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="282">
-              <caret line="124" column="49" lean-forward="true" selection-start-line="124" selection-start-column="49" selection-end-line="124" selection-end-column="49" />
-              <folding>
-                <element signature="e#0#15#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="599">
+              <caret line="44" lean-forward="true" selection-start-line="44" selection-end-line="44" />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MysqlDB.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="MysqlDB.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/db/MysqlDB.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="757">
-              <caret line="59" column="45" selection-start-line="59" selection-start-column="45" selection-end-line="59" selection-end-column="45" />
+            <state relative-caret-position="371">
+              <caret line="183" column="32" lean-forward="true" selection-start-line="183" selection-start-column="32" selection-end-line="183" selection-end-column="32" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -59,9 +53,13 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="__init__.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/db/__init__.py">
-          <provider selected="true" editor-type-id="text-editor" />
+      <file leaf-file-name="config.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/config/config.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="555">
+              <caret line="37" column="45" selection-start-line="37" selection-start-column="31" selection-end-line="37" selection-end-column="45" />
+            </state>
+          </provider>
         </entry>
       </file>
       <file leaf-file-name="webhook.py" pinned="false" current-in-tab="false">
@@ -79,7 +77,8 @@
       <file leaf-file-name="VPPAssociate.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mdm/VPPAssociate.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
+            <state relative-caret-position="405">
+              <caret line="27" column="44" selection-start-line="27" selection-start-column="44" selection-end-line="27" selection-end-column="44" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
               </folding>
@@ -90,8 +89,8 @@
       <file leaf-file-name="webhook_extended.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/webhook_extended.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="345">
-              <caret line="23" lean-forward="true" selection-start-line="23" selection-end-line="23" />
+            <state relative-caret-position="600">
+              <caret line="40" column="4" selection-start-line="40" selection-start-column="4" selection-end-line="40" selection-end-column="4" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
               </folding>
@@ -99,23 +98,23 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Settings.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/mdm/mdm_commands/Settings.py">
+      <file leaf-file-name="DB.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/db/DB.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="285">
-              <caret line="20" selection-start-line="20" selection-end-line="20" />
+            <state relative-caret-position="477">
+              <caret line="211" column="105" selection-start-line="211" selection-start-column="105" selection-end-line="211" selection-end-column="105" />
+              <folding>
+                <element signature="e#0#10#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="DB.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/db/DB.py">
+      <file leaf-file-name="MDMDevice.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/mdm/MDMDevice.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="296">
-              <caret line="50" column="3" lean-forward="true" selection-start-line="49" selection-start-column="3" selection-end-line="50" selection-end-column="3" />
-              <folding>
-                <element signature="e#0#10#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="105">
+              <caret line="7" lean-forward="true" selection-end-line="7" />
             </state>
           </provider>
         </entry>
@@ -143,6 +142,7 @@
       <find>config</find>
       <find>self.command</find>
       <find>ERROR OCCURED</find>
+      <find>a8c4e1a9-ff3e-42d7-8832-49116ffbda04</find>
     </findStrings>
   </component>
   <component name="IdeDocumentHistory">
@@ -172,16 +172,18 @@
         <option value="$PROJECT_DIR$/mdm/mdm_commands/VPPAssociateCommand.py" />
         <option value="$PROJECT_DIR$/db/__init__.py" />
         <option value="$PROJECT_DIR$/mdm/mdm_commands/MDMCommand.py" />
-        <option value="$PROJECT_DIR$/db/DB.py" />
         <option value="$PROJECT_DIR$/mdm/DeviceSetup.py" />
+        <option value="$PROJECT_DIR$/mdm/MDMDevice.py" />
+        <option value="$PROJECT_DIR$/mdm/MDMProfile.py" />
+        <option value="$PROJECT_DIR$/mdm/MDMOSUpdateStatus.py" />
+        <option value="$PROJECT_DIR$/db/DB.py" />
         <option value="$PROJECT_DIR$/mdm/ResponseHandler.py" />
-        <option value="$PROJECT_DIR$/webhook_extended.py" />
         <option value="$PROJECT_DIR$/db/MysqlDB.py" />
+        <option value="$PROJECT_DIR$/webhook_extended.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1920" />
     <option name="y" value="23" />
     <option name="width" value="1920" />
     <option name="height" value="1577" />
@@ -302,7 +304,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1920" y="23" width="1920" height="1577" extended-state="0" />
+    <frame x="0" y="23" width="1920" height="1577" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25" />
@@ -310,7 +312,7 @@
       <window_info anchor="bottom" id="Event Log" order="7" side_tool="true" />
       <window_info anchor="bottom" id="Version Control" order="7" show_stripe_button="false" />
       <window_info anchor="bottom" id="Python Console" order="7" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.32934132" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32934132" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info anchor="bottom" id="Terminal" order="7" />
       <window_info id="Favorites" order="2" side_tool="true" />
@@ -336,7 +338,7 @@
           </properties>
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="22" />
+      <option name="time" value="26" />
     </breakpoint-manager>
   </component>
   <component name="debuggerHistoryManager">
@@ -354,15 +356,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/mdm/commands/__init__.py" />
-    <entry file="file://$PROJECT_DIR$/mdm/commands/MDMCommand.py" />
-    <entry file="file:///usr/local/lib/python2.7/site-packages/requests/adapters.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="514">
-          <caret line="515" selection-start-line="515" selection-end-line="515" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/config.py" />
     <entry file="file://$PROJECT_DIR$/mdm/ResponseHandler.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -524,13 +517,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/config/config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="690">
-          <caret line="46" column="33" selection-start-line="46" selection-start-column="29" selection-end-line="46" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/requirements.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="75">
@@ -636,16 +622,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mdm/mdm_commands/MDMCommand.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="282">
-          <caret line="124" column="49" lean-forward="true" selection-start-line="124" selection-start-column="49" selection-end-line="124" selection-end-column="49" />
-          <folding>
-            <element signature="e#0#15#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/webhook.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="330">
@@ -656,29 +632,54 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mdm/DeviceSetup.py">
+    <entry file="file://$PROJECT_DIR$/mdm/VPPAssociate.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
-          <caret line="28" column="14" selection-start-line="28" selection-start-column="8" selection-end-line="28" selection-end-column="14" />
+        <state relative-caret-position="405">
+          <caret line="27" column="44" selection-start-line="27" selection-start-column="44" selection-end-line="27" selection-end-column="44" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/mdm/VPPAssociate.py">
+    <entry file="file://$PROJECT_DIR$/mdm/mdm_commands/MDMCommand.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
+        <state relative-caret-position="388">
+          <caret line="124" column="49" lean-forward="true" selection-start-line="124" selection-start-column="37" selection-end-line="124" selection-end-column="49" />
+          <folding>
+            <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mdm/DeviceSetup.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="420">
+          <caret line="28" selection-start-line="28" selection-end-line="28" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mdm/MDMProfile.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="599">
+          <caret line="44" lean-forward="true" selection-start-line="44" selection-end-line="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mdm/MDMDevice.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" lean-forward="true" selection-end-line="7" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/db/DB.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="296">
-          <caret line="50" column="3" lean-forward="true" selection-start-line="49" selection-start-column="3" selection-end-line="50" selection-end-column="3" />
+        <state relative-caret-position="477">
+          <caret line="211" column="105" selection-start-line="211" selection-start-column="105" selection-end-line="211" selection-end-column="105" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>
@@ -687,8 +688,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/mdm/ResponseHandler.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="682">
-          <caret line="56" column="8" lean-forward="true" selection-start-line="56" selection-start-column="8" selection-end-line="56" selection-end-column="8" />
+        <state relative-caret-position="284">
+          <caret line="20" selection-start-line="20" selection-end-line="20" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
           </folding>
@@ -697,21 +698,35 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/webhook_extended.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="23" lean-forward="true" selection-start-line="23" selection-end-line="23" />
+        <state relative-caret-position="600">
+          <caret line="40" column="4" selection-start-line="40" selection-start-column="4" selection-end-line="40" selection-end-column="4" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/mdm/MDMOSUpdateStatus.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" selection-start-line="3" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/db/MysqlDB.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="757">
-          <caret line="59" column="45" selection-start-line="59" selection-start-column="45" selection-end-line="59" selection-end-column="45" />
+        <state relative-caret-position="371">
+          <caret line="183" column="32" lean-forward="true" selection-start-line="183" selection-start-column="32" selection-end-line="183" selection-end-column="32" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="555">
+          <caret line="37" column="45" selection-start-line="37" selection-start-column="31" selection-end-line="37" selection-end-column="45" />
         </state>
       </provider>
     </entry>
