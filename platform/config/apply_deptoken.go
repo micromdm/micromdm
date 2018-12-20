@@ -18,40 +18,31 @@ import (
 
 func (svc *ConfigService) ApplyDEPToken(ctx context.Context, P7MContent []byte) error {
 	unwrapped, err := unwrapSMIME(P7MContent)
-	fmt.Println("1")
 	if err != nil {
 		return err
 	}
 	key, cert, err := svc.store.DEPKeypair(ctx)
-	fmt.Println(key)
-	fmt.Println(cert)
-	fmt.Println("2")
 	if err != nil {
 		return err
 	}
 	p7, err := pkcs7.Parse(unwrapped)
-	fmt.Println("3")
 	if err != nil {
 		return err
 	}
 	decrypted, err := p7.Decrypt(cert, key)
-	fmt.Println("4")
 	if err != nil {
 		return err
 	}
 	tokenJSON, err := unwrapTokenJSON(decrypted)
-	fmt.Println("5")
 	if err != nil {
 		return err
 	}
 	var depToken DEPToken
 	err = json.Unmarshal(tokenJSON, &depToken)
-	fmt.Println("6")
 	if err != nil {
 		return err
 	}
 	err = svc.store.AddToken(ctx, depToken.ConsumerKey, tokenJSON)
-	fmt.Println("7")
 	if err != nil {
 		return err
 	}
