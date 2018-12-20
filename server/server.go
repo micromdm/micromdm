@@ -11,7 +11,8 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	boltdepot "github.com/micromdm/scep/depot/bolt"
+	//boltdepot "github.com/micromdm/scep/depot/bolt"
+	boltdepot "github.com/micromdm/micromdm/platform/scep/builtin"
 	scep "github.com/micromdm/scep/server"
 	"github.com/pkg/errors"
 	
