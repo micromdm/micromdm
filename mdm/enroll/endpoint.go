@@ -8,7 +8,8 @@ import (
 	"github.com/fullsailor/pkcs7"
 	"github.com/go-kit/kit/endpoint"
 	//boltdepot "github.com/micromdm/scep/depot/bolt"
-	boltdepot "github.com/micromdm/micromdm/platform/scep/builtin"
+	//boltdepot "github.com/micromdm/micromdm/platform/scep/builtin"
+	boltdepot "github.com/micromdm/micromdm/platform/scep/mysql"
 	
 	"github.com/micromdm/micromdm/pkg/crypto"
 	"github.com/micromdm/micromdm/platform/profile"
