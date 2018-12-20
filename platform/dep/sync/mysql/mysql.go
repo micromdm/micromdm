@@ -29,6 +29,14 @@ func NewDB(db *sqlx.DB) (*Mysql, error) {
 	   return nil, errors.Wrap(err, "creating cursors sql table failed")
 	}
 	
+	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS dep_auto_assign (
+		    profile_uuid VARCHAR(128) PRIMARY KEY,
+		    filter TEXT DEFAULT NULL
+		);`)
+	if err != nil {
+	   return nil, errors.Wrap(err, "creating cursors sql table failed")
+	}
+	
 	return &Mysql{db: db}, nil
 }
 
@@ -113,8 +121,45 @@ func (d *Mysql) SaveCursor(ctx context.Context, cursor sync.Cursor) error {
 
 func (d *Mysql) SaveAutoAssigner(ctx context.Context, a *sync.AutoAssigner) error {
 	fmt.Println("SaveAutoAssigner")
-	// TODO
-	return nil
+	if a.Filter != "*" {
+		return errors.New("only '*' filter auto-assigners supported")
+	}
+updateQuery, args_update, err := sq.StatementBuilder.
+		PlaceholderFormat(sq.Question).
+		Update("dep_auto_assign").
+		Prefix("ON DUPLICATE KEY").
+		Set("profile_uuid", a.ProfileUUID).
+		Set("filter", a.Filter).
+		ToSql()
+	if err != nil {
+		return errors.Wrap(err, "building update query for cursor save")
+	}
+	
+	// MySql Convention
+	// Replace "ON DUPLICATE KEY UPDATE TABLE_NAME SET" to "ON DUPLICATE KEY UPDATE"
+	updateQuery = strings.Replace(updateQuery, "dep_auto_assign SET ", "", -1)
+
+	query, args, err := sq.StatementBuilder.
+		PlaceholderFormat(sq.Question).
+		Insert("dep_auto_assign").
+		Columns("profile_uuid", "filter").
+		Values(
+			a.ProfileUUID,
+			a.Filter,
+		).
+		Suffix(updateQuery).
+		ToSql()
+	
+	var all_args = append(args, args_update...)
+	
+	if err != nil {
+		return errors.Wrap(err, "building cursor save query")
+	}
+	
+	_, err = d.db.ExecContext(ctx, query, all_args...)
+	
+	return errors.Wrap(err, "exec cursor save in mysql")
+
 }
 
 func (d *Mysql) DeleteAutoAssigner(ctx context.Context, filter string) error {
