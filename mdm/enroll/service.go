@@ -42,8 +42,8 @@ func NewService(topic TopicProvider, sub pubsub.Subscriber, scepURL, scepChallen
 	}
 
 	if scepSubject == "" {
-        scepSubject = "/O=MicroMDM/CN=MicroMDM Identity (%ComputerName%)"
-		//scepSubject = "/O=MicroMDM/CN=Abacus Research MDM Identity"
+        //scepSubject = "/O=MicroMDM/CN=MicroMDM Identity (%ComputerName%)"
+		scepSubject = "/O=MicroMDM/CN=Abacus Research MDM Identity"
 	}
 
 	subjectElements := strings.Split(scepSubject, "/")
