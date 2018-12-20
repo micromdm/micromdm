@@ -5,6 +5,9 @@ import (
 	"reflect"
 	"testing"
 
+
+	"github.com/micromdm/micromdm/pkg/crypto"
+
 	"github.com/go-kit/kit/log"
 	"github.com/kolide/kit/dbutil"
 	_ "github.com/go-sql-driver/mysql"
@@ -57,6 +60,45 @@ func TestDepot_Serial(t *testing.T) {
 		}
 	}
 }
+
+func TestDepot_Put(t *testing.T) {
+	db := createDB(t)
+	
+	_, cert, err := crypto.SimpleSelfSignedRSAKeypair("micromdm-dep-token", 365)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		name    string
+		want    *big.Int
+		wantErr bool
+	}{
+		{
+			name: "two is the default value.",
+			want: big.NewInt(2),
+		},
+		{
+			name: "After Put, expecting increment",
+			want: big.NewInt(3),
+		},
+	}
+	for _, tt := range tests {
+		got, err := db.Serial()
+		if (err != nil) != tt.wantErr {
+			t.Errorf("%q. Depot.Serial() error = %v, wantErr %v", tt.name, err, tt.wantErr)
+			continue
+		}
+		if err := db.Put("cn", cert); (err != nil) != tt.wantErr {
+			t.Errorf("%q. Depot.Serial() error = %v, wantErr %v", tt.name, err, tt.wantErr)
+			continue
+		}
+		if !reflect.DeepEqual(got, tt.want) {
+			t.Errorf("%q. Depot.Serial() = %v, want %v", tt.name, got, tt.want)
+		}
+	}
+}
+
 
 /*
 func TestDepot_writeSerial(t *testing.T) {
