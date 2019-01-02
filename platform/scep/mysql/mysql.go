@@ -213,39 +213,25 @@ func (d *Depot) Serial() (*big.Int, error) {
 }
 
 func (d *Depot) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool) (bool, error) {
-	fmt.Println("--- scep/builtin/db.go HasCN")
-	fmt.Println(cn)
-	fmt.Println(cert.Subject.CommonName)
-	
 	// TODO: implement allowTime
 	// TODO: implement revocation
 	if cert == nil {
 		return false, errors.New("nil certificate provided")
 	}
 
-	var hasCN bool
 	scep_certs, err := d.listCertificates(context.Background(),cert.Subject.CommonName)
 	if err != nil {
 		return false, err
 	}
 	for _, v := range scep_certs {
-		fmt.Println("Comparing")
-		fmt.Println(v)
-		fmt.Println(cert.Raw)
 		if bytes.Compare(v.SCEPCert, cert.Raw) == 0 {
-			hasCN = true
-			fmt.Println("Has CN?")
-			fmt.Println(hasCN)
 			return true, nil
 		}
 	}
-	fmt.Println("Has CN?")
-	fmt.Println(hasCN)
 	return false, nil
 }
 
 func (d *Depot) listCertificates(ctx context.Context, prefix string) ([]SCEPCertificate, error) {
-	fmt.Println("listCertificates")
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Select("scep_id", "cert_name", "scep_cert").
@@ -258,7 +244,6 @@ func (d *Depot) listCertificates(ctx context.Context, prefix string) ([]SCEPCert
 	}
 	var list []SCEPCertificate
 	err = d.db.SelectContext(ctx, &list, query, args...)
-	fmt.Println(list)
 	return list, errors.Wrap(err, "list scep certs")
 }
 
@@ -290,9 +275,6 @@ func (d *Depot) CreateOrLoadKey(bits int) (*rsa.PrivateKey, error) {
 	} else {
 		key, err = x509.ParsePKCS1PrivateKey(keyBytes)
 	}
-	fmt.Println("--- scep/builtin/mysql.go CreateOrLoadKey")
-	fmt.Println("ca_key")
-	fmt.Println(x509.MarshalPKCS1PrivateKey(key))
 	return key, err
 }
 
@@ -365,9 +347,6 @@ func (d *Depot) CreateOrLoadCA(key *rsa.PrivateKey, years int, org, country stri
 	} else {
 		cert, err = x509.ParseCertificate(certBytes)
 	}
-	fmt.Println("--- 	scep/builtin/db.go CreateOrLoadKey")
-	fmt.Println("ca_certificate")
-	fmt.Println(certBytes)
 
 	return cert, err
 }
@@ -458,9 +437,6 @@ type rsaPublicKey struct {
 // GenerateSubjectKeyID generates SubjectKeyId used in Certificate
 // ID is 160-bit SHA-1 hash of the value of the BIT STRING subjectPublicKey
 func generateSubjectKeyID(pub crypto.PublicKey) ([]byte, error) {
-	fmt.Println("--- scep/builtin/db.go generateSubjectKeyID")
-	fmt.Println(pub)
-	
 	var pubBytes []byte
 	var err error
 	switch pub := pub.(type) {
