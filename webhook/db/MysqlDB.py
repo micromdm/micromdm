@@ -24,7 +24,7 @@ class MysqlDB ( DB ):
             now = datetime.now()
 
             add_log = ("INSERT INTO psm_mdm_commands "
-                       "(command_uuid, command_id, command_identifier, device_udid, created_at, updated_at) "
+                       "(command_uuid, command_id, command_identifier, udid, created_at, updated_at) "
                        "VALUES (%s, %s, %s, %s, %s, %s)")
             data_log = (
                 mdm_command.command_uuid,
@@ -184,7 +184,7 @@ class MysqlDB ( DB ):
             now = datetime.now()
 
             add_log = ("INSERT INTO psm_mdm_os_update_status "
-                       "(download_percent_complete, is_downloaded, product_key, status, device_udid) "
+                       "(download_percent_complete, is_downloaded, product_key, status, udid) "
                        "VALUES (cast(%s as decimal(6,5)), %s, %s, %s, %s) "
                        "ON DUPLICATE KEY UPDATE "
                        "download_percent_complete=VALUES(download_percent_complete), "
