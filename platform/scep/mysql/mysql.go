@@ -151,10 +151,7 @@ func (d *Depot) Put(cn string, crt *x509.Certificate) error {
 	}
 
 	name := cn + "." + serial.String()
-	fmt.Println("--- scep/builtin/db.go Put")
-	fmt.Println(name)
-	fmt.Println(crt.Raw)
-	
+
 	// No need to get serial, we have an auto_increment in place
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
@@ -208,7 +205,6 @@ func (d *Depot) Serial() (*big.Int, error) {
 	if errors.Cause(err) == sql.ErrNoRows {
 		return big.NewInt(2), nil
 	}
-	fmt.Println(auto_increment.Index)
 	return big.NewInt(auto_increment.Index), nil
 }
 
