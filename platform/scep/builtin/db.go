@@ -170,6 +170,7 @@ func (db *Depot) hasKey(name []byte) bool {
 		}
 		return nil
 	})
+	fmt.Println(present)
 	return present
 }
 
@@ -204,6 +205,9 @@ func (db *Depot) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeO
 		curs := tx.Bucket([]byte("scep_certificates")).Cursor()
 		prefix := []byte(cert.Subject.CommonName)
 		for k, v := curs.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = curs.Next() {
+			fmt.Println("Comparing")
+			fmt.Println(v)
+			fmt.Println(cert.Raw)
 			if bytes.Compare(v, cert.Raw) == 0 {
 				hasCN = true
 				return nil
@@ -212,6 +216,8 @@ func (db *Depot) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeO
 
 		return nil
 	})
+	fmt.Println("Has CN?")
+	fmt.Println(hasCN)
 	return hasCN, err
 }
 
