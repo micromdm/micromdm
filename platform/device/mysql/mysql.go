@@ -101,6 +101,10 @@ func (d *Mysql) Save(ctx context.Context, device *device.Device) error {
 	// Make sure we take the time offset into account for "zero" dates	
 	t := time.Now()
 	_, offset := t.Zone()
+	// Don't multiply by zero
+	if (offset <= 0) {
+		offset = 1
+	}
 	var min_timestamp_sec int64 = int64(offset) * 60 * 60 * 24
 	
 	if (device.DEPProfileAssignTime.IsZero() || device.DEPProfileAssignTime.Unix() < min_timestamp_sec) {
