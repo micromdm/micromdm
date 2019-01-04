@@ -163,7 +163,6 @@ updateQuery, args_update, err := sq.StatementBuilder.
 	_, err = d.db.ExecContext(ctx, query, all_args...)
 	
 	return errors.Wrap(err, "exec cursor save in mysql")
-
 }
 
 func (d *Mysql) DeleteAutoAssigner(ctx context.Context, filter string) error {
