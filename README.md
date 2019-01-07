@@ -52,8 +52,6 @@ Once a year certificates need to be updated. Please perform the following 2 step
 1. Assign Apple DEP Token
 2. Assign Apple Push Certificate (APNS Cert)
 
-Use the updated/generated `micromdm.db`and provide it as secret in your OpenShift Cluster.
-
 ### mdmctl 
 #### Configure later MDM Service
 ```
@@ -63,6 +61,7 @@ Use the updated/generated `micromdm.db`and provide it as secret in your OpenShif
     -server-url https://mdm.abacus.ch/
 ./mdmctl config switch -name mdmexample
 ```
+Info: the above parameter `api-token` is a settable secret in your OpenShift configuration of the micromdm deployment.
 
 #### Assign Apple DEP Token
 1. Generate public key
@@ -84,7 +83,7 @@ Use the updated/generated `micromdm.db`and provide it as secret in your OpenShif
 ```
 
 #### Assign Apple Push Certificate (APNS Cert)
-To assign an Apple Push Certificate, start the server first (no Mysql database connection required, we won't store the certificate in the Mysql database, but locally in a document store.)
+To assign an Apple Push Certificate, start the server first (a Mysql database connection required, we won't store the certificate in a document store as the OpenSource solution does.)
 We will need two Terminals/Consoles.
 
 Run following command in Terminal 1
@@ -96,6 +95,7 @@ sudo ./micromdm serve \
     -tls-key ./privkey.pem \
     -server-url https://mdm.abacus.ch/
 ```
+Info: the above parameter `api-token` is a settable secret in your OpenShift configuration of the micromdm deployment.
 
 Now, when the server is running, add the Push certificate, from Terminal 2.
 ```
@@ -121,13 +121,14 @@ sudo ./micromdm serve \
     -mysql-port 3306 \
     -tls=false
 ```
+Info: the above parameter `api-key` equals the parameter `api-token` and is a settable secret in your OpenShift configuration of the micromdm deployment.
 
 ### BoltDB - Document Store
-Currently, some data is still being stored in the Mysql independant document store.\
-If you run this MDM in OpenShift, this file needs to be provided as "secret" in OpenShift.\
+Currently, no relevant data should be stored anymore in the Mysql independant document store.\
+If you run this MDM in OpenShift, a given document store should not be necessary being provided. In former versions, the document store was provided as secret in the OpenShift configuration.\
 `./assets/micromdm.db`
 
-By using the Bolter
+By using the Bolter one can explore the document store (make sure its writable).
 `bolter -f ./assets/micromdm.db`
 
 #### Certificates
@@ -165,3 +166,4 @@ docker run -v /absolute/path/to/micromdm/assets/:/data  micromdm \
     -mysql-port 3306 \
     -tls=false
 ```
+Info: the above parameter `api-key` equals the parameter `api-token` and is a settable secret in your OpenShift configuration of the micromdm deployment.
