@@ -166,4 +166,7 @@ docker run -v /absolute/path/to/micromdm/assets/:/data  micromdm \
     -mysql-port 3306 \
     -tls=false
 ```
-Info: the above parameter `api-key` equals the parameter `api-token` and is a settable secret in your OpenShift configuration of the micromdm deployment.
+Info: 
+* `api-key` - the above parameter `api-key` equals the parameter `api-token` and is a settable secret in your OpenShift configuration of the micromdm deployment.
+* `server-url` - the publicly available url of the MDM server
+* `command-webhook-url` - the URL of the MDM webhook interface, e.g. [.../post/mdm.php|https://abaclock-monitoring-dev.app.abasky.net/post/mdm.php] for [AbaClocK Monitor|https://github.com/abacusresearch/abaclock-monitoring]
