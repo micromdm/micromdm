@@ -64,7 +64,11 @@ type Server struct {
 	ProfileDB         profile.Store
 	ConfigDB          config.Store
 	RemoveDB          block.Store
-	CommandWebhookURL string
+
+	CommandWebhookURL 		string
+	CommandWebhookAuthUser 	string
+	CommandWebhookAuthPass 	string
+	
 	DEPClient         *dep.Client
 	//SyncDB            *syncbuiltin.DB
 	SyncMysqlDB       *syncmysql.Mysql
@@ -162,7 +166,13 @@ func (c *Server) setupWebhooks(logger log.Logger) error {
 	}
 
 	ctx := context.Background()
-	ww := webhook.New(c.CommandWebhookURL, c.PubClient, webhook.WithLogger(logger), webhook.WithHTTPClient(c.WebhooksHTTPClient))
+	//ww := webhook.New(c.CommandWebhookURL, c.PubClient, webhook.WithLogger(logger), webhook.WithHTTPClient(c.WebhooksHTTPClient))
+	ww := webhook.New(c.CommandWebhookURL, 
+					  c.PubClient, 
+					  c.CommandWebhookAuthUser, 
+					  c.CommandWebhookAuthPass, 
+					  webhook.WithLogger(logger), 
+					  webhook.WithHTTPClient(c.WebhooksHTTPClient))
 	go ww.Run(ctx)
 	return nil
 }
