@@ -6,7 +6,7 @@ In addition, to official README of the source project: https://github.com/microm
 Make sure, go version 1.11 or newer is installed:
 `go version`
 
-For testing, install `goose`
+For testing, install `goose`\
 `brew install goose`
 
 ## Compiling
@@ -48,7 +48,7 @@ make db-mysql-test
 ```
 
 ## Setup / Update micromdm.db
-Once a year certificates need to be updated. Please perform the following 2 steps\
+Once a year certificates need to be updated. Please perform the following 2 steps
 1. Assign Apple DEP Token
 2. Assign Apple Push Certificate (APNS Cert)
 
