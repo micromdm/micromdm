@@ -1,11 +1,12 @@
 #!/bin/bash
 source $MICROMDM_ENV_PATH
 endpoint="v1/commands"
-jq -n -c \
-  --arg request_type "ManagedApplicationConfiguration" \
+jq -n \
+  --arg request_type "RequestMirroring" \
   --arg udid "$1" \
-  '.udid = $udid 
+  --arg destination_device_id "$2" \
+  '.udid = $udid
+  |.destination_device_id = $destination_device_id 
   |.request_type = $request_type
-  |.identifiers = [ "ch.abacus.abaclock.client2" ]
   '|\
   curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-

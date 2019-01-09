@@ -35,6 +35,6 @@ func (c Cursor) Valid() bool {
 }
 
 type AutoAssigner struct {
-	Filter      string `json:"filter"`
-	ProfileUUID string `json:"profile_uuid"`
+	Filter      string `json:"filter" db:"filter"`
+	ProfileUUID string `json:"profile_uuid" db:"profile_uuid"`
 }

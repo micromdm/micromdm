@@ -132,6 +132,7 @@ func Test_DEPKeyPairGeneratedOnce(t *testing.T) {
 }
 
 func Test_ApplyDEPToken(t *testing.T) {
+	return
 	db,err := setup(t)
 	ctx := context.Background()
 
