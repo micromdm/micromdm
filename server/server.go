@@ -11,7 +11,9 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	boltdepot "github.com/micromdm/scep/depot/bolt"
+	//boltdepot "github.com/micromdm/scep/depot/bolt"
+	//boltdepot "github.com/micromdm/micromdm/platform/scep/builtin"
+	boltdepot "github.com/micromdm/micromdm/platform/scep/mysql"
 	scep "github.com/micromdm/scep/server"
 	"github.com/pkg/errors"
 	
@@ -62,7 +64,11 @@ type Server struct {
 	ProfileDB         profile.Store
 	ConfigDB          config.Store
 	RemoveDB          block.Store
-	CommandWebhookURL string
+
+	CommandWebhookURL 		string
+	CommandWebhookAuthUser 	string
+	CommandWebhookAuthPass 	string
+	
 	DEPClient         *dep.Client
 	//SyncDB            *syncbuiltin.DB
 	SyncMysqlDB       *syncmysql.Mysql
@@ -160,7 +166,13 @@ func (c *Server) setupWebhooks(logger log.Logger) error {
 	}
 
 	ctx := context.Background()
-	ww := webhook.New(c.CommandWebhookURL, c.PubClient, webhook.WithLogger(logger), webhook.WithHTTPClient(c.WebhooksHTTPClient))
+	//ww := webhook.New(c.CommandWebhookURL, c.PubClient, webhook.WithLogger(logger), webhook.WithHTTPClient(c.WebhooksHTTPClient))
+	ww := webhook.New(c.CommandWebhookURL, 
+					  c.PubClient, 
+					  c.CommandWebhookAuthUser, 
+					  c.CommandWebhookAuthPass, 
+					  webhook.WithLogger(logger), 
+					  webhook.WithHTTPClient(c.WebhooksHTTPClient))
 	go ww.Run(ctx)
 	return nil
 }
@@ -380,7 +392,8 @@ func (c *Server) CreateDEPSyncer(logger log.Logger) (sync.Syncer, error) {
 }
 
 func (c *Server) setupSCEP(logger log.Logger) error {
-	depot, err := boltdepot.NewBoltDepot(c.DB)
+	//depot, err := boltdepot.NewBoltDepot(c.DB)
+	depot, err := boltdepot.NewBoltDepot(c.MysqlDB)
 	if err != nil {
 		return err
 	}
