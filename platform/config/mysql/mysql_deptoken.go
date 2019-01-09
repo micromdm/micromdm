@@ -111,13 +111,10 @@ func (d *Mysql) DEPKeypair(ctx context.Context) (key *rsa.PrivateKey, cert *x509
 		From("server_config").
 		Where(sq.Eq{"config_id": 2}).
 		ToSql()
-	if err != nil {
-		return
-	}
 
 	var config config.ServerConfig
 	err = d.db.QueryRowxContext(ctx, query, args...).StructScan(&config)
-	if errors.Cause(err) == sql.ErrNoRows {
+	if err != nil && errors.Cause(err) != sql.ErrNoRows {
 		return
 	}
 	var keyBytes, certBytes []byte
