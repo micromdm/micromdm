@@ -17,8 +17,6 @@ micromdm serve \
   -api-key ${API_KEY} \
   -server-url ${SERVER_URL} \
   -command-webhook-url ${WEBHOOK_URL} \
-  -command-webhook-auth-user ${WEBHOOK_AUTH_USER} \
-  -command-webhook-auth-pass ${WEBHOOK_AUTH_PASSWORD} \
   -mysql-username ${MYSQL_USER} \
   -mysql-password ${MYSQL_PASSWORD} \
   -mysql-database ${MYSQL_DATABASE} \
