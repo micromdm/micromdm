@@ -82,6 +82,10 @@ func serve(args []string) error {
 		flDepSim            = flagset.String("depsim", "", "use depsim URL")
 		flExamples          = flagset.Bool("examples", false, "prints some example usage")
 		flCommandWebhookURL = flagset.String("command-webhook-url", "", "URL to send command responses.")
+		
+		flCommandWebhookAuthUser = flagset.String("command-webhook-auth-user", "", "Basic auth user for webhook to send command responses.")
+		flCommandWebhookAuthPass = flagset.String("command-webhook-auth-pass", "", "Basic auth password for webhook to send command responses.")
+		
 		flHomePage          = flagset.Bool("homepage", true, "hosts a simple built-in webpage at the / address")
 		
 		flImmutable		 	= flagset.Bool("immutable", true, "If flag is set, it is considered the bolt db is immutable.")
@@ -124,7 +128,10 @@ func serve(args []string) error {
 		ServerPublicURL:   strings.TrimRight(*flServerURL, "/"),
 		Depsim:            *flDepSim,
 		TLSCertPath:       *flTLSCert,
-		CommandWebhookURL: *flCommandWebhookURL,
+		
+		CommandWebhookURL: 		*flCommandWebhookURL,
+		CommandWebhookAuthUser: *flCommandWebhookAuthUser,
+		CommandWebhookAuthPass: *flCommandWebhookAuthPass,
 
 		WebhooksHTTPClient: &http.Client{Timeout: time.Second * 30},
 
