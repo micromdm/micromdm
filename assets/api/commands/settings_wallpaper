@@ -1,0 +1,16 @@
+#!/bin/bash
+echo "$(cat "$2"|openssl base64 -A)"
+
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+jq -n \
+  --arg request_type "Settings" \
+  --arg udid "$1" \
+  --arg image "$(cat "$2"|openssl base64 -A)" \
+  '.udid = $udid
+  |.request_type = $request_type
+  |.settings = [
+  	{ "item": "Wallpaper", "image": $image, "where": 3 }
+  ]
+  '|\
+ curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
