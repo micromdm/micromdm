@@ -198,7 +198,7 @@ func SetupDB(db *sqlx.DB) error {
 	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS `+DeviceCommandTable+` (
 	    uuid VARCHAR(40) PRIMARY KEY,
 	    device_udid VARCHAR(40) NOT NULL,
-	    payload MEDIUMBLOB DEFAULT NULL,
+	    payload BLOB DEFAULT NULL,
 	    created_at TIMESTAMP DEFAULT 0,
 	    last_sent_at TIMESTAMP DEFAULT 0,
 	    acknowledged_at TIMESTAMP DEFAULT 0,
@@ -207,11 +207,12 @@ func SetupDB(db *sqlx.DB) error {
 	    failure_message BLOB DEFAULT NULL,
 	    command_order int(11) DEFAULT 0
 	);`)
+
 	if err != nil {
 	   return errors.Wrap(err, "creating "+DeviceCommandTable+" sql table failed")
 	}
 	
-	_,err = db.Exec(`ALTER TABLE `+DeviceCommandTable+` CHANGE payload MEDIUMBLOB DEFAULT NULL;`)
+	_,err = db.Exec(`ALTER TABLE `+DeviceCommandTable+` MODIFY payload MEDIUMBLOB DEFAULT NULL;`)
 	if err != nil {
 	   return errors.Wrap(err, "altering "+DeviceCommandTable+" sql table failed")
 	}
