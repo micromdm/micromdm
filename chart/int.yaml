@@ -1,0 +1,11 @@
+# values
+---
+
+app:
+  name: micromdm
+  url: abaclock-mdm-int.app.abasky.net
+
+webhook:
+  url: abaclock-monitoring-int.app.abasky.net/post/mdm.php
+
+replicaCount: 1
