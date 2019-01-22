@@ -207,9 +207,16 @@ func SetupDB(db *sqlx.DB) error {
 	    failure_message BLOB DEFAULT NULL,
 	    command_order int(11) DEFAULT 0
 	);`)
+
 	if err != nil {
 	   return errors.Wrap(err, "creating "+DeviceCommandTable+" sql table failed")
 	}
+	
+	_,err = db.Exec(`ALTER TABLE `+DeviceCommandTable+` MODIFY payload MEDIUMBLOB DEFAULT NULL;`)
+	if err != nil {
+	   return errors.Wrap(err, "altering "+DeviceCommandTable+" sql table failed")
+	}
+
 	return nil
 }
 
