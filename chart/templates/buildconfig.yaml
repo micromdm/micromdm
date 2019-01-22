@@ -1,0 +1,29 @@
+{{ if .Values.build.ensure }}
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  labels:
+    build: micromdm
+  name: micromdm
+  namespace: {{ .Release.Name }}
+spec:
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: micromdm:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    binary: {}
+    type: Binary
+  strategy:
+    dockerStrategy:
+      from:
+        kind: ImageStreamTag
+        name: golang
+    type: Docker
+  successfulBuildsHistoryLimit: 5
+{{ end }}
