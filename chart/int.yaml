@@ -8,4 +8,10 @@ app:
 webhook:
   url: abaclock-monitoring-int.app.abasky.net/post/mdm.php
 
+build:
+  ensure: false
+
+acme:
+  enabled: false
+
 replicaCount: 1
