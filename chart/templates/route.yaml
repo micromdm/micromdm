@@ -3,6 +3,10 @@ kind: Route
 metadata:
   annotations:
     openshift.io/host.generated: "true"
+{{ if .Values.acme.ensure }}
+    kubernetes.io/tls-acme-awaiting-authorization-owner: "{{ .Values.acme.owner }}"
+    kubernetes.io/tls-acme: "{{ .Values.acme.ensure }}"
+{{ end }}
   labels:
     app: {{ .Values.app.name }}
   name: {{ .Values.app.name }}
