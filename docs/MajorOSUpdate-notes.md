@@ -1,6 +1,6 @@
-Scheduling an OSUpdateScan I got this:
+# Scheduling an OSUpdateScan I got this:
 
-```
+```shell
     <key>AvailableOSUpdates</key>
     <array>
         <dict>
@@ -31,7 +31,7 @@ Scheduling an OSUpdateScan I got this:
 
 Then, scheduling an OSUpdate for `041-14451` I got the following from an AvailableOSUpdates command:
 
-```
+```shell
         <dict>
             <key>DownloadSize</key>
             <real>12000000000</real>
@@ -57,10 +57,9 @@ Then, scheduling an OSUpdate for `041-14451` I got the following from an Availab
     </array>
 ```
 
+sucatalog for 10.12 and 10.13 has the following added (as of today)
 
-And sure enough, the sucatalog for 10.12 and 10.13 has the following added (as of today)
-
-```
+```shell
             <key>041-14451</key>
             <dict>
                 <key>ServerMetadataURL</key>
@@ -84,7 +83,7 @@ And sure enough, the sucatalog for 10.12 and 10.13 has the following added (as o
 
 Downloading the notification package shows a `OSXNotification.bundle` payload with the following info.plist:
 
-```
+```shell
     ```<key>CFBundleIdentifier</key>
     <string>com.apple.installer.notification.macOS1014GM</string>
     <key>CFBundleInfoDictionaryVersion</key>
@@ -113,4 +112,4 @@ Downloading the notification package shows a `OSXNotification.bundle` payload wi
     <string>18A391</string>```
 ```
 
-When scheduling the `_OSX_18A391` product key, the NotifyOnly and DownloadOnly actions trigger error responses. `InstallASAP` and both are supported, but the status remains as `Idle`. Plugging the computer into power and _then_ scheduling the update caused `softwareupdated` to actually start the download. 
+When scheduling the `_OSX_18A391` product key, the NotifyOnly and DownloadOnly actions trigger error responses. `InstallASAP` and both are supported, but the status remains as `Idle`. Plugging the computer into power and _then_ scheduling the update caused `softwareupdated` to actually start the download.

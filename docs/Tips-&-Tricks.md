@@ -1,6 +1,6 @@
 # BoltDB maintenance
 
-## Make a backup!
+## Make a backup
 
 Before performing any operations on the underlying database please make a backup of your micromdm database!
 
@@ -8,7 +8,7 @@ Before performing any operations on the underlying database please make a backup
 
 [boltcopy](https://github.com/jessepeterson/boltcopy) is a simple tool for copying BoltDB databases while omitting/including specific buckets. To get it:
 
-```bash
+```shell
 go get github.com/jessepeterson/boltcopy
 ```
 
@@ -16,7 +16,7 @@ go get github.com/jessepeterson/boltcopy
 
 Once upon a time MicroMDM archived every command response and checkin message from the device. These are not practically useful and have been removed from MicroMDM. However if you're still using the same database as back then you can clear them out:
 
-```
+```shell
 boltcopy -b mdm.Checkin.ARCHIVE -b mdm.Command.ARCHIVE micromdm.db micromdm-diet.db
 ```
 
@@ -24,6 +24,6 @@ boltcopy -b mdm.Checkin.ARCHIVE -b mdm.Command.ARCHIVE micromdm.db micromdm-diet
 
 Do a lot of testing? Need to very quickly reset device enrollments but keep the existing APNS, DEP, and server config settings? Try this:
 
-```
+```shell
 boltcopy -b mdm.Devices -b mdm.DeviceIdx -b mdm.PushInfo micromdm.db micromdm.nodevices.db
 ```
