@@ -18,8 +18,8 @@ import (
 )
 
 const (
-	EnrollmentProfileId string = "com.github.micromdm.micromdm.enroll"
-	OTAProfileId        string = "com.github.micromdm.micromdm.ota"
+	EnrollmentProfileId string = "ch.abacus.mdm.enroll"
+	OTAProfileId        string = "ch.abacus.mdm.ota"
 )
 
 type Service interface {
