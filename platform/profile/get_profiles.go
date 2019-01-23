@@ -17,7 +17,7 @@ func (svc *ProfileService) GetProfiles(ctx context.Context, opt GetProfilesOptio
 		}
 		return []Profile{*foundProf}, nil
 	} else {
-		return svc.store.List()
+		return svc.store.List(ctx)
 	}
 }
 
