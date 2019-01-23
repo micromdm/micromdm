@@ -10,7 +10,7 @@ import (
 
 func (svc *ProfileService) RemoveProfiles(ctx context.Context, ids []string) error {
 	for _, id := range ids {
-		err := svc.store.Delete(id)
+		err := svc.store.Delete(ctx, id)
 		if err != nil {
 			return err
 		}
