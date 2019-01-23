@@ -46,7 +46,7 @@ type removeMiddleware struct {
 
 func (mw removeMiddleware) Acknowledge(ctx context.Context, req mdm.AcknowledgeEvent) ([]byte, error) {
 	udid := req.Response.UDID
-	_, err := mw.store.DeviceByUDID(udid)
+	_, err := mw.store.DeviceByUDID(ctx, udid)
 	if err != nil {
 		if !isNotFound(err) {
 			return nil, errors.Wrapf(err, "remove: get device by udid %s", udid)

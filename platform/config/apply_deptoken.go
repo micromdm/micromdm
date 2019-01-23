@@ -21,7 +21,7 @@ func (svc *ConfigService) ApplyDEPToken(ctx context.Context, P7MContent []byte) 
 	if err != nil {
 		return err
 	}
-	key, cert, err := svc.store.DEPKeypair()
+	key, cert, err := svc.store.DEPKeypair(ctx)
 	if err != nil {
 		return err
 	}
@@ -42,7 +42,7 @@ func (svc *ConfigService) ApplyDEPToken(ctx context.Context, P7MContent []byte) 
 	if err != nil {
 		return err
 	}
-	err = svc.store.AddToken(depToken.ConsumerKey, tokenJSON)
+	err = svc.store.AddToken(ctx, depToken.ConsumerKey, tokenJSON)
 	if err != nil {
 		return err
 	}
@@ -103,6 +103,10 @@ func unwrapSMIME(smime []byte) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+func UnwrapSMIME(smime []byte) ([]byte, error) {
+	return unwrapSMIME(smime)
+}
+
 // unwrapTokenJSON removes the MIME-like headers and text surrounding the DEP token JSON
 func unwrapTokenJSON(wrapped []byte) ([]byte, error) {
 	tr := textproto.NewReader(bufio.NewReader(bytes.NewReader(wrapped)))
@@ -124,4 +128,8 @@ func unwrapTokenJSON(wrapped []byte) ([]byte, error) {
 		}
 	}
 	return tokenJSON.Bytes(), nil
+}
+
+func UnwrapTokenJSON(wrapped []byte) ([]byte, error) {
+	return unwrapTokenJSON(wrapped)
 }

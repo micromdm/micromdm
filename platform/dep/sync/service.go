@@ -13,9 +13,9 @@ type Service interface {
 }
 
 type DB interface {
-	SaveAutoAssigner(a *AutoAssigner) error
-	LoadAutoAssigners() ([]AutoAssigner, error)
-	DeleteAutoAssigner(filter string) error
+	SaveAutoAssigner(ctx context.Context, a *AutoAssigner) error
+	LoadAutoAssigners(ctx context.Context) ([]AutoAssigner, error)
+	DeleteAutoAssigner(ctx context.Context, filter string) error
 }
 
 type DEPSyncService struct {
@@ -24,8 +24,8 @@ type DEPSyncService struct {
 }
 
 type Cursor struct {
-	Value     string    `json:"value"`
-	CreatedAt time.Time `json:"created_at"`
+	Value     string    `json:"value" db:"value"`
+	CreatedAt time.Time `json:"created_at" db:"created_at"`
 }
 
 // A cursor is valid for a week.
@@ -35,6 +35,6 @@ func (c Cursor) Valid() bool {
 }
 
 type AutoAssigner struct {
-	Filter      string `json:"filter"`
-	ProfileUUID string `json:"profile_uuid"`
+	Filter      string `json:"filter" db:"filter"`
+	ProfileUUID string `json:"profile_uuid" db:"profile_uuid"`
 }
