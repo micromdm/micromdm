@@ -12,7 +12,7 @@ build:
   ensure: false
 
 acme:
-  enabled: false
+  ensure: true
   owner: https://acme-v01.api.letsencrypt.org/acme/reg/31140065
 
 replicaCount: 1
