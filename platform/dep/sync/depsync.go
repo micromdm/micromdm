@@ -26,9 +26,9 @@ const (
 type Syncer interface{ SyncNow() }
 
 type WatcherDB interface {
-	LoadCursor() (*Cursor, error)
-	SaveCursor(c Cursor) error
-	LoadAutoAssigners() ([]AutoAssigner, error)
+	LoadCursor(ctx context.Context) (*Cursor, error)
+	SaveCursor(ctx context.Context, c Cursor) error
+	LoadAutoAssigners(ctx context.Context) ([]AutoAssigner, error)
 }
 
 type Watcher struct {
@@ -56,7 +56,7 @@ func NewWatcher(db WatcherDB, pub pubsub.PublishSubscriber, opts ...Option) (*Wa
 		optFn(&w)
 	}
 
-	cursor, err := w.db.LoadCursor()
+	cursor, err := w.db.LoadCursor(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func NewWatcher(db WatcherDB, pub pubsub.PublishSubscriber, opts ...Option) (*Wa
 	}
 
 	saveCursor := func() {
-		if err := db.SaveCursor(w.cursor); err != nil {
+		if err := db.SaveCursor(context.Background(), w.cursor); err != nil {
 			level.Info(w.logger).Log("err", err, "msg", "saving cursor")
 			return
 		}
@@ -173,7 +173,7 @@ func (w *Watcher) filteredAutoAssignments(devices []dep.Device) (map[string][]st
 	// auto-assigner profile UUIDs/filters. Note this makes every *watcher
 	// (i.e. every DEP sync instance) share the current DB set of auto-
 	// assigners. perhaps to refactor to be more separated.
-	assigners, err := w.db.LoadAutoAssigners()
+	assigners, err := w.db.LoadAutoAssigners(context.Background())
 	if err != nil {
 		return nil, err
 	}
@@ -296,7 +296,7 @@ FETCH:
 			"devices", len(resp.Devices),
 		)
 		w.cursor = Cursor{Value: resp.Cursor, CreatedAt: time.Now()}
-		if err := w.db.SaveCursor(w.cursor); err != nil {
+		if err := w.db.SaveCursor(context.Background(), w.cursor); err != nil {
 			return errors.Wrap(err, "saving cursor from fetch")
 		}
 		if err := w.publishAndProcessDevices(resp.Devices); err != nil {
@@ -330,7 +330,7 @@ SYNC:
 			"devices", len(resp.Devices),
 		)
 		w.cursor = Cursor{Value: resp.Cursor, CreatedAt: time.Now()}
-		if err := w.db.SaveCursor(w.cursor); err != nil {
+		if err := w.db.SaveCursor(context.Background(), w.cursor); err != nil {
 			return errors.Wrap(err, "saving cursor from sync")
 		}
 		if err := w.publishAndProcessDevices(resp.Devices); err != nil {

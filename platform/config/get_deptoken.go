@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *ConfigService) GetDEPTokens(ctx context.Context) ([]DEPToken, []byte, error) {
-	_, cert, err := svc.store.DEPKeypair()
+	_, cert, err := svc.store.DEPKeypair(ctx)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -18,7 +18,7 @@ func (svc *ConfigService) GetDEPTokens(ctx context.Context) ([]DEPToken, []byte,
 		certBytes = cert.Raw
 	}
 
-	tokens, err := svc.store.DEPTokens()
+	tokens, err := svc.store.DEPTokens(ctx)
 	if err != nil {
 		return nil, certBytes, err
 	}

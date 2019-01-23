@@ -11,7 +11,7 @@ import (
 )
 
 func (s DEPSyncService) ApplyAutoAssigner(ctx context.Context, aa *AutoAssigner) error {
-	err := s.db.SaveAutoAssigner(aa)
+	err := s.db.SaveAutoAssigner(ctx, aa)
 	return errors.Wrap(err, "saving AutoAssigner")
 }
 
