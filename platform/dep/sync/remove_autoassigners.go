@@ -10,7 +10,7 @@ import (
 )
 
 func (s DEPSyncService) RemoveAutoAssigner(ctx context.Context, filter string) error {
-	err := s.db.DeleteAutoAssigner(filter)
+	err := s.db.DeleteAutoAssigner(ctx, filter)
 	return errors.Wrap(err, "remove AutoAssigner")
 }
 

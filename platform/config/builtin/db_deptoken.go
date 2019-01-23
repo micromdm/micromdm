@@ -16,7 +16,7 @@ const (
 	depTokenBucket = "mdm.DEPToken"
 )
 
-func (db *DB) AddToken(consumerKey string, json []byte) error {
+func (db *DB) AddToken(ctx context.Context, consumerKey string, json []byte) error {
 	err := db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(depTokenBucket))
 		if err != nil {
@@ -31,7 +31,7 @@ func (db *DB) AddToken(consumerKey string, json []byte) error {
 	return err
 }
 
-func (db *DB) DEPTokens() ([]config.DEPToken, error) {
+func (db *DB) DEPTokens(ctx context.Context) ([]config.DEPToken, error) {
 	var result []config.DEPToken
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(depTokenBucket))
@@ -55,7 +55,7 @@ func (db *DB) DEPTokens() ([]config.DEPToken, error) {
 	return result, err
 }
 
-func (db *DB) DEPKeypair() (key *rsa.PrivateKey, cert *x509.Certificate, err error) {
+func (db *DB) DEPKeypair(ctx context.Context) (key *rsa.PrivateKey, cert *x509.Certificate, err error) {
 	var keyBytes, certBytes []byte
 	err = db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(depTokenBucket))
@@ -71,7 +71,7 @@ func (db *DB) DEPKeypair() (key *rsa.PrivateKey, cert *x509.Certificate, err err
 	}
 	if keyBytes == nil || certBytes == nil {
 		// if there is no certificate or private key then generate
-		key, cert, err = generateAndStoreDEPKeypair(db)
+		key, cert, err = generateAndStoreDEPKeypair(ctx, db)
 	} else {
 		key, err = x509.ParsePKCS1PrivateKey(keyBytes)
 		if err != nil {
@@ -85,7 +85,7 @@ func (db *DB) DEPKeypair() (key *rsa.PrivateKey, cert *x509.Certificate, err err
 	return
 }
 
-func generateAndStoreDEPKeypair(db *DB) (key *rsa.PrivateKey, cert *x509.Certificate, err error) {
+func generateAndStoreDEPKeypair(ctx context.Context, db *DB) (key *rsa.PrivateKey, cert *x509.Certificate, err error) {
 	key, cert, err = crypto.SimpleSelfSignedRSAKeypair("micromdm-dep-token", 365)
 	if err != nil {
 		return
