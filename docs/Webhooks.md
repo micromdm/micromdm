@@ -28,7 +28,6 @@ Each event sent to the webhook url contains a json object in the body of the req
 | checkin_event     | Optional payload based on the topic.             |
 | acknowledge_event | Optional payload based on the topic.             |
 
-
 The following MicroMDM Topics are exposed via the webhook functionality:
 
 | Topic                             | Payload                                  |
@@ -37,7 +36,6 @@ The following MicroMDM Topics are exposed via the webhook functionality:
 | [mdm.TokenUpdate](#token-update)  | [checkin_event](#checkin-events)         |
 | [mdm.CheckOut](#checkout)         | [checkin_event](#checkin-events)         |
 | [mdm.Connect](#connect)           | [acknowledge_event](#acknowledge-events) |
-
 
 The following is an example of the json payload in the body of the request.
 
@@ -59,7 +57,7 @@ The following is an example of the json payload in the body of the request.
 
 Depending on which topic the event is for one of the optional `_event` payloads will be filled in. Each `_event` payload contains a `raw_payload` field which is a base64 encoded representation of the actual data the device sent back to the MDM server. For more detailed information on these raw payloads please refer to the official Apple MDM Protocol Reference.
 
-https://developer.apple.com/enterprise/documentation/MDM-Protocol-Reference.pdf
+<https://developer.apple.com/enterprise/documentation/MDM-Protocol-Reference.pdf>
 
 ### Checkin Events
 
@@ -93,7 +91,7 @@ While the user is installing an MDM payload, the device sends an authenticate me
 A device sends a token update message to the check-in server whenever its device push token, push magic, or
 unlock token change. These fields are needed by the server to send the device push notifications or passcode
 resets. The device sends an initial token update message to the server when it has installed the MDM payload. The server
-should send push messages to the device **only** after receiving the first token update message. 
+should send push messages to the device **only** after receiving the first token update message.
 
 ```json
 {

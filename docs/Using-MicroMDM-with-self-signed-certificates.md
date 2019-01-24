@@ -1,6 +1,6 @@
 #
 
-MicroMDM uses [Let's Encrypt](https://letsencrypt.org/) to acquire and renew certificates for the MDM server. Doing so reduces a lot of the difficulties with getting started with MDM, like getting a TLS cert or adding anchor certificates for enrollment and DEP. However some users would like to run MicroMDM behind a firewall, or use self-signed certificates. This page will explain how to do so. 
+MicroMDM uses [Let's Encrypt](https://letsencrypt.org/) to acquire and renew certificates for the MDM server. Doing so reduces a lot of the difficulties with getting started with MDM, like getting a TLS cert or adding anchor certificates for enrollment and DEP. However some users would like to run MicroMDM behind a firewall, or use self-signed certificates. This page will explain how to do so.
 
 ## Creating and using a self-signed certificate
 

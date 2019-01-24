@@ -77,7 +77,7 @@ curl -X POST "https://dev.micromdm.io/v1/commands" \
 <details>
 ### **POST** - /v1/commands
 
-#### CURL
+### CURL
 
 ```sh
 curl -X POST "https://dev.micromdm.io/v1/commands" \

@@ -3,19 +3,17 @@
 This guide is a Quickstart tutorial for getting up and running with MicroMDM.
 The steps in this guide are intended to get you up and running as quick as possible, and therefore will not necessarily match the steps required to set up a long running production instance.
 
-# Getting Help
+## Getting Help
 
 The best place to get help is the `#micromdm` channel on the MacAdmins Slack team. Join us there by getting an [invitation here](https://macadmins.herokuapp.com/).
 
-# Getting an MDM Push Certificate
+## Getting an MDM Push Certificate
 
 An MDM is pretty much useless without an MDM Push Certificate.
 Depending on your setup, this can be a long process.
 For an overview of getting an MDM push certificate (and all the other MDM-related certificates) see [this blog post](https://micromdm.io/blog/certificates/).
 
 The full process for obtaining an APNs **Vendor** certificate is documented in a [blog post](http://enterprisemac.bruienne.com/2015/06/06/mdm-azing-setting-up-your-own-mdm-server/) by Pepijn Bruienne. Use the [mdmctl mdmcert](https://github.com/micromdm/micromdm/wiki/Generating-MicroMDM-MDM-Certificates) command for performing the same steps in MicroMDM.
-
-
 
 Meanwhile, there are two other ways to obtain a certificate that might prove to be more expedient if you're looking to test and/or contribute to MicroMDM:
 
@@ -24,7 +22,7 @@ a) If you already have the ServerApp with Device Management enabled, you can exp
 b) Jesse Peterson has set up an MDM certificate service [here](https://mdmcert.download/). You can register and then download the certificate with the [`certhelper`](https://github.com/micromdm/tools/releases/latest) binary.
 If you're using the `certhelper` tool to request a certificate through `mdmcert.download`, follow the steps on the wiki page [here](https://github.com/micromdm/micromdm/wiki/mdmcert.download).
 
-# Up and Running with MicroMDM
+## Up and Running with MicroMDM
 
 1) Download the latest [binary](https://github.com/micromdm/micromdm/releases/latest) from the Releases page and copy it somewhere in your PATH. (usr/local/bin) for example.
 2) Run the binary.
@@ -46,7 +44,8 @@ If you're running behind a firewall or don't want to bind with the default ports
 
 If everything went well, the binary should be running. You can go to `https://your-server-url/mdm/enroll` which will download an enrollment profile for your Mac.
 
-# Connecting mdmctl
+## Connecting mdmctl
+
 To setup mdmctl to connect to the micromdm server you need to set some configuration parameters (which save to `~/.micromdm/servers.json`):
 
 ```shell
@@ -58,7 +57,7 @@ mdmctl config set \
 
 You'll also need to initially "select" this configuration by switching to it. THis is the mechanism by which you can multiple micromdm servers configured and you switch between them:
 
-```shelp
+```shell
 mdmctl config switch -name production
 ```
 
@@ -69,11 +68,12 @@ sudo micromdm serve \
   -api-key MySecretAPIKey \
 ```
 
-# Connecting to DEP
+## Connecting to DEP
+
 Note: Bootstrapping management tools like Munki are probably the reason most of us want an MDM right now, but DEP is not necessary for MicroMDM to work. You can skip to the "Profiles and Applications Section" if you don't have a DEP account.
 
 Got a DEP account? You can set up a virtual server for MicroMDM and sync your devices:
-https://github.com/micromdm/micromdm/wiki/Connect-MicroMDM-with-DEP
+<https://github.com/micromdm/micromdm/wiki/Connect-MicroMDM-with-DEP>
 This must be done before establishing DEP profiles for devices.
 
 Once you're connected to DEP and can sync devices, you can assign a profile to them:
@@ -120,14 +120,16 @@ $ mdmctl get dep-profiles -f - -uuid=4B05B09E8AC7E7FC12C8F3338E099310
 }
 ```
 
-# Profiles and Applications
+## Profiles and Applications
+
 DEP enrollment is cool and all, but we want to be able to enforce some kind of configuration when a new device enrolls. The easiest way to do that is with a Blueprint. We're working on making blueprints configurable for each device, but for now this blueprint is global - it applies to every device enrolled.
 
 ## Profiles
+
 MicroMDM stores profiles in its database for use with Blueprints. To store a profile use this invocation:
 
 ```shell
-$ mdmctl apply profiles -f /path/to/MyProfile.mobileconfig
+mdmctl apply profiles -f /path/to/MyProfile.mobileconfig
 ```
 
 ```shell
@@ -137,10 +139,12 @@ com.example.MyProfile  874
 ```
 
 ## Applications
+
 MDM is capable of installing [distribution style pkgs](https://github.com/micromdm/micromdm/wiki/distributing-packages-with-InstallApplication) if they are signed. MicroMDM attempts to make this option simple for the user. the `mdmctl` command can sign and upload a pkg file to the MicroMDM server's filerepo directory.
 
 Assuming you have a a developer certificate to sign the pkg in the keychain(or if the package is already signed), here is how you'd import munkitools:
-```
+
+```shell
 mdmctl apply app -pkg ~/Desktop/mdmvid/munkitools-3.0.0.3333.pkg -sign "Developer ID Installer: groob (myid)" -upload
 ```
 
@@ -148,6 +152,7 @@ mdmctl apply app -pkg ~/Desktop/mdmvid/munkitools-3.0.0.3333.pkg -sign "Develope
 You can use the `mdmctl get apps` command to query the list of imported apps and get the ManifestURL, which will be required by a blueprint.
 
 ## Blueprints
+
 A blueprint is a JSON file which contains a list of Application Manifest URLs and Profile identifiers and an array of apply-at directives.
 
 The blueprint JSON file contains a few keys. To generate a sample file use the `-template flag`:
@@ -169,12 +174,10 @@ $ mdmctl apply blueprints -template > /tmp/blueprint.json
 }
 ```
 
-
 Both the manifest and pkg file that the manifest points to must be downloadable from a public URL. You can put them on S3 or any other fileserver. MicroMDM also supports serving a repository of files with the `-filerepo /path/to/folder` flag of the `serve` command.
 The profile paths can be anywhere on the computer where micromdm is running.
 
 Modify a profile to include URLs paths to app manifests and profile IDs that have been uploaded:
-
 
 ```shell
 $ mdmctl apply blueprints -f /path/to/blueprint
@@ -186,7 +189,7 @@ exampleName  a480e3ee-a96b-4a4d-abcd  1          1         Enroll
 
 The "Apply At" (or "apply_at" in the JSON above) tells the when the MDM server will apply this Blueprint (that is - install the profiles and applications). Currently the only ApplyAt value is Enroll which happens at, well, Enrollment time (either DEP or standard enrollment).
 
-# Commands and Push API.
+## Commands and Push API
 
 MicroMDM supports a custom commands API that you can use to queue commands.
 To do so, send a JSON command as a POST request to `/v1/commands`.
@@ -213,7 +216,7 @@ which will print some details about a device, including the UDID.
 
 Note you may need to authenticate to the API if you specified an API key with the `-api-key` parameter. If this is on the API will require HTTP Basic authentication. The username is "micromdm" and the password will be your API key.
 
-## Sending a Push notification to the device.
+## Sending a Push notification to the device
 
 The simplest way to issue a push notification and force the device to check in is a `GET` request to `/push/$DEVICE-UDID-HERE`.
 
@@ -229,6 +232,6 @@ Like the command API you may need to specify HTTP Basic authentication credentia
 
 ## Additional Information/Videos
 
-**Getting MicroMDM working and working with MicroMDM**
+### Getting MicroMDM working and working with MicroMDM**
 
 [![Getting MicroMDM working and working with MicroMDM](http://img.youtube.com/vi/WGKT-PyHz6I/0.jpg)](http://www.youtube.com/watch?v=WGKT-PyHz6I)

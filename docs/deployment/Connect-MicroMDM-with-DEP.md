@@ -62,5 +62,5 @@ For MDM communication you need to open the following TCP ports
 
 The DEP API is documented by Apple [here](https://developer.apple.com/library/content/documentation/Miscellaneous/Reference/MobileDeviceManagementProtocolRef/4-Profile_Management/ProfileManagement.html#//apple_ref/doc/uid/TP40017387-CH7-SW68) and there are several DEP libraries:
 
-- Go: https://github.com/micromdm/dep
-- Python: https://github.com/bruienne/depy
+- Go: <https://github.com/micromdm/dep>
+- Python: <https://github.com/bruienne/depy>

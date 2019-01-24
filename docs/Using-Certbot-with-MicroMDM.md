@@ -12,7 +12,7 @@ In this article we will:
 2. Generate your certificate
 3. Run MicroMDM using the certificate.
 
-_The steps in this guide use Ubuntu 18.04 LTS as a reference but should be fairly easy to adapt to other setups_
+### The steps in this guide use Ubuntu 18.04 LTS as a reference but should be fairly easy to adapt to other setups
 
 ## Install Certbot
 
@@ -34,12 +34,12 @@ sudo apt-get install certbot
 To verify your installation simply type the following (it will list the certificates installed by `certbot`):
 
 ```shell
-$ sudo certbot certificates
+sudo certbot certificates
 ```
 
 You should see something like this:
 
-```
+```shell
 Saving debug log to /var/log/letsencrypt/letsencrypt.log
 -------------------------------------------------------------------------------
 No certs found.
@@ -52,7 +52,7 @@ In **this specific setup**, we are going to use the `--standalone` option to gen
 
 **Important!** For this to work, your domain *must resolve to the IP address where you are generating the cert, otherwise you'll see an error along these lines:
 > `http://<yourdomain>/.well-known/acme-challenge/-K1FkTKDIEvjapSc_2aD2lICYQXvr6vKigQnKbmwqxE:
-  Connection refused`.
+Connection refused`.
 
 Once that is set up, simply run:
 
@@ -66,7 +66,8 @@ $ sudo certbot certonly \
 Use the `-d` flag to add any additional domains.
 
 If all goes well you'll see:
-```
+
+```shell
 IMPORTANT NOTES:
  - Congratulations! Your certificate and chain have been saved at:
    /etc/letsencrypt/live/<yourdomain>/fullchain.pem
@@ -82,7 +83,6 @@ privkey.pem
 ```
 
 We'll need the last 2 for MicroMDM.
-
 
 ## Run MicroMDM using the certificates
 

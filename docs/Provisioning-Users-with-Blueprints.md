@@ -1,3 +1,5 @@
+# Provisioning users with blueprints
+
 ## Introduction
 
 With blueprints, it's possible to provision administrative users automatically upon device enrolment. This could be useful if you want a standard service account to be included for example.
@@ -8,7 +10,7 @@ To create an administrative user, run `mdmctl apply users -template > exampleUse
 
 Fill in the appropriate user name values
 
-```
+```shell
 {
   "user_shortname": "svcadmin",
   "user_longname": "Administrator",
@@ -18,7 +20,7 @@ Fill in the appropriate user name values
 
 Now upload the user to the MicroMDM server along with the desired password for the user using `mdmctl apply users -f ./exampleUser.json -password SuperSecret` . You can check to see that the user was created by running `mdmctl get users`
 
-```
+```shell
 UUID                                  UDID  UserID  UserShortName  UserLongName
 60000000-faaa-4000-c111-000aaa00000                svcadmin       Administrator
 ```
@@ -29,7 +31,7 @@ You'll also notice that if you open the original JSON file (`exampleUser.json` i
 
 If you generate a new blueprint template (`mdmctl apply blueprints -template`) you'll notice that there is a space for User UUIDs. Put the UUID that you got from `mdmctl get users` into the `user_uuids` section in order to automatically provision users on enrolment.
 
-```
+```shell
 {
   "uuid": "uuid-here",
   "name": "exampleName",

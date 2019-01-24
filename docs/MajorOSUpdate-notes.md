@@ -1,4 +1,4 @@
-# Scheduling an OSUpdateScan I got this:
+# Scheduling an OSUpdateScan I got this
 
 ```shell
     <key>AvailableOSUpdates</key>

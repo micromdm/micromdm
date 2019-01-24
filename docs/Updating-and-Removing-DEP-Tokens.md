@@ -1,3 +1,5 @@
+# Updating and removing DEP tokens
+
 Due to a current issue (#546), MicroMDM is able to store as many DEP tokens as possible BUT only uses the first loaded, even if expired.
 
 ## Updating and Downloading the new DEP Token
@@ -20,6 +22,4 @@ Due to a current issue (#546), MicroMDM is able to store as many DEP tokens as p
 10. Using `mdmctl`, upload the new DEP Token: `/path/to/mdmctl apply dep-token -f /path/to/new/token.p7m`
 
 _In some cases you may need to restart the MicroMDM service after uploading a new DEP Token_
-
 11. Stop the MicroMDM service, then Start the MicroMDM service.
- 

@@ -1,6 +1,8 @@
+#
+
 _For now this is just a bunch of ideas, if you just looking what this project is, don't take the following as a bill of functionalities. It's just brainstorming_
 
-# Why handle users and groups?
+## Why handle users and groups
 
 Nowadays, iOS like macOS are multiuser devices. Maybe not for everyone, but they are.
 
@@ -10,11 +12,12 @@ iOS is at this time multiuser for school only, with support for managed apple ID
 
 This with the BYOD scenario where you want to link an enrolled device to a specific user justify the need of user management and draw the general requirement for it.
 
-# Sources of users and groups (and classrooms)
+## Sources of users and groups (and classrooms)
 
 Trying to make an abstract of this use case can be interesting to understand how a user and group management can be implemented.
 
 If we take the most complete scenario, the school one, we will have:
+
 * users coming from Directory Service, Apple School Manager, and School Information System;
 * groups coming from Directory Service;
 * classrooms coming from School Information System.
@@ -61,15 +64,15 @@ It's also useful in case of DS migration. This will allow IT to map current user
 
 This feature is clearly not mandatory and will be used by really few people. But nice to have and keep in mind during development even if not implemented.
 
-# How do I know who is where?
+## How do I know who is where
 
 In BYOD scenario or DEP with personalized devices, the username linked to the device is provided as enrollment, so the user record must have a list of permanent device associations.
 
-For shared devices, it's different. MDM protocol has two specific extensions, one for shared iOS devices and one for network users on macOS. Both extension does the same kind of task with different user ID: it allows the device to do a specific check-in with new push token when the user log in. So the MDM can now push user-specific payloads on this new push target. 
+For shared devices, it's different. MDM protocol has two specific extensions, one for shared iOS devices and one for network users on macOS. Both extension does the same kind of task with different user ID: it allows the device to do a specific check-in with new push token when the user log in. So the MDM can now push user-specific payloads on this new push target.
 
 The system takes care for the MDM to associate new info to the right user profile and not mix it with others.
 
-# Smart groups
+## Smart groups
 
 MDM workflow can of course be assigned to a user or a group. But it might also need to be assigned to a search. So smart groups are needed.
 
