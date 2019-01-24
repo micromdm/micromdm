@@ -75,6 +75,7 @@ curl -X POST "https://dev.micromdm.io/v1/commands" \
 ## InstallApplication
 
 <details>
+x
 ### **POST** - /v1/commands
 
 ### CURL

@@ -15,28 +15,32 @@
 <!--###### get ######################################################### -->
 
 <a id="mdmctl-get"></a>
+
 ## get
 _Display one or many resources_
 
 <details>
 
 <br/>
+
 Valid resource types:
 
-  * [devices](#mdmctl-get-devices)
-  * [blueprints](#mdmctl-get-blueprints)
-  * [dep-tokens](#mdmctl-get-dep-tokens)
-  * [dep-devices](#mdmctl-get-dep-devices)
-  * [dep-account](#mdmctl-get-dep-account)
-  * [dep-profiles](#mdmctl-get-dep-profiles)
-  * [dep-autoassigner](#mdmctl-get-dep-autoassigner)
-  * [users](#mdmctl-get-users)
-  * [profiles](#mdmctl-get-profiles)
-  * [apps](#mdmctl-get-apps)
+* [devices](#mdmctl-get-devices)
+* [blueprints](#mdmctl-get-blueprints)
+* [dep-tokens](#mdmctl-get-dep-tokens)
+* [dep-devices](#mdmctl-get-dep-devices)
+* [dep-account](#mdmctl-get-dep-account)
+* [dep-profiles](#mdmctl-get-dep-profiles)
+* [dep-autoassigner](#mdmctl-get-dep-autoassigner)
+* [users](#mdmctl-get-users)
+* [profiles](#mdmctl-get-profiles)
+* [apps](#mdmctl-get-apps)
 
 <a id="mdmctl-get-devices"></a>
+
 ##### devices
-```
+
+```shell
 USAGE
   mdmctl get devices [flags]
 
@@ -45,8 +49,10 @@ FLAGS
 ```
 
 <a id="mdmctl-get-blueprints"></a>
+
 ##### blueprints
-```
+
+```shell
 USAGE
   mdmctl get blueprints [flags]
 
@@ -56,8 +62,10 @@ FLAGS
 ```
 
 <a id="mdmctl-get-dep-tokens"></a>
+
 ##### dep-tokens
-```
+
+```shell
 USAGE
   mdmctl get dep-tokens [flags]
 
@@ -68,8 +76,10 @@ FLAGS
 ```
 
 <a id="mdmctl-get-dep-devices"></a>
+
 ##### dep-devices
-```
+
+```shell
 USAGE
   mdmctl get dep-devices [flags]
 
@@ -78,8 +88,10 @@ FLAGS
 ```
 
 <a id="mdmctl-get-dep-account"></a>
+
 ##### dep-account
-```
+
+```shell
 USAGE
   mdmctl get dep-account [flags]
 
@@ -87,8 +99,10 @@ FLAGS
 ```
 
 <a id="mdmctl-get-dep-profiles"></a>
+
 ##### dep-profiles
-```
+
+```shell
 USAGE
   mdmctl get dep-profiles [flags]
 
@@ -98,8 +112,10 @@ FLAGS
 ```
 
 <a id="mdmctl-get-autoassigner"></a>
+
 ##### dep-autoassigner
-```
+
+```shell
 USAGE
   mdmctl get dep-autoassigner [flags]
 
@@ -108,8 +124,10 @@ FLAGS
 ```
 
 <a id="mdmctl-get-users"></a>
+
 ##### users
-```
+
+```shell
 USAGE
   mdmctl get users [flags]
 
@@ -118,8 +136,10 @@ FLAGS
 ```
 
 <a id="mdmctl-get-profiles"></a>
+
 ##### profiles
-```
+
+```shell
 USAGE
   mdmctl get blueprints [flags]
 
@@ -129,8 +149,10 @@ FLAGS
 ```
 
 <a id="mdmctl-get-apps"></a>
+
 ##### apps
-```
+
+```shell
 USAGE
   mdmctl get apps [flags]
 
@@ -145,7 +167,9 @@ FLAGS
 <!--###### apply ######################################################### -->
 
 <a id="mdmctl-apply"></a>
+
 ## apply
+
 _Apply a resource_
 
 <details>
@@ -153,18 +177,20 @@ _Apply a resource_
 <br/>
 Valid resource types:
 
-  * [blueprints](#mdmctl-apply-blueprints)
-  * [profiles](#mdmctl-apply-profiles)
-  * [users](#mdmctl-apply-users)
-  * [dep-tokens](#mdmctl-apply-dep-tokens)
-  * [dep-profiles](#mdmctl-apply-dep-profiles)
-  * [dep-autoassigner](#mdmctl-apply-dep-autoassigner)
-  * [app](#mdmctl-apply-app)
-  * [block](#mdmctl-apply-block)
+* [blueprints](#mdmctl-apply-blueprints)
+* [profiles](#mdmctl-apply-profiles)
+* [users](#mdmctl-apply-users)
+* [dep-tokens](#mdmctl-apply-dep-tokens)
+* [dep-profiles](#mdmctl-apply-dep-profiles)
+* [dep-autoassigner](#mdmctl-apply-dep-autoassigner)
+* [app](#mdmctl-apply-app)
+* [block](#mdmctl-apply-block)
 
 <a id="mdmctl-apply-blueprints"></a>
-##### blueprints
-```
+
+### blueprints
+
+```shell
 USAGE
   mdmctl apply blueprints [flags]
 
@@ -174,8 +200,10 @@ FLAGS
 ```
 
 <a id="mdmctl-apply-profiles"></a>
-##### profiles
-```
+
+### profiles
+
+```shell
 USAGE
   mdmctl apply profiles [flags]
 
@@ -184,7 +212,8 @@ FLAGS
 ```
 
 <a id="mdmctl-apply-users"></a>
-##### users
+
+#### users
 ```
 USAGE
   mdmctl apply users [flags]
@@ -196,7 +225,8 @@ FLAGS
 ```
 
 <a id="mdmctl-apply-dep-tokens"></a>
-##### dep-tokens
+
+#### dep-tokens
 ```
 USAGE
   mdmctl apply dep-tokens [flags]
@@ -395,8 +425,10 @@ Valid switches:
   * [upload](#mdmctl-mdmcert-upload)
 
 <a id="mdmctl-mdmcert-vendor"></a>
+
 ##### vendor
-```
+
+```shell
 USAGE
     mdmctl mdmcert vendor [flags]
 
@@ -413,8 +445,10 @@ FLAGS
 ```
 
 <a id="mdmctl-mdmcert-push"></a>
+
 ##### push
-```
+
+```shell
 USAGE
     mdmctl mdmcert push [flags]
 
@@ -428,8 +462,10 @@ FLAGS
 ```
 
 <a id="mdmctl-mdmcert-upload"></a>
+
 ##### upload
-```
+
+```shell
 USAGE
     mdmctl mdmcert upload [flags]
 
@@ -453,7 +489,7 @@ Once you created the push CSR, you mush sign the push CSR with the MDM Vendor Ce
 
 ```mdmctl mdmcert vendor -sign -cert=./mdm-certificates/mdm.cer -password=secret```
 
-Once generated, upload the PushCertificateRequest.plist file to https://identity.apple.com to obtain your MDM Push Certificate.
+Once generated, upload the PushCertificateRequest.plist file to <https://identity.apple.com> to obtain your MDM Push Certificate.
 Use the push private key and the push cert you got from identity.apple.com in your MDM server.
 
 </details>
@@ -461,12 +497,14 @@ Use the push private key and the push cert you got from identity.apple.com in yo
 ***
 <!--###### mdmcert.download ######################################################### -->
 <a id="mdmctl-mdmcert.download"></a>
+
 ## mdmcert.download
-_Request new MDM Push Certificate from https://mdmcert.download_
+
+_Request new MDM Push Certificate from <https://mdmcert.download_>
 
 <details>
 
-```
+```shell
 USAGE
   mdmctl mdmcert.download [flags]
 
@@ -491,12 +529,14 @@ FLAGS
 <!--###### version ######################################################### -->
 
 <a id="mdmctl-version"></a>
+
 ## version
+
 _Display mdmctl version_
 
 <details>
 
-```
+```shell
 USAGE
   mdmctl version
 ```

@@ -1,4 +1,4 @@
-This page has links to project, blog posts and other media related to open source MDM development.
+# This page has links to project, blog posts and other media related to open source MDM development
 
 ## Media
 
@@ -12,13 +12,14 @@ This page has links to project, blog posts and other media related to open sourc
 * [Munkiing around with DEP](https://groob.io/posts/dep-micromdm-munki/)
 * [Erik Gomez blog on Custom DEP - part 1](http://blog.eriknicolasgomez.com/2017/03/08/Custom-DEP-Part-1-An-Introduction/)
 
-
 ### Podcasts
+
 * [Frogor 45 - Ep. 3 – Fuse to the MDM Powder Keg](https://www.afp548.com/2016/03/07/ep-3-fuse-to-the-mdm-powder-keg/)
 * [Macadmins.org - Episode 4: Developers, Developers, Developers](http://podcast.macadmins.org/2016/05/17/macadmins-org-podcast-episode-4-developers-developers-developers/)
 * [Macadmins.org - Episode 37: F/OSS MDMs with Victor Vrantchan and Jesse Peterson](http://podcast.macadmins.org/2017/05/24/episode-37-foss-mdms-with-victor-vrantchan-and-jesse-peterson/)
 
 ## Other open source projects
+
 * [Commandment](https://github.com/jessepeterson/commandment) - MDM server written in python.
 * [macadmins/mdm-server](https://github.com/macadmins/mdm-server) - experimental MDM server written in python.
 * [DEPy](https://github.com/bruienne/depy) - python SDK for DEP API

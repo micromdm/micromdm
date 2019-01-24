@@ -65,7 +65,7 @@ You'll also need to provide the `-api-key` switch with the same password to the 
 
 ```shell
 sudo micromdm serve \
-  -api-key MySecretAPIKey \
+  -api-key $MySecretAPIKey \
 ```
 
 ## Connecting to DEP

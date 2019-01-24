@@ -1,6 +1,8 @@
+# MDM and the admin experience
+
 _For now this is just a bunch of ideas, if you just looking what this project is, don't take the following as a bill of functionalities. It's just brainstorming on ideal admin UX_
 
-# Global MDM Behavior
+## Global MDM Behavior
 
 Currents MDM all works the same: it offers a direct access to supported Payload and offer a more or less smart way to target the user.
 
@@ -8,7 +10,7 @@ None of the current MDM handle the complexity of profile management for the admi
 
 Properly managing settings with MDM imply deep knowledge of the client side.
 
-For example, since the beginning it's possible to deploy multiple IMAP accounts via the same configuration profile. With 10.12 this feature has been broken, the mdmclient explicitly complain about it and refuse to install the payload because "only one IMAP account is allowed.”
+For example, since the beginning it's possible to deploy multiple IMAP accounts via the same configuration profile. With 10.12 this feature has been broken, the mdmclient explicitly complain about it and refuse to install the payload because "only one IMAP account is allowed."
 
 This kind of thing needs advanced skills and time for troubleshooting.
 
@@ -20,9 +22,9 @@ For example, Profile Manager denies pushing a VPN settings when no value has bee
 
 In resumé, the MDM must be smart enough to help beginners to set things up, and smart enough to recognize when someone is more skilled.
 
-# Targets
+## Targets
 
-## Target selection
+### Target selection
 
 In all the ways offered to the admin to create a configuration profile, the target selection must be the same.
 
@@ -37,13 +39,13 @@ Then, deployment filter must be added. Filters must be regex compatible with cre
 
 Using the LDAP filter syntax could be a really good idea.
 
-Everything related to users info must support every LDAP feature with no exception. Every single setup is different. And every single setup will use LDAP for user backend. And every single LDAP in this world is managed by human with different cultures and points of view. 
+Everything related to users info must support every LDAP feature with no exception. Every single setup is different. And every single setup will use LDAP for user backend. And every single LDAP in this world is managed by human with different cultures and points of view.
 
 So LDAP filter must not be limited. Attributes available must be extracted from the LDAP schema (specifying all supported classes for a user or a user group can be set during the initial configuration).
 
 When admin inspects an item in the MDM (user, device, group…), the system must reflect current applied settings directly. Value must be presented as read only and payload variables must be replaced by real values if possible at current scope.
 
-## Target exclusion
+### Target exclusion
 
 In some scenario, admin might want to exclude some users and computers from existing profiles.
 
@@ -61,7 +63,7 @@ Looking at configuration profile, admin must be able to edit the payload, target
 
 Exclusion can act for users, devices and groups.
 
-# Configuration Profiles
+## Configuration Profiles
 
 ## Scope for Configuration Profiles
 
@@ -101,7 +103,7 @@ Assisted Configuration Profile can also help to manage restriction in terms of u
 
 ## Cross references
 
-Configuration Profile must be able to reference items from other profile. This will include a depenedence that must be managed. 
+Configuration Profile must be able to reference items from other profile. This will include a depenedence that must be managed.
 
 For example, AD computer certificate can be deployed for everyone and every computer (so two payloads, system and user scope).
 
@@ -111,7 +113,7 @@ This imply pre-check to identify targeted items who aren't also targeted by the 
 
 ## Override management
 
-#### Override alert
+### Override alert
 
 When configuration is saved, MDM must run a global pre-check on all items targeted by the new profile. Pre-check must also be triggered when MDM actually push new content to the device.
 
@@ -134,12 +136,14 @@ When using Assisted Configuration Profiles, admin might deny App Store for every
 ### Automatic override
 
 All profiles (assisted and raw) must have a override settings with the following kinds of values:
+
 * must be installed
 * automatic merge with precedence
 
 Automatic merge will handle conflicting state for profiles applied on the same scope by applying to follow rules (coming from the good old times): closer to the user get better priority
 
 If we take the Dock position on the screen, preference will be in this order:
+
 1. user settings
 2. group settings (closer in terms of the group inheritence is better)
 3. device
