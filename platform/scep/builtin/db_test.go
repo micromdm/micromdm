@@ -21,7 +21,7 @@ func createDB(mode os.FileMode, options *bolt.Options) *Depot {
 	if err != nil {
 		panic(err.Error())
 	}
-	d, err := NewBoltDepot(db)
+	d, err := NewDB(db)
 	if err != nil {
 		panic(err.Error())
 	}
