@@ -8,6 +8,8 @@ import (
 	"github.com/kolide/kit/dbutil"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/micromdm/micromdm/platform/apns"
+	"github.com/micromdm/micromdm/platform/pubsub/inmem"
+	
 )
 
 func TestMysqlCrud(t *testing.T) {
@@ -47,5 +49,10 @@ func setup(t *testing.T) *Mysql {
 		t.Fatal(err)
 	}
 
-	return NewDB(db)
+	store, err := NewDB(db, inmem.NewPubSub())
+	if err != nil {
+		t.Fatal(err)
+	}
+	
+	return store
 }
