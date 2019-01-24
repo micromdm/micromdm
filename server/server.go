@@ -1,6 +1,8 @@
 package server
 
 import (
+	"fmt"
+	
 	"context"
 	"crypto/x509"
 	"net/http"
@@ -11,9 +13,9 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	//boltdepot "github.com/micromdm/scep/depot/bolt"
-	//boltdepot "github.com/micromdm/micromdm/platform/scep/builtin"
-	boltdepot "github.com/micromdm/micromdm/platform/scep/mysql"
+	scepstore "github.com/micromdm/micromdm/platform/scep"
+	scepbuiltin "github.com/micromdm/micromdm/platform/scep/builtin"
+	scepmysql "github.com/micromdm/micromdm/platform/scep/mysql"
 	scep "github.com/micromdm/scep/server"
 	"github.com/pkg/errors"
 	
@@ -24,30 +26,33 @@ import (
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/mdm/enroll"
 	"github.com/micromdm/micromdm/platform/apns"
-	//apnsbuiltin "github.com/micromdm/micromdm/platform/apns/builtin"
+	apnsbuiltin "github.com/micromdm/micromdm/platform/apns/builtin"
 	apnsmysql "github.com/micromdm/micromdm/platform/apns/mysql"
 	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/config"
-	//configbuiltin "github.com/micromdm/micromdm/platform/config/builtin"
+	configbuiltin "github.com/micromdm/micromdm/platform/config/builtin"
 	configmysql "github.com/micromdm/micromdm/platform/config/mysql"
+	
 	"github.com/micromdm/micromdm/platform/dep/sync"
-	//syncbuiltin "github.com/micromdm/micromdm/platform/dep/sync/builtin"
+	syncbuiltin "github.com/micromdm/micromdm/platform/dep/sync/builtin"
 	syncmysql "github.com/micromdm/micromdm/platform/dep/sync/mysql"
+	
 	"github.com/micromdm/micromdm/platform/device"
-	//devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
+	devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
 	devicemysql "github.com/micromdm/micromdm/platform/device/mysql"
 	"github.com/micromdm/micromdm/platform/profile"
-	//profilebuiltin "github.com/micromdm/micromdm/platform/profile/builtin"
+	profilebuiltin "github.com/micromdm/micromdm/platform/profile/builtin"
 	profilemysql "github.com/micromdm/micromdm/platform/profile/mysql"
 	"github.com/micromdm/micromdm/platform/pubsub"
 	"github.com/micromdm/micromdm/platform/pubsub/inmem"
 	
-	//queue "github.com/micromdm/micromdm/platform/queue"
-	queue "github.com/micromdm/micromdm/platform/queue/mysql"
+	"github.com/micromdm/micromdm/platform/queue"
+	queueBuiltin "github.com/micromdm/micromdm/platform/queue/builtin"
+	queueMysql "github.com/micromdm/micromdm/platform/queue/mysql"
 	
 	
 	block "github.com/micromdm/micromdm/platform/remove"
-	//blockbuiltin "github.com/micromdm/micromdm/platform/remove/builtin"
+	blockbuiltin "github.com/micromdm/micromdm/platform/remove/builtin"
 	blockmysql "github.com/micromdm/micromdm/platform/remove/mysql"
 	"github.com/micromdm/micromdm/workflow/webhook"
 )
@@ -60,16 +65,20 @@ type Server struct {
 	ServerPublicURL   string
 	SCEPChallenge     string
 	TLSCertPath       string
-	SCEPDepot         *boltdepot.Depot
+	
+	SCEPBuiltin	      *scepbuiltin.Depot
+	SCEPMysqlDB       *scepmysql.Depot
+	
+	SCEPDB			  scepstore.Store
 	ProfileDB         profile.Store
 	ConfigDB          config.Store
 	RemoveDB          block.Store
 	CommandWebhookURL string
 	DEPClient         *dep.Client
-	//SyncDB            *syncbuiltin.DB
+	
+	SyncBuiltin       *syncbuiltin.DB
 	SyncMysqlDB       *syncmysql.Mysql
 	
-	DataStoreImmutable bool
 	MysqlDB			  *sqlx.DB
 	MysqlUsername     string
 	MysqlPassword     string
@@ -96,9 +105,11 @@ func (c *Server) Setup(logger log.Logger) error {
 		return err
 	}
 
+/*
 	if err := c.setupMysql(); err != nil {
 		return err
 	}
+*/
 
 	if err := c.setupRemoveService(); err != nil {
 		return err
@@ -142,8 +153,16 @@ func (c *Server) Setup(logger log.Logger) error {
 }
 
 func (c *Server) setupProfileDB() error {
-	//profileDB, err := profilebuiltin.NewDB(c.DB)
-	profileDB, err := profilemysql.NewDB(c.MysqlDB)
+	var profileDB profile.Store
+	var err error
+	
+	// If Mysql is set up, use Mysql, else use Bolt as Fallback
+	if c.MysqlDB != nil {
+		profileDB, err = profilemysql.NewDB(c.MysqlDB)
+	} else {
+		profileDB, err = profilebuiltin.NewDB(c.DB)
+	}
+	
 	if err != nil {
 		return err
 	}
@@ -168,8 +187,16 @@ func (c *Server) setupWebhooks(logger log.Logger) error {
 }
 
 func (c *Server) setupRemoveService() error {
-	//removeDB, err := blockbuiltin.NewDB(c.DB)
-	removeDB, err := blockmysql.NewDB(c.MysqlDB)
+	var removeDB block.Store
+	var err error
+
+	// If Mysql is set up, use Mysql, else use Bolt as Fallback
+	if c.MysqlDB != nil {
+		removeDB, err = blockmysql.NewDB(c.MysqlDB)
+	} else {
+		removeDB, err = blockbuiltin.NewDB(c.DB)
+	}
+	
 	if err != nil {
 		return err
 	}
@@ -187,13 +214,28 @@ func (c *Server) setupCommandService() error {
 }
 
 func (c *Server) setupCommandQueue(logger log.Logger) error {
-	//q, err := queue.NewQueue(c.DB, c.PubClient, queue.WithLogger(logger))
-	q, err := queue.NewQueue(c.MysqlDB, c.PubClient, queue.WithLogger(logger))
-	if err != nil {
-		return err
+	var q queue.Store
+	var devDB device.UDIDCertAuthStore
+	var err error
+
+	// If Mysql is set up, use Mysql, else use Bolt as Fallback
+	if c.MysqlDB != nil {
+		q, err = queueMysql.NewQueue(c.MysqlDB, c.PubClient, queueMysql.WithLogger(logger))
+		if err != nil {
+			return err
+		}
+
+		devDB, err = devicemysql.NewDB(c.MysqlDB)
+	} else {
+		q, err = queueBuiltin.NewQueue(c.DB, c.PubClient, queueBuiltin.WithLogger(logger))
+		if err != nil {
+			return err
+		}
+
+		devDB, err = devicebuiltin.NewDB(c.DB)
 	}
-	//devDB, err := devicebuiltin.NewDB(c.DB)
-	devDB, err := devicemysql.NewDB(c.MysqlDB)
+
+	
 	if err != nil {
 		return errors.Wrap(err, "new device db")
 	}
@@ -208,7 +250,7 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 		mdmService = device.UDIDCertAuthMiddleware(devDB, udidauthLogger)(mdmService)
 	
 		verifycertLogger := log.With(logger, "component", "verifycert")
-		mdmService = VerifyCertificateMiddleware(c.SCEPDepot, verifycertLogger)(mdmService)
+		mdmService = VerifyCertificateMiddleware(c.SCEPDB, verifycertLogger)(mdmService)
 	}
 	c.MDMService = mdmService
 
@@ -256,8 +298,16 @@ type pushServiceCert struct {
 }
 
 func (c *Server) setupConfigStore() error {
-	//db, err := configbuiltin.NewDB(c.DB, c.PubClient)
-	db, err := configmysql.NewDB(c.MysqlDB, c.PubClient)
+	var db config.Store
+	var err error
+
+	// If Mysql is set up, use Mysql, else use Bolt as Fallback
+	if c.MysqlDB != nil {
+		db, err = configmysql.NewDB(c.MysqlDB, c.PubClient)
+	} else {
+		db, err = configbuiltin.NewDB(c.DB, c.PubClient)
+	}
+	
 	if err != nil {
 		return err
 	}
@@ -268,13 +318,26 @@ func (c *Server) setupConfigStore() error {
 }
 
 func (c *Server) setupPushService(logger log.Logger) error {
-	//db, err := apnsbuiltin.NewDB(c.DB, c.PubClient)
-	db, err := apnsmysql.NewDB(c.MysqlDB, c.PubClient)
-	if err != nil {
-		return err
+
+	var service apns.Service
+	var err error
+	var workerStore apns.WorkerStore
+
+	// If Mysql is set up, use Mysql, else use Bolt as Fallback
+	if c.MysqlDB != nil {
+		workerStore, err := apnsmysql.NewDB(c.MysqlDB, c.PubClient)
+		if err != nil {
+			return err
+		}
+		service, err = apns.New(workerStore, c.ConfigDB, c.PubClient)
+	} else {
+		workerStore, err := apnsbuiltin.NewDB(c.DB, c.PubClient)
+		if err != nil {
+			return err
+		}
+		service, err = apns.New(workerStore, c.ConfigDB, c.PubClient)
 	}
 
-	service, err := apns.New(db, c.ConfigDB, c.PubClient)
 	if err != nil {
 		return errors.Wrap(err, "starting micromdm push service")
 	}
@@ -282,7 +345,7 @@ func (c *Server) setupPushService(logger log.Logger) error {
 		log.With(level.Info(logger), "component", "apns"),
 	)(service)
 
-	pushinfoWorker := apns.NewWorker(db, c.PubClient, logger)
+	pushinfoWorker := apns.NewWorker(workerStore, c.PubClient, logger)
 	go pushinfoWorker.Run(context.Background())
 
 	return nil
@@ -363,18 +426,33 @@ func (c *Server) CreateDEPSyncer(logger log.Logger) (sync.Syncer, error) {
 	if client != nil {
 		opts = append(opts, sync.WithClient(client))
 	}
+	
+	
+	var err error
+	
+	if c.MysqlDB != nil {
+		syncdb, err := syncmysql.NewDB(c.MysqlDB)
+		if err != nil {
+			return nil, err
+		}
 
-	//syncdb, err := syncbuiltin.NewDB(c.DB)
-	syncmysqldb, err := syncmysql.NewDB(c.MysqlDB)
-	if err != nil {
-		return nil, err
+		c.SyncMysqlDB = syncdb
+	} else {
+		syncdb, err := syncbuiltin.NewDB(c.DB)
+		if err != nil {
+			return nil, err
+		}
+
+		c.SyncBuiltin = syncdb
 	}
-	//c.SyncDB = syncdb
-	c.SyncMysqlDB = syncmysqldb
-
+	
 	var syncer sync.Syncer
-	//syncer, err = sync.NewWatcher(c.SyncDB, c.PubClient, opts...)
-	syncer, err = sync.NewWatcher(c.SyncMysqlDB, c.PubClient, opts...)
+	if c.SyncMysqlDB != nil {
+		syncer, err = sync.NewWatcher(c.SyncMysqlDB, c.PubClient, opts...)
+	} else {
+		syncer, err = sync.NewWatcher(c.SyncBuiltin, c.PubClient, opts...)
+	}
+	
 	if err != nil {
 		return nil, err
 	}
@@ -382,31 +460,56 @@ func (c *Server) CreateDEPSyncer(logger log.Logger) (sync.Syncer, error) {
 }
 
 func (c *Server) setupSCEP(logger log.Logger) error {
-	//depot, err := boltdepot.NewBoltDepot(c.DB)
-	depot, err := boltdepot.NewBoltDepot(c.MysqlDB)
-	if err != nil {
-		return err
-	}
-
-	key, err := depot.CreateOrLoadKey(2048)
-	if err != nil {
-		return err
-	}
-
-	_, err = depot.CreateOrLoadCA(key, 5, "MicroMDM", "US")
-	if err != nil {
-		return err
-	}
-
+	var store scepstore.Store
+	var err error
+	
 	opts := []scep.ServiceOption{
 		scep.ClientValidity(365),
 		scep.ChallengePassword(c.SCEPChallenge),
 	}
-	c.SCEPDepot = depot
-	c.SCEPService, err = scep.NewService(depot, opts...)
+	
+	// If Mysql is set up, use Mysql, else use Bolt as Fallback
+	if c.MysqlDB != nil {
+		c.SCEPMysqlDB, err = scepmysql.NewDB(c.MysqlDB)
+		store = c.SCEPMysqlDB
+		
+		key, err := store.CreateOrLoadKey(2048)
+		if err != nil {
+			return err
+		}
+	
+		fmt.Println("CreateOrLoadCA")
+		_, err = store.CreateOrLoadCA(key, 5, "MicroMDM", "US")
+		if err != nil {
+			return err
+		}
+	
+		
+		c.SCEPService, err = scep.NewService(store, opts...)
+	} else {
+		c.SCEPBuiltin, err = scepbuiltin.NewDB(c.DB)
+		store = c.SCEPBuiltin
+		
+		key, err := store.CreateOrLoadKey(2048)
+		if err != nil {
+			return err
+		}
+	
+		fmt.Println("CreateOrLoadCA")
+		_, err = store.CreateOrLoadCA(key, 5, "MicroMDM", "US")
+		if err != nil {
+			return err
+		}
+			
+		fmt.Println("NewService")
+		c.SCEPService, err = scep.NewService(store, opts...)
+	}
+	
 	if err != nil {
 		return err
 	}
+
+	c.SCEPDB = store
 	c.SCEPService = scep.NewLoggingService(logger, c.SCEPService)
 
 	return nil
