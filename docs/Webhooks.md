@@ -1,3 +1,5 @@
+# Webhooks
+
 One of the [design goals](https://github.com/micromdm/micromdm#design-goals) of MicroMDM is to provide a way for administrators to subscribe to events generated from the MDM interactions between client & server. The webhook functionality helps to facilitate this process by allowing you to subscribe to the MDM events being sent up to the server. These event notifications provide the flexibility needed to build higher level workflows on top of MicroMDM.
 
 ## Configuration

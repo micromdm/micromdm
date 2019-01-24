@@ -1,10 +1,12 @@
+# Webhooks
+
 To connect MicroMDM with DEP, you'll need to create a new virtual server in the DEP portal, and import the necessary credentials to micromdm:
 
 ## Get public key
 
 First, extract the public key which you will need to upload when creating a new virtual server:
 
-```
+```shell
 mdmctl get dep-tokens -export-public-key /tmp/DEP_Public_key.pem
 ConsumerKey                               AccessTokenExpiry
 
@@ -21,32 +23,35 @@ Next, Go to the DEP portal and create a "MDM Server" (as its called in the DEP p
 
 Next, You'll have to import the downloaded `p7m` file somewhere that MicroMDM can access.
 
-```
+```shell
 mdmctl apply dep-tokens -import /Users/groob/Downloads/my_dep_token.p7m
 imported DEP token
 ```
 
 If you see a `imported DEP token` message, your MDM server will now be able to sync devices from DEP.  You can check to see that the token imported correctly by just listing the DEP tokens:
 
-```
+```shell
 mdmctl get dep-tokens
 ConsumerKey                               AccessTokenExpiry
 CK_4e84a1be9638d4bce37443ff2dad55abcacb…  2018-04-22 07:54:12 +0000 UTC
 ```
 
-## Exporting JSON token.
+## Exporting JSON token
 
 If you need to interact with DEP directly, there is an option to export the OAUTH token used by the server:
-```
+
+```shell
 mdmctl get dep-tokens -export-token /path/to/stoken.json
 ConsumerKey                               AccessTokenExpiry
 CK_4e84a1be9638d4bce37443ff2dad55abcacb…  2018-04-22 07:54:12 +0000 UTC
 
 Wrote DEP token JSON to: /path/to/stoken.json
 ```
+
 ## Firewall
 
 For MDM communication you need to open the following TCP ports
+
 - 80 Redirects to 443
 - 443 APN communication backup
 - 2195 messages to the APN

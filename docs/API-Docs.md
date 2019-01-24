@@ -43,7 +43,7 @@ curl -X POST "https://dev.micromdm.io/v1/commands" \
 
 - **Content-Type** should respect the following schema:
 
-```
+```shell
 {
   "type": "string",
   "enum": [
@@ -57,7 +57,7 @@ curl -X POST "https://dev.micromdm.io/v1/commands" \
 
 - **body** should respect the following schema:
 
-```
+```shell
 {
   "type": "string",
   "default": "{\"request_type\":\"DeviceInformation\",\"udid\":\"564DA875-35DE-E49B-7FCF-6A8FFBE52EF7\"}"
