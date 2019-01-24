@@ -39,7 +39,7 @@ type SCEPCertificate struct {
 	SCEPCert []byte `db:"scep_cert"`
 }
 
-func NewBoltDepot(db *sqlx.DB) (*Depot, error) {
+func NewDB(db *sqlx.DB) (*Depot, error) {
 	// Required for TIMESTAMP DEFAULT 0
 	_,err := db.Exec(`SET sql_mode = '';`)
 	
@@ -96,47 +96,6 @@ func (d *Depot) CA(pass []byte) ([]*x509.Certificate, *rsa.PrivateKey, error) {
 	}
 	chain = append(chain, cert)
 	return chain, key, nil
-	
-	
-/*
-	chain := []*x509.Certificate{}
-	var key *rsa.PrivateKey
-	err := db.View(func(tx *bolt.Tx) error {
-		bucket := tx.Bucket([]byte(certBucket))
-		if bucket == nil {
-			return fmt.Errorf("bucket %q not found!", certBucket)
-		}
-		// get ca_certificate
-		caCert := bucket.Get([]byte("ca_certificate"))
-		if caCert == nil {
-			return fmt.Errorf("no ca_certificate in bucket")
-		}
-		// we need to make a copy of the byte slice because the asn.Unmarshal
-		// method called by ParseCertificate will retain a reference to the original.
-		// The slice should no longer be referenced once the BoltDB transaction is closed.
-		caCertBytes := append([]byte(nil), caCert...)
-		cert, err := x509.ParseCertificate(caCertBytes)
-		if err != nil {
-			return err
-		}
-		chain = append(chain, cert)
-
-		// get ca_key
-		caKey := bucket.Get([]byte("ca_key"))
-		if caKey == nil {
-			return fmt.Errorf("no ca_key in bucket")
-		}
-		key, err = x509.ParsePKCS1PrivateKey(caKey)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, nil, err
-	}
-	return chain, key, nil
-*/
 }
 
 func (d *Depot) Put(cn string, crt *x509.Certificate) error {
@@ -177,17 +136,6 @@ type AutoIncrement struct {
 }
 
 func (d *Depot) Serial() (*big.Int, error) {
-/*	
-	result,err := d.db.Exec(`SELECT AUTO_INCREMENT
-		FROM  INFORMATION_SCHEMA.TABLES
-		WHERE   TABLE_NAME   = 'scep_certificates';
-		`)
-	if err != nil {
-	   return nil, errors.Wrap(err, "retrieving serial count from scep_certificates sql table failed")
-	}
-	fmt.Println(result)
-	return big.NewInt(2), nil
-*/
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Select("AUTO_INCREMENT").

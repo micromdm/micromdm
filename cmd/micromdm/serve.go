@@ -38,9 +38,11 @@ import (
 	"github.com/micromdm/micromdm/platform/config"
 	depapi "github.com/micromdm/micromdm/platform/dep"
 	"github.com/micromdm/micromdm/platform/dep/sync"
+	
 	"github.com/micromdm/micromdm/platform/device"
-	//devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
+	devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
 	devicemysql "github.com/micromdm/micromdm/platform/device/mysql"
+	
 	"github.com/micromdm/micromdm/platform/profile"
 	block "github.com/micromdm/micromdm/platform/remove"
 	"github.com/micromdm/micromdm/platform/user"
@@ -133,7 +135,6 @@ func serve(args []string) error {
 		// no less secure and prevents a useless dialog from showing.
 		SCEPChallenge: "micromdm",
 		
-		DataStoreImmutable: *flImmutable,
 		MysqlUsername: *flMysqlUsername,
 		MysqlPassword: *flMysqlPassword,
 		MysqlDatabase: *flMysqlDatabase,
@@ -164,11 +165,26 @@ func serve(args []string) error {
 	//	stdlog.Fatal(err)
 	//}
 	
-	devMysqlDB, err := devicemysql.NewDB(sm.MysqlDB)
-
-	//devWorker := device.NewWorker(devDB, sm.PubClient, logger)
-	devWorker := device.NewWorker(devMysqlDB, sm.PubClient, logger)
-	go devWorker.Run(context.Background())
+	var devDB device.Store
+	if sm.MysqlDB != nil {
+		db, err := devicemysql.NewDB(sm.MysqlDB)
+		if err != nil {
+			stdlog.Fatal(err)
+		}
+		devWorker := device.NewWorker(db, sm.PubClient, logger)
+		go devWorker.Run(context.Background())
+		devDB = db
+	} else {
+		db, err := devicebuiltin.NewDB(sm.DB)
+		if err != nil {
+			stdlog.Fatal(err)
+		}
+		devWorker := device.NewWorker(db, sm.PubClient, logger)
+		go devWorker.Run(context.Background())
+		devDB = db
+	}
+	
+	
 
 	userDB, err := userbuiltin.NewDB(sm.DB)
 	if err != nil {
@@ -204,8 +220,13 @@ func serve(args []string) error {
 	scepEndpoints.PostEndpoint = scep.EndpointLoggingMiddleware(scepComponentLogger)(scepEndpoints.PostEndpoint)
 	scepHandler := scep.MakeHTTPHandler(scepEndpoints, sm.SCEPService, scepComponentLogger)
 
-	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPDepot), httptransport.ServerErrorLogger(httpLogger))
-
+	var enrollHandlers enroll.HTTPHandlers
+	if sm.SCEPMysqlDB != nil {
+		enrollHandlers = enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPMysqlDB), httptransport.ServerErrorLogger(httpLogger))	
+	} else {
+		enrollHandlers = enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPBuiltin), httptransport.ServerErrorLogger(httpLogger))	
+	}	
+	
 	r, options := httputil2.NewRouter(logger)
 
 	r.Handle("/version", version.Handler())
@@ -233,8 +254,7 @@ func serve(args []string) error {
 		apnsEndpoints := apns.MakeServerEndpoints(sm.APNSPushService, basicAuthEndpointMiddleware)
 		apns.RegisterHTTPHandlers(r, apnsEndpoints, options...)
 
-		//devicesvc := device.New(devDB)
-		devicesvc := device.New(devMysqlDB)
+		devicesvc := device.New(devDB)
 		deviceEndpoints := device.MakeServerEndpoints(devicesvc, basicAuthEndpointMiddleware)
 		device.RegisterHTTPHandlers(r, deviceEndpoints, options...)
 
