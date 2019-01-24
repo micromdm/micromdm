@@ -1,4 +1,4 @@
-package queue
+package builtin
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/log"
+	"github.com/micromdm/micromdm/platform/queue"
 	"github.com/micromdm/micromdm/mdm"
 )
 
@@ -16,9 +17,9 @@ func TestNext_Error(t *testing.T) {
 	defer teardown()
 
 	dc := &DeviceCommand{DeviceUDID: "TestDevice"}
-	dc.Commands = append(dc.Commands, Command{UUID: "xCmd"})
-	dc.Commands = append(dc.Commands, Command{UUID: "yCmd"})
-	dc.Commands = append(dc.Commands, Command{UUID: "zCmd"})
+	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd"})
+	dc.Commands = append(dc.Commands, queue.Command{UUID: "yCmd"})
+	dc.Commands = append(dc.Commands, queue.Command{UUID: "zCmd"})
 	if err := store.Save(dc); err != nil {
 		t.Fatal(err)
 	}
@@ -49,8 +50,8 @@ func TestNext_NotNow(t *testing.T) {
 	defer teardown()
 
 	dc := &DeviceCommand{DeviceUDID: "TestDevice"}
-	dc.Commands = append(dc.Commands, Command{UUID: "xCmd"})
-	dc.Commands = append(dc.Commands, Command{UUID: "yCmd"})
+	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd"})
+	dc.Commands = append(dc.Commands, queue.Command{UUID: "yCmd"})
 	if err := store.Save(dc); err != nil {
 		t.Fatal(err)
 	}
@@ -97,9 +98,9 @@ func TestNext_Idle(t *testing.T) {
 	defer teardown()
 
 	dc := &DeviceCommand{DeviceUDID: "TestDevice"}
-	dc.Commands = append(dc.Commands, Command{UUID: "xCmd"})
-	dc.Commands = append(dc.Commands, Command{UUID: "yCmd"})
-	dc.Commands = append(dc.Commands, Command{UUID: "zCmd"})
+	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd"})
+	dc.Commands = append(dc.Commands, queue.Command{UUID: "yCmd"})
+	dc.Commands = append(dc.Commands, queue.Command{UUID: "zCmd"})
 	if err := store.Save(dc); err != nil {
 		t.Fatal(err)
 	}
