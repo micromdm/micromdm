@@ -23,7 +23,7 @@ spec:
     dockerStrategy:
       from:
         kind: ImageStreamTag
-        name: golang
+        name: golang:1.11-alpine
     type: Docker
   successfulBuildsHistoryLimit: 5
 {{ end }}
