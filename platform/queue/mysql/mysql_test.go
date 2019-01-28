@@ -2,10 +2,13 @@ package mysql
 
 import (
 	"context"
+	"fmt"
 //	"io/ioutil"
 //	"os"
 	"testing"
 
+	"github.com/satori/go.uuid"
+	
 	"github.com/go-kit/kit/log"
 	"github.com/kolide/kit/dbutil"
 	_ "github.com/go-sql-driver/mysql"
@@ -151,6 +154,39 @@ func TestNext_zeroCommands(t *testing.T) {
 	}
 
 }
+
+
+func TestSave_Insert(t *testing.T) {
+	store := setupDB(t)
+	ctx := context.Background()
+	
+	u1 := uuid.NewV4()
+	uniqueString := fmt.Sprintf("%s", u1)
+
+	commandExists, err := store.ContainsCommand(ctx, uniqueString)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if commandExists != false {
+		t.Errorf("Expects new command with new uuid to not exist yet")
+	}
+
+	command := queue.Command{UUID: uniqueString}
+	
+	
+	dc := &queue.DeviceCommand{DeviceUDID: "TestDevice"}
+	dc.Commands = append(dc.Commands, command)
+	if err := store.Save(ctx, dc); err != nil {
+		t.Fatal(err)
+	}
+	
+	commandExists, err = store.ContainsCommand(ctx, uniqueString)
+	if commandExists != true {
+		t.Errorf("Expects old command with new uuid to not exist yet")
+	}
+}
+
+
 
 func Test_SaveCommand(t *testing.T) {
 	store := setupDB(t)
