@@ -236,7 +236,8 @@ func NewQueue(db *sqlx.DB, pubsub pubsub.PublishSubscriber, opts ...Option) (*St
 	return datastore, nil
 }
 
-func (db *Store) SaveCommand(ctx context.Context, cmd queue.Command, deviceUDID string, order int) error {
+func (db *Store) updateCommand(ctx context.Context, cmd queue.Command, deviceUDID string, order int) error {
+	
 	// Make sure we take the time offset into account for "zero" dates	
 	t := time.Now()
 	_, offset := t.Zone()
@@ -281,7 +282,36 @@ func (db *Store) SaveCommand(ctx context.Context, cmd queue.Command, deviceUDID 
 	// MySql Convention
 	// Replace "ON DUPLICATE KEY UPDATE TABLE_NAME SET" to "ON DUPLICATE KEY UPDATE"
 	updateQuery = strings.Replace(updateQuery, DeviceCommandTable+" SET ", "", -1)
+	
+	_, err = db.db.ExecContext(ctx, updateQuery, args_update...)
+	return errors.Wrap(err, "exec command update in mysql")
+}
 
+
+func (db *Store) insertCommand(ctx context.Context, cmd queue.Command, deviceUDID string, order int) error {
+	
+	// Make sure we take the time offset into account for "zero" dates	
+	t := time.Now()
+	_, offset := t.Zone()
+
+	// Don't multiply by zero
+	if (offset <= 0) {
+		offset = 1
+	}
+	var min_timestamp_sec int64 = int64(offset) * 60 * 60 * 24
+	
+	if (cmd.CreatedAt.IsZero() || cmd.CreatedAt.Unix() < min_timestamp_sec) {
+		cmd.CreatedAt = time.Unix(min_timestamp_sec, 0)
+	}
+	
+	if (cmd.LastSentAt.IsZero() || cmd.LastSentAt.Unix() < min_timestamp_sec) {
+		cmd.LastSentAt = time.Unix(min_timestamp_sec, 0)
+	}
+	
+	if (cmd.Acknowledged.IsZero() || cmd.Acknowledged.Unix() < min_timestamp_sec) {
+		cmd.Acknowledged = time.Unix(min_timestamp_sec, 0)
+	}
+	
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Insert(DeviceCommandTable).
@@ -298,16 +328,26 @@ func (db *Store) SaveCommand(ctx context.Context, cmd queue.Command, deviceUDID 
 			cmd.FailureMessage,
 			order,
 		).
-		Suffix(updateQuery).
 		ToSql()
-	
-	var all_args = append(args, args_update...)
-	
+		
 	if err != nil {
 		return errors.Wrap(err, "building command save query")
 	}
 	
-	_, err = db.db.ExecContext(ctx, query, all_args...)
+	_, err = db.db.ExecContext(ctx, query, args...)
+	return errors.Wrap(err, "exec command insert in mysql")
+}
+
+func (db *Store) SaveCommand(ctx context.Context, cmd queue.Command, deviceUDID string, order int) error {
+	exists, err := db.ContainsCommand(ctx, cmd.UUID)
+	if err != nil {
+		return err
+	}
+	if exists == true {
+		err = db.updateCommand(ctx, cmd, deviceUDID, order)
+	} else {
+		err = db.insertCommand(ctx, cmd, deviceUDID, order)
+	}
 	return errors.Wrap(err, "exec command save in mysql")
 }
 
@@ -323,6 +363,22 @@ func (db *Store) Save(ctx context.Context, cmd *queue.DeviceCommand) error {
 		}
 	}
 	return err
+}
+
+func (db *Store) ContainsCommand(ctx context.Context, uuid string) (bool, error) {
+	query, args, err := sq.StatementBuilder.
+		PlaceholderFormat(sq.Question).
+		Select(command_columns()...).
+		From(DeviceCommandTable).
+		Where(sq.Eq{"uuid": uuid}).
+		ToSql()
+		
+	var list []MysqlCommand
+	err = db.db.SelectContext(ctx, &list, query, args...)
+	if (errors.Cause(err) == sql.ErrNoRows || len(list) == 0) {
+		return false, nil
+	}
+	return true, errors.Wrap(err, "exec command select command by uuid in mysql")
 }
 
 func (db *Store) DeviceCommand(ctx context.Context, udid string) (*queue.DeviceCommand, error) {
@@ -437,7 +493,6 @@ func (e deviceCommandNotFoundErr) Error() string {
 func (e deviceCommandNotFoundErr) NotFound() bool {
 	return true
 }
-
 
 /*
 func (deviceCommand *queue.DeviceCommand) marshalMysqlCommand() []MysqlCommand {
