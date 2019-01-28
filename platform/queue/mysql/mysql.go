@@ -4,7 +4,7 @@ package mysql
 import (
 	"context"
 	"fmt"
-	"strings"
+	//"strings"
 	"time"
 	"database/sql"
 	"github.com/jmoiron/sqlx"
@@ -263,8 +263,7 @@ func (db *Store) updateCommand(ctx context.Context, cmd queue.Command, deviceUDI
 	updateQuery, args_update, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Update(DeviceCommandTable).
-		Prefix("ON DUPLICATE KEY").
-		Set("uuid", cmd.UUID).
+		//Prefix("ON DUPLICATE KEY").
 		Set("device_udid", deviceUDID).
 		Set("payload", cmd.Payload).
 		Set("created_at", cmd.CreatedAt).
@@ -274,6 +273,7 @@ func (db *Store) updateCommand(ctx context.Context, cmd queue.Command, deviceUDI
 		Set("last_status", cmd.LastStatus).
 		Set("failure_message", cmd.FailureMessage).
 		Set("command_order", order).
+		Where(sq.Eq{"uuid": cmd.UUID}).
 		ToSql()
 	if err != nil {
 		return errors.Wrap(err, "building update query for command save")
@@ -281,8 +281,8 @@ func (db *Store) updateCommand(ctx context.Context, cmd queue.Command, deviceUDI
 	
 	// MySql Convention
 	// Replace "ON DUPLICATE KEY UPDATE TABLE_NAME SET" to "ON DUPLICATE KEY UPDATE"
-	updateQuery = strings.Replace(updateQuery, DeviceCommandTable+" SET ", "", -1)
-	
+	//updateQuery = strings.Replace(updateQuery, DeviceCommandTable+" SET ", "", -1)
+	fmt.Println(updateQuery)
 	_, err = db.db.ExecContext(ctx, updateQuery, args_update...)
 	return errors.Wrap(err, "exec command update in mysql")
 }
