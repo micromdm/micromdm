@@ -308,7 +308,6 @@ func (db *Store) SaveCommand(ctx context.Context, cmd queue.Command, deviceUDID 
 	}
 	
 	_, err = db.db.ExecContext(ctx, query, all_args...)
-	
 	return errors.Wrap(err, "exec command save in mysql")
 }
 
