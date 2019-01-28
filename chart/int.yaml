@@ -12,6 +12,6 @@ build:
   ensure: false
 
 acme:
-  enabled: false
+  ensure: false
 
 replicaCount: 1
