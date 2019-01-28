@@ -459,7 +459,7 @@ func (db *Store) UpdateCommandStatus(ctx context.Context, resp mdm.Response) err
 		return errors.Wrap(err, "building update query for command save")
 	}
 	
-	return errors.Wrap(err, "exec command save in mysql")
+	return errors.Wrap(err, "exec command update in mysql")
 }
 
 func UnmarshalMysqlCommand(udid string, mysqlCommands []MysqlCommand) (queue.DeviceCommand, error) {
