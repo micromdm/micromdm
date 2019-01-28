@@ -184,6 +184,10 @@ func TestSave_Insert(t *testing.T) {
 	if commandExists != true {
 		t.Errorf("Expects old command with new uuid to not exist yet")
 	}
+	
+	if err := store.Save(ctx, dc); err != nil {
+		t.Fatal(err)
+	}
 }
 
 
