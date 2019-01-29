@@ -257,7 +257,7 @@ func (c *Server) setupMysql() error {
 	}
 	
 	// Set the number of open and idle connection to a maximum total of 3.
-	db.SetMaxOpenConns(2)
+	db.SetMaxOpenConns(1)
 	db.SetMaxIdleConns(1)
 	
 	c.MysqlDB = db

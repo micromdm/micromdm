@@ -3,12 +3,13 @@ package mysql
 import (
 	"context"
 	"fmt"
-//	"io/ioutil"
-//	"os"
 	"testing"
-
-	"github.com/satori/go.uuid"
 	
+	"time"
+	
+	"strconv"
+    
+
 	"github.com/go-kit/kit/log"
 	"github.com/kolide/kit/dbutil"
 	_ "github.com/go-sql-driver/mysql"
@@ -94,6 +95,63 @@ func TestNext_NotNow(t *testing.T) {
 	t.Run("withOneCommand", tf)
 }
 
+func TestTransaction(t *testing.T) {
+	store := setupDB(t)
+	store.db.SetMaxOpenConns(5)
+	store.db.SetConnMaxLifetime(time.Hour)
+	store.db.SetMaxIdleConns(3)
+
+	dc := &queue.DeviceCommand{DeviceUDID: "TestDevice"}
+	responses := []mdm.Response{}
+
+	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd"})
+	resp := mdm.Response {
+		UDID:        dc.DeviceUDID,
+		CommandUUID: "xCmd",
+		Status:      "Idle",
+	}
+	responses =  append(responses, resp)
+	
+	for i := 0; i < 100; i++ {
+		dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd"+strconv.Itoa(i)})
+		resp := mdm.Response {
+			UDID:        dc.DeviceUDID,
+			CommandUUID: "xCmd"+strconv.Itoa(i),
+			Status:      "Idle",
+		}
+		responses = append(responses, resp)
+	}
+	
+	fmt.Println(dc.Commands)
+	
+	ctx := context.Background()
+	if err := store.Save(ctx, dc); err != nil {
+		t.Fatal(err)
+	}
+	
+	
+	for i, _cmd := range dc.Commands {
+		
+		resp := mdm.Response {
+			UDID:        dc.DeviceUDID,
+			CommandUUID: _cmd.UUID,
+			Status:      "Idle",
+		}
+		
+		cmd, err := store.nextCommand(ctx, resp)
+		if err != nil {
+			t.Fatalf("expected nil, but got err: %s", err)
+		}
+		if cmd == nil {
+			t.Fatal("expected cmd but got nil")
+		}
+
+		if have, want := cmd.UUID, dc.Commands[i].UUID; have != want {
+			t.Errorf("have %s, want %s, index %d", have, want, i)
+		}
+	}
+}
+
 func TestNext_Idle(t *testing.T) {
 	store := setupDB(t)
 
@@ -154,43 +212,6 @@ func TestNext_zeroCommands(t *testing.T) {
 	}
 
 }
-
-
-func TestSave_Insert(t *testing.T) {
-	store := setupDB(t)
-	ctx := context.Background()
-	
-	u1 := uuid.NewV4()
-	uniqueString := fmt.Sprintf("%s", u1)
-
-	commandExists, err := store.ContainsCommand(ctx, uniqueString)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if commandExists != false {
-		t.Errorf("Expects new command with new uuid to not exist yet")
-	}
-
-	command := queue.Command{UUID: uniqueString}
-	
-	
-	dc := &queue.DeviceCommand{DeviceUDID: "TestDevice"}
-	dc.Commands = append(dc.Commands, command)
-	if err := store.Save(ctx, dc); err != nil {
-		t.Fatal(err)
-	}
-	
-	commandExists, err = store.ContainsCommand(ctx, uniqueString)
-	if commandExists != true {
-		t.Errorf("Expects old command with new uuid to not exist yet")
-	}
-	
-	if err := store.Save(ctx, dc); err != nil {
-		t.Fatal(err)
-	}
-}
-
-
 
 func Test_SaveCommand(t *testing.T) {
 	store := setupDB(t)
