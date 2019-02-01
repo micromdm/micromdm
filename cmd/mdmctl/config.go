@@ -161,7 +161,11 @@ func setCmd(args []string) error {
 
 	cfg.SkipVerify = *flSkipVerify
 
-	return saveServerConfig(cfg, *flName)
+	err = saveServerConfig(cfg, *flName)
+	if err != nil {
+		return err
+	}
+	return switchServerConfig(*flName)
 }
 
 func switchCmd(args []string) error {
