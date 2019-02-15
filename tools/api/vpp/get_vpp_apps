@@ -1,0 +1,15 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/vpp/apps"
+
+if [ "$1" == "-h" ]; then
+  echo 'Usage: Optionally specify a list of app ids'
+  echo '       ./tools/api/vpp/get_vpp_apps 409183694,409201541'
+  exit 0
+fi
+
+jq -n \
+  --arg appIDs "$1" \
+  '.ids = ($appIDs | split(","))
+  '|\
+  curl $CURL_OPTS -X POST -s -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-

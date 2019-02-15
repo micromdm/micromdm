@@ -13,6 +13,7 @@ import (
 	"github.com/micromdm/micromdm/platform/profile"
 	"github.com/micromdm/micromdm/platform/remove"
 	"github.com/micromdm/micromdm/platform/user"
+	"github.com/micromdm/micromdm/platform/vpp"
 )
 
 type remoteServices struct {
@@ -23,6 +24,7 @@ type remoteServices struct {
 	devicesvc    device.Service
 	configsvc    config.Service
 	appsvc       appstore.Service
+	vppsvc       vpp.Service
 	depsvc       dep.Service
 	depsyncsvc   sync.Service
 }
@@ -82,6 +84,13 @@ func setupClient(logger log.Logger) (*remoteServices, error) {
 		return nil, err
 	}
 
+	vppsvc, err := vpp.NewHTTPClient(
+		cfg.ServerURL, cfg.APIToken, logger,
+		httptransport.SetClient(skipVerifyHTTPClient(cfg.SkipVerify)))
+	if err != nil {
+		return nil, err
+	}
+
 	depsvc, err := dep.NewHTTPClient(
 		cfg.ServerURL, cfg.APIToken, logger,
 		httptransport.SetClient(skipVerifyHTTPClient(cfg.SkipVerify)))
@@ -104,6 +113,7 @@ func setupClient(logger log.Logger) (*remoteServices, error) {
 		devicesvc:    devicesvc,
 		configsvc:    configsvc,
 		appsvc:       appsvc,
+		vppsvc:       vppsvc,
 		depsvc:       depsvc,
 		depsyncsvc:   depsyncsvc,
 	}, nil

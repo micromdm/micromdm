@@ -1,0 +1,23 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/vpp/metadata"
+
+if [ "$1" == "" ] || [ "$1" == "-h" ]; then
+  echo 'Usage: Must specify an app ID'
+  echo '       ./tools/api/vpp/get_vpp_metadata 408981434'
+  echo 'Optional: platform'
+  echo '       ./tools/api/vpp/get_vpp_metadata 408981434 enterprisestore'
+  echo 'Optional: metadata version'
+  echo '       ./tools/api/vpp/get_vpp_metadata 408981434 enterprisestore 2'
+  exit 0
+fi
+
+jq -n \
+  --arg appID "$1" \
+  --arg appPlatform "$2" \
+  --arg dataVersion "$3" \
+  '.id = $appID
+  |.platform = $appPlatform
+  |.version = $dataVersion
+  '|\
+  curl $CURL_OPTS -X POST -s -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-

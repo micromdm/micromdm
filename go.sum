@@ -30,6 +30,7 @@ github.com/gorilla/mux v1.6.2 h1:Pgr17XVTNXAk3q/r4CpKzC5xBM/qW1uVLV+IhRZpIIk=
 github.com/gorilla/mux v1.6.2/go.mod h1:1lud6UwP+6orDFRuTfBEV8e9/aOM/c4fVVCaMa2zaAs=
 github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda h1:5ikpG9mYCMFiZX0nkxoV6aU2IpCHPdws3gCNgdZeEV0=
 github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda/go.mod h1:MyndkAZd5rUMdNogn35MWXBX1UiBigrU8eTj8DoAC2c=
+github.com/groob/pkcs7 v0.0.0-20180824154052-36585635cb64 h1:1ALD84dEnUxPKZENhUAeQ0tuJ+s3PuL85pV95B0Ekfk=
 github.com/groob/pkcs7 v0.0.0-20180824154052-36585635cb64/go.mod h1:mEOMQ8C7oeXY3LnE2jy4UkLAqrW9rrpwiP5U4hVV+MY=
 github.com/groob/plist v0.0.0-20180203051248-dd56909aee38 h1:afbUddvIjPRC7XHHgeSTRfzZtIxEsSl4VCxumLBGDJU=
 github.com/groob/plist v0.0.0-20180203051248-dd56909aee38/go.mod h1:qg2Nek0ND/hIr+nY8H1oVqEW2cLzVVNaAQ0QexOyjyc=

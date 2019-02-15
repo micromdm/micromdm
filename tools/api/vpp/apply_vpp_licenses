@@ -1,0 +1,17 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/vpp/licenses"
+
+if [ "$1" == "-h" ] || [ "$1" == "" ] || [ "$2" == "" ]; then
+  echo 'Usage: Must specify an app id and at least one serial'
+  echo '       ./tools/api/vpp/apply_vpp_licenses 409183694 C01ABCD2EFG3,C45HIJK6LMN7'
+  exit 0
+fi
+
+jq -n \
+  --arg appID "$1" \
+  --arg serials "$2" \
+  '.adamIdStr = $appID
+  |.associateSerialNumbers = ($serials | split(","))
+  '|\
+  curl $CURL_OPTS -X PUT -s -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-

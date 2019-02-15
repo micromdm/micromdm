@@ -1,0 +1,4 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/vpp/licenses"
+curl $CURL_OPTS -X GET -s -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint"

@@ -60,6 +60,8 @@ func (cmd *applyCommand) Run(args []string) error {
 		run = cmd.applyProfile
 	case "app":
 		run = cmd.applyApp
+	case "vpp-apps", "vpp-app":
+		run = cmd.applyVPPApp
 	case "block":
 		run = cmd.applyBlock
 	case "users":
@@ -86,6 +88,7 @@ Valid resource types:
   * dep-profiles
   * dep-autoassigner
   * app
+  * vpp-app
   * block
 
 Examples:

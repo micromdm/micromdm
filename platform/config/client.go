@@ -48,9 +48,45 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 		).Endpoint()
 	}
 
+	var applyVPPTokensEndpoint endpoint.Endpoint
+	{
+		applyVPPTokensEndpoint = httptransport.NewClient(
+			"PUT",
+			httputil.CopyURL(u, "/v1/vpp-tokens"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			decodeApplyVPPTokensResponse,
+			opts...,
+		).Endpoint()
+	}
+
+	var getVPPTokensEndpoint endpoint.Endpoint
+	{
+		getVPPTokensEndpoint = httptransport.NewClient(
+			"POST",
+			httputil.CopyURL(u, "/v1/vpp-tokens"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			decodeGetVPPTokensResponse,
+			opts...,
+		).Endpoint()
+	}
+
+	var removeVPPTokensEndpoint endpoint.Endpoint
+	{
+		removeVPPTokensEndpoint = httptransport.NewClient(
+			"DELETE",
+			httputil.CopyURL(u, "/v1/vpp-tokens"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			decodeRemoveVPPTokensResponse,
+			opts...,
+		).Endpoint()
+	}
+
 	return Endpoints{
 		SavePushCertificateEndpoint: saveEndpoint,
 		ApplyDEPTokensEndpoint:      applyDEPTokensEndpoint,
 		GetDEPTokensEndpoint:        getDEPTokensEndpoint,
+		ApplyVPPTokensEndpoint:      applyVPPTokensEndpoint,
+		GetVPPTokensEndpoint:        getVPPTokensEndpoint,
+		RemoveVPPTokensEndpoint:     removeVPPTokensEndpoint,
 	}, nil
 }

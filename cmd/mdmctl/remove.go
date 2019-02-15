@@ -50,6 +50,8 @@ func (cmd *removeCommand) Run(args []string) error {
 		run = cmd.removeBlock
 	case "dep-autoassigner":
 		run = cmd.removeDEPAutoAssigner
+	case "vpp-apps", "vpp-app":
+		run = cmd.removeVPPApp
 	default:
 		cmd.Usage()
 		os.Exit(1)
@@ -69,6 +71,7 @@ Valid resource types:
   * profiles
   * block
   * dep-autoassigner
+  * vpp-app
 `
 
 	fmt.Println(getUsage)

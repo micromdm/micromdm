@@ -1,0 +1,15 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/vpp/serviceconfig"
+
+if [ "$1" == "-h" ]; then
+  echo 'Usage: Optionally specify a VPP Token'
+  echo '       ./tools/api/vpp/get_vpp_service_config $(cat /path/to/sToken.vpptoken)'
+  exit 0
+fi
+
+jq -n \
+  --arg sToken "$1" \
+  '.sToken = $sToken
+  '|\
+  curl $CURL_OPTS -X POST -s -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-

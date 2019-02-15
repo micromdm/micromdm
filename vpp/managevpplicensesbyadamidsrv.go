@@ -1,26 +1,29 @@
 package vpp
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+)
 
 // Contains information about a managed license
 type ManageVPPLicensesByAdamIdSrv struct {
-	ProductTypeID   int           `json:"productTypeId,omitempty"`
-	ProductTypeName string        `json:"productTypeName,omitempty"`
-	IsIrrevocable   bool          `json:"isIrrevocable,omitempty"`
-	PricingParam    string        `json:"pricingParam,omitempty"`
-	UID             string        `json:"uId,omitempty,omitempty"`
-	AdamIdStr       string        `json:"adamIdStr,omitempty"`
-	Status          int           `json:"status"`
-	ClientContext   string        `json:"clientContext,omitempty"`
-	Location        *Location     `json:"location,omitempty"`
-	Associations    []Association `json:"associations,omitempty"`
-	ErrorMessage    string        `json:"errorMessage,omitempty"`
-	ErrorNumber     int           `json:"errorNumber,omitempty"`
+	ProductTypeID   int              `json:"productTypeId,omitempty"`
+	ProductTypeName string           `json:"productTypeName,omitempty"`
+	IsIrrevocable   bool             `json:"isIrrevocable,omitempty"`
+	PricingParam    string           `json:"pricingParam,omitempty"`
+	UID             string           `json:"uId,omitempty,omitempty"`
+	AdamIdStr       string           `json:"adamIdStr,omitempty"`
+	Status          int              `json:"status"`
+	ClientContext   string           `json:"clientContext,omitempty"`
+	Location        *Location        `json:"location,omitempty"`
+	Associations    []Association    `json:"associations,omitempty"`
+	Disassociations []Disassociation `json:"disassociations,omitempty"`
+	ErrorMessage    string           `json:"errorMessage,omitempty"`
+	ErrorNumber     int              `json:"errorNumber,omitempty"`
 }
 
 // Contains information about an app association
 type Association struct {
-	SerialNumber           string   `json:"serialNumber"`
+	SerialNumber           string   `json:"serialNumber,omitempty"`
 	ErrorMessage           string   `json:"errorMessage,omitempty"`
 	ErrorCode              int      `json:"errorCode,omitempty"`
 	ErrorNumber            int      `json:"errorNumber,omitempty"`
@@ -28,59 +31,61 @@ type Association struct {
 	LicenseAlreadyAssigned *License `json:"licenseAlreadyAssigned,omitempty"`
 }
 
+// Contains information about an app disassociation
+type Disassociation struct {
+	SerialNumber string `json:"serialNumber,omitempty"`
+	ErrorMessage string `json:"errorMessage,omitempty"`
+	ErrorCode    int    `json:"errorCode,omitempty"`
+	ErrorNumber  int    `json:"errorNumber,omitempty"`
+	LicenseIDStr string `json:"licenseIdStr,omitempty"`
+}
+
 // Contains options to pass to the ManageVPPLicensesByAdamIdSrv
 type ManageVPPLicensesByAdamIdSrvOptions struct {
-	SToken                    string   `json:"sToken"`
-	AdamIDStr                 string   `json:"adamIdStr"`
-	PricingParam              string   `json:"pricingParam"`
-	AssociateSerialNumbers    []string `json:"associateSerialNumbers,omitempty"`
-	DisassociateSerialNumbers []string `json:"disassociateSerialNumbers,omitempty"`
-}
-
-// Associates a list of serials to a VPP app license
-func (c *Client) AssociateSerialsToApp(appID string, serials []string) (*ManageVPPLicensesByAdamIdSrv, error) {
-	options := ManageVPPLicensesByAdamIdSrvOptions{
-		AssociateSerialNumbers: serials,
-	}
-
-	response, err := c.ManageVPPLicensesByAdamIdSrv(appID, options)
-	return &response, err
-}
-
-// Disssociates a list of serials to a VPP app license
-func (c *Client) DisassociateSerialsToApp(appID string, serials []string) (*ManageVPPLicensesByAdamIdSrv, error) {
-	options := ManageVPPLicensesByAdamIdSrvOptions{
-		DisassociateSerialNumbers: serials,
-	}
-
-	response, err := c.ManageVPPLicensesByAdamIdSrv(appID, options)
-	return &response, err
+	AdamIDStr                    string   `json:"adamIdStr"`
+	PricingParam                 string   `json:"pricingParam"`
+	AssociateClientUserIdStrs    string   `json:"associateClientUserIdStrs,omitempty"`
+	AssociateSerialNumbers       []string `json:"associateSerialNumbers,omitempty"`
+	DisassociateClientUserIdStrs string   `json:"disassociateClientUserIdStrs,omitempty"`
+	DisassociateLicenseIdStrs    string   `json:"disassociateLicenseIdStrs,omitempty"`
+	DisassociateSerialNumbers    []string `json:"disassociateSerialNumbers,omitempty"`
+	notifyDisassociation         bool     `json:"notifyDisassociation,omitempty"`
+	SToken                       string   `json:"sToken,omitempty"`
+	facilitatorMemberId          string   `json:"facilitatorMemberId,omitempty"`
 }
 
 // Interfaces with the ManageVPPLicensesByAdamIdSrv to managed VPP licenses
-func (c *Client) ManageVPPLicensesByAdamIdSrv(appID string, options ManageVPPLicensesByAdamIdSrvOptions) (ManageVPPLicensesByAdamIdSrv, error) {
-	options.SToken = c.SToken
-	options.AdamIDStr = appID
+func (c *Client) ManageVPPLicensesByAdamIdSrv(options ManageVPPLicensesByAdamIdSrvOptions) (*ManageVPPLicensesByAdamIdSrv, error) {
+
+	if options.SToken == "" {
+		options.SToken = c.VPPToken.SToken
+	}
+
+	if options.AdamIDStr == "" {
+		return nil, errors.Wrap(nil, "must include adamIdStr")
+	}
 
 	// Get the pricing param required to manage a vpp license
-	pricing, err := c.GetPricingParamForApp(appID)
-	if err != nil {
-		return ManageVPPLicensesByAdamIdSrv{}, errors.Wrap(err, "get PricingParam request")
+	if options.PricingParam == "" {
+		pricing, err := c.GetPricingParamForApp(options.AdamIDStr)
+		if err != nil {
+			return nil, errors.Wrap(err, "get PricingParam request")
+		}
+		options.PricingParam = pricing
 	}
-	options.PricingParam = pricing
 
 	// Get the ManageVPPLicensesByAdamIdSrvURL
-	manageVPPLicensesByAdamIdSrvUrl := c.VPPServiceConfigSrv.ManageVPPLicensesByAdamIdSrvURL
+	manageVPPLicensesByAdamIdSrvUrl := c.ServiceConfigSrv.ManageVPPLicensesByAdamIdSrvURL
 
 	// Create the ManageVPPLicensesByAdamIdSrv request
 	req, err := c.newRequest("POST", manageVPPLicensesByAdamIdSrvUrl, options)
 	if err != nil {
-		return ManageVPPLicensesByAdamIdSrv{}, errors.Wrap(err, "create ManageVPPLicensesByAdamIdSrv request")
+		return nil, errors.Wrap(err, "create ManageVPPLicensesByAdamIdSrv request")
 	}
 
 	// Make the Request
 	var response ManageVPPLicensesByAdamIdSrv
 	err = c.do(req, &response)
 
-	return response, errors.Wrap(err, "ManageVPPLicensesByAdamIdSrv request")
+	return &response, errors.Wrap(err, "ManageVPPLicensesByAdamIdSrv request")
 }

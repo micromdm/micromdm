@@ -2,9 +2,9 @@ package vpp
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
-	"github.com/satori/go.uuid"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 // Contains information that associates your particular mdm server to a VPP account token
@@ -34,45 +34,25 @@ type ClientConfigSrv struct {
 }
 
 // These specify options for the ClientConfigSrv
-type GetClientConfigSrvOptions func(*getClientConfigSrvOpts) error
-
-type getClientConfigSrvOpts struct {
-	SToken        string `json:"sToken"`
+type ClientConfigSrvOptions struct {
+	SToken        string `json:"sToken,omitempty"`
 	Verbose       bool   `json:"verbose,omitempty"`
 	ClientContext string `json:"clientContext,omitempty"`
 }
 
-// Verbose is an optional argument that can be added to GetClientConfigSrv
-func VerboseOption(verbose bool) GetClientConfigSrvOptions {
-	return func(opts *getClientConfigSrvOpts) error {
-		opts.Verbose = verbose
-		return nil
-	}
-}
-
-// ClientContext is an optional argument that can be added to GetClientConfigSrv
-func ClientContextOption(context string) GetClientConfigSrvOptions {
-	return func(opts *getClientConfigSrvOpts) error {
-		opts.ClientContext = context
-		return nil
-	}
-}
-
 // Gets ClientConfigSrv information
-func (c *Client) GetClientConfigSrv(opts ...GetClientConfigSrvOptions) (*ClientConfigSrv, error) {
+func (c *Client) GetClientConfigSrv(options ClientConfigSrvOptions) (*ClientConfigSrv, error) {
+
 	// Set required and optional arguments
-	request := &getClientConfigSrvOpts{SToken: c.SToken}
-	for _, option := range opts {
-		if err := option(request); err != nil {
-			return nil, err
-		}
+	if options.SToken == "" {
+		options.SToken = c.VPPToken.SToken
 	}
 
 	// Get the ClientConfigSrvURL
-	clientConfigSrvURL := c.VPPServiceConfigSrv.ClientConfigSrvURL
+	clientConfigSrvURL := c.ServiceConfigSrv.ClientConfigSrvURL
 
 	// Create the ClientConfigSrvURL request
-	req, err := c.newRequest("POST", clientConfigSrvURL, request)
+	req, err := c.newRequest("POST", clientConfigSrvURL, options)
 	if err != nil {
 		return nil, errors.Wrap(err, "create ClientConfigSrv request")
 	}
@@ -84,45 +64,61 @@ func (c *Client) GetClientConfigSrv(opts ...GetClientConfigSrvOptions) (*ClientC
 	return &response, errors.Wrap(err, "make ClientConfigSrv request")
 }
 
-// Gets the appleID field along with the standard information
-func (c *Client) GetClientConfigSrvVerbose() (*ClientConfigSrv, error) {
-	options := VerboseOption(true)
-	response, err := c.GetClientConfigSrv(options)
+// Configure ClientContext for all VPPTokens
+func (c *Client) ConfigureClientContext(options ClientConfigSrvOptions) error {
+
+	// Set Client Context If Needed
+	context, err := c.GetClientContext(options)
 	if err != nil {
-		return nil, errors.Wrap(err, "using verbose option")
+		return errors.Wrap(err, "GetClientContext request")
 	}
 
-	return response, nil
+	if context.HostName != c.ServerPublicURL {
+		_, err := c.SetClientContext(options)
+		if err != nil {
+			return errors.Wrap(err, "SetClientContext HostName request")
+		}
+	} else if context.GUID != c.VPPToken.UDID {
+		_, err := c.SetClientContext(options)
+		if err != nil {
+			return errors.Wrap(err, "SetClientContext GUID request")
+		}
+	}
+
+	return nil
 }
 
 // Gets the values that determine which mdm server is associated with a VPP account token
-func (c *Client) GetClientContext() (*ClientContext, error) {
+func (c *Client) GetClientContext(options ClientConfigSrvOptions) (*ClientContext, error) {
+
 	// Get the ClientConfigSrv info
-	clientConfigSrv, err := c.GetClientConfigSrv()
+	clientConfigSrv, err := c.GetClientConfigSrv(options)
 	if err != nil {
 		return nil, errors.Wrap(err, "get ClientContext request")
 	}
 
 	// Get the ClientContext string
-	var context = clientConfigSrv.ClientContext
-
-	// Convert the string to a ClientContext type
 	var clientContext ClientContext
-	err = json.NewDecoder(strings.NewReader(context)).Decode(&clientContext)
-	if err != nil {
-		return nil, errors.Wrap(err, "decode ClientContext")
+	var context = clientConfigSrv.ClientContext
+	if context != "" {
+		// Convert the string to a ClientContext type
+		err = DecodeToClientContext(context, &clientContext)
+		if err != nil {
+			return nil, errors.Wrap(err, "get ClientContext")
+		}
+	} else {
+		clientContext.HostName = ""
+		clientContext.GUID = ""
 	}
 
 	return &clientContext, nil
 }
 
 // Sets the values that determine which mdm server is associated with a VPP account token
-func (c *Client) SetClientContext(serverURL string) (*ClientContext, error) {
-	// Generate a UUID that is tracked to ensure VPP licenses are up to date
-	uuid := uuid.NewV4().String()
+func (c *Client) SetClientContext(options ClientConfigSrvOptions) (*ClientContext, error) {
 
-	// Generate a ClientContext string with the new UUID and the current serverURL
-	context := ClientContext{serverURL, uuid}
+	// Generate a ClientContext string with the UDID and the current ServerPublicURL
+	context := ClientContext{c.ServerPublicURL, c.VPPToken.UDID}
 	data, err := json.Marshal(context)
 	if err != nil {
 		return nil, errors.Wrap(err, "create new ClientContext")
@@ -130,7 +126,7 @@ func (c *Client) SetClientContext(serverURL string) (*ClientContext, error) {
 	newContext := string(data)
 
 	// Enter the new ClientContext string into the ClientConfigSrv options
-	options := ClientContextOption(newContext)
+	options.ClientContext = newContext
 
 	// Set the new ClientContext into the VPP account token
 	response, err := c.GetClientConfigSrv(options)
@@ -138,15 +134,21 @@ func (c *Client) SetClientContext(serverURL string) (*ClientContext, error) {
 		return nil, errors.Wrap(err, "set ClientContext request")
 	}
 
-	// Get the new ClientContext string
-	var contextString = response.ClientContext
-
 	// Convert the string to a ClientContext type
 	var clientContext ClientContext
-	err = json.NewDecoder(strings.NewReader(contextString)).Decode(&clientContext)
+	err = DecodeToClientContext(response.ClientContext, &clientContext)
 	if err != nil {
-		return nil, errors.Wrap(err, "decode new ClientContext")
+		return nil, errors.Wrap(err, "set ClientContext")
 	}
 
 	return &clientContext, nil
+}
+
+func DecodeToClientContext(contextString string, context *ClientContext) error {
+	// Convert the string to a ClientContext type
+	err := json.NewDecoder(strings.NewReader(contextString)).Decode(&context)
+	if err != nil {
+		return errors.Wrap(err, "decode ClientContext")
+	}
+	return nil
 }

@@ -1,0 +1,8 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/vpp/assets"
+
+jq -n \
+  '.includeLicenseCounts = true
+  '|\
+  curl $CURL_OPTS -X POST -s -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-

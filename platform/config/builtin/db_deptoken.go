@@ -16,7 +16,7 @@ const (
 	depTokenBucket = "mdm.DEPToken"
 )
 
-func (db *DB) AddToken(consumerKey string, json []byte) error {
+func (db *DB) AddDEPToken(consumerKey string, json []byte) error {
 	err := db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(depTokenBucket))
 		if err != nil {
