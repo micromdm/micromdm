@@ -12,6 +12,7 @@ jobs:
           environment:
             - MYSQL_DATABASE=micromdm_test
             - MYSQL_USER=micromdm
+            - MYSQL_ROOT_PASSWORD=micromdm
             - MYSQL_PASSWORD=micromdm
             - MYSQL_ROOT_HOST=%
             - DB_HOST=127.0.0.1
