@@ -10,23 +10,23 @@
 			    <string>ch.abacus.abaclock.client2</string>
 			</array>
 			<key>PayloadDisplayName</key>
-			<string>Autonomous Single App Mode</string>
+			<string>Auto Single App Mode</string>
 			<key>PayloadIdentifier</key>
-			<string>ch.abacus.asam.19C7A29D-AB06-4B66-BD04-1671D16C0E77</string>
+			<string>ch.abacus.asam.abaclock</string>
 			<key>PayloadOrganization</key>
-			<string></string>
+			<string>Abacus Research AG</string>
 			<key>PayloadType</key>
 			<string>com.apple.asam</string>
 			<key>PayloadUUID</key>
-			<string>19C7A29D-AB06-4B66-BD04-1671D16C0E77</string>
+			<string>99ED73B5-B53F-4C23-8893-6D8BAC8964EA</string>
 			<key>PayloadVersion</key>
 			<integer>1</integer>
 		</dict>
 	</array>
 	<key>PayloadDisplayName</key>
-	<string>Single App Mode AbaClocK 2</string>
+	<string>Auto Single App Mode AbaClocK 2</string>
 	<key>PayloadIdentifier</key>
-	<string>ch.abacus.asam</string>
+	<string>com.apple.asam.abaclock2</string>
 	<key>PayloadOrganization</key>
 	<string>Abacus Research AG</string>
 	<key>PayloadScope</key>
@@ -34,7 +34,7 @@
 	<key>PayloadType</key>
 	<string>Configuration</string>
 	<key>PayloadUUID</key>
-	<string>8FFB079A-AA94-4CF5-BD4E-986910E5B5E9</string>
+	<string>EF21A748-D41A-444F-9F71-B89725B642F6 </string>
 	<key>PayloadVersion</key>
 	<integer>1</integer>
 </dict>
