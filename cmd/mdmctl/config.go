@@ -288,6 +288,9 @@ func loadClientConfig() (*ClientConfig, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal %s : %s", path, err)
 	}
+	if cfg.Servers == nil {
+		cfg.Servers = map[string]ServerConfig{}
+	}
 	return &cfg, nil
 }
 
