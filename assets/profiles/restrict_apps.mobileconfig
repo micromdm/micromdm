@@ -224,6 +224,9 @@
 				<string>com.apple.mobilemail</string>
 				<string>com.apple.AppStore</string>
                 <string>com.apple.TestFlight</string>
+                <string>com.teamviewer.teamviewerQS</string>
+                <string>com.apple.mobileslideshow</string>
+                <string>com.PunchThrough.LightBlue</string>
 			</array>
 		</dict>
 	</array>
