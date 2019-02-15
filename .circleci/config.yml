@@ -27,13 +27,6 @@ jobs:
       - run: GO111MODULE=on go install github.com/pressly/goose/cmd/goose
       - run: make db-reset-test
       - run: make db-migrate-test
-      - run:
-          name: Wait for DB
-          # preinstalled in circleci/* docker image
-          command: dockerize -wait tcp://127.0.0.1:3306 -timeout 120s
-      - run:
-          name: MySQL version
-          command: bundle exec ruby mysql_version.rb
       - run: make test
       - run: make
 
