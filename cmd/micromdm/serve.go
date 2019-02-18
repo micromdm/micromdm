@@ -82,17 +82,18 @@ func serve(args []string) error {
 		flDepSim            = flagset.String("depsim", "", "use depsim URL")
 		flExamples          = flagset.Bool("examples", false, "prints some example usage")
 		flCommandWebhookURL = flagset.String("command-webhook-url", "", "URL to send command responses.")
+		
+		flCommandWebhookAuthUser = flagset.String("command-webhook-auth-user", "", "Basic auth user for webhook to send command responses.")
+		flCommandWebhookAuthPass = flagset.String("command-webhook-auth-pass", "", "Basic auth password for webhook to send command responses.")
+		
 		flHomePage          = flagset.Bool("homepage", true, "hosts a simple built-in webpage at the / address")
 		
+		flImmutable		 	= flagset.Bool("immutable", true, "If flag is set, it is considered the bolt db is immutable.")
 		flMysqlUsername 	= flagset.String("mysql-username", "", "Username to login to Mysql")
 		flMysqlPassword 	= flagset.String("mysql-password", "", "Password to login to Mysql")
 		flMysqlDatabase 	= flagset.String("mysql-database", "", "Name of the Mysql Database")
 		flMysqlHost 		= flagset.String("mysql-host", "", "IP or URL to the Mysql Host")
 		flMysqlPort 		= flagset.String("mysql-port", "", "Port to use for Mysql connection")
-		
-//		flAPNSKeyPass  		= flagset.String("password", "", "Password to encrypt/read the RSA key.")
-//		flAPNSKeyPath  		= flagset.String("private-key", filepath.Join(mdmcertdir, pushCertificatePrivateKeyFilename), "Path to the push certificate private key.")
-//		flAPNSCertPath 		= flagset.String("cert", "", "Path to the MDM Push Certificate.")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -127,7 +128,10 @@ func serve(args []string) error {
 		ServerPublicURL:   strings.TrimRight(*flServerURL, "/"),
 		Depsim:            *flDepSim,
 		TLSCertPath:       *flTLSCert,
-		CommandWebhookURL: *flCommandWebhookURL,
+		
+		CommandWebhookURL: 		*flCommandWebhookURL,
+		CommandWebhookAuthUser: *flCommandWebhookAuthUser,
+		CommandWebhookAuthPass: *flCommandWebhookAuthPass,
 
 		WebhooksHTTPClient: &http.Client{Timeout: time.Second * 30},
 
@@ -137,6 +141,7 @@ func serve(args []string) error {
 		// no less secure and prevents a useless dialog from showing.
 		SCEPChallenge: "micromdm",
 		
+		DataStoreImmutable: *flImmutable,
 		MysqlUsername: *flMysqlUsername,
 		MysqlPassword: *flMysqlPassword,
 		MysqlDatabase: *flMysqlDatabase,
@@ -268,7 +273,8 @@ func serve(args []string) error {
 		depEndpoints := depapi.MakeServerEndpoints(depsvc, basicAuthEndpointMiddleware)
 		depapi.RegisterHTTPHandlers(r, depEndpoints, options...)
 
-		depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncDB), basicAuthEndpointMiddleware)
+		//depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncDB), basicAuthEndpointMiddleware)
+		depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncMysqlDB), basicAuthEndpointMiddleware)
 		sync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
 
 		//r.HandleFunc("/boltbackup", httputil2.RequireBasicAuth(boltBackup(sm.DB), "micromdm", *flAPIKey, "micromdm"))
@@ -321,6 +327,7 @@ func serveOptions(
 	configPath string,
 	tls bool,
 ) []httputil.Option {
+	
 	tlsFromFile := (certPath != "" && keyPath != "")
 	serveOpts := []httputil.Option{
 		httputil.WithACMEHosts([]string{hostname}),
@@ -330,6 +337,7 @@ func serveOptions(
 	if tlsFromFile {
 		serveOpts = append(serveOpts, httputil.WithKeyPair(certPath, keyPath))
 	}
+	
 	if !tls && addr == ":https" {
 		serveOpts = append(serveOpts, httputil.WithAddress(":8080"))
 	}

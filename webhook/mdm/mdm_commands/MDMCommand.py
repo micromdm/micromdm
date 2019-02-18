@@ -8,7 +8,7 @@ import base64
 #sys.path.insert(1, os.path.join(sys.path[0], '../..'))
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 # import ../../config.py
-import config
+import db
 
 class MDMCommand (object):
 
@@ -23,6 +23,7 @@ class MDMCommand (object):
             udid of the device (40 characters long) and lower cased
         """
         self.udid = udid
+        self.command_uuid = None
         self.request()
 
     def _request_url(self):
@@ -73,7 +74,7 @@ class MDMCommand (object):
         """
         raise NotImplementedError("Should have implemented this: _request_data")
 
-    def _command_identifier(self):
+    def command_identifier(self):
         """
         Raises
         ------
@@ -87,7 +88,7 @@ class MDMCommand (object):
         """
         raise NotImplementedError("Should have implemented this: _command_identifier")
 
-    def _command_id(self):
+    def command_id(self):
         """
         Raises
         ------
@@ -118,14 +119,14 @@ class MDMCommand (object):
         k_command_uuid = 'command_uuid'
         if k_payload in json and k_command_uuid in json[k_payload]:
             payload = json[k_payload]
-            command_uuid = payload[k_command_uuid].encode("utf-8")
+            self.command_uuid = payload[k_command_uuid].encode("utf-8")
             # Used for Mysql insertion
             return {
-                'command_uuid': command_uuid,
+                'command_uuid': self.command_uuid,
                 'device_udid': self.udid,
                 #'device_serial_number': self.serial_number,
-                'command_identifier': self._command_identifier(),
-                'command_id': self._command_id(),
+                'command_identifier': self.command_identifier(),
+                'command_id': self.command_id(),
             }
         else:
             raise ValueError("Given JSON not in expected format"+json)
@@ -138,12 +139,19 @@ class MDMCommand (object):
     def request(self):
         data = json.dumps(self._request_data())
         url = self._request_url()
-        c_identifier = self._command_identifier()
-        c_id = self._command_id()
+        c_identifier = self.command_identifier()
+        c_id = self.command_id()
         headers = {
             'Content-Type': 'application/json',
         }
         response = requests.post(url, data=data, headers=headers, auth=('micromdm', 'secret'))
+        if 'command_uuid' in response.json():
+            self.command_uuid = response.json()['command_uuid']
         print(c_id, c_identifier, self.udid, response)
         response_serialized = self._serialize_response(response.json())
+
+        if 'command_uuid' in response_serialized:
+            self.command_uuid = response_serialized['command_uuid']
+
+        db.DB.DB.log_command_request(self)
         print(response_serialized)

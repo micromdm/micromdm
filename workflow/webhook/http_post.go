@@ -1,6 +1,7 @@
 package webhook
 
 import (
+    "encoding/base64"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -13,10 +14,17 @@ type httpClient interface {
 	Do(*http.Request) (*http.Response, error)
 }
 
+func basicAuth(username, password string) string {
+    auth := username + ":" + password
+    return base64.StdEncoding.EncodeToString([]byte(auth))
+}
+
 func postWebhookEvent(
 	ctx context.Context,
 	client httpClient,
 	url string,
+	authUser string,
+	authPass string,
 	event interface{},
 ) error {
 	raw, err := json.MarshalIndent(event, "", "  ")
@@ -27,6 +35,9 @@ func postWebhookEvent(
 	req, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(raw))
 	if err != nil {
 		return errors.Wrap(err, "create webhook http request")
+	}
+	if (authUser != "" && authPass != "") {
+		req.Header.Add("Authorization","Basic " + basicAuth(authUser, authPass))
 	}
 	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
