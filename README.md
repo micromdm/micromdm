@@ -1,3 +1,32 @@
+<!--ts-->
+   * [MicroMDM - Abacus](#micromdm---abacus)
+      * [Requirements](#requirements)
+      * [Compiling](#compiling)
+      * [Testing](#testing)
+         * [Mysql - Only for Test environment!](#mysql---only-for-test-environment)
+            * [Setup test account:](#setup-test-account)
+            * [Run tests](#run-tests)
+      * [Setup / Update micromdm.db](#setup--update-micromdmdb)
+         * [mdmctl](#mdmctl)
+            * [Configure later MDM Service](#configure-later-mdm-service)
+            * [Assign Apple DEP Token](#assign-apple-dep-token)
+            * [Assign Apple Push Certificate (APNS Cert)](#assign-apple-push-certificate-apns-cert)
+         * [micromdm locally](#micromdm-locally)
+         * [BoltDB - Document Store](#boltdb---document-store)
+            * [Certificates](#certificates)
+            * [DEP Token from Apple (.p7m)](#dep-token-from-apple-p7m)
+            * [scep_certificates](#scep_certificates)
+      * [Operations](#operations)
+         * [Build with Docker File](#build-with-docker-file)
+         * [Run](#run)
+      * [Certificate Updates](#certificate-updates)
+         * [MDM Certificate](#mdm-certificate)
+         * [APNS Certificate](#apns-certificate)
+         * [DEP Token](#dep-token)
+
+<!-- Added by: baube, at:  -->
+<!--te-->
+
 # MicroMDM - Abacus
 In addition, to official README of the source project: https://github.com/micromdm/micromdm
 
