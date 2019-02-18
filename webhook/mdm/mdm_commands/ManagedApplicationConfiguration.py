@@ -37,8 +37,8 @@ class ManagedApplicationConfiguration( MDMCommand ):
             ]
         }
 
-    def _command_identifier(self):
+    def command_identifier(self):
         return "managed_application_configuration_abaclock2"
 
-    def _command_id(self):
+    def command_id(self):
         return 6

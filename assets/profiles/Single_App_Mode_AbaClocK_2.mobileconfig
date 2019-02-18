@@ -30,6 +30,24 @@
 			<key>PayloadVersion</key>
 			<integer>1</integer>
 		</dict>
+		<dict>
+			<key>autonomousSingleAppModePermittedAppIDs</key>
+			<array>
+			    <string>ch.abacus.abaclock.client2</string>
+			</array>
+			<key>PayloadDisplayName</key>
+			<string>Autonomous Single App Mode</string>
+			<key>PayloadIdentifier</key>
+			<string>ch.abacus.asam.19C7A29D-AB06-4B66-BD04-1671D16C0E77</string>
+			<key>PayloadOrganization</key>
+			<string></string>
+			<key>PayloadType</key>
+			<string>com.apple.asam</string>
+			<key>PayloadUUID</key>
+			<string>19C7A29D-AB06-4B66-BD04-1671D16C0E77</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+		</dict>
 	</array>
 	<key>PayloadDisplayName</key>
 	<string>Single App Mode AbaClocK 2</string>

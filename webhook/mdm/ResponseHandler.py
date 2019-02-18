@@ -5,24 +5,21 @@ import plistlib
 import os
 import DeviceSetup
 import VPPAssociate
+import MDMDevice
+import MDMProfile
+import MDMOSUpdateStatus
+from db import DB
 
-#sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
-# import ../config.py
 import config
 
+
 def handleRequest(json):
-    if 'acknowledge_event' in json:
-        raw_payload = json['acknowledge_event']['raw_payload']
-        payload = base64.b64decode(raw_payload).decode('utf-8')
-        print(payload)
-    elif 'checkin_event' in json:
+    if 'checkin_event' in json:
         print("New Device was registered")
-        raw_payload = json['checkin_event']['raw_payload']
-        payload = base64.b64decode(raw_payload).decode('utf-8')
-        print(payload)
-        parseResponseJSON(json)
-        return ''
+
+    parseResponseJSON(json)
+    return ''
 
 
 def parseResponseString(request):
@@ -30,29 +27,54 @@ def parseResponseString(request):
     parseResponseJSON(response_json)
 
 
+def pl_payload(response_json, key):
+    raw_payload = response_json[key]['raw_payload']
+    payload_xml = base64.b64decode(raw_payload).decode('utf-8')
+
+    if sys.version_info >= (3, 0):
+        pl = plistlib.readPlistFromBytes(payload_xml.encode());
+    else:
+        pl = plistlib.readPlistFromString(payload_xml);
+
+    return pl
+
 def parseResponseJSON(response_json):
     # mdm.Authenticate is very first request of a new iPad -> Setup
     print(response_json)
     if 'topic' in response_json and response_json['topic'] == 'mdm.Authenticate':
-    	print("Response Json Topic: ", response_json['topic'])
-        raw_payload = response_json['checkin_event']['raw_payload']
-        payload_xml = base64.b64decode(raw_payload).decode('utf-8')
-
-        if sys.version_info >= (3, 0):
-            pl = plistlib.readPlistFromBytes(payload_xml.encode());
-        else:
-            pl = plistlib.readPlistFromString(payload_xml);
-
+        print("Response Json Topic: ", response_json['topic'])
+        pl = pl_payload(response_json, 'checkin_event')
         if 'UDID' in pl:
             udid = pl['UDID']
-    
+
             if 'SerialNumber' in pl:
-            	serial_number = pl['SerialNumber']
-            	VPPAssociate.VPPAssociate(udid, serial_number, vpp_associate_completed)
-            	DeviceSetup.DeviceSetup(udid, setup_completed)
-#             elif 'UnlockToken' in pl:
-# 	        	# Device was setup
-			    
+                serial_number = pl['SerialNumber']
+                device = MDMDevice.MDMDevice(udid, pl)
+                DB.DB.log_device(device)
+
+                VPPAssociate.VPPAssociate(udid, serial_number, vpp_associate_completed)
+                DeviceSetup.DeviceSetup(udid, setup_completed)
+
+    elif 'topic' in response_json and response_json['topic'] == 'mdm.Connect'\
+            and 'acknowledge_event' in response_json:
+        udid = response_json['acknowledge_event']['udid'].decode('utf-8')
+        command__uuid = response_json['acknowledge_event']['command_uuid'].decode('utf-8')
+        status = response_json['acknowledge_event']['status'].decode('utf-8')
+        DB.DB.log_command_response(udid, command__uuid, status)
+
+        pl = pl_payload(response_json, 'acknowledge_event')
+        if 'ProfileList' in pl:
+            print(pl)
+            for profilePlist in pl['ProfileList']:
+                profile = MDMProfile.MDMProfile(udid, profilePlist)
+                DB.DB.log_profile(profile)
+
+        elif 'OSUpdateStatus' in pl:
+            print(pl)
+            for os_update_status_plist in pl['OSUpdateStatus']:
+                os_update_status = MDMOSUpdateStatus.MDMOSUpdateStatus(udid, os_update_status_plist)
+                DB.DB.log_os_update_status(os_update_status)
+
 
     else:
         print(json)
@@ -74,14 +96,13 @@ def setup_completed(udid, error):
         print("setup_completed", udid, error)
 
 
-
-
-
-
 if __name__ == '__main__':
     print("This module is not made for running. only use for debugging.")
     print(config.MDM.server_url)
     print(config.Mysql.service_host)
-    
-    #VPPAssociate.VPPAssociate("5852cd48347416928de781b6c3f756696e0dcb31", "F9FWF8SWGHKL", vpp_associate_completed)
+    #dbHandler = db.MysqlDB.MysqlDB.log_command_request(None)
+    #print("DB HANDLER", dbHandler)
+
+
+    # VPPAssociate.VPPAssociate("5852cd48347416928de781b6c3f756696e0dcb31", "F9FWF8SWGHKL", vpp_associate_completed)
     #DeviceSetup.DeviceSetup("5852cd48347416928de781b6c3f756696e0dcb31", setup_completed)

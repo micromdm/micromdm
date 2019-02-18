@@ -2,6 +2,10 @@ package mysql
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
+	"encoding/pem"
+
 	"strings"
 	"database/sql"
 	
@@ -12,14 +16,39 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	sq "gopkg.in/Masterminds/squirrel.v1"
 
+	"github.com/micromdm/micromdm/pkg/crypto"
 	"github.com/micromdm/micromdm/platform/config"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
 type Mysql struct{ db *sqlx.DB }
 
-func NewDB(db *sqlx.DB) *Mysql {
-	return &Mysql{db: db}
+func NewDB(db *sqlx.DB, sub pubsub.Subscriber) (*Mysql, error) {
+	// Required for TIMESTAMP DEFAULT 0
+	_,err := db.Exec(`SET sql_mode = '';`)
+	
+	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS server_config (
+			config_id INT PRIMARY KEY,
+		    push_certificate BLOB DEFAULT NULL,
+		    private_key BLOB DEFAULT NULL
+		);`)
+	if err != nil {
+	   return nil, errors.Wrap(err, "creating server_config sql table failed")
+	}
+	
+	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS dep_tokens (
+			consumer_key VARCHAR(36) PRIMARY KEY,
+			consumer_secret TEXT NULL,
+			access_token TEXT NULL,
+			access_secret TEXT NULL,
+		    access_token_expiry TIMESTAMP DEFAULT 0
+		);`)
+	if err != nil {
+	   return nil, errors.Wrap(err, "creating dep_tokens sql table failed")
+	}
+
+	store := &Mysql{db: db}
+	return store, err
 }
 
 func columns() []string {
@@ -31,7 +60,7 @@ func columns() []string {
 
 const tableName = "server_config"
 
-func (d *Mysql) SavePushCertificate(cert, key []byte) error {
+func (d *Mysql) SavePushCertificate(ctx context.Context, cert []byte, key []byte) error {
 	updateQuery, args_update, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Update(tableName).
@@ -50,11 +79,11 @@ func (d *Mysql) SavePushCertificate(cert, key []byte) error {
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Insert(tableName).
-		Columns(columns()...).
+		Columns("config_id", "push_certificate", "private_key").
 		Values(
 			1,
-			device.PushCertificate,
-			device.PrivateKey,
+			cert,
+			key,
 		).
 		Suffix(updateQuery).
 		ToSql()
@@ -70,7 +99,7 @@ func (d *Mysql) SavePushCertificate(cert, key []byte) error {
 	return errors.Wrap(err, "exec server_config save in mysql")
 }
 
-func (d *Mysql) serverConfig() (*config.ServerConfig, error) {
+func (d *Mysql) serverConfig(ctx context.Context) (*config.ServerConfig, error) {
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Select(columns()...).
@@ -85,79 +114,70 @@ func (d *Mysql) serverConfig() (*config.ServerConfig, error) {
 	
 	err = d.db.QueryRowxContext(ctx, query, args...).StructScan(&config)
 	if errors.Cause(err) == sql.ErrNoRows {
-		return nil, deviceNotFoundErr{}
+		return nil, serverConfigNotFoundErr{}
 	}
 	return &config, errors.Wrap(err, "finding config by config_id")
 }
 
 
 
-
-
-
-
-
-
-
-
-
-
-func (d *Mysql) Save(ctx context.Context, i *apns.PushInfo) error {
-	updateQuery, args_update, err := sq.StatementBuilder.
-		PlaceholderFormat(sq.Question).
-		Update(tableName).
-		Prefix("ON DUPLICATE KEY").
-		Set("udid", i.UDID).
-		Set("push_magic", i.PushMagic).
-		Set("token", i.Token).
-		Set("mdm_topic", i.MDMTopic).
-		ToSql()
+func (d *Mysql) GetPushCertificate(ctx context.Context) ([]byte, error) {
+	cert, err := d.PushCertificate(ctx)
 	if err != nil {
-		return errors.Wrap(err, "building update query for push_info save")
+		return nil, err
 	}
-	updateQuery = strings.Replace(updateQuery, tableName+" SET ", "", -1)
-
-	query, args, err := sq.StatementBuilder.
-		PlaceholderFormat(sq.Question).
-		Insert(tableName).
-		Columns(columns()...).
-		Values(
-			i.UDID,
-			i.PushMagic,
-			i.Token,
-			i.MDMTopic,
-		).
-		Suffix(updateQuery).
-		ToSql()
-	if err != nil {
-		return errors.Wrap(err, "building push_info save query")
+	if len(cert.Certificate) > 0 {
+		return cert.Certificate[0], nil
 	}
-
-	var all_args = append(args, args_update...)
-	_, err = d.db.ExecContext(ctx, query, all_args...)
-	return errors.Wrap(err, "exec push_info save in pg")
+	return nil, nil
 }
 
-func (d *Mysql) PushInfo(ctx context.Context, udid string) (*apns.PushInfo, error) {
-	query, args, err := sq.StatementBuilder.
-		PlaceholderFormat(sq.Question).
-		Select(columns()...).
-		From(tableName).
-		Where(sq.Eq{"udid": udid}).
-		ToSql()
+func (d *Mysql) PushCertificate(ctx context.Context) (*tls.Certificate, error) {
+	conf, err := d.serverConfig(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "building sql")
+		return nil, errors.Wrap(err, "get server config for push cert")
 	}
 
-	var i apns.PushInfo
-	err = d.db.QueryRowxContext(ctx, query, args...).StructScan(&i)
-	if errors.Cause(err) == sql.ErrNoRows {
-		return nil, pushInfoNotFoundErr{}
+	// load private key
+	pkeyBlock, _ := pem.Decode(conf.PrivateKey)
+	if pkeyBlock == nil {
+		return nil, errors.New("decode private key for push cert")
 	}
-	return &i, errors.Wrap(err, "finding push_info by udid")
+
+	priv, err := x509.ParsePKCS1PrivateKey(pkeyBlock.Bytes)
+	if err != nil {
+		return nil, errors.Wrap(err, "parse push certificate key from server config")
+	}
+
+	// load certificate
+	certBlock, _ := pem.Decode(conf.PushCertificate)
+	if certBlock == nil {
+		return nil, errors.New("decode push certificate PEM")
+	}
+
+	pushCert, err := x509.ParseCertificate(certBlock.Bytes)
+	if err != nil {
+		return nil, errors.Wrap(err, "parse push certificate from server config")
+	}
+
+	cert := tls.Certificate{
+		Certificate: [][]byte{pushCert.Raw},
+		PrivateKey:  priv,
+		Leaf:        pushCert,
+	}
+	return &cert, nil
 }
 
-type pushInfoNotFoundErr struct{}
+func (d *Mysql) PushTopic(ctx context.Context) (string, error) {
+	cert, err := d.PushCertificate(ctx)
+	if err != nil {
+		return "", errors.Wrap(err, "get push certificate for topic")
+	}
+	topic, err := crypto.TopicFromCert(cert.Leaf)
+	return topic, errors.Wrap(err, "get topic from push certificate")
+}
 
-func (e pushInfoNotFoundErr) Error() string  { return "push_info not found" }
-func (e pushInfoNotFoundErr) NotFound() bool { return true }
+type serverConfigNotFoundErr struct{}
+
+func (e serverConfigNotFoundErr) Error() string  { return "server_config not found" }
+func (e serverConfigNotFoundErr) NotFound() bool { return true }
