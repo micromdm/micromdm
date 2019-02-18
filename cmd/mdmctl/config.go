@@ -161,7 +161,11 @@ func setCmd(args []string) error {
 
 	cfg.SkipVerify = *flSkipVerify
 
-	return saveServerConfig(cfg, *flName)
+	err = saveServerConfig(cfg, *flName)
+	if err != nil {
+		return err
+	}
+	return switchServerConfig(*flName)
 }
 
 func switchCmd(args []string) error {
@@ -287,6 +291,9 @@ func loadClientConfig() (*ClientConfig, error) {
 	err = json.Unmarshal(cfgData, &cfg)
 	if err != nil {
 		return nil, fmt.Errorf("failed to unmarshal %s : %s", path, err)
+	}
+	if cfg.Servers == nil {
+		cfg.Servers = map[string]ServerConfig{}
 	}
 	return &cfg, nil
 }
