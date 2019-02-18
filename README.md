@@ -176,14 +176,14 @@ There are three certificates with expiration date +1 year in place:
 ---
 **NOTE**
 
-Concernign Apple this certificate does not have to be renewed. I am not quite sure about this statement yet / Don't trust it. As a certificate that can expire and still be used for the `APNS Certificate`step does not really make sense...
+Concerning Apple this certificate does not have to be renewed. I am not quite sure about this statement yet / Don't trust it. As a certificate that can expire and still be used for the `APNS Certificate`step does not really make sense...
 
 ---
 
 The MDM Certificate is provided via Apple's Enterprise Developer Program. We had to request to get access to this program with our Team Administrator account. Steps to update this certificate:
 1. Open https://developer.apple.com/account/ios/certificate
-2. Make sure you selected the Enterprise team in the top right [Developer Account Team Selection](docs/mdm_cer_enterprise_account.png)
-3. Select Certificates --> Production and Update the "MDM CSR" [MDM Certificate Selection](docs/mdm_cer_cert_selection.png)
+2. Make sure you selected the Enterprise team in the top right ![Developer Account Team Selection](docs/mdm_cer_enterprise_account.png)
+3. Select Certificates --> Production and Update the "MDM CSR" ![MDM Certificate Selection](docs/mdm_cer_cert_selection.png)
 4. Run the command in Terminal. Make sure you got the right configuration for `mdmctl`
 ```
 # Make sure the right configuration is selected
@@ -251,7 +251,7 @@ If this Token was expired, its not too much of a problem. Enrolled iPads still c
 1. Open https://business.apple.com
 2. Login with Admin Account
 3. Select the Server you want to update in `MDM Servers`
-4. Select "Upload Key""
+4. Select `Upload Key` ![Upload Key Selection](docs/mdm_cer_cert_selection.png)
 5. Get public key from our MDM Server
 ```
 # Make sure the right configuration is selected
