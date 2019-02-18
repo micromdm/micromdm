@@ -34,7 +34,7 @@ func NewDB(db *bolt.DB, pub pubsub.Publisher) (*DB, error) {
 	return store, err
 }
 
-func (db *DB) SavePushCertificate(cert, key []byte) error {
+func (db *DB) SavePushCertificate(ctx context.Context, cert []byte, key []byte) error {
 	tx, err := db.DB.Begin(true)
 	if err != nil {
 		return errors.Wrap(err, "begin transaction to store push certificate in bolt")
@@ -64,7 +64,7 @@ func (db *DB) SavePushCertificate(cert, key []byte) error {
 	return err
 }
 
-func (db *DB) serverConfig() (*config.ServerConfig, error) {
+func (db *DB) serverConfig(ctx context.Context) (*config.ServerConfig, error) {
 	var conf config.ServerConfig
 	err := db.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket([]byte(ConfigBucket))
@@ -77,8 +77,8 @@ func (db *DB) serverConfig() (*config.ServerConfig, error) {
 	return &conf, errors.Wrap(err, "get server config from bolt")
 }
 
-func (db *DB) GetPushCertificate() ([]byte, error) {
-	cert, err := db.PushCertificate()
+func (db *DB) GetPushCertificate(ctx context.Context) ([]byte, error) {
+	cert, err := db.PushCertificate(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -88,8 +88,8 @@ func (db *DB) GetPushCertificate() ([]byte, error) {
 	return nil, nil
 }
 
-func (db *DB) PushCertificate() (*tls.Certificate, error) {
-	conf, err := db.serverConfig()
+func (db *DB) PushCertificate(ctx context.Context) (*tls.Certificate, error) {
+	conf, err := db.serverConfig(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "get server config for push cert")
 	}
@@ -124,8 +124,8 @@ func (db *DB) PushCertificate() (*tls.Certificate, error) {
 	return &cert, nil
 }
 
-func (db *DB) PushTopic() (string, error) {
-	cert, err := db.PushCertificate()
+func (db *DB) PushTopic(ctx context.Context) (string, error) {
+	cert, err := db.PushCertificate(ctx)
 	if err != nil {
 		return "", errors.Wrap(err, "get push certificate for topic")
 	}

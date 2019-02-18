@@ -36,7 +36,7 @@ type PushService struct {
 }
 
 type PushCertificateProvider interface {
-	PushCertificate() (*tls.Certificate, error)
+	PushCertificate(ctx context.Context) (*tls.Certificate, error)
 }
 
 type Option func(*PushService)
@@ -151,7 +151,7 @@ func newClient(cert tls.Certificate) (*http.Client, error) {
 }
 
 func NewPushService(provider PushCertificateProvider) (*push.Service, error) {
-	cert, err := provider.PushCertificate()
+	cert, err := provider.PushCertificate(context.Background())
 	if err != nil {
 		return nil, errors.Wrap(err, "get push certificate from store")
 	}

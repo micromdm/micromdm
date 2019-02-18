@@ -27,6 +27,8 @@ type Worker struct {
 	url    string
 	client *http.Client
 	sub    pubsub.Subscriber
+	authUser string
+	authPass string
 }
 
 type Option func(*Worker)
@@ -43,12 +45,14 @@ func WithHTTPClient(client *http.Client) Option {
 	}
 }
 
-func New(url string, sub pubsub.Subscriber, opts ...Option) *Worker {
+func New(url string, sub pubsub.Subscriber, authUser string, authPass string, opts ...Option) *Worker {
 	worker := &Worker{
 		url:    url,
 		sub:    sub,
 		logger: log.NewNopLogger(),
 		client: http.DefaultClient,
+		authUser: authUser,
+		authPass: authPass,
 	}
 
 	for _, optFn := range opts {
@@ -107,7 +111,7 @@ func (w *Worker) Run(ctx context.Context) error {
 			continue
 		}
 
-		if err := postWebhookEvent(ctx, w.client, w.url, event); err != nil {
+		if err := postWebhookEvent(ctx, w.client, w.url, w.authUser, w.authPass, event); err != nil {
 			level.Info(w.logger).Log(
 				"msg", "post webhook event",
 				"err", err,

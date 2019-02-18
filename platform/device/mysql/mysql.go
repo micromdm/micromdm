@@ -17,7 +17,10 @@ import (
 type Mysql struct{ db *sqlx.DB }
 
 func NewDB(db *sqlx.DB) (*Mysql, error) {
-	_,err := db.Exec(`CREATE TABLE IF NOT EXISTS `+tableName+` (
+	// Required for TIMESTAMP DEFAULT 0
+	_,err := db.Exec(`SET sql_mode = '';`)
+	
+	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS `+tableName+` (
 		    uuid VARCHAR(40) PRIMARY KEY,
 		    udid VARCHAR(40) DEFAULT '',
 		    serial_number VARCHAR(12) DEFAULT '',
@@ -98,7 +101,11 @@ func (d *Mysql) Save(ctx context.Context, device *device.Device) error {
 	// Make sure we take the time offset into account for "zero" dates	
 	t := time.Now()
 	_, offset := t.Zone()
-	var min_timestamp_sec int64 = int64(offset) * 60 * 60
+	// Don't multiply by zero
+	if (offset <= 0) {
+		offset = 1
+	}
+	var min_timestamp_sec int64 = int64(offset) * 60 * 60 * 24
 	
 	if (device.DEPProfileAssignTime.IsZero() || device.DEPProfileAssignTime.Unix() < min_timestamp_sec) {
 		device.DEPProfileAssignTime = time.Unix(min_timestamp_sec, 0)
@@ -258,6 +265,10 @@ func (d *Mysql) List(ctx context.Context, opt device.ListDevicesOption) ([]devic
 	return list, errors.Wrap(err, "list devices")
 }
 
+func (d *Mysql) ListDevices(ctx context.Context, opt device.ListDevicesOption) ([]device.Device, error) {
+	return d.List(ctx, opt)
+}
+
 func (d *Mysql) DeleteByUDID(ctx context.Context, udid string) error {
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
@@ -282,16 +293,6 @@ func (d *Mysql) DeleteBySerial(ctx context.Context, serial string) error {
 	}
 	_, err = d.db.ExecContext(ctx, query, args...)
 	return errors.Wrap(err, "delete device by serial_number")
-}
-
-type deviceNotFoundErr struct{}
-
-func (e deviceNotFoundErr) Error() string {
-	return "device not found"
-}
-
-func (e deviceNotFoundErr) NotFound() bool {
-	return true
 }
 
 func (d *Mysql) SaveUDIDCertHash(ctx context.Context, udid, certHash []byte) error {
@@ -356,4 +357,14 @@ func (d *Mysql) GetUDIDCertHash(ctx context.Context, udid []byte) ([]byte, error
 	}
 	
 	return certHash, errors.Wrap(err, "finding uuid cert hash by udid")
+}
+
+type deviceNotFoundErr struct{}
+
+func (e deviceNotFoundErr) Error() string {
+	return "device not found"
+}
+
+func (e deviceNotFoundErr) NotFound() bool {
+	return true
 }
