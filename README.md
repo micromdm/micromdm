@@ -251,7 +251,7 @@ If this Token was expired, its not too much of a problem. Enrolled iPads still c
 1. Open https://business.apple.com
 2. Login with Admin Account
 3. Select the Server you want to update in `MDM Servers`
-4. Select `Upload Key` ![Upload Key Selection](docs/mdm_cer_cert_selection.png)
+4. Select `Upload Key` ![Upload Key Selection](docs/dep_token_update.png)
 5. Get public key from our MDM Server
 ```
 # Make sure the right configuration is selected
