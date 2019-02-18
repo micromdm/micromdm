@@ -12,9 +12,9 @@ type Service interface {
 }
 
 type Store interface {
-	Save(*Device) error
-	DeviceByUDID(string) (*Device, error)
-	Delete(string) error
+	Save(context.Context, *Device) error
+	DeviceByUDID(context.Context, string) (*Device, error)
+	Delete(context.Context, string) error
 }
 
 type RemoveService struct {

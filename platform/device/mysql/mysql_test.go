@@ -12,9 +12,12 @@ import (
 )
 
 func TestMysqlCrud(t *testing.T) {
-	db := setup(t)
+	db, err := setup(t)
 	ctx := context.Background()
-
+	if err != nil {
+		t.Fatal(err)
+	}
+	
 	// create
 	dev := &device.Device{
 		UUID:             "foobar",
@@ -23,7 +26,7 @@ func TestMysqlCrud(t *testing.T) {
 		LastSeen:         time.Now().UTC(),
 		DEPProfileAssignTime: time.Unix(60*60*24,0).UTC(),
 	}
-	err := db.Save(ctx, dev)
+	err = db.Save(ctx, dev)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -59,7 +62,7 @@ func TestMysqlCrud(t *testing.T) {
 	}
 }
 
-func setup(t *testing.T) *Mysql {
+func setup(t *testing.T) (*Mysql, error) {
 	// https://stackoverflow.com/a/23550874/464016
 	db, err := dbutil.OpenDBX(
 		"mysql",

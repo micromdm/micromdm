@@ -16,9 +16,9 @@ type GetProfilesOption struct {
 
 type Store interface {
 	ProfileById(ctx context.Context, id string) (*Profile, error)
-	Save(p *Profile) error
-	List() ([]Profile, error)
-	Delete(id string) error
+	Save(ctx context.Context, p *Profile) error
+	List(ctx context.Context) ([]Profile, error)
+	Delete(ctx context.Context, id string) error
 }
 
 func New(store Store) *ProfileService {
