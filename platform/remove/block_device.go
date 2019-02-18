@@ -13,7 +13,7 @@ import (
 )
 
 func (svc *RemoveService) BlockDevice(ctx context.Context, udid string) error {
-	return svc.store.Save(&Device{UDID: udid})
+	return svc.store.Save(ctx, &Device{UDID: udid})
 }
 
 type blockDeviceRequest struct {

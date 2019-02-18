@@ -11,8 +11,8 @@ const ConfigTopic = "mdm.ServerConfigUpdated"
 
 // ServerConfig holds the configuration of the MDM Server.
 type ServerConfig struct {
-	PushCertificate []byte
-	PrivateKey      []byte
+	PushCertificate []byte `db:"push_certificate"`
+	PrivateKey      []byte `db:"private_key"`
 }
 
 func MarshalServerConfig(conf *ServerConfig) ([]byte, error) {
