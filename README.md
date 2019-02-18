@@ -166,7 +166,120 @@ docker run -v /absolute/path/to/micromdm/assets/:/data  micromdm \
     -mysql-port 3306 \
     -tls=false
 ```
-Info: 
+---
+**Info**
 * `api-key` - the above parameter `api-key` equals the parameter `api-token` and is a settable secret in your OpenShift configuration of the micromdm deployment.
 * `server-url` - the publicly available url of the MDM server
 * `command-webhook-url` - the URL of the MDM webhook interface, e.g. [.../post/mdm.php](https://abaclock-monitoring-dev.app.abasky.net/post/mdm.php) for [AbaClocK Monitor](https://github.com/abacusresearch/abaclock-monitoring)
+
+---
+
+## Certificate Updates
+There are three certificates with expiration date +1 year in place:
+1. MDM Certificate
+2. APNS Certificate
+3. DEP Token
+
+### MDM Certificate
+
+---
+**Info**
+
+Concerning Apple this certificate does not have to be renewed. I am not quite sure about this statement yet / Don't trust it. As a certificate that can expire and still be used for the `APNS Certificate`step does not really make sense...
+
+---
+
+The MDM Certificate is provided via Apple's Enterprise Developer Program. We had to request to get access to this program with our Team Administrator account. Steps to update this certificate:
+1. Open https://developer.apple.com/account/ios/certificate
+2. Make sure you selected the Enterprise team in the top right ![Developer Account Team Selection](docs/mdm_cer_enterprise_account.png)
+3. Select Certificates --> Production and Update the "MDM CSR" ![MDM Certificate Selection](docs/mdm_cer_cert_selection.png)
+4. Run the command in Terminal. Make sure you got the right configuration for `mdmctl`
+```
+# Make sure the right configuration is selected
+./mdmctl config switch -name mdmexample
+
+# Request new certificate from our MDM Server
+./mdmctl mdmcert vendor \
+    -password=secret \
+    -email=tobias.baube@abacus.ch \
+    -country=CH
+```
+5. Upload `VendorCertificateRequest.csr` for `MDM CSR` on developer.apple.com with enter
+6. Download `MDM Cer` to ./mdm-certificates/mdm.cer
+7. Update the certificate and sign it
+```
+./mdmctl mdmcert push \
+    -password=secret \
+    -email=tobias.baube@abacus.ch \
+    -country=CH
+./mdmctl mdmcert vendor \
+    -sign \
+    -password=secret \
+    -cert mdm-certificates/mdm.cer
+```
+8. Then renew the APNS Push Cert with downloaded `.plist` on https://identity.apple.com/pushcert/ - see APNS Certificate
+
+### APNS Certificate
+---
+**Info**
+
+This token may **NOT** expire and should **never** be revoked. Any enrolled iPads will not be reachable anymore by our server and would have to be enrolled again.
+
+---
+
+The APNS Certificate is the one we use to send Push notifications to the iPad via the Apple Push Notification Services.
+1. Open https://identity.apple.com/pushcert/
+2. The APNS Certificates are already set up. No need to create a new one. Instead **renew** the certificate. Do **NOT** Revoke this certificate or let it expire. Else we cannot reach the iPads anymore.
+3. Select the Certificate you want to `renew`
+4. Upload `.plist` from `MDM Certificate`
+6. Download `.pem` file and store it as `MDM_Abacus_Research_AG_Certificate.pem` in your `./mdm-certificates` folder.
+5. Update the certificate on the server. You **don't** have to restart the server, the update takes place immediately.
+```
+# Make sure the right configuration is selected
+./mdmctl config switch -name mdmexample
+
+# Request new certificate from our MDM Server
+./mdmctl mdmcert upload \
+    -password secret \
+    -cert ./mdm-certificates/MDM_Abacus_Research_AG_Certificate.pem \
+    -private-key ./mdm-certificates/PushCertificatePrivateKey.key
+
+```
+
+### DEP Token
+
+---
+**Info**
+
+This token may expire but should be renewed.
+
+---
+
+If this Token was expired, its not too much of a problem. Enrolled iPads still can be reached and iPads that shall enroll as new iPads might have trouble. If we setup a new Token, it will work just fine again.
+
+1. Open https://business.apple.com
+2. Login with Admin Account
+3. Select the Server you want to update in `MDM Servers`
+4. Select `Upload Key` ![Upload Key Selection](docs/dep_token_update.png)
+5. Get public key from our MDM Server
+```
+# Make sure the right configuration is selected
+./mdmctl config switch -name mdmexample
+
+# Request public key and store it
+./mdmctl get dep-tokens \
+    -export-public-key ~/Documents/dep_public_key.pem
+```
+
+6. Upload public key to https://business.apple.com
+7. Download now the `.p7m` file, which we will upload to the mdm server. Rename it to `dep_token.p7m`
+```
+./mdmctl apply dep-tokens \
+    -import ~/Downloads/dep_token.p7m
+```
+8. Make sure, import worked --> result returned for
+``` 
+./mdmctl get dep-tokens
+```
+
+>>>>>>> mysql

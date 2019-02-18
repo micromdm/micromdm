@@ -1,0 +1,108 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  labels:
+    app: {{ .Values.app.name }}
+  name: {{ .Values.app.name }}
+  namespace: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    deploymentconfig: {{ .Values.app.name }}
+  strategy:
+    rollingParams:
+    type: Rolling
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: {{ .Values.app.name }}
+        deploymentconfig: {{ .Values.app.name }}
+    spec:
+      containers:
+      - env:
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              key: database-user
+              name: mysql
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: database-password
+              name: mysql
+        - name: MYSQL_DATABASE
+          valueFrom:
+            secretKeyRef:
+              key: database-name
+              name: mysql
+        - name: MYSQL_HOST
+          valueFrom:
+            secretKeyRef:
+              key: database-host
+              name: mysql
+        - name: SERVER_URL
+          value: "https://{{ .Values.app.url }}"
+        - name: WEBHOOK_URL
+          value: "https://{{ .Values.webhook.url }}"
+        - name: WEBHOOK_AUTH_USER
+          valueFrom:
+            secretKeyRef:
+              key: username
+              name: monitoring-auth
+        - name: WEBHOOK_AUTH_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: monitoring-auth
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              key: password
+              name: mdm-auth
+        image: docker-registry.default.svc:5000/{{ .Release.Name }}/{{ .Values.app.name }}
+        imagePullPolicy: Always
+        name: {{ .Values.app.name }}
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 5
+        resources:
+          limits:
+            cpu: 200m
+          requests:
+            cpu: 100m
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      restartPolicy: Always
+  test: false
+  triggers:
+  - imageChangeParams:
+      automatic: true
+      containerNames:
+      - {{ .Values.app.name }}
+      from:
+        kind: ImageStreamTag
+        name: {{ .Values.app.name }}:latest
+        namespace: {{ .Release.Name }}
+    type: ImageChange
+  - type: ConfigChange

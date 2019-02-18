@@ -7,6 +7,7 @@
 * Remove deprecated `-apns` flags from server startup (#528)
 * Move API calls to list endpoints from HTTP GET to HTTP POST (#522, #523, #524, #525, #526)
 * Add support for the ApplicationConfiguration Setting (#521)
+* Fix bug in mdmctl server saving, switch config when saving automatically (#565, #566)
 
 ## [v1.4.0](https://github.com/micromdm/micromdm/compare/v1.3.1...v1.4.0) September 6 2018
 

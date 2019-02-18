@@ -4,8 +4,6 @@ import (
 	"context"
 	"strings"
 	"database/sql"
-	
-	"fmt"
 
 	"github.com/pkg/errors"
 	"github.com/jmoiron/sqlx"
@@ -20,11 +18,14 @@ type Mysql struct{ db *sqlx.DB }
 
 func NewDB(db *sqlx.DB, sub pubsub.Subscriber) (*Mysql, error) {
 	
-	_,err := db.Exec(`CREATE TABLE IF NOT EXISTS push_info (
+	// Required for TIMESTAMP DEFAULT 0
+	_,err := db.Exec(`SET sql_mode = '';`)
+	
+	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS push_info (
 		    udid VARCHAR(40) PRIMARY KEY,
-		    token TEXT,
-		    push_magic TEXT,
-		    mdm_topic TEXT
+		    token TEXT DEFAULT '',
+		    push_magic TEXT DEFAULT '',
+		    mdm_topic TEXT DEFAULT ''
 		);`)
 		
 	if err != nil {
@@ -46,8 +47,6 @@ func columns() []string {
 const tableName = "push_info"
 
 func (d *Mysql) Save(ctx context.Context, i *apns.PushInfo) error {
-	
-	fmt.Println("apns.Save")
 	
 	updateQuery, args_update, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
@@ -79,9 +78,6 @@ func (d *Mysql) Save(ctx context.Context, i *apns.PushInfo) error {
 		return errors.Wrap(err, "building push_info save query")
 	}
 	
-	fmt.Println(query)
-	fmt.Println(args)
-
 	var all_args = append(args, args_update...)
 	_, err = d.db.ExecContext(ctx, query, all_args...)
 	return errors.Wrap(err, "exec push_info save in pg")
