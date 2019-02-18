@@ -46,10 +46,10 @@ class VPPAssociateCommand( MDMCommand ):
             ]
         }
 
-    def _command_identifier(self):
+    def command_identifier(self):
         return "vpp_associate"
 
-    def _command_id(self):
+    def command_id(self):
         return 3
 
     def _serialize_response(self, json):

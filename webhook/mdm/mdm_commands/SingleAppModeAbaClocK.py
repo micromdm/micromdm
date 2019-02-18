@@ -34,8 +34,8 @@ class SingleAppModeAbaClocK( MDMCommand ):
             "payload": payload,
         }
 
-    def _command_identifier(self):
+    def command_identifier(self):
         return "install_profile_single_app_mode_abaclock"
 
-    def _command_id(self):
+    def command_id(self):
         return 7

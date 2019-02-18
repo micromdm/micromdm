@@ -11,7 +11,9 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	boltdepot "github.com/micromdm/scep/depot/bolt"
+	//boltdepot "github.com/micromdm/scep/depot/bolt"
+	//boltdepot "github.com/micromdm/micromdm/platform/scep/builtin"
+	boltdepot "github.com/micromdm/micromdm/platform/scep/mysql"
 	scep "github.com/micromdm/scep/server"
 	"github.com/pkg/errors"
 	
@@ -26,19 +28,27 @@ import (
 	apnsmysql "github.com/micromdm/micromdm/platform/apns/mysql"
 	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/config"
-	configbuiltin "github.com/micromdm/micromdm/platform/config/builtin"
+	//configbuiltin "github.com/micromdm/micromdm/platform/config/builtin"
+	configmysql "github.com/micromdm/micromdm/platform/config/mysql"
 	"github.com/micromdm/micromdm/platform/dep/sync"
-	syncbuiltin "github.com/micromdm/micromdm/platform/dep/sync/builtin"
+	//syncbuiltin "github.com/micromdm/micromdm/platform/dep/sync/builtin"
+	syncmysql "github.com/micromdm/micromdm/platform/dep/sync/mysql"
 	"github.com/micromdm/micromdm/platform/device"
 	//devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
 	devicemysql "github.com/micromdm/micromdm/platform/device/mysql"
 	"github.com/micromdm/micromdm/platform/profile"
-	profilebuiltin "github.com/micromdm/micromdm/platform/profile/builtin"
+	//profilebuiltin "github.com/micromdm/micromdm/platform/profile/builtin"
+	profilemysql "github.com/micromdm/micromdm/platform/profile/mysql"
 	"github.com/micromdm/micromdm/platform/pubsub"
 	"github.com/micromdm/micromdm/platform/pubsub/inmem"
-	"github.com/micromdm/micromdm/platform/queue"
+	
+	//queue "github.com/micromdm/micromdm/platform/queue"
+	queue "github.com/micromdm/micromdm/platform/queue/mysql"
+	
+	
 	block "github.com/micromdm/micromdm/platform/remove"
-	blockbuiltin "github.com/micromdm/micromdm/platform/remove/builtin"
+	//blockbuiltin "github.com/micromdm/micromdm/platform/remove/builtin"
+	blockmysql "github.com/micromdm/micromdm/platform/remove/mysql"
 	"github.com/micromdm/micromdm/workflow/webhook"
 )
 
@@ -54,10 +64,16 @@ type Server struct {
 	ProfileDB         profile.Store
 	ConfigDB          config.Store
 	RemoveDB          block.Store
-	CommandWebhookURL string
-	DEPClient         *dep.Client
-	SyncDB            *syncbuiltin.DB
+
+	CommandWebhookURL 		string
+	CommandWebhookAuthUser 	string
+	CommandWebhookAuthPass 	string
 	
+	DEPClient         *dep.Client
+	//SyncDB            *syncbuiltin.DB
+	SyncMysqlDB       *syncmysql.Mysql
+	
+	DataStoreImmutable bool
 	MysqlDB			  *sqlx.DB
 	MysqlUsername     string
 	MysqlPassword     string
@@ -83,7 +99,7 @@ func (c *Server) Setup(logger log.Logger) error {
 	if err := c.setupBolt(); err != nil {
 		return err
 	}
-	
+
 	if err := c.setupMysql(); err != nil {
 		return err
 	}
@@ -123,14 +139,15 @@ func (c *Server) Setup(logger log.Logger) error {
 	if err := c.setupProfileDB(); err != nil {
 		return err
 	}
-
+	
 	err := c.setupEnrollmentService()
-
+	
 	return err
 }
 
 func (c *Server) setupProfileDB() error {
-	profileDB, err := profilebuiltin.NewDB(c.DB)
+	//profileDB, err := profilebuiltin.NewDB(c.DB)
+	profileDB, err := profilemysql.NewDB(c.MysqlDB)
 	if err != nil {
 		return err
 	}
@@ -149,13 +166,20 @@ func (c *Server) setupWebhooks(logger log.Logger) error {
 	}
 
 	ctx := context.Background()
-	ww := webhook.New(c.CommandWebhookURL, c.PubClient, webhook.WithLogger(logger), webhook.WithHTTPClient(c.WebhooksHTTPClient))
+	//ww := webhook.New(c.CommandWebhookURL, c.PubClient, webhook.WithLogger(logger), webhook.WithHTTPClient(c.WebhooksHTTPClient))
+	ww := webhook.New(c.CommandWebhookURL, 
+					  c.PubClient, 
+					  c.CommandWebhookAuthUser, 
+					  c.CommandWebhookAuthPass, 
+					  webhook.WithLogger(logger), 
+					  webhook.WithHTTPClient(c.WebhooksHTTPClient))
 	go ww.Run(ctx)
 	return nil
 }
 
 func (c *Server) setupRemoveService() error {
-	removeDB, err := blockbuiltin.NewDB(c.DB)
+	//removeDB, err := blockbuiltin.NewDB(c.DB)
+	removeDB, err := blockmysql.NewDB(c.MysqlDB)
 	if err != nil {
 		return err
 	}
@@ -173,7 +197,8 @@ func (c *Server) setupCommandService() error {
 }
 
 func (c *Server) setupCommandQueue(logger log.Logger) error {
-	q, err := queue.NewQueue(c.DB, c.PubClient, queue.WithLogger(logger))
+	//q, err := queue.NewQueue(c.DB, c.PubClient, queue.WithLogger(logger))
+	q, err := queue.NewQueue(c.MysqlDB, c.PubClient, queue.WithLogger(logger))
 	if err != nil {
 		return err
 	}
@@ -202,10 +227,12 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 
 func (c *Server) setupBolt() error {
 	dbPath := filepath.Join(c.ConfigPath, "micromdm.db")
+
 	db, err := bolt.Open(dbPath, 0644, &bolt.Options{Timeout: time.Second})
 	if err != nil {
 		return errors.Wrap(err, "opening boltdb")
 	}
+
 	c.DB = db
 
 	return nil
@@ -228,6 +255,11 @@ func (c *Server) setupMysql() error {
 	if err != nil {
 		return errors.Wrap(err, "opening mysql")
 	}
+	
+	// Set the number of open and idle connection to a maximum total of 3.
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(1)
+	
 	c.MysqlDB = db
 
 	return nil
@@ -239,7 +271,8 @@ type pushServiceCert struct {
 }
 
 func (c *Server) setupConfigStore() error {
-	db, err := configbuiltin.NewDB(c.DB, c.PubClient)
+	//db, err := configbuiltin.NewDB(c.DB, c.PubClient)
+	db, err := configmysql.NewDB(c.MysqlDB, c.PubClient)
 	if err != nil {
 		return err
 	}
@@ -299,7 +332,8 @@ func (c *Server) setupDepClient() error {
 	)
 
 	// try getting the oauth config from bolt
-	tokens, err := c.ConfigDB.DEPTokens()
+	ctx := context.Background()
+	tokens, err := c.ConfigDB.DEPTokens(ctx)
 	if err != nil {
 		return err
 	}
@@ -345,14 +379,17 @@ func (c *Server) CreateDEPSyncer(logger log.Logger) (sync.Syncer, error) {
 		opts = append(opts, sync.WithClient(client))
 	}
 
-	syncdb, err := syncbuiltin.NewDB(c.DB)
+	//syncdb, err := syncbuiltin.NewDB(c.DB)
+	syncmysqldb, err := syncmysql.NewDB(c.MysqlDB)
 	if err != nil {
 		return nil, err
 	}
-	c.SyncDB = syncdb
+	//c.SyncDB = syncdb
+	c.SyncMysqlDB = syncmysqldb
 
 	var syncer sync.Syncer
-	syncer, err = sync.NewWatcher(c.SyncDB, c.PubClient, opts...)
+	//syncer, err = sync.NewWatcher(c.SyncDB, c.PubClient, opts...)
+	syncer, err = sync.NewWatcher(c.SyncMysqlDB, c.PubClient, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -360,7 +397,8 @@ func (c *Server) CreateDEPSyncer(logger log.Logger) (sync.Syncer, error) {
 }
 
 func (c *Server) setupSCEP(logger log.Logger) error {
-	depot, err := boltdepot.NewBoltDepot(c.DB)
+	//depot, err := boltdepot.NewBoltDepot(c.DB)
+	depot, err := boltdepot.NewBoltDepot(c.MysqlDB)
 	if err != nil {
 		return err
 	}

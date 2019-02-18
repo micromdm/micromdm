@@ -9,7 +9,7 @@ import (
 )
 
 func (svc *ProfileService) ApplyProfile(ctx context.Context, p *Profile) error {
-	return svc.store.Save(p)
+	return svc.store.Save(ctx, p)
 }
 
 type applyProfileRequest struct {

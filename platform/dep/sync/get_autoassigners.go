@@ -11,7 +11,7 @@ import (
 )
 
 func (s DEPSyncService) GetAutoAssigners(ctx context.Context) ([]AutoAssigner, error) {
-	aa, err := s.db.LoadAutoAssigners()
+	aa, err := s.db.LoadAutoAssigners(ctx)
 	return aa, errors.Wrap(err, "get AutoAssigners")
 }
 

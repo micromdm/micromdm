@@ -13,24 +13,24 @@ type Command struct {
 	UUID    string
 	Payload []byte
 
-	CreatedAt    time.Time
-	LastSentAt   time.Time
-	Acknowledged time.Time
+	CreatedAt    time.Time 
+	LastSentAt   time.Time 	
+	Acknowledged time.Time 	
 
-	TimesSent int
+	TimesSent int 			
 
-	LastStatus     string
-	FailureMessage []byte
+	LastStatus     string 	
+	FailureMessage []byte 	
 }
 
 type DeviceCommand struct {
-	DeviceUDID string
-	Commands   []Command
+	DeviceUDID string		
+	Commands   []Command	
 
 	// These are going to scale great. We'll have to see.
-	Completed []Command
-	Failed    []Command
-	NotNow    []Command
+	Completed []Command		
+	Failed    []Command		
+	NotNow    []Command		
 }
 
 func MarshalDeviceCommand(c *DeviceCommand) ([]byte, error) {
