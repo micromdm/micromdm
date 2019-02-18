@@ -9,8 +9,6 @@ jq -n \
   |.request_type = $request_type
   |.settings = [
   	{ "item": "Bluetooth", "enabled": true },
-  	{ "item": "AppAnalytics", "enabled": true },
-  	{ "item": "DiagnosticSubmission", "enabled": true },
   	{ "item": "DeviceName", "device_name": $device_name }
   ]
   '|\

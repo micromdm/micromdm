@@ -10,7 +10,7 @@ import (
 )
 
 func (svc *ConfigService) GetPushCertificate(ctx context.Context) ([]byte, error) {
-	cert, err := svc.store.GetPushCertificate()
+	cert, err := svc.store.GetPushCertificate(ctx)
 	if err != nil {
 		return cert, errors.Wrap(err, "get push certificate")
 	}

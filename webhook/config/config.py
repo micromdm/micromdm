@@ -22,22 +22,30 @@ class Mysql(object):
     if "MYSQL_USER" in os.environ:
         user = os.environ["MYSQL_USER"]
     else:
-        user = "MYSQL_USER"
+        user = "micromdm"
 
     if "MYSQL_PASSWORD" in os.environ:
         password = os.environ["MYSQL_PASSWORD"]
     else:
-        password = "MYSQL_PASSWORD"
+        password = "micromdm"
 
     if "MYSQL_SERVICE_HOST" in os.environ:
         service_host = os.environ["MYSQL_SERVICE_HOST"]
     else:
-        service_host = "MYSQL_SERVICE_HOST"
+        service_host = "127.0.0.1"
 
     if "MYSQL_DATABASE" in os.environ:
         database = os.environ["MYSQL_DATABASE"]
     else:
-        database = "MYSQL_DATABASE"
+        database = "micromdm_test"
+
+    config = {
+        'user': user,
+        'password': password,
+        'host': service_host,
+        'database': database,
+        'raise_on_warnings': True
+    }
 
 @const
 class MDM(object):
