@@ -1,0 +1,19 @@
+stages:
+  - build
+
+# Need go > 1.11 installed
+
+bins:
+  variables:
+    GIT_STRATEGY: clone
+  stage: build
+  before_script:
+    - export PATH=$PATH:/usr/local/go/bin
+    - export MC_HOSTS_tmp=$UPLOAD_PATH
+  script:
+    - make build
+    - cd build/linux
+    - tar -cvf micromdm.tar micromdm
+    - mc cp micromdm.tar tmp/${UPLOAD_BUCKET}/${CI_COMMIT_REF_SLUG}/micromdm.tar
+    - sha256sum *.tar > micromdm.sha256
+    - mc cp micromdm.sha256 tmp/${UPLOAD_BUCKET}/${CI_COMMIT_REF_SLUG}/micromdm.sha256
