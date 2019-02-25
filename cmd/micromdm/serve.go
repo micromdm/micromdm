@@ -90,7 +90,7 @@ func serve(args []string) error {
 		
 		flImmutable		 	= flagset.Bool("immutable", true, "If flag is set, it is considered the bolt db is immutable.")
 		flMysqlUsername 	= flagset.String("mysql-username", "", "Username to login to Mysql")
-		flMysqlPassword 	= flagset.String("mysql-password", "", "Password to login to Mysql")
+		flMysqlPassword 	= flagset.String("mysql-password", env.String("MICROMDM_MYSQL_PASSWORD", ""), "Password to login to Mysql")
 		flMysqlDatabase 	= flagset.String("mysql-database", "", "Name of the Mysql Database")
 		flMysqlHost 		= flagset.String("mysql-host", "", "IP or URL to the Mysql Host")
 		flMysqlPort 		= flagset.String("mysql-port", "", "Port to use for Mysql connection")
