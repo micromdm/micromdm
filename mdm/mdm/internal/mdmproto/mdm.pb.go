@@ -6274,6 +6274,15 @@ func (m *Command_VerifyFirmwarePassword) Size() (n int) {
 	}
 	return n
 }
+func (m *Command_ActivationLockBypassCode) Size() (n int) {
+	var l int
+	_ = l
+	if m.ActivationLockBypassCode != nil {
+		l = m.ActivationLockBypassCode.Size()
+		n += 2 + l + sovMdm(uint64(l))
+	}
+	return n
+}
 func (m *Command_SetAutoAdminPassword) Size() (n int) {
 	var l int
 	_ = l
