@@ -301,6 +301,15 @@ func (c *Command) MarshalJSON() ([]byte, error) {
 			VerifyFirmwarePassword: c.VerifyFirmwarePassword,
 		}
 		return json.Marshal(&x)
+	case "ActivationLockBypassCode":
+		var x = struct {
+			RequestType string `json:"request_type"`
+			*ActivationLockBypassCode
+		}{
+			RequestType:              c.RequestType,
+			ActivationLockBypassCode: c.ActivationLockBypassCode,
+		}
+		return json.Marshal(&x)
 	case "SetAutoAdminPassword":
 		var x = struct {
 			RequestType string `json:"request_type"`

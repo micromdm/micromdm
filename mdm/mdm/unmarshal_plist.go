@@ -245,6 +245,13 @@ func (c *Command) UnmarshalPlist(unmarshal func(i interface{}) error) error {
 		}
 		c.VerifyFirmwarePassword = &payload
 		return nil
+	case "ActivationLockBypassCode":
+		var payload ActivationLockBypassCode
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.ActivationLockBypassCode = &payload
+		return nil
 	case "SetAutoAdminPassword":
 		var payload SetAutoAdminPassword
 		if err := unmarshal(&payload); err != nil {

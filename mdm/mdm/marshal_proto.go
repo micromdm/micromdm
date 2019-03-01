@@ -291,6 +291,10 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 				Password: cmd.VerifyFirmwarePassword.Password,
 			},
 		}
+	case "ActivationLockBypassCode":
+		cmdproto.Request = &mdmproto.Command_ActivationLockBypassCode{
+			ActivationLockBypassCode: &mdmproto.ActivationLockBypassCode{},
+		}
 	case "SetAutoAdminPassword":
 		cmdproto.Request = &mdmproto.Command_SetAutoAdminPassword{
 			SetAutoAdminPassword: &mdmproto.SetAutoAdminPassword{

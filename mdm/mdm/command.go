@@ -60,7 +60,10 @@ type Command struct {
 	ScheduleOSUpdateScan            *ScheduleOSUpdateScan
 	ActiveNSExtensions              *ActiveNSExtensions
 	RotateFileVaultKey              *RotateFileVaultKey
+	ActivationLockBypassCode        *ActivationLockBypassCode
 }
+
+type ActivationLockBypassCode struct{}
 
 // InstallProfile is an InstallProfile MDM Command
 type InstallProfile struct {
