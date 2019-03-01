@@ -1157,7 +1157,7 @@ func _Command_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer
 		}
 		msg := new(ActivationLockBypassCode)
 		err := b.DecodeMessage(msg)
-		m.Request = &Command_ActivationLockBypassCoden{msg}
+		m.Request = &Command_ActivationLockBypassCode{msg}
 		return true, err
 	default:
 		return false, nil
