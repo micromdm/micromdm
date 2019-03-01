@@ -249,7 +249,6 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			Password: pbc.GetPassword(),
 		}
 	case "ActivationLockBypassCode":
-		pbc := pb.GetActivationLockBypassCode()
 		cmd.ActivationLockBypassCode = &ActivationLockBypassCode{}
 	case "SetAutoAdminPassword":
 		pbc := pb.GetSetAutoAdminPassword()
