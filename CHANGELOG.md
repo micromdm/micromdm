@@ -7,6 +7,7 @@
 * Remove deprecated `-apns` flags from server startup (#528)
 * Move API calls to list endpoints from HTTP GET to HTTP POST (#522, #523, #524, #525, #526)
 * Add support for the ApplicationConfiguration Setting (#521)
+* Add support for the ActivationLockBypassCode Command (#578)
 
 ## [v1.4.0](https://github.com/micromdm/micromdm/compare/v1.3.1...v1.4.0) September 6 2018
 
@@ -35,7 +36,7 @@ Thanks to our contributors for this release: @erikng, @gerardkok, @knightsc, @ma
 * Add device_information and security_info commands with curl API (#448)
 * Add support for InstallEnterpriseApplication command (#452)
 
-## [v1.3.0](https://github.com/micromdm/micromdm/compare/v1.2.0...v1.3.0) 
+## [v1.3.0](https://github.com/micromdm/micromdm/compare/v1.2.0...v1.3.0)
 
 ### Auto-assigner
 
