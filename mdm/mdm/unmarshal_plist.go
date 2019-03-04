@@ -33,7 +33,8 @@ func (c *Command) UnmarshalPlist(unmarshal func(i interface{}) error) error {
 		"DeviceConfigured",
 		"AvailableOSUpdates",
 		"NSExtensionMappings",
-		"OSUpdateStatus":
+		"OSUpdateStatus",
+		"ActivationLockBypassCode":
 		return nil
 	case "InstallProfile":
 		var payload InstallProfile
