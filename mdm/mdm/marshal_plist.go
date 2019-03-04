@@ -26,7 +26,8 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 		"DeviceConfigured",
 		"AvailableOSUpdates",
 		"NSExtensionMappings",
-		"OSUpdateStatus":
+		"OSUpdateStatus",
+		"ActivationLockBypassCode":
 		return &struct {
 			RequestType string
 		}{
@@ -283,14 +284,6 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 		}{
 			RequestType:            c.RequestType,
 			VerifyFirmwarePassword: c.VerifyFirmwarePassword,
-		}, nil
-	case "ActivationLockBypassCode":
-		return &struct {
-			RequestType string
-			*ActivationLockBypassCode
-		}{
-			RequestType:              c.RequestType,
-			ActivationLockBypassCode: c.ActivationLockBypassCode,
 		}, nil
 	case "SetAutoAdminPassword":
 		return &struct {

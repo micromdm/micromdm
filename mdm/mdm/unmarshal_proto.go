@@ -27,7 +27,8 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 		"DeviceConfigured",
 		"AvailableOSUpdates",
 		"NSExtensionMappings",
-		"OSUpdateStatus":
+		"OSUpdateStatus",
+		"ActivationLockBypassCode":
 
 	case "InstallProfile":
 		cmd.InstallProfile = &InstallProfile{
@@ -248,8 +249,6 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 		cmd.VerifyFirmwarePassword = &VerifyFirmwarePassword{
 			Password: pbc.GetPassword(),
 		}
-	case "ActivationLockBypassCode":
-		cmd.ActivationLockBypassCode = &ActivationLockBypassCode{}
 	case "SetAutoAdminPassword":
 		pbc := pb.GetSetAutoAdminPassword()
 		cmd.SetAutoAdminPassword = &SetAutoAdminPassword{

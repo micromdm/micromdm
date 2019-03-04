@@ -47,7 +47,8 @@ func (c *Command) UnmarshalJSON(data []byte) error {
 		"DeviceConfigured",
 		"AvailableOSUpdates",
 		"NSExtensionMappings",
-		"OSUpdateStatus":
+		"OSUpdateStatus",
+		"ActivationLockBypassCode":
 		return nil
 	case "InstallProfile":
 		var payload InstallProfile
@@ -258,13 +259,6 @@ func (c *Command) UnmarshalJSON(data []byte) error {
 			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.VerifyFirmwarePassword = &payload
-		return nil
-	case "ActivationLockBypassCode":
-		var payload ActivationLockBypassCode
-		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
-		}
-		c.ActivationLockBypassCode = &payload
 		return nil
 	case "SetAutoAdminPassword":
 		var payload SetAutoAdminPassword

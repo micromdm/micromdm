@@ -75,7 +75,6 @@
 		FileVaultUnlock
 		ResultPayload
 		ErrorChain
-		ActivationLockBypassCode
 */
 package mdmproto
 
@@ -171,6 +170,7 @@ type Command struct {
 	// - DeviceConfigured
 	// - AvailableOSUpdates
 	// - NSExtensionMappings
+	// - ActivationLockBypassCode
 	//
 	// Types that are valid to be assigned to Request:
 	//	*Command_InstallProfile
@@ -208,7 +208,6 @@ type Command struct {
 	//	*Command_ActiveNsExtensions
 	//	*Command_RotateFilevaultKey
 	//	*Command_InstallEnterpriseApplication
-	//  *Command_ActivationLockBypassCode
 	Request isCommand_Request `protobuf_oneof:"request"`
 }
 
@@ -328,9 +327,6 @@ type Command_RotateFilevaultKey struct {
 type Command_InstallEnterpriseApplication struct {
 	InstallEnterpriseApplication *InstallEnterpriseApplication `protobuf:"bytes,36,opt,name=install_enterprise_application,json=installEnterpriseApplication,oneof"`
 }
-type Command_ActivationLockBypassCode struct {
-	ActivationLockBypassCode *ActivationLockBypassCode `protobuf:"bytes,37,opt,name=activation_lock_bypass_code,json=activationLockBypassCode,oneof"`
-}
 
 func (*Command_InstallProfile) isCommand_Request()                  {}
 func (*Command_RemoveProfile) isCommand_Request()                   {}
@@ -367,7 +363,6 @@ func (*Command_ScheduleOsUpdateScan) isCommand_Request()            {}
 func (*Command_ActiveNsExtensions) isCommand_Request()              {}
 func (*Command_RotateFilevaultKey) isCommand_Request()              {}
 func (*Command_InstallEnterpriseApplication) isCommand_Request()    {}
-func (*Command_ActivationLockBypassCode) isCommand_Request()        {}
 
 func (m *Command) GetRequest() isCommand_Request {
 	if m != nil {
@@ -628,13 +623,6 @@ func (m *Command) GetInstallEnterpriseApplication() *InstallEnterpriseApplicatio
 	return nil
 }
 
-func (m *Command) GetActivationLockBypassCode() *ActivationLockBypassCode {
-	if x, ok := m.GetRequest().(*Command_ActivationLockBypassCode); ok {
-		return x.ActivationLockBypassCode
-	}
-	return nil
-}
-
 // XXX_OneofFuncs is for the internal use of the proto package.
 func (*Command) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
 	return _Command_OneofMarshaler, _Command_OneofUnmarshaler, _Command_OneofSizer, []interface{}{
@@ -673,7 +661,6 @@ func (*Command) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error
 		(*Command_ActiveNsExtensions)(nil),
 		(*Command_RotateFilevaultKey)(nil),
 		(*Command_InstallEnterpriseApplication)(nil),
-		(*Command_ActivationLockBypassCode)(nil),
 	}
 }
 
@@ -854,11 +841,6 @@ func _Command_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
 	case *Command_InstallEnterpriseApplication:
 		_ = b.EncodeVarint(36<<3 | proto.WireBytes)
 		if err := b.EncodeMessage(x.InstallEnterpriseApplication); err != nil {
-			return err
-		}
-	case *Command_ActivationLockBypassCode:
-		_ = b.EncodeVarint(36<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.ActivationLockBypassCode); err != nil {
 			return err
 		}
 	case nil:
@@ -1151,14 +1133,6 @@ func _Command_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer
 		err := b.DecodeMessage(msg)
 		m.Request = &Command_InstallEnterpriseApplication{msg}
 		return true, err
-	case 37: // request.activation_lock_bypass_code
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(ActivationLockBypassCode)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_ActivationLockBypassCode{msg}
-		return true, err
 	default:
 		return false, nil
 	}
@@ -1341,11 +1315,6 @@ func _Command_OneofSizer(msg proto.Message) (n int) {
 	case *Command_InstallEnterpriseApplication:
 		s := proto.Size(x.InstallEnterpriseApplication)
 		n += proto.SizeVarint(36<<3 | proto.WireBytes)
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_ActivationLockBypassCode:
-		s := proto.Size(x.ActivationLockBypassCode)
-		n += proto.SizeVarint(37<<3 | proto.WireBytes)
 		n += proto.SizeVarint(uint64(s))
 		n += s
 	case nil:
@@ -2990,13 +2959,6 @@ func (m *ErrorChain) GetErrorCode() int32 {
 	return 0
 }
 
-type ActivationLockBypassCode struct{}
-
-func (m *ActivationLockBypassCode) Reset()                    { *m = ActivationLockBypassCode{} }
-func (m *ActivationLockBypassCode) String() string            { return proto.CompactTextString(m) }
-func (*ActivationLockBypassCode) ProtoMessage()               {}
-func (*ActivationLockBypassCode) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{67} }
-
 func init() {
 	proto.RegisterType((*CommandPayload)(nil), "mdmproto.CommandPayload")
 	proto.RegisterType((*Command)(nil), "mdmproto.Command")
@@ -3065,7 +3027,6 @@ func init() {
 	proto.RegisterType((*FileVaultUnlock)(nil), "mdmproto.FileVaultUnlock")
 	proto.RegisterType((*ResultPayload)(nil), "mdmproto.ResultPayload")
 	proto.RegisterType((*ErrorChain)(nil), "mdmproto.ErrorChain")
-	proto.RegisterType((*ActivationLockBypassCode)(nil), "mdmproto.ActivationLockBypassCode")
 	proto.RegisterEnum("mdmproto.ResultPayload_Status", ResultPayload_Status_name, ResultPayload_Status_value)
 }
 func (m *CommandPayload) Marshal() (dAtA []byte, err error) {
@@ -3662,22 +3623,6 @@ func (m *Command_InstallEnterpriseApplication) MarshalTo(dAtA []byte) (int, erro
 			return 0, err
 		}
 		i += n37
-	}
-	return i, nil
-}
-func (m *Command_ActivationLockBypassCode) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
-	if m.ActivationLockBypassCode != nil {
-		dAtA[i] = 0xaa
-		i++
-		dAtA[i] = 0x2
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ActivationLockBypassCode.Size()))
-		n38, err := m.ActivationLockBypassCode.MarshalTo(dAtA[i:])
-		if err != nil {
-			return 0, err
-		}
-		i += n38
 	}
 	return i, nil
 }
@@ -5636,25 +5581,6 @@ func (m *VerifyFirmwarePassword) MarshalTo(dAtA []byte) (int, error) {
 	return i, nil
 }
 
-func (m *ActivationLockBypassCode) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *ActivationLockBypassCode) MarshalTo(dAtA []byte) (int, error) {
-	var i int
-	_ = i
-	var l int
-	_ = l
-
-	return i, nil
-}
-
 func (m *SetAutoAdminPassword) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -6270,15 +6196,6 @@ func (m *Command_VerifyFirmwarePassword) Size() (n int) {
 	_ = l
 	if m.VerifyFirmwarePassword != nil {
 		l = m.VerifyFirmwarePassword.Size()
-		n += 2 + l + sovMdm(uint64(l))
-	}
-	return n
-}
-func (m *Command_ActivationLockBypassCode) Size() (n int) {
-	var l int
-	_ = l
-	if m.ActivationLockBypassCode != nil {
-		l = m.ActivationLockBypassCode.Size()
 		n += 2 + l + sovMdm(uint64(l))
 	}
 	return n
@@ -7135,13 +7052,6 @@ func (m *VerifyFirmwarePassword) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovMdm(uint64(l))
 	}
-	return n
-}
-
-func (m *ActivationLockBypassCode) Size() (n int) {
-	var l int
-	_ = l
-
 	return n
 }
 
@@ -8593,38 +8503,6 @@ func (m *Command) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			m.Request = &Command_InstallEnterpriseApplication{v}
-			iNdEx = postIndex
-		case 37:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field ActivationLockBypassCode", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowMdm
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= (int(b) & 0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthMdm
-			}
-			postIndex := iNdEx + msglen
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			v := &ActivationLockBypassCode{}
-			if err := v.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			m.Request = &Command_ActivationLockBypassCode{v}
 			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
@@ -14644,56 +14522,6 @@ func (m *VerifyFirmwarePassword) Unmarshal(dAtA []byte) error {
 			}
 			m.Password = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipMdm(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *ActivationLockBypassCode) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowMdm
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= (uint64(b) & 0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: ActivationLockBypassCode: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: ActivationLockBypassCode: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
 		default:
 			iNdEx = preIndex
 			skippy, err := skipMdm(dAtA[iNdEx:])

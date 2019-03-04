@@ -24,7 +24,8 @@ func (c *Command) MarshalJSON() ([]byte, error) {
 		"DeviceConfigured",
 		"AvailableOSUpdates",
 		"NSExtensionMappings",
-		"OSUpdateStatus":
+		"OSUpdateStatus",
+		"ActivationLockBypassCode":
 		var x = struct {
 			RequestType string `json:"request_type"`
 		}{
@@ -299,15 +300,6 @@ func (c *Command) MarshalJSON() ([]byte, error) {
 		}{
 			RequestType:            c.RequestType,
 			VerifyFirmwarePassword: c.VerifyFirmwarePassword,
-		}
-		return json.Marshal(&x)
-	case "ActivationLockBypassCode":
-		var x = struct {
-			RequestType string `json:"request_type"`
-			*ActivationLockBypassCode
-		}{
-			RequestType:              c.RequestType,
-			ActivationLockBypassCode: c.ActivationLockBypassCode,
 		}
 		return json.Marshal(&x)
 	case "SetAutoAdminPassword":

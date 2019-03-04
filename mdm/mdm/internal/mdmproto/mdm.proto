@@ -28,6 +28,7 @@ message Command {
      - DeviceConfigured
      - AvailableOSUpdates
      - NSExtensionMappings
+     - ActivationLockBypassCode
    */
   oneof request {
     InstallProfile install_profile = 2;
@@ -65,7 +66,6 @@ message Command {
     ActiveNSExtensions active_ns_extensions = 34;
     RotateFileVaultKey rotate_filevault_key = 35;
     InstallEnterpriseApplication install_enterprise_application = 36;
-    ActivationLockBypassCode activation_lock_bypass_code = 37;
   }
 }
 
@@ -352,8 +352,6 @@ message SetFirmwarePassword {
 message VerifyFirmwarePassword {
   string password = 1;
 }
-
-message ActivationLockBypassCode {}
 
 message SetAutoAdminPassword {
   string guid = 1;
