@@ -38,20 +38,21 @@ import (
 )
 
 type Server struct {
-	ConfigPath        string
-	Depsim            string
-	PubClient         pubsub.PublishSubscriber
-	DB                *bolt.DB
-	ServerPublicURL   string
-	SCEPChallenge     string
-	TLSCertPath       string
-	SCEPDepot         *boltdepot.Depot
-	ProfileDB         profile.Store
-	ConfigDB          config.Store
-	RemoveDB          block.Store
-	CommandWebhookURL string
-	DEPClient         *dep.Client
-	SyncDB            *syncbuiltin.DB
+	ConfigPath         string
+	Depsim             string
+	PubClient          pubsub.PublishSubscriber
+	DB                 *bolt.DB
+	ServerPublicURL    string
+	SCEPChallenge      string
+	SCEPClientValidity int
+	TLSCertPath        string
+	SCEPDepot          *boltdepot.Depot
+	ProfileDB          profile.Store
+	ConfigDB           config.Store
+	RemoveDB           block.Store
+	CommandWebhookURL  string
+	DEPClient          *dep.Client
+	SyncDB             *syncbuiltin.DB
 
 	APNSPushService apns.Service
 	CommandService  command.Service
@@ -336,7 +337,7 @@ func (c *Server) setupSCEP(logger log.Logger) error {
 	}
 
 	opts := []scep.ServiceOption{
-		scep.ClientValidity(365),
+		scep.ClientValidity(c.SCEPClientValidity),
 		scep.ChallengePassword(c.SCEPChallenge),
 	}
 	c.SCEPDepot = depot
