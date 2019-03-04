@@ -69,19 +69,20 @@ const homePage = `<!doctype html>
 func serve(args []string) error {
 	flagset := flag.NewFlagSet("serve", flag.ExitOnError)
 	var (
-		flConfigPath        = flagset.String("config-path", "/var/db/micromdm", "path to configuration directory")
-		flServerURL         = flagset.String("server-url", "", "public HTTPS url of your server")
-		flAPIKey            = flagset.String("api-key", env.String("MICROMDM_API_KEY", ""), "API Token for mdmctl command")
-		flTLS               = flagset.Bool("tls", true, "use https")
-		flTLSCert           = flagset.String("tls-cert", "", "path to TLS certificate")
-		flTLSKey            = flagset.String("tls-key", "", "path to TLS private key")
-		flHTTPAddr          = flagset.String("http-addr", ":https", "http(s) listen address of mdm server. defaults to :8080 if tls is false")
-		flHTTPDebug         = flagset.Bool("http-debug", false, "enable debug for http(dumps full request)")
-		flRepoPath          = flagset.String("filerepo", "", "path to http file repo")
-		flDepSim            = flagset.String("depsim", "", "use depsim URL")
-		flExamples          = flagset.Bool("examples", false, "prints some example usage")
-		flCommandWebhookURL = flagset.String("command-webhook-url", "", "URL to send command responses.")
-		flHomePage          = flagset.Bool("homepage", true, "hosts a simple built-in webpage at the / address")
+		flConfigPath         = flagset.String("config-path", "/var/db/micromdm", "path to configuration directory")
+		flServerURL          = flagset.String("server-url", "", "public HTTPS url of your server")
+		flAPIKey             = flagset.String("api-key", env.String("MICROMDM_API_KEY", ""), "API Token for mdmctl command")
+		flTLS                = flagset.Bool("tls", true, "use https")
+		flTLSCert            = flagset.String("tls-cert", "", "path to TLS certificate")
+		flTLSKey             = flagset.String("tls-key", "", "path to TLS private key")
+		flHTTPAddr           = flagset.String("http-addr", ":https", "http(s) listen address of mdm server. defaults to :8080 if tls is false")
+		flHTTPDebug          = flagset.Bool("http-debug", false, "enable debug for http(dumps full request)")
+		flRepoPath           = flagset.String("filerepo", "", "path to http file repo")
+		flDepSim             = flagset.String("depsim", "", "use depsim URL")
+		flExamples           = flagset.Bool("examples", false, "prints some example usage")
+		flCommandWebhookURL  = flagset.String("command-webhook-url", "", "URL to send command responses.")
+		flHomePage           = flagset.Bool("homepage", true, "hosts a simple built-in webpage at the / address")
+		flSCEPClientValidity = flagset.Int("scep-client-validity", 365, "sets the scep certificate validity in days")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -124,7 +125,8 @@ func serve(args []string) error {
 		// being prompted for the SCEP challenge which happens in a "normal"
 		// (non-DEP) enrollment. While security is not improved it is at least
 		// no less secure and prevents a useless dialog from showing.
-		SCEPChallenge: "micromdm",
+		SCEPChallenge:      "micromdm",
+		SCEPClientValidity: *flSCEPClientValidity,
 	}
 
 	if err := sm.Setup(logger); err != nil {
