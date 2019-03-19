@@ -170,6 +170,7 @@ type Command struct {
 	// - DeviceConfigured
 	// - AvailableOSUpdates
 	// - NSExtensionMappings
+	// - ActivationLockBypassCode
 	//
 	// Types that are valid to be assigned to Request:
 	//	*Command_InstallProfile

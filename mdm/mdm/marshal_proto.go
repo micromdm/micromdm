@@ -42,7 +42,8 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 		"DeviceConfigured",
 		"AvailableOSUpdates",
 		"NSExtensionMappings",
-		"OSUpdateStatus":
+		"OSUpdateStatus",
+		"ActivationLockBypassCode":
 
 	case "InstallProfile":
 		if cmd.InstallProfile == nil {
