@@ -24,7 +24,8 @@ func (c *Command) MarshalJSON() ([]byte, error) {
 		"DeviceConfigured",
 		"AvailableOSUpdates",
 		"NSExtensionMappings",
-		"OSUpdateStatus":
+		"OSUpdateStatus",
+		"ActivationLockBypassCode":
 		var x = struct {
 			RequestType string `json:"request_type"`
 		}{
