@@ -167,54 +167,12 @@
 			<true/>
 			<key>allowiTunes</key>
 			<true/>
-			<key>enforcedSoftwareUpdateDelay</key>
-			<integer>30</integer>
-			<key>forceAirDropUnmanaged</key>
-			<false/>
-			<key>forceAirPrintTrustedTLSRequirement</key>
-			<false/>
-			<key>forceAssistantProfanityFilter</key>
-			<false/>
-			<key>forceAuthenticationBeforeAutoFill</key>
-			<false/>
 			<key>forceAutomaticDateAndTime</key>
 			<false/>
-			<key>forceClassroomAutomaticallyJoinClasses</key>
-			<false/>
-			<key>forceClassroomRequestPermissionToLeaveClasses</key>
-			<false/>
-			<key>forceClassroomUnpromptedAppAndDeviceLock</key>
-			<false/>
-			<key>forceClassroomUnpromptedScreenObservation</key>
-			<false/>
 			<key>forceDelayedSoftwareUpdates</key>
-			<false/>
-			<key>forceEncryptedBackup</key>
-			<false/>
-			<key>forceITunesStorePasswordEntry</key>
-			<false/>
-			<key>forceWatchWristDetection</key>
-			<false/>
-			<key>forceWiFiWhitelisting</key>
-			<false/>
-			<key>ratingApps</key>
-			<integer>1000</integer>
-			<key>ratingMovies</key>
-			<integer>1000</integer>
-			<key>ratingRegion</key>
-			<string>us</string>
-			<key>ratingTVShows</key>
-			<integer>1000</integer>
-			<key>safariAcceptCookies</key>
-			<integer>2</integer>
-			<key>safariAllowAutoFill</key>
 			<true/>
-			<key>safariAllowJavaScript</key>
-			<true/>
-			<key>safariAllowPopups</key>
-			<true/>
-			<key>safariForceFraudWarning</key>
-			<false/>
+			<key>enforcedSoftwareUpdateDelay</key>
+			<integer>90</integer>			
 			<key>whitelistedAppBundleIDs</key>
 			<array>
 				<string>ch.abacus.abaclock.client2</string>
@@ -228,10 +186,15 @@
                 <string>com.apple.mobileslideshow</string>
                 <string>com.PunchThrough.LightBlue</string>
 			</array>
+			<key>autonomousSingleAppModePermittedAppIDs</key>
+			<array>
+				<string>ch.abacus.abaclock.client2</string>
+				<string>com.apple.mobilesafari</string>
+			</array>
 		</dict>
 	</array>
 	<key>PayloadDisplayName</key>
-	<string>Untitled 2</string>
+	<string>Resctricted Access</string>
 	<key>PayloadIdentifier</key>
 	<string>ch.abacus.abaclock.client2.applicationaccess.987CC404-BCA3-49B1-A0DD-DA903CB4564C</string>
 	<key>PayloadRemovalDisallowed</key>
