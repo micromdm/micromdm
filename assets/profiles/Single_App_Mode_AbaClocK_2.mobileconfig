@@ -35,6 +35,10 @@
 			<array>
 			    <string>ch.abacus.abaclock.client2</string>
 			</array>
+            <key>AllowedApplications</key>
+            <array>
+                <string>ch.abacus.abaclock.client2</string>
+            </array>
 			<key>PayloadDisplayName</key>
 			<string>Autonomous Single App Mode</string>
 			<key>PayloadIdentifier</key>
