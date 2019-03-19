@@ -26,7 +26,8 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 		"DeviceConfigured",
 		"AvailableOSUpdates",
 		"NSExtensionMappings",
-		"OSUpdateStatus":
+		"OSUpdateStatus",
+		"ActivationLockBypassCode":
 		return &struct {
 			RequestType string
 		}{
