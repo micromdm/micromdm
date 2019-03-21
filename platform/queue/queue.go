@@ -4,6 +4,7 @@ package queue
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/log"
@@ -75,6 +76,7 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*Command, 
 	case "Acknowledged":
 		// move to completed, send next
 		x, a := cut(dc.Commands, resp.CommandUUID)
+		x.Acknowledged = time.Now()
 		dc.Commands = a
 		if x == nil {
 			break
@@ -99,6 +101,7 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*Command, 
 		dc.Failed = append(dc.Failed, *x)
 
 	case "Idle":
+
 		// will send next command below
 
 	default:
