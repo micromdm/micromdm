@@ -42,7 +42,7 @@ spec:
               key: database-host
               name: mysql
         - name: SCEP_CLIENT_VALIDITY
-          value: 10000
+          value: "10000"
         - name: SERVER_URL
           value: "https://{{ .Values.app.url }}"
         - name: WEBHOOK_URL
