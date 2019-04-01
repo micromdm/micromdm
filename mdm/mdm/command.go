@@ -157,7 +157,7 @@ type InstallApplicationAttributes struct{}
 
 type AccountConfiguration struct {
 	SkipPrimarySetupAccountCreation     bool           `plist:",omitempty" json:"skip_primary_setup_account_creation,omitempty"`
-	SetPrimarySetupAccountAsRegularUser bool           `plist:",omitempty" json:"skip_primary_setup_account_as_regular_user,omitempty"`
+	SetPrimarySetupAccountAsRegularUser bool           `plist:",omitempty" json:"set_primary_setup_account_as_regular_user,omitempty"`
 	AutoSetupAdminAccounts              []AdminAccount `plist:",omitempty" json:"auto_setup_admin_accounts,omitempty"`
 }
 
