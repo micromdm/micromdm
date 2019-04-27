@@ -2,7 +2,6 @@ package mysql
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	
 	"time"
@@ -95,6 +94,42 @@ func TestNext_NotNow(t *testing.T) {
 	t.Run("withOneCommand", tf)
 }
 
+func TestOnlyLast2DaysCommands(t *testing.T) {
+	store := setupDB(t)
+	store.db.SetMaxOpenConns(5)
+	store.db.SetConnMaxLifetime(time.Hour)
+	store.db.SetMaxIdleConns(3)
+	ctx := context.Background()
+
+	dc := &queue.DeviceCommand{DeviceUDID: "TestDevice"}
+	responses := []mdm.Response{}
+
+	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd"})
+	resp := mdm.Response {
+		UDID:        dc.DeviceUDID,
+		CommandUUID: "xCmd",
+		Status:      "Idle",
+	}
+	responses =  append(responses, resp)
+	
+	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd1", CreatedAt: time.Now()})
+	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd2"})
+	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd3", CreatedAt: time.Now().AddDate(0, -3, 0)}) // 3 days in the past
+    
+	if err := store.Save(ctx, dc); err != nil {
+		t.Fatal(err)
+	}
+
+	dc, _error := store.DeviceCommand(ctx, dc.DeviceUDID)
+	if _error != nil {
+		t.Fatal(_error)
+	}
+	
+	if len(dc.Commands) != 1 {
+		t.Fatal("Expected to only have 1 command that is within the threshold created_at within 'last 2 days'")
+	}
+}
+
 func TestTransaction(t *testing.T) {
 	store := setupDB(t)
 	store.db.SetMaxOpenConns(5)
@@ -112,7 +147,7 @@ func TestTransaction(t *testing.T) {
 	}
 	responses =  append(responses, resp)
 	
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 10; i++ {
 		dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd"+strconv.Itoa(i)})
 		resp := mdm.Response {
 			UDID:        dc.DeviceUDID,
@@ -121,8 +156,6 @@ func TestTransaction(t *testing.T) {
 		}
 		responses = append(responses, resp)
 	}
-	
-	fmt.Println(dc.Commands)
 	
 	ctx := context.Background()
 	if err := store.Save(ctx, dc); err != nil {
