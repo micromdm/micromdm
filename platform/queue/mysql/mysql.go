@@ -307,7 +307,6 @@ func (db *Store) SaveCommand(ctx context.Context, cmd queue.Command, deviceUDID 
 		return errors.Wrap(err, "building command save query")
 	}
 	
-
 	//fmt.Println(db.db.MaxOpenConns)
 
 	dbParallelAccess := false
@@ -352,12 +351,13 @@ func (db *Store) DeviceCommand(ctx context.Context, udid string) (*queue.DeviceC
 		Select(command_columns()...).
 		From(DeviceCommandTable).
 		Where(sq.Eq{"device_udid": udid}).
+		Where(sq.GtOrEq{"created_at": time.Now().AddDate(0, 0, -2)}). // Two days in the past
 		OrderBy("command_order").
 		ToSql()
 	if err != nil {
 		return nil, errors.Wrap(err, "building sql")
 	}
-
+	
 	var list []MysqlCommand
 	err = db.db.SelectContext(ctx, &list, query, args...)
 	if errors.Cause(err) == sql.ErrNoRows {
