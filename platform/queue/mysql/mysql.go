@@ -351,7 +351,7 @@ func (db *Store) DeviceCommand(ctx context.Context, udid string) (*queue.DeviceC
 		Select(command_columns()...).
 		From(DeviceCommandTable).
 		Where(sq.Eq{"device_udid": udid}).
-		Where(sq.GtOrEq{"created_at": time.Now().AddDate(0, 0, -2)}). // Two days in the past
+		Where(sq.GtOrEq{"created_at": time.Now().AddDate(0, 0, -1)}). // One day in the past
 		OrderBy("command_order").
 		ToSql()
 	if err != nil {
