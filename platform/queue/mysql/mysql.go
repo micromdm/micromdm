@@ -248,7 +248,7 @@ func (db *Store) SaveCommand(ctx context.Context, cmd queue.Command, deviceUDID 
 	var min_timestamp_sec int64 = int64(offset) * 60 * 60 * 24
 	
 	if (cmd.CreatedAt.IsZero() || cmd.CreatedAt.Unix() < min_timestamp_sec) {
-		cmd.CreatedAt = time.Unix(min_timestamp_sec, 0)
+		cmd.CreatedAt = time.Now()
 	}
 	
 	if (cmd.LastSentAt.IsZero() || cmd.LastSentAt.Unix() < min_timestamp_sec) {
