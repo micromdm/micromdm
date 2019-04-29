@@ -94,7 +94,7 @@ func TestNext_NotNow(t *testing.T) {
 	t.Run("withOneCommand", tf)
 }
 
-func TestOnlyLast2DaysCommands(t *testing.T) {
+func TestOnlyLastDayCommands(t *testing.T) {
 	store := setupDB(t)
 	store.db.SetMaxOpenConns(5)
 	store.db.SetConnMaxLifetime(time.Hour)
@@ -114,7 +114,7 @@ func TestOnlyLast2DaysCommands(t *testing.T) {
 	
 	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd1", CreatedAt: time.Now()})
 	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd2"})
-	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd3", CreatedAt: time.Now().AddDate(0, -3, 0)}) // 3 days in the past
+	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd3", CreatedAt: time.Now().AddDate(0, 0, -2)}) // 2 days in the past
     
 	if err := store.Save(ctx, dc); err != nil {
 		t.Fatal(err)
