@@ -248,7 +248,7 @@ func (db *Store) SaveCommand(ctx context.Context, cmd queue.Command, deviceUDID 
 	var min_timestamp_sec int64 = int64(offset) * 60 * 60 * 24
 	
 	if (cmd.CreatedAt.IsZero() || cmd.CreatedAt.Unix() < min_timestamp_sec) {
-		cmd.CreatedAt = time.Unix(min_timestamp_sec, 0)
+		cmd.CreatedAt = time.Now()
 	}
 	
 	if (cmd.LastSentAt.IsZero() || cmd.LastSentAt.Unix() < min_timestamp_sec) {
@@ -351,7 +351,7 @@ func (db *Store) DeviceCommand(ctx context.Context, udid string) (*queue.DeviceC
 		Select(command_columns()...).
 		From(DeviceCommandTable).
 		Where(sq.Eq{"device_udid": udid}).
-		Where(sq.GtOrEq{"created_at": time.Now().AddDate(0, 0, -2)}). // Two days in the past
+		Where(sq.GtOrEq{"created_at": time.Now().AddDate(0, 0, -1)}). // One day in the past
 		OrderBy("command_order").
 		ToSql()
 	if err != nil {
