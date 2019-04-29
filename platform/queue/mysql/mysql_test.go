@@ -113,7 +113,7 @@ func TestOnlyLastDayCommands(t *testing.T) {
 	responses =  append(responses, resp)
 	
 	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd1", CreatedAt: time.Now()})
-	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd2"})
+	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd2", CreatedAt: time.Now().AddDate(0, -3, 0)}) // 3 months in the past
 	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd3", CreatedAt: time.Now().AddDate(0, 0, -2)}) // 2 days in the past
     
 	if err := store.Save(ctx, dc); err != nil {
@@ -125,8 +125,8 @@ func TestOnlyLastDayCommands(t *testing.T) {
 		t.Fatal(_error)
 	}
 	
-	if len(dc.Commands) != 1 {
-		t.Fatal("Expected to only have 1 command that is within the threshold created_at within 'last 2 days'")
+	if len(dc.Commands) != 2 {
+		t.Fatal("Expected to have exactly 2 commands that are within the threshold created_at within 'last 1 days'")
 	}
 }
 
