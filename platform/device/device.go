@@ -12,32 +12,32 @@ import (
 const DeviceEnrolledTopic = "mdm.DeviceEnrolled"
 
 type Device struct {
-	UUID                   string           `db:"uuid"`
-	UDID                   string           `db:"udid"`
-	SerialNumber           string           `db:"serial_number"`
-	OSVersion              string           `db:"os_version"`
-	BuildVersion           string           `db:"build_version"`
-	ProductName            string           `db:"product_name"`
-	IMEI                   string           `db:"imei"`
-	MEID                   string           `db:"meid"`
-	PushMagic              string           `db:"push_magic"`
-	AwaitingConfiguration  bool             `db:"awaiting_configuration"`
-	Token                  string           `db:"token"`
-	UnlockToken            string           `db:"unlock_token"`
-	Enrolled               bool             `db:"enrolled"`
-	Description            string           `db:"description"`
-	Model                  string           `db:"model"`
-	ModelName              string           `db:"model_name"`
-	DeviceName             string           `db:"device_name"`
-	Color                  string           `db:"color"`
-	AssetTag               string           `db:"asset_tag"`
-	DEPProfileStatus       DEPProfileStatus `db:"dep_profile_status"`
-	DEPProfileUUID         string           `db:"dep_profile_uuid"`
-	DEPProfileAssignTime   time.Time        `db:"dep_profile_assign_time"`
-	DEPProfilePushTime     time.Time        `db:"dep_profile_push_time"`
-	DEPProfileAssignedDate time.Time        `db:"dep_profile_assigned_date"`
-	DEPProfileAssignedBy   string           `db:"dep_profile_assigned_by"`
-	LastSeen               time.Time        `db:"last_seen"`
+	UUID                   string           `db:"uuid" json:"uuid,omitempty"`
+	UDID                   string           `db:"udid" json:"udid,omitempty"`
+	SerialNumber           string           `db:"serial_number" json:"serial_number,omitempty"`
+	OSVersion              string           `db:"os_version" json:"os_version,omitempty"`
+	BuildVersion           string           `db:"build_version" json:"build_version,omitempty"`
+	ProductName            string           `db:"product_name" json:"product_name,omitempty"`
+	IMEI                   string           `db:"imei" json:"imei,omitempty"`
+	MEID                   string           `db:"meid" json:"meid,omitempty"`
+	PushMagic              string           `db:"push_magic" json:"push_magic,omitempty"`
+	AwaitingConfiguration  bool             `db:"awaiting_configuration" json:"awaiting_configuration,omitempty"`
+	Token                  string           `db:"token" json:"token,omitempty"`
+	UnlockToken            string           `db:"unlock_token" json:"unlock_token,omitempty"`
+	Enrolled               bool             `db:"enrolled" json:"enrolled,omitempty"`
+	Description            string           `db:"description" json:"description,omitempty"`
+	Model                  string           `db:"model" json:"model,omitempty"`
+	ModelName              string           `db:"model_name" json:"model_name,omitempty"`
+	DeviceName             string           `db:"device_name" json:"device_name,omitempty"`
+	Color                  string           `db:"color" json:"color,omitempty"`
+	AssetTag               string           `db:"asset_tag" json:"asset_tag,omitempty"`
+	DEPProfileStatus       DEPProfileStatus `db:"dep_profile_status" json:"dep_profile_status,omitempty"`
+	DEPProfileUUID         string           `db:"dep_profile_uuid" json:"dep_profile_uuid,omitempty"`
+	DEPProfileAssignTime   time.Time        `db:"dep_profile_assign_time" json:"dep_profile_assign_time,omitempty"`
+	DEPProfilePushTime     time.Time        `db:"dep_profile_push_time" json:"dep_profile_push_time,omitempty"`
+	DEPProfileAssignedDate time.Time        `db:"dep_profile_assigned_date" json:"dep_profile_assigned_date,omitempty"`
+	DEPProfileAssignedBy   string           `db:"dep_profile_assigned_by" json:"dep_profile_assigned_by,omitempty"`
+	LastSeen               time.Time        `db:"last_seen" json:"last_seen,omitempty"`
 }
 
 // DEPProfileStatus is the status of the DEP Profile

@@ -3,7 +3,6 @@ package device
 import (
 	"context"
 	"net/http"
-	"time"
 
 	"github.com/go-kit/kit/endpoint"
 
@@ -18,31 +17,15 @@ type ListDevicesOption struct {
 	FilterUDID   []string `json:"filter_udid"`
 }
 
-type DeviceDTO struct {
-	SerialNumber     string    `json:"serial_number"`
-	UDID             string    `json:"udid"`
-	EnrollmentStatus bool      `json:"enrollment_status"`
-	LastSeen         time.Time `json:"last_seen"`
-}
-
-func (svc *DeviceService) ListDevices(ctx context.Context, opt ListDevicesOption) ([]DeviceDTO, error) {
+func (svc *DeviceService) ListDevices(ctx context.Context, opt ListDevicesOption) ([]Device, error) {
 	devices, err := svc.store.List(ctx, opt)
-	var dto []DeviceDTO
-	for _, d := range devices {
-		dto = append(dto, DeviceDTO{
-			SerialNumber:     d.SerialNumber,
-			UDID:             d.UDID,
-			EnrollmentStatus: d.Enrolled,
-			LastSeen:         d.LastSeen,
-		})
-	}
-	return dto, err
+	return devices, err
 }
 
 type getDevicesRequest struct{ Opts ListDevicesOption }
 type getDevicesResponse struct {
-	Devices []DeviceDTO `json:"devices"`
-	Err     error       `json:"err,omitempty"`
+	Devices []Device `json:"devices"`
+	Err     error    `json:"err,omitempty"`
 }
 
 func (r getDevicesResponse) Failed() error { return r.Err }
@@ -73,7 +56,7 @@ func MakeListDevicesEndpoint(svc Service) endpoint.Endpoint {
 	}
 }
 
-func (e Endpoints) ListDevices(ctx context.Context, opts ListDevicesOption) ([]DeviceDTO, error) {
+func (e Endpoints) ListDevices(ctx context.Context, opts ListDevicesOption) ([]Device, error) {
 	request := getDevicesRequest{opts}
 	response, err := e.ListDevicesEndpoint(ctx, request.Opts)
 	if err != nil {

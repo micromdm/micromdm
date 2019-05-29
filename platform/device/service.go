@@ -10,7 +10,7 @@ type RemoveDevicesOptions struct {
 }
 
 type Service interface {
-	ListDevices(ctx context.Context, opt ListDevicesOption) ([]DeviceDTO, error)
+	ListDevices(ctx context.Context, opt ListDevicesOption) ([]Device, error)
 	RemoveDevices(ctx context.Context, opt RemoveDevicesOptions) error
 }
 
