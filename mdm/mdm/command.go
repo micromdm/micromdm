@@ -149,7 +149,7 @@ type InstallApplication struct {
 }
 
 type InstallApplicationOptions struct {
-	PurchaseMethod int64 `plist:",omitempty" json:"purchase_method,omitempty"`
+	PurchaseMethod *int64 `plist:",omitempty" json:"purchase_method,omitempty"`
 }
 
 type InstallApplicationConfiguration struct{}

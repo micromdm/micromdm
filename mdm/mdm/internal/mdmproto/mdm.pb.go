@@ -1709,7 +1709,7 @@ func (m *InstallApplication) GetChangeManagementState() string {
 }
 
 type InstallApplicationOptions struct {
-	PurchaseMethod int64 `protobuf:"varint,1,opt,name=purchase_method,json=purchaseMethod,proto3" json:"purchase_method,omitempty"`
+	PurchaseMethod *int64 `protobuf:"varint,1,opt,name=purchase_method,json=purchaseMethod,proto3" json:"purchase_method,omitempty"`
 }
 
 func (m *InstallApplicationOptions) Reset()                    { *m = InstallApplicationOptions{} }
@@ -1717,11 +1717,11 @@ func (m *InstallApplicationOptions) String() string            { return proto.Co
 func (*InstallApplicationOptions) ProtoMessage()               {}
 func (*InstallApplicationOptions) Descriptor() ([]byte, []int) { return fileDescriptorMdm, []int{17} }
 
-func (m *InstallApplicationOptions) GetPurchaseMethod() int64 {
+func (m *InstallApplicationOptions) GetPurchaseMethod() *int64 {
 	if m != nil {
 		return m.PurchaseMethod
 	}
-	return 0
+	return nil
 }
 
 type InstallApplicationConfiguration struct {
@@ -4157,10 +4157,10 @@ func (m *InstallApplicationOptions) MarshalTo(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.PurchaseMethod != 0 {
+	if m.PurchaseMethod != nil {
 		dAtA[i] = 0x8
 		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.PurchaseMethod))
+		i = encodeVarintMdm(dAtA, i, uint64(*m.PurchaseMethod))
 	}
 	return i, nil
 }
@@ -6476,8 +6476,8 @@ func (m *InstallApplication) Size() (n int) {
 func (m *InstallApplicationOptions) Size() (n int) {
 	var l int
 	_ = l
-	if m.PurchaseMethod != 0 {
-		n += 1 + sovMdm(uint64(m.PurchaseMethod))
+	if m.PurchaseMethod != nil {
+		n += 1 + sovMdm(uint64(*m.PurchaseMethod))
 	}
 	return n
 }
@@ -10218,7 +10218,7 @@ func (m *InstallApplicationOptions) Unmarshal(dAtA []byte) error {
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field PurchaseMethod", wireType)
 			}
-			m.PurchaseMethod = 0
+			m.PurchaseMethod = new(int64)
 			for shift := uint(0); ; shift += 7 {
 				if shift >= 64 {
 					return ErrIntOverflowMdm
@@ -10228,7 +10228,7 @@ func (m *InstallApplicationOptions) Unmarshal(dAtA []byte) error {
 				}
 				b := dAtA[iNdEx]
 				iNdEx++
-				m.PurchaseMethod |= (int64(b) & 0x7F) << shift
+				*m.PurchaseMethod |= (int64(b) & 0x7F) << shift
 				if b < 0x80 {
 					break
 				}
