@@ -131,8 +131,9 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 		pboptions := pbc.GetOptions()
 		if pboptions != nil {
 			options = &InstallApplicationOptions{
-				PurchaseMethod: pboptions.GetPurchaseMethod(),
+				PurchaseMethod: new(int64),
 			}
+			*options.PurchaseMethod = pboptions.GetPurchaseMethod();
 		}
 
 		pbconfig := pbc.GetConfiguration()
