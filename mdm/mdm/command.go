@@ -143,13 +143,13 @@ type InstallApplication struct {
 	ManagementFlags       *int                             `plist:",omitempty" json:"management_flags,omitempty"`
 	ChangeManagementState *string                          `plist:",omitempty" json:"change_management_state,omitempty"`
 	ManifestURL           *string                          `plist:",omitempty" json:"manifest_url,omitempty"`
-	Options               *InstallApplicationOptions       `plist:",omitempty" json:"options,omitempty"`
+	Options               *InstallApplicationOptions       `plist:"Options,omitempty" json:"options,omitempty"`
 	Configuration         *InstallApplicationConfiguration `plist:",omitempty" json:"configuration,omitempty"`
 	Attributes            *InstallApplicationAttributes    `plist:",omitempty" json:"attributes,omitempty"`
 }
 
 type InstallApplicationOptions struct {
-	PurchaseMethod int64 `plist:",omitempty" json:"purchase_method,omitempty"`
+	PurchaseMethod *int64 `plist:"PurchaseMethod,omitempty" json:"purchase_method,omitempty"`
 }
 
 type InstallApplicationConfiguration struct{}
