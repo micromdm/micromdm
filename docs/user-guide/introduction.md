@@ -19,24 +19,24 @@ MicroMDM has no Web UI.
 
 MicroMDM can enable disk encryption and escrow a secret, but it has no option for storing that secret on the server. 
 
-Dynamic enrollment / user authentication workflows belong in an external service. MicroMDM serves the exact same enrollment profile at the `/mdm/enroll` server endpoint. It also does not care about how the enrollment is protected from unauthorized devices. The number of possible workflows are infinite, and the recommendation is to point the devices at a separate URL for serving the enrollment profile. 
+Dynamic enrollment / user authentication workflows belong in an external service. MicroMDM serves the exact same enrollment profile at the `/mdm/enroll` server endpoint for every device. It also does not care about how the enrollment is protected from unauthorized devices. The number of possible workflows are infinite, and the recommendation is to point the devices at a separate URL for serving the enrollment profile. 
 
-As you see, MicroMDM itself lacks many features that are usually present in device management products. But it also exposes a low level API that would allow an organization to build a product that is highly custom to ones environment. Over time, the community will likely share solutions that depend on MicroMDM but expose higher level workflows. 
+As you see, MicroMDM itself lacks many features that are usually present in device management products. But it also exposes a low level API that would allow an organization to build a product that is highly custom to ones environment. Over time, the community will likely share solutions that depend on MicroMDM and expose higher level workflows. 
 
-*Before using MicroMDM, consider that there are a number of commerial products like Airwatch, SimpleMDM and Fleetsmith. These solutions might fit your needs already and employ developers dedicated to this problem.  
+*Before using MicroMDM, consider that there are a number of alternative, commercial products like Airwatch, SimpleMDM and Fleetsmith that might already fit your needs. Importantly, the companies behind these products employ developers dedicated to the development of their products. 
 It is probably not a good idea to deploy MicroMDM as a cost cutting option, as the money you save will likely go towards hiring emplyees with the required domain knowledge and development expertise.*
 
 # Apple Requirements
 
 If you've decided to run an instance of MicroMDM in your organization, there are a few Apple specific requirements you need to meet.  
-First, you need to [enroll](https://developer.apple.com/programs/enterprise/enroll/) your organization in the Apple Developer Enterprise Portal. Enrolling costs $299/year and requires that you have a DUNS number.  
+First, you need to [enroll](https://developer.apple.com/programs/enterprise/enroll/) your organization in the Apple Developer Enterprise Portal. Enrolling costs $299/year and requires that your organization have a [DUNS](https://en.wikipedia.org/wiki/Data_Universal_Numbering_System) number.  
 Once signed up, or during the verification process in the first step, you need to ask Apple to enable the `MDM CSR` option. This option enables the signing of the APNS Push Certificate. The MDM CSR is typically reserved for commercial vendors, but Apple should enable it for you once you specify that you intend to use it for managing your company owned devices.
 
 Finally, familiarize yourself with the [education](https://www.apple.com/education/it/) or [business](https://www.apple.com/business/it/) programs and enroll in Apple School/Business Manager(ABM). While MicroMDM does not require that you use the [deployment programs](https://support.apple.com/en-ca/HT204142) to enroll your devices, this is an increasingly popular option for enterprise deployments.
 
 # Requirements for running MicroMDM
 
-MicroMDM is a web server which handles connections from Apple Devices and exposes an authenticated web API for operators and other services to interact with the enrolled devices. If configured, the server also syncs device records and profiles with ABM.  
+MicroMDM is a web server which handles connections from Apple Devices and exposes an authenticated web API for operators and other services to interact with the enrolled devices. If configured to do so, the server also syncs device records and profiles with ABM.  
 
 The web server component is built into the `micromdm` binary, and launched with `micromdm serve [flags]`.  
 For convenience, a second binary `mdmctl` is also provided and can be used to interact with the API. It does not implement _all_ the API endpoints, but should support most actions an administrator needs.
@@ -49,7 +49,7 @@ Notably, `mdmctl` does not need to beinstalled on the same server as `micromdm`.
 Currently, `micromdm` does not use a distributed database such as PostgreSQL and requires a persistent disk to be available. Because of this, only a single `micromdm` process can run at once, and high-availability setups are not possible. However, the database can be backed up/replicated while the server is running, allowing for failover with minimal downtime.  
 PostgreSQL database support is planned as a future option. 
 
-Unlike many other services, once enrolled, devices do not maintain communication until an APNS command is scheduled to ask the device to check in. This architecture, makes the default setup of MicroMDM have relatively low hardware/requirements.  
+Unlike many other services, once enrolled, devices do not maintain communication until an [APNS](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/APNSOverview.html#//apple_ref/doc/uid/TP40008194-CH8-SW1) command is scheduled to ask the device to check in. This architecture, makes the default setup of MicroMDM have relatively low hardware/requirements.  
 For installations with under 10,000 device enrollments the recommended VM size is the GCP `n1-standard-2` [instance type](https://cloud.google.com/compute/docs/machine-types) or similar. This is roughly equivalent to 2 vCPUs and 7.5GB of RAM. 
 
 API usage of any kind(ex: actions like pushing a configuration profile to all enrolled devices) will require additional resources, and will need additional planning. The recommendation is to [follow monitoring SRE best practices](https://landing.google.com/sre/workbook/chapters/monitoring/) and adjust your resources according to usage. 
