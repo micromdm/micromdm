@@ -325,6 +325,14 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 			RequestType:        c.RequestType,
 			RotateFileVaultKey: c.RotateFileVaultKey,
 		}, nil
+	case "SetBootstrapToken":
+		return &struct {
+			RequestType string
+			*SetBootstrapToken
+		}{
+			RequestType:       c.RequestType,
+			SetBootstrapToken: c.SetBootstrapToken,
+		}, nil
 	default:
 		return nil, fmt.Errorf("mdm: unknown command RequestType, %s", c.RequestType)
 	}

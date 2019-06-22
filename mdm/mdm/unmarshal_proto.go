@@ -133,7 +133,7 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			options = &InstallApplicationOptions{
 				PurchaseMethod: new(int64),
 			}
-			*options.PurchaseMethod = pboptions.GetPurchaseMethod();
+			*options.PurchaseMethod = pboptions.GetPurchaseMethod()
 		}
 
 		pbconfig := pbc.GetConfiguration()
@@ -244,6 +244,11 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			CurrentPassword: pbc.GetCurrentPassword(),
 			NewPassword:     pbc.GetNewPassword(),
 			AllowOroms:      pbc.GetAllowOroms(),
+		}
+	case "SetBootstrapToken":
+		pbc := pb.GetSetBootstrapToken()
+		cmd.SetBootstrapToken = &SetBootstrapToken{
+			BootstrapToken: pbc.GetBootstrapToken(),
 		}
 	case "VerifyFirmwarePassword":
 		pbc := pb.GetVerifyFirmwarePassword()
