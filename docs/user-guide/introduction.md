@@ -83,6 +83,7 @@ The certificate file should be encoded as PEM and include the full chain:
 
 Finally, your devices need to have access to APNS, a service run by Apple. This is not negotiable if you plan on using MDM.   
 For a full description of APNS requirements, see https://support.apple.com/en-us/HT203609.
+Apple also documents network requirements for devices connecting to the DEP services: https://support.apple.com/en-us/HT207516
 
 # Operating
 
