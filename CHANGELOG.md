@@ -1,3 +1,6 @@
+## [v1.6.0](https://github.com/micromdm/micromdm/compare/v1.4.0...1.5.0) TBD
+* Add support for User Enrollment (#597)
+
 ## [v1.5.0](https://github.com/micromdm/micromdm/compare/v1.4.0...1.5.0) June 15 2019
 
 * Fix DEP token update issue (#513, #510)
