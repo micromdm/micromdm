@@ -7,11 +7,12 @@ import (
 )
 
 type AcknowledgeEvent struct {
-	UDID        string            `json:"udid"`
-	Status      string            `json:"status"`
-	CommandUUID string            `json:"command_uuid"`
-	Params      map[string]string `json:"url_params"`
-	RawPayload  []byte            `json:"raw_payload"`
+	UDID         string            `json:"udid,omitempty"`
+	EnrollmentID string            `json:"enrollment_id,omitempty"`
+	Status       string            `json:"status"`
+	CommandUUID  string            `json:"command_uuid,omitempty"`
+	Params       map[string]string `json:"url_params,omitempty"`
+	RawPayload   []byte            `json:"raw_payload"`
 }
 
 func acknowledgeEvent(topic string, data []byte) (*Event, error) {
@@ -31,6 +32,9 @@ func acknowledgeEvent(topic string, data []byte) (*Event, error) {
 			Params:      ev.Params,
 			RawPayload:  ev.Raw,
 		},
+	}
+	if ev.Response.EnrollmentID != nil {
+		webhookEvent.AcknowledgeEvent.EnrollmentID = *ev.Response.EnrollmentID
 	}
 
 	return &webhookEvent, nil
