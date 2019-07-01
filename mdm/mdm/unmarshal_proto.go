@@ -245,11 +245,6 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			NewPassword:     pbc.GetNewPassword(),
 			AllowOroms:      pbc.GetAllowOroms(),
 		}
-	case "SetBootstrapToken":
-		pbc := pb.GetSetBootstrapToken()
-		cmd.SetBootstrapToken = &SetBootstrapToken{
-			BootstrapToken: pbc.GetBootstrapToken(),
-		}
 	case "VerifyFirmwarePassword":
 		pbc := pb.GetVerifyFirmwarePassword()
 		cmd.VerifyFirmwarePassword = &VerifyFirmwarePassword{
@@ -342,10 +337,12 @@ func protoToSetting(s *mdmproto.Setting) Setting {
 		setting.HostName = nilIfEmptyString(pbs.GetHostname())
 	case "MDMOptions":
 		pbs := s.GetMdmOptions()
-		activationLockAllowed := pbs.GetMdmOptions().GetActivationLockAllowedWhileSupervised()
+		// activationLockAllowed := pbs.GetMdmOptions().GetActivationLockAllowedWhileSupervised()
+		bootstrapTokenAllowed := pbs.GetMdmOptions().GetBootstrapTokenAllowed()
 		setting.MDMOptions = map[string]interface {
 		}{
-			"ActivationLockAllowedWhileSupervised": activationLockAllowed,
+			//	"ActivationLockAllowedWhileSupervised": activationLockAllowed,
+			"BootstrapTokenAllowed": bootstrapTokenAllowed,
 		}
 	case "PasscodeLockGracePeriod":
 		pbs := s.GetPasscodeLockGracePeriod()

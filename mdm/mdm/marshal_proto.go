@@ -286,12 +286,6 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 				AllowOroms:      cmd.SetFirmwarePassword.AllowOroms,
 			},
 		}
-	case "SetBootstrapToken":
-		cmdproto.Request = &mdmproto.Command_SetBootstrapToken{
-			SetBootstrapToken: &mdmproto.SetBootstrapToken{
-				BootstrapToken: cmd.SetBootstrapToken.BootstrapToken,
-			},
-		}
 	case "VerifyFirmwarePassword":
 		cmdproto.Request = &mdmproto.Command_VerifyFirmwarePassword{
 			VerifyFirmwarePassword: &mdmproto.VerifyFirmwarePassword{
@@ -400,6 +394,9 @@ func settingToProto(s Setting) *mdmproto.Setting {
 		options := &mdmproto.MDMOptions{}
 		if v, ok := s.MDMOptions["ActivationLockAllowedWhileSupervised"]; ok {
 			options.ActivationLockAllowedWhileSupervised = v.(bool)
+		}
+		if v, ok := s.MDMOptions["BootstrapTokenAllowed"]; ok {
+			options.BootstrapTokenAllowed = v.(bool)
 		}
 		pbs.MdmOptions = &mdmproto.MDMOptionsSetting{
 			MdmOptions: options,

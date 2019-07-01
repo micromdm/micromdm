@@ -66,7 +66,6 @@ message Command {
     ActiveNSExtensions active_ns_extensions = 34;
     RotateFileVaultKey rotate_filevault_key = 35;
     InstallEnterpriseApplication install_enterprise_application = 36;
-    SetBootstrapToken set_bootstrap_token = 37;
   }
 }
 
@@ -313,6 +312,7 @@ message MDMOptionsSetting {
 
 message MDMOptions {
   bool activation_lock_allowed_while_supervised = 1;
+  bool bootstrap_token_allowed = 2;
 }
 
 message PasscodeLockGracePeriodSetting {
@@ -389,11 +389,6 @@ message FileVaultUnlock {
   bytes private_key_export = 2;
   string private_key_export_password = 3;
 }
-
-message SetBootstrapToken {
-  string bootstrap_token = 1;
-}
-
 
 message ResultPayload {
   enum Status {

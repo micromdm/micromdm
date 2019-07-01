@@ -1,12 +1,13 @@
 #!/bin/bash
+
 source $MICROMDM_ENV_PATH
 endpoint="v1/commands"
 jq -n \
-  --arg request_type "SetBootstrapToken" \
+  --arg request_type "Settings" \
   --arg udid "$1" \
-  --arg token "$2" \
  '.udid = $udid 
   |.request_type = $request_type
-  |.bootstrap_token = $token
+  |.settings[0].item = "MDMOptions"
+  |.settings[0].mdm_options = {"BootstrapTokenAllowed": true}
   '|\
   curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
