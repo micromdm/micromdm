@@ -1,0 +1,11 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+jq -n \
+  --arg request_type "DeviceConfigured" \
+  --arg udid "$1" \
+   --arg query_strings "$2" \
+ '.udid = $udid 
+  |.request_type = $request_type
+  '|\
+  curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
