@@ -2,6 +2,7 @@ vendor/
 build/
 *.zip
 *.DS_Store
+.vscode/
 
 cmd/mdmctl/mdmdctl
 cmd/micromdm/micromdm

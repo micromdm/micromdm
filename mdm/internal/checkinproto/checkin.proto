@@ -16,6 +16,7 @@ message Command {
     string udid = 3;
     Authenticate authenticate = 4;
     TokenUpdate  token_update = 5;
+    string enrollment_id = 6;
 }
 
 message Authenticate {
