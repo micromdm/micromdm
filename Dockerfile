@@ -15,12 +15,8 @@ RUN make
 FROM alpine:latest
 
 RUN apk --update add ca-certificates git
-WORKDIR /go/src/app
-COPY . .
-ENV GO111MODULE on
-RUN go mod download
-RUN GOOS=linux CGO_ENABLED=0 go install ./cmd/micromdm
-RUN mkdir /data; chmod 777 /data
+COPY --from=builder /go/src/github.com/micromdm/micromdm/build/linux/micromdm .
+COPY --from=builder /go/src/github.com/micromdm/micromdm/build/linux/mdmctl .
 
 COPY docker-entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
