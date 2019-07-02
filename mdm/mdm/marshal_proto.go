@@ -165,7 +165,7 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 		)
 		if cmd.InstallApplication.Options != nil {
 			options = &mdmproto.InstallApplicationOptions{
-				PurchaseMethod: cmd.InstallApplication.Options.PurchaseMethod,
+				PurchaseMethod: zeroInt64IfNil(cmd.InstallApplication.Options.PurchaseMethod),
 			}
 		}
 		if cmd.InstallApplication.Configuration != nil {
@@ -284,6 +284,12 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 				CurrentPassword: cmd.SetFirmwarePassword.CurrentPassword,
 				NewPassword:     cmd.SetFirmwarePassword.NewPassword,
 				AllowOroms:      cmd.SetFirmwarePassword.AllowOroms,
+			},
+		}
+	case "SetBootstrapToken":
+		cmdproto.Request = &mdmproto.Command_SetBootstrapToken{
+			SetBootstrapToken: &mdmproto.SetBootstrapToken{
+				BootstrapToken: cmd.SetBootstrapToken.BootstrapToken,
 			},
 		}
 	case "VerifyFirmwarePassword":

@@ -16,12 +16,13 @@ type AcknowledgeEvent struct {
 }
 
 type Response struct {
-	RequestType string `json:"request_type,omitempty" plist:",omitempty"`
-	UDID        string
-	UserID      *string `json:"user_id,omitempty" plist:"UserID,omitempty"`
-	Status      string
-	CommandUUID string
-	ErrorChain  []ErrorChainItem `json:"error_chain" plist:",omitempty"`
+	RequestType  string `json:"request_type,omitempty" plist:",omitempty"`
+	UDID         string
+	UserID       *string `json:"user_id,omitempty" plist:"UserID,omitempty"`
+	EnrollmentID *string `json:"enrollment_id,omitempty" plist:"EnrollmentID,omitempty"`
+	Status       string
+	CommandUUID  string
+	ErrorChain   []ErrorChainItem `json:"error_chain" plist:",omitempty"`
 }
 
 type ErrorChainItem struct {
@@ -40,6 +41,9 @@ func MarshalAcknowledgeEvent(e *AcknowledgeEvent) ([]byte, error) {
 	}
 	if e.Response.UserID != nil {
 		response.UserId = *e.Response.UserID
+	}
+	if e.Response.EnrollmentID != nil {
+		response.EnrollmentId = *e.Response.EnrollmentID
 	}
 
 	return proto.Marshal(&connectproto.Event{
@@ -63,11 +67,12 @@ func UnmarshalAcknowledgeEvent(data []byte, e *AcknowledgeEvent) error {
 	}
 	r := pb.GetResponse()
 	e.Response = Response{
-		UDID:        r.GetUdid(),
-		UserID:      strPtr(r.GetUserId()),
-		Status:      r.GetStatus(),
-		RequestType: r.GetRequestType(),
-		CommandUUID: r.GetCommandUuid(),
+		UDID:         r.GetUdid(),
+		UserID:       strPtr(r.GetUserId()),
+		EnrollmentID: strPtr(r.GetEnrollmentId()),
+		Status:       r.GetStatus(),
+		RequestType:  r.GetRequestType(),
+		CommandUUID:  r.GetCommandUuid(),
 	}
 	e.Raw = pb.GetRaw()
 	e.Params = pb.GetParams()

@@ -48,11 +48,18 @@ func (db *Store) Next(ctx context.Context, resp mdm.Response) ([]byte, error) {
 }
 
 func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*Command, error) {
+	// The UDID is the primary key for the queue.
+	// Depending on the enrollment type, replace the UDID with a different ID type.
+	// UserID for managed user channel
+	// EnrollmentID for BYOD User Enrollment.
 	udid := resp.UDID
 	if resp.UserID != nil {
-		// use the user id for user level commands
 		udid = *resp.UserID
 	}
+	if resp.EnrollmentID != nil {
+		udid = *resp.EnrollmentID
+	}
+
 	dc, err := db.DeviceCommand(udid)
 	if err != nil {
 		if isNotFound(err) {
@@ -76,11 +83,11 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*Command, 
 	case "Acknowledged":
 		// move to completed, send next
 		x, a := cut(dc.Commands, resp.CommandUUID)
-		x.Acknowledged = time.Now().UTC()
 		dc.Commands = a
 		if x == nil {
 			break
 		}
+		x.Acknowledged = time.Now().UTC()
 		dc.Completed = append(dc.Completed, *x)
 	case "Error":
 		// move to failed, send next
