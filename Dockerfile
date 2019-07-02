@@ -1,4 +1,18 @@
-FROM golang:1.11-alpine
+FROM golang:latest as builder
+
+WORKDIR /go/src/github.com/micromdm/micromdm/
+
+ENV CGO_ENABLED=0 \
+	GOARCH=amd64 \
+	GOOS=linux
+
+COPY . .
+
+RUN make deps
+RUN make
+
+
+FROM alpine:latest
 
 RUN apk --update add ca-certificates git
 WORKDIR /go/src/app

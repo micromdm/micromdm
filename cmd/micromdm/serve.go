@@ -70,24 +70,25 @@ const homePage = `<!doctype html>
 func serve(args []string) error {
 	flagset := flag.NewFlagSet("serve", flag.ExitOnError)
 	var (
-		flConfigPath        = flagset.String("config-path", "/var/db/micromdm", "path to configuration directory")
-		flServerURL         = flagset.String("server-url", "", "public HTTPS url of your server")
-		flAPIKey            = flagset.String("api-key", env.String("MICROMDM_API_KEY", ""), "API Token for mdmctl command")
-		flTLS               = flagset.Bool("tls", true, "use https")
-		flTLSCert           = flagset.String("tls-cert", "", "path to TLS certificate")
-		flTLSKey            = flagset.String("tls-key", "", "path to TLS private key")
-		flHTTPAddr          = flagset.String("http-addr", ":https", "http(s) listen address of mdm server. defaults to :8080 if tls is false")
-		flHTTPDebug         = flagset.Bool("http-debug", false, "enable debug for http(dumps full request)")
-		flRepoPath          = flagset.String("filerepo", "", "path to http file repo")
-		flDepSim            = flagset.String("depsim", "", "use depsim URL")
-		flExamples          = flagset.Bool("examples", false, "prints some example usage")
-		flCommandWebhookURL = flagset.String("command-webhook-url", "", "URL to send command responses.")
+//<<<<<<< HEAD
+//		flConfigPath        = flagset.String("config-path", "/var/db/micromdm", "path to configuration directory")
+//		flServerURL         = flagset.String("server-url", "", "public HTTPS url of your server")
+//		flAPIKey            = flagset.String("api-key", env.String("MICROMDM_API_KEY", ""), "API Token for mdmctl command")
+//		flTLS               = flagset.Bool("tls", true, "use https")
+//		flTLSCert           = flagset.String("tls-cert", "", "path to TLS certificate")
+//		flTLSKey            = flagset.String("tls-key", "", "path to TLS private key")
+//		flHTTPAddr          = flagset.String("http-addr", ":https", "http(s) listen address of mdm server. defaults to :8080 if tls is false")
+//		flHTTPDebug         = flagset.Bool("http-debug", false, "enable debug for http(dumps full request)")
+//		flRepoPath          = flagset.String("filerepo", "", "path to http file repo")
+//		flDepSim            = flagset.String("depsim", "", "use depsim URL")
+//		flExamples          = flagset.Bool("examples", false, "prints some example usage")
+//		flCommandWebhookURL = flagset.String("command-webhook-url", "", "URL to send command responses.")
 		
 		flCommandWebhookAuthUser = flagset.String("command-webhook-auth-user", "", "Basic auth user for webhook to send command responses.")
 		flCommandWebhookAuthPass = flagset.String("command-webhook-auth-pass", "", "Basic auth password for webhook to send command responses.")
 		
-		flHomePage          = flagset.Bool("homepage", true, "hosts a simple built-in webpage at the / address")
-		flSCEPClientValidity = flagset.Int("scep-client-validity", 365, "sets the scep certificate validity in days")
+//		flHomePage          = flagset.Bool("homepage", true, "hosts a simple built-in webpage at the / address")
+//		flSCEPClientValidity = flagset.Int("scep-client-validity", 365, "sets the scep certificate validity in days")
 		
 		flImmutable		 	= flagset.Bool("immutable", true, "If flag is set, it is considered the bolt db is immutable.")
 		flMysqlUsername 	= flagset.String("mysql-username", "", "Username to login to Mysql")
@@ -95,10 +96,33 @@ func serve(args []string) error {
 		flMysqlDatabase 	= flagset.String("mysql-database", "", "Name of the Mysql Database")
 		flMysqlHost 		= flagset.String("mysql-host", "", "IP or URL to the Mysql Host")
 		flMysqlPort 		= flagset.String("mysql-port", "", "Port to use for Mysql connection")
+//=======
+		flConfigPath         = flagset.String("config-path", env.String("MICROMDM_CONFIG_PATH", "/var/db/micromdm"), "Path to configuration directory")
+		flServerURL          = flagset.String("server-url", env.String("MICROMDM_SERVER_URL", ""), "Public HTTPS url of your server")
+		flAPIKey             = flagset.String("api-key", env.String("MICROMDM_API_KEY", ""), "API Token for mdmctl command")
+		flTLS                = flagset.Bool("tls", env.Bool("MICROMDM_TLS", true), "Use https")
+		flTLSCert            = flagset.String("tls-cert", env.String("MICROMDM_TLS_CERT", ""), "Path to TLS certificate")
+		flTLSKey             = flagset.String("tls-key", env.String("MICROMDM_TLS_KEY", ""), "Path to TLS private key")
+		flHTTPAddr           = flagset.String("http-addr", env.String("MICROMDM_HTTP_ADDR", ":https"), "http(s) listen address of mdm server. defaults to :8080 if tls is false")
+		flHTTPDebug          = flagset.Bool("http-debug", env.Bool("MICROMDM_HTTP_DEBUG", false), "Enable debug for http(dumps full request)")
+		flRepoPath           = flagset.String("filerepo", env.String("MICROMDM_FILE_REPO", ""), "Path to http file repo")
+		flDepSim             = flagset.String("depsim", env.String("MICROMDM_DEPSIM_URL", ""), "Use depsim URL")
+		flExamples           = flagset.Bool("examples", false, "Prints some example usage")
+		flCommandWebhookURL  = flagset.String("command-webhook-url", env.String("MICROMDM_WEBHOOK_URL", ""), "URL to send command responses")
+		flHomePage           = flagset.Bool("homepage", env.Bool("MICROMDM_HTTP_HOMEPAGE", true), "Hosts a simple built-in webpage at the / address")
+		flSCEPClientValidity = flagset.Int("scep-client-validity", env.Int("MICROMDM_SCEP_CLIENT_VALIDITY", 365), "Sets the scep certificate validity in days")
+		flPrintArgs          = flagset.Bool("print-flags", false, "Print all flags and their values")
+//>>>>>>> micromdm/master
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
 		return err
+	}
+
+	if *flPrintArgs {
+		flagset.VisitAll(func(fl *flag.Flag) {
+			fmt.Printf("%v: %v\n", fl.Usage, fl.Value)
+		})
 	}
 
 	if *flExamples {

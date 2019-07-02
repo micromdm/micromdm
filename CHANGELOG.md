@@ -1,4 +1,7 @@
-## [v1.5.0](https://github.com/micromdm/micromdm/compare/v1.4.0...master) (Unreleased)
+## [v1.6.0](https://github.com/micromdm/micromdm/compare/v1.4.0...1.5.0) TBD
+* Add support for User Enrollment (#597)
+
+## [v1.5.0](https://github.com/micromdm/micromdm/compare/v1.4.0...1.5.0) June 15 2019
 
 * Fix DEP token update issue (#513, #510)
 * Refactor certificate verification and implement UDID-cert authentication (#358, #429)
@@ -10,6 +13,9 @@
 * Add support for the ActivationLockBypassCode Command (#578)
 * Allow SCEP client validity to be adjusted via server startup flag (#577)
 * Fix bug in mdmctl server saving, switch config when saving automatically (#565, #566)
+* Do not send DeviceConfigured automatically when there are no blueprints (#586)
+* Set acknowledge time when moving command to completed queue (#581)
+* Serialize PurchaseMethod when value is 0. (#592)
 
 ## [v1.4.0](https://github.com/micromdm/micromdm/compare/v1.3.1...v1.4.0) September 6 2018
 
