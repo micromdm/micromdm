@@ -28,6 +28,7 @@ type Profile struct {
 	Devices               []string `json:"devices"`
 	Language              string   `json:"language,omitempty"`
 	Region                string   `json:"region,omitempty"`
+	ConfigurationWebURL   string   `json:"configuration_web_url,omitempty"`
 }
 
 type ProfileResponse struct {

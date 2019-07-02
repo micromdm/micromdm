@@ -21,9 +21,10 @@ type CheckinEvent struct {
 type CheckinCommand struct {
 	// MessageType can be either Authenticate,
 	// TokenUpdate or CheckOut
-	MessageType string
-	Topic       string
-	UDID        string
+	MessageType  string
+	Topic        string
+	UDID         string
+	EnrollmentID string
 	auth
 	update
 }
@@ -71,9 +72,10 @@ func (d hexData) String() string {
 // MarshalCheckinEvent serializes an event to a protocol buffer wire format.
 func MarshalCheckinEvent(e *CheckinEvent) ([]byte, error) {
 	command := &checkinproto.Command{
-		MessageType: e.Command.MessageType,
-		Topic:       e.Command.Topic,
-		Udid:        e.Command.UDID,
+		MessageType:  e.Command.MessageType,
+		Topic:        e.Command.Topic,
+		Udid:         e.Command.UDID,
+		EnrollmentId: e.Command.EnrollmentID,
 	}
 	switch e.Command.MessageType {
 	case "Authenticate":
@@ -123,9 +125,10 @@ func UnmarshalCheckinEvent(data []byte, e *CheckinEvent) error {
 		return nil
 	}
 	e.Command = CheckinCommand{
-		MessageType: pb.Command.MessageType,
-		Topic:       pb.Command.Topic,
-		UDID:        pb.Command.Udid,
+		MessageType:  pb.Command.MessageType,
+		Topic:        pb.Command.Topic,
+		UDID:         pb.Command.Udid,
+		EnrollmentID: pb.Command.EnrollmentId,
 	}
 	switch pb.Command.MessageType {
 	case "Authenticate":
