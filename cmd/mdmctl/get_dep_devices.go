@@ -13,7 +13,7 @@ import (
 type depDevicesTableOutput struct{ w *tabwriter.Writer }
 
 func (out *depDevicesTableOutput) BasicHeader() {
-	fmt.Fprintf(out.w, "SerialNumber\tModel\tProfileStatus\tProfileUUID\n")
+	fmt.Fprintf(out.w, "SerialNumber\tModel\tDeviceFamily\tProfileStatus\tProfileUUID\n")
 }
 
 func (out *depDevicesTableOutput) BasicFooter() {
@@ -42,7 +42,7 @@ func (cmd *getCommand) getDEPDevices(args []string) error {
 		return err
 	}
 	for _, d := range resp.Devices {
-		fmt.Fprintf(out.w, "%s\t%s\t%s\t%s\n", d.SerialNumber, d.Model, d.ProfileStatus, d.ProfileUUID)
+		fmt.Fprintf(out.w, "%s\t%s\t%s\t%s\t%s\n", d.SerialNumber, d.Model, d.DeviceFamily,  d.ProfileStatus, d.ProfileUUID)
 	}
 	return nil
 }

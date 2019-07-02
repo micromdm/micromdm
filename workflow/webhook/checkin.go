@@ -7,9 +7,10 @@ import (
 )
 
 type CheckinEvent struct {
-	UDID       string            `json:"udid"`
-	Params     map[string]string `json:"url_params"`
-	RawPayload []byte            `json:"raw_payload"`
+	UDID         string            `json:"udid,omitempty"`
+	EnrollmentID string            `json:"enrollment_id,omitempty"`
+	Params       map[string]string `json:"url_params"`
+	RawPayload   []byte            `json:"raw_payload"`
 }
 
 func checkinEvent(topic string, data []byte) (*Event, error) {
@@ -24,9 +25,10 @@ func checkinEvent(topic string, data []byte) (*Event, error) {
 		CreatedAt: ev.Time,
 
 		CheckinEvent: &CheckinEvent{
-			UDID:       ev.Command.UDID,
-			Params:     ev.Params,
-			RawPayload: ev.Raw,
+			UDID:         ev.Command.UDID,
+			EnrollmentID: ev.Command.EnrollmentID,
+			Params:       ev.Params,
+			RawPayload:   ev.Raw,
 		},
 	}
 
