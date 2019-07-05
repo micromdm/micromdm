@@ -15,8 +15,9 @@ RUN make
 FROM alpine:latest
 
 RUN apk --update add ca-certificates git
-COPY --from=builder /go/src/github.com/micromdm/micromdm/build/linux/micromdm .
-COPY --from=builder /go/src/github.com/micromdm/micromdm/build/linux/mdmctl .
+RUN mkdir /data; chmod 777 /data
+COPY --from=builder /go/src/github.com/micromdm/micromdm/build/linux/micromdm /usr/bin/
+COPY --from=builder /go/src/github.com/micromdm/micromdm/build/linux/mdmctl /usr/bin/
 
 COPY docker-entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
