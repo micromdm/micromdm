@@ -1,5 +1,6 @@
 ## [v1.6.0](https://github.com/micromdm/micromdm/compare/v1.4.0...1.5.0) TBD
 * Add support for User Enrollment (#597)
+* Add support for Signing Profiles (#602)
 
 ## [v1.5.0](https://github.com/micromdm/micromdm/compare/v1.4.0...1.5.0) June 15 2019
 
