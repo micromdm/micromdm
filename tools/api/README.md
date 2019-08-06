@@ -16,6 +16,15 @@ export API_TOKEN=supersecret
 export SERVER_URL=https://mdm.acme.co
 ```
 
+Alternatively, if you are running these scripts from a computer with `mdmctl` configured, you can use this `env` file to define the environment variables you will need to talk to the server using the configuration from `mdmctl`:
+```
+SERVER_CONFIG="${HOME}/.micromdm/servers.json"
+ACTIVE_SERVER=$(jq .active ${HOME}/.micromdm/servers.json)
+export API_TOKEN=$(jq -r ".servers[${ACTIVE_SERVER}].api_token" "${SERVER_CONFIG}")
+# We need to strip the trailing `/` from the mdmctl config for backwards compatibility with existing scripts.
+export SERVER_URL=${$(jq -r ".servers[${ACTIVE_SERVER}].server_url" "${SERVER_CONFIG}")%/}
+```
+
 In your shell, set the environment variable `MICROMDM_ENV_PATH` to point to your env file.
 Do this every time you open a new shell to work with the scripts in this folder.
 ```
