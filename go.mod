@@ -10,7 +10,7 @@ require (
 	github.com/go-sql-driver/mysql v1.4.0 // indirect
 	github.com/go-stack/stack v1.7.0 // indirect
 	github.com/gogo/protobuf v1.0.0
-	github.com/golang/protobuf v1.2.0
+	github.com/golang/protobuf v1.3.1
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v1.6.2
 	github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda
@@ -24,17 +24,18 @@ require (
 	github.com/mattn/go-sqlite3 v1.9.0 // indirect
 	github.com/micromdm/go4 v0.0.0-20190530145745-54e7af012bbc
 	github.com/micromdm/scep v1.0.1-0.20181014170139-9be65e185499
+	github.com/oklog/ulid v1.3.1
 	github.com/pkg/errors v0.8.0
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/pressly/goose v2.3.0+incompatible
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.2.2 // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect
-	golang.org/x/crypto v0.0.0-20180614174826-fd5f17ee7299
-	golang.org/x/net v0.0.0-20180724234803-3673e40ba225
-	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f // indirect
-	golang.org/x/sys v0.0.0-20180614134839-8883426083c0 // indirect
-	google.golang.org/appengine v1.2.0 // indirect
+	golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2
+	golang.org/x/net v0.0.0-20190501004415-9ce7a6920f09
+	golang.org/x/sys v0.0.0-20190502145724-3ef323f4f1fd // indirect
+	golang.org/x/text v0.3.2 // indirect
+	google.golang.org/appengine v1.4.0 // indirect
 	gopkg.in/Masterminds/squirrel.v1 v1.0.0-20170825200431-a6b93000bd21
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )
