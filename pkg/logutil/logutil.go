@@ -2,14 +2,12 @@ package logutil
 
 import (
 	"context"
-	"crypto/rand"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
-	"github.com/oklog/ulid"
 )
 
 func Fatal(logger log.Logger, err error, msg string, extra ...interface{}) {
@@ -47,10 +45,8 @@ func FromContext(ctx context.Context) log.Logger {
 	if !ok {
 		return log.NewNopLogger()
 	}
-	return log.With(
-		v,
-		"trace_id", ulid.MustNew(ulid.Now(), rand.Reader).String(),
-	)
+
+	return v
 }
 
 func swapLevelHandler(base log.Logger, swapLogger *log.SwapLogger, debug bool) {

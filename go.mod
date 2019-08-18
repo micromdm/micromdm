@@ -4,6 +4,7 @@ require (
 	github.com/RobotsAndPencils/buford v0.12.0
 	github.com/boltdb/bolt v1.3.1
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/felixge/httpsnoop v1.0.0
 	github.com/fullsailor/pkcs7 v0.0.0-20180824154052-36585635cb64
 	github.com/garyburd/go-oauth v0.0.0-20180319155456-bca2e7f09a17
 	github.com/go-kit/kit v0.7.0
@@ -13,7 +14,6 @@ require (
 	github.com/golang/protobuf v1.3.1
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v1.6.2
-	github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda
 	github.com/groob/plist v0.0.0-20180203051248-dd56909aee38
 	github.com/jmoiron/sqlx v0.0.0-20180614180643-0dae4fefe7c0
 	github.com/kolide/kit v0.0.0-20180912215818-0c28f72eb2b0
@@ -24,7 +24,6 @@ require (
 	github.com/mattn/go-sqlite3 v1.9.0 // indirect
 	github.com/micromdm/go4 v0.0.0-20190530145745-54e7af012bbc
 	github.com/micromdm/scep v1.0.1-0.20181014170139-9be65e185499
-	github.com/oklog/ulid v1.3.1
 	github.com/pkg/errors v0.8.0
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/pressly/goose v2.3.0+incompatible
@@ -41,3 +40,5 @@ require (
 )
 
 replace github.com/fullsailor/pkcs7 => github.com/groob/pkcs7 v0.0.0-20180824154052-36585635cb64
+
+go 1.13

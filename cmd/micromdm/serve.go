@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	stdlog "log"
 	"net/http"
 	"net/url"
 	"os"
@@ -18,7 +17,6 @@ import (
 	"github.com/go-kit/kit/auth/basic"
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/groob/finalizer/logutil"
 	"github.com/micromdm/go4/env"
 	"github.com/micromdm/go4/httputil"
 	"github.com/micromdm/go4/version"
@@ -29,6 +27,7 @@ import (
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/mdm/enroll"
 	httputil2 "github.com/micromdm/micromdm/pkg/httputil"
+	"github.com/micromdm/micromdm/pkg/logutil"
 	"github.com/micromdm/micromdm/platform/apns"
 	"github.com/micromdm/micromdm/platform/appstore"
 	appsbuiltin "github.com/micromdm/micromdm/platform/appstore/builtin"
@@ -111,8 +110,7 @@ func serve(args []string) error {
 		return errors.New("cannot set -tls=false and supply -tls-cert or -tls-key")
 	}
 
-	logger := log.NewLogfmtLogger(os.Stderr)
-	stdlog.SetOutput(log.NewStdlibAdapter(logger)) // force structured logs
+	logger := logutil.New()
 	mainLogger := log.With(logger, "component", "main")
 	mainLogger.Log("msg", "started")
 
@@ -137,25 +135,25 @@ func serve(args []string) error {
 	}
 
 	if err := sm.Setup(logger); err != nil {
-		stdlog.Fatal(err)
+		logutil.Fatal(logger, err, "calling sm.Setup")
 	}
 	syncer, err := sm.CreateDEPSyncer(logger)
 	if err != nil {
-		stdlog.Fatal(err)
+		logutil.Fatal(logger, err, "creating DEP Syncer")
 	}
 
 	var removeService block.Service
 	{
 		svc, err := block.New(sm.RemoveDB)
 		if err != nil {
-			stdlog.Fatal(err)
+			logutil.Fatal(logger, err, "creating service to block devices")
 		}
 		removeService = block.LoggingMiddleware(logger)(svc)
 	}
 
 	devDB, err := devicebuiltin.NewDB(sm.DB)
 	if err != nil {
-		stdlog.Fatal(err)
+		logutil.Fatal(logger, err, "creating builtin device db")
 	}
 
 	devWorker := device.NewWorker(devDB, sm.PubClient, logger)
@@ -163,14 +161,14 @@ func serve(args []string) error {
 
 	userDB, err := userbuiltin.NewDB(sm.DB)
 	if err != nil {
-		stdlog.Fatal(err)
+		logutil.Fatal(logger, err, "creating builtin user db")
 	}
 	userWorker := user.NewWorker(userDB, sm.PubClient, logger)
 	go userWorker.Run(context.Background())
 
 	bpDB, err := blueprintbuiltin.NewDB(sm.DB, sm.ProfileDB)
 	if err != nil {
-		stdlog.Fatal(err)
+		logutil.Fatal(logger, err, "creating builtin blueprint db")
 	}
 
 	blueprintWorker := blueprint.NewWorker(
@@ -198,6 +196,9 @@ func serve(args []string) error {
 	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPDepot), httptransport.ServerErrorLogger(httpLogger))
 
 	r, options := httputil2.NewRouter(logger)
+	// add request logging middleware
+	mr := httputil2.NewLogger(logger)
+	r.Use(mr)
 
 	r.Handle("/version", version.Handler())
 	r.Handle("/mdm/enroll", enrollHandlers.EnrollHandler).Methods("GET", "POST")
@@ -265,7 +266,7 @@ func serve(args []string) error {
 
 	if *flRepoPath != "" {
 		if _, err := os.Stat(*flRepoPath); os.IsNotExist(err) {
-			stdlog.Fatal(err)
+			logutil.Fatal(logger, err, "stat repo path")
 		}
 		r.PathPrefix("/repo/").Handler(http.StripPrefix("/repo/", http.FileServer(http.Dir(*flRepoPath))))
 	}
@@ -276,7 +277,6 @@ func serve(args []string) error {
 	} else {
 		handler = r
 	}
-	handler = logutil.NewHTTPLogger(httpLogger).Middleware(handler)
 
 	srvURL, err := url.Parse(sm.ServerPublicURL)
 	if err != nil {
