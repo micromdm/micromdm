@@ -260,7 +260,7 @@ The APNS Certificate is the one we use to send Push notifications to the iPad vi
 1. Open https://identity.apple.com/pushcert/
 2. The APNS Certificates are already set up. No need to create a new one. Instead **renew** the certificate. Do **NOT** Revoke this certificate or let it expire. Else we cannot reach the iPads anymore.
 3. Select the Certificate you want to `renew`
-4. Upload `.plist` from `MDM Certificate`
+4. Upload `PushCertificateRequest.plist` from `MDM Certificate`
 6. Download `.pem` file and store it as `MDM_Abacus_Research_AG_Certificate.pem` in your `./mdm-certificates` folder.
 5. Update the certificate on the server. You **don't** have to restart the server, the update takes place immediately.
 ```
