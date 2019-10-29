@@ -23,6 +23,7 @@ func (cmd *removeCommand) removeDevices(args []string) error {
 	}
 
 	if *flIdentifier == "" && *flSerial == "" {
+		flagset.Usage()
 		return errors.New("bad input: device UDID or Serial must be provided")
 	}
 
