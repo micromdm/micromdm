@@ -15,7 +15,7 @@ func (cmd *removeCommand) removeDevices(args []string) error {
 	flagset := flag.NewFlagSet("remove-devices", flag.ExitOnError)
 	var (
 		flIdentifier = flagset.String("udid", "", "device UDID, optionally comma separated")
-		flSerials     = flagset.String("serials", "", "device serials, optionally comma separated")
+		flSerials    = flagset.String("serials", "", "device serials, optionally comma separated")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl remove devices [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -23,6 +23,7 @@ func (cmd *removeCommand) removeDevices(args []string) error {
 	}
 
 	if *flIdentifier == "" && *flSerials == "" {
+		flagset.Usage()
 		return errors.New("bad input: device UDID or Serial must be provided")
 	}
 
