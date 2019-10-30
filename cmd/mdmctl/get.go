@@ -121,7 +121,7 @@ func (out *devicesTableOutput) BasicFooter() {
 func (cmd *getCommand) getDevices(args []string) error {
 	flagset := flag.NewFlagSet("devices", flag.ExitOnError)
 	var (
-		flFilterSerials = flagset.String("serials", "", "comma separated list of serials to search")
+		flFilterSerials = flagset.String("serials", "", "device serial, optionally comma-separated")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl get devices [flags]")
 	if err := flagset.Parse(args); err != nil {
