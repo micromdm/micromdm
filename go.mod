@@ -40,3 +40,5 @@ require (
 )
 
 replace github.com/fullsailor/pkcs7 => github.com/groob/pkcs7 v0.0.0-20180824154052-36585635cb64
+
+go 1.13
