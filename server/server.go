@@ -34,6 +34,8 @@ import (
 	"github.com/micromdm/micromdm/platform/queue"
 	block "github.com/micromdm/micromdm/platform/remove"
 	blockbuiltin "github.com/micromdm/micromdm/platform/remove/builtin"
+	"github.com/micromdm/micromdm/workflow/restream"
+	restreambuiltin "github.com/micromdm/micromdm/workflow/restream/builtin"
 	"github.com/micromdm/micromdm/workflow/webhook"
 )
 
@@ -60,6 +62,7 @@ type Server struct {
 	EnrollService   enroll.Service
 	SCEPService     scep.Service
 	ConfigService   config.Service
+	RestreamService restream.Service
 
 	WebhooksHTTPClient *http.Client
 }
@@ -97,6 +100,10 @@ func (c *Server) Setup(logger log.Logger) error {
 		return err
 	}
 
+	if err := c.setupRestream(logger); err != nil {
+		return err
+	}
+
 	if err := c.setupCommandQueue(logger); err != nil {
 		return err
 	}
@@ -125,6 +132,27 @@ func (c *Server) setupProfileDB() error {
 
 func (c *Server) setupPubSub() error {
 	c.PubClient = inmem.NewPubSub()
+	return nil
+}
+
+func (c *Server) setupRestream(logger log.Logger) error {
+	dbPath := filepath.Join(c.ConfigPath, "restream.db")
+	db, err := bolt.Open(dbPath, 0644, &bolt.Options{Timeout: time.Second})
+	if err != nil {
+		return errors.Wrap(err, "open restream boltdb")
+	}
+
+	resdb, err := restreambuiltin.New(db)
+	if err != nil {
+		return err
+	}
+
+	c.RestreamService = restream.NewService(resdb)
+
+	ctx := context.Background()
+	w := restream.New(resdb, c.PubClient, restream.WithLogger(logger))
+	go w.Run(ctx)
+
 	return nil
 }
 

@@ -45,6 +45,7 @@ import (
 	"github.com/micromdm/micromdm/platform/user"
 	userbuiltin "github.com/micromdm/micromdm/platform/user/builtin"
 	"github.com/micromdm/micromdm/server"
+	"github.com/micromdm/micromdm/workflow/restream"
 )
 
 const homePage = `<!doctype html>
@@ -257,6 +258,9 @@ func serve(args []string) error {
 
 		depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncDB), basicAuthEndpointMiddleware)
 		sync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
+
+		restreamEndpoints := restream.MakeServerEndpoints(sm.RestreamService, basicAuthEndpointMiddleware)
+		restream.RegisterHTTPHandlers(r, restreamEndpoints, options...)
 
 		r.HandleFunc("/boltbackup", httputil2.RequireBasicAuth(boltBackup(sm.DB), "micromdm", *flAPIKey, "micromdm"))
 	} else {

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source $MICROMDM_ENV_PATH
+endpoint="v1/restream"
+curl $CURL_OPTS -s -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint/$1"
