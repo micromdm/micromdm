@@ -235,7 +235,13 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 					level.Info(db.logger).Log("msg", "unmarshal command event in queue", "err", err)
 					continue
 				}
-
+				
+				// Newer than 1 day in the past!
+				if ev.Time.Before(time.Now().AddDate(0, 0, -1)) {
+					level.Info(db.logger).Log("msg", "skipped command, because of queue date", "err", ev.Time)
+					continue
+				}
+				
 				cmd := new(DeviceCommand)
 				cmd.DeviceUDID = ev.DeviceUDID
 				byUDID, err := db.DeviceCommand(ev.DeviceUDID)
