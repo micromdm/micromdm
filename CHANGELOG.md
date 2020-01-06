@@ -1,7 +1,7 @@
 ## [v1.7.0](https://github.com/micromdm/micromdm/compare/v1.6.0...master) TBD
 
 * Add device DEP status to API response (#617)
-* Better CLI parsing (#618, #620, #621)
+* CLI improvements (#618, #620, #621)
 * Support new values for AccountConfiguration (#627)
 * Fix issue where DEP watcher would stop permanently for transient network issues  (#582, #632)
 * Workaround issue where a newly added DEP token would not be used after a restart (#546, #633)
