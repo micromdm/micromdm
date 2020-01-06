@@ -37,7 +37,7 @@ Thanks to our contributors for this release: @WardsParadox, @n8felton
 * Set acknowledge time when moving command to completed queue (#581)
 * Serialize PurchaseMethod when value is 0. (#592)
 
-Thanks to our contributors for this release: @, @, @, @discentem, @nkllkc, @arubdesu, @bdemetris, @Lepidopteron, @joncrain, @emman27, @jenjac, @daniellockard, and @0xflotus
+Thanks to our contributors for this release: @discentem, @nkllkc, @arubdesu, @bdemetris, @Lepidopteron, @joncrain, @emman27, @jenjac, @daniellockard, and @0xflotus
 
 ## [v1.4.0](https://github.com/micromdm/micromdm/compare/v1.3.1...v1.4.0) September 6 2018
 
