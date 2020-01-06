@@ -270,18 +270,19 @@ func (w *Watcher) publishAndProcessDevices(devices []dep.Device) error {
 }
 
 func (w *Watcher) Run() error {
-	var err error
-	var resp *dep.DeviceResponse
-	var fetchNext bool = true
-	// for logging
-	var fetchNextLabel = map[bool]string{
-		true:  "fetch",
-		false: "sync",
-	}
+	var (
+		err       error
+		resp      *dep.DeviceResponse
+		fetchNext = true
+		// for logging
+		fetchNextLabel = map[bool]string{
+			true:  "fetch",
+			false: "sync",
+		}
+	)
 
 	ticker := time.NewTicker(syncDuration).C
 	for {
-
 		if fetchNext {
 			resp, err = w.client.FetchDevices(dep.Limit(100), dep.Cursor(w.cursor.Value))
 			if err != nil && isCursorExhausted(err) {
@@ -289,8 +290,6 @@ func (w *Watcher) Run() error {
 					"msg", "DEP cursor returned all devices previously",
 					"phase", fetchNextLabel[fetchNext],
 					"cursor", w.cursor.Value,
-					// technically an error, but harmless
-					// "err", err,
 				)
 				fetchNext = false
 				continue
