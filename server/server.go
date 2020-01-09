@@ -53,6 +53,7 @@ type Server struct {
 	CommandWebhookURL  string
 	DEPClient          *dep.Client
 	SyncDB             *syncbuiltin.DB
+	NoCmdHistory       bool
 
 	APNSPushService apns.Service
 	CommandService  command.Service
@@ -158,7 +159,11 @@ func (c *Server) setupCommandService() error {
 }
 
 func (c *Server) setupCommandQueue(logger log.Logger) error {
-	q, err := queue.NewQueue(c.DB, c.PubClient, queue.WithLogger(logger))
+	opts := []queue.Option{queue.WithLogger(logger)}
+	if c.NoCmdHistory {
+		opts = append(opts, queue.WithoutHistory())
+	}
+	q, err := queue.NewQueue(c.DB, c.PubClient, opts...)
 	if err != nil {
 		return err
 	}
