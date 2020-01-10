@@ -83,6 +83,7 @@ func serve(args []string) error {
 		flCommandWebhookURL  = flagset.String("command-webhook-url", env.String("MICROMDM_WEBHOOK_URL", ""), "URL to send command responses")
 		flHomePage           = flagset.Bool("homepage", env.Bool("MICROMDM_HTTP_HOMEPAGE", true), "Hosts a simple built-in webpage at the / address")
 		flSCEPClientValidity = flagset.Int("scep-client-validity", env.Int("MICROMDM_SCEP_CLIENT_VALIDITY", 365), "Sets the scep certificate validity in days")
+		flNoCmdHistory       = flagset.Bool("no-command-history", env.Bool("MICROMDM_NO_COMMAND_HISTORY", false), "disables saving of command history")
 		flPrintArgs          = flagset.Bool("print-flags", false, "Print all flags and their values")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
@@ -125,6 +126,7 @@ func serve(args []string) error {
 		Depsim:            *flDepSim,
 		TLSCertPath:       *flTLSCert,
 		CommandWebhookURL: *flCommandWebhookURL,
+		NoCmdHistory:      *flNoCmdHistory,
 
 		WebhooksHTTPClient: &http.Client{Timeout: time.Second * 30},
 
