@@ -11,6 +11,7 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+	challengestore "github.com/micromdm/scep/challenge/bolt"
 	boltdepot "github.com/micromdm/scep/depot/bolt"
 	scep "github.com/micromdm/scep/server"
 	"github.com/pkg/errors"
@@ -47,6 +48,9 @@ type Server struct {
 	SCEPClientValidity int
 	TLSCertPath        string
 	SCEPDepot          *boltdepot.Depot
+	UseDynSCEPChal     bool
+	GenDynSCEPChal     bool
+	SCEPChallengeDepot *challengestore.Depot
 	ProfileDB          profile.Store
 	ConfigDB           config.Store
 	RemoveDB           block.Store
@@ -241,6 +245,12 @@ func (c *Server) setupEnrollmentService() error {
 		SCEPCertificateSubject string
 		err                    error
 	)
+
+	chalStore := c.SCEPChallengeDepot
+	if !c.GenDynSCEPChal {
+		chalStore = nil
+	}
+
 	// TODO: clean up order of inputs. Maybe pass *SCEPConfig as an arg?
 	// but if you do, the packages are coupled, better not.
 	c.EnrollService, err = enroll.NewService(
@@ -252,6 +262,7 @@ func (c *Server) setupEnrollmentService() error {
 		c.TLSCertPath,
 		SCEPCertificateSubject,
 		c.ProfileDB,
+		chalStore,
 	)
 	return errors.Wrap(err, "setting up enrollment service")
 }
@@ -343,8 +354,18 @@ func (c *Server) setupSCEP(logger log.Logger) error {
 
 	opts := []scep.ServiceOption{
 		scep.ClientValidity(c.SCEPClientValidity),
-		scep.ChallengePassword(c.SCEPChallenge),
 	}
+	var scepChalOpt scep.ServiceOption
+	if c.UseDynSCEPChal {
+		c.SCEPChallengeDepot, err = challengestore.NewBoltDepot(c.DB)
+		if err != nil {
+			return err
+		}
+		scepChalOpt = scep.WithDynamicChallenges(c.SCEPChallengeDepot)
+	} else {
+		scepChalOpt = scep.ChallengePassword(c.SCEPChallenge)
+	}
+	opts = append(opts, scepChalOpt)
 	c.SCEPDepot = depot
 	c.SCEPService, err = scep.NewService(depot, opts...)
 	if err != nil {
