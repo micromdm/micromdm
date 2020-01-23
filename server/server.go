@@ -60,6 +60,7 @@ type Server struct {
 	NoCmdHistory           bool
 	ValidateSCEPIssuer     bool
 	ValidateSCEPExpiration bool
+	UDIDCertAuthWarnOnly   bool
 
 	APNSPushService apns.Service
 	CommandService  command.Service
@@ -185,7 +186,7 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 		mdmService = block.RemoveMiddleware(c.RemoveDB)(mdmService)
 
 		udidauthLogger := log.With(logger, "component", "udidcertauth")
-		mdmService = device.UDIDCertAuthMiddleware(devDB, udidauthLogger)(mdmService)
+		mdmService = device.UDIDCertAuthMiddleware(devDB, udidauthLogger, c.UDIDCertAuthWarnOnly)(mdmService)
 
 		verifycertLogger := log.With(logger, "component", "verifycert")
 		mdmService = VerifyCertificateMiddleware(c.ValidateSCEPIssuer, c.ValidateSCEPExpiration, c.SCEPDepot, verifycertLogger)(mdmService)

@@ -17,20 +17,22 @@ type UDIDCertAuthStore interface {
 	GetUDIDCertHash(udid []byte) ([]byte, error)
 }
 
-func UDIDCertAuthMiddleware(store UDIDCertAuthStore, logger log.Logger) mdm.Middleware {
+func UDIDCertAuthMiddleware(store UDIDCertAuthStore, logger log.Logger, warnOnly bool) mdm.Middleware {
 	return func(next mdm.Service) mdm.Service {
 		return &udidCertAuthMiddleware{
-			store:  store,
-			next:   next,
-			logger: logger,
+			store:    store,
+			next:     next,
+			logger:   logger,
+			warnOnly: warnOnly,
 		}
 	}
 }
 
 type udidCertAuthMiddleware struct {
-	store  UDIDCertAuthStore
-	next   mdm.Service
-	logger log.Logger
+	store    UDIDCertAuthStore
+	next     mdm.Service
+	logger   log.Logger
+	warnOnly bool
 }
 
 func hashCertRaw(c []byte) []byte {
@@ -77,7 +79,7 @@ func (mw *udidCertAuthMiddleware) Acknowledge(ctx context.Context, req mdm.Ackno
 	if err != nil {
 		return nil, err
 	}
-	if !matched {
+	if !matched && !mw.warnOnly {
 		return nil, errors.New("device certifcate UDID mismatch")
 	}
 	return mw.next.Acknowledge(ctx, req)
@@ -104,7 +106,7 @@ func (mw *udidCertAuthMiddleware) Checkin(ctx context.Context, req mdm.CheckinEv
 		if err != nil {
 			return err
 		}
-		if !matched {
+		if !matched && !mw.warnOnly {
 			return errors.New("device certifcate UDID mismatch")
 		}
 		return mw.next.Checkin(ctx, req)

@@ -88,6 +88,7 @@ func serve(args []string) error {
 		flUseDynChallenge        = flagset.Bool("use-dynamic-challenge", env.Bool("MICROMDM_USE_DYNAMIC_CHALLENGE", false), "require dynamic SCEP challenges")
 		flGenDynChalEnroll       = flagset.Bool("gen-dynamic-challenge", env.Bool("MICROMDM_GEN_DYNAMIC_CHALLENGE", false), "generate dynamic SCEP challenges in enrollment profile (built-in only)")
 		flValidateSCEPIssuer     = flagset.Bool("validate-scep-issuer", env.Bool("MICROMDM_VALIDATE_SCEP_ISSUER", false), "validate only the issuer of the SCEP certificate rather than the whole certificate")
+		flUDIDCertAuthWarnOnly   = flagset.Bool("udid-cert-auth-warn-only", env.Bool("MICROMDM_UDID_CERT_AUTH_WARN_ONLY", false), "warn only for udid cert mismatches")
 		flValidateSCEPExpiration = flagset.Bool("validate-scep-expiration", env.Bool("MICROMDM_VALIDATE_SCEP_EXPIRATION", false), "validate that the SCEP certificate is still valid")
 		flPrintArgs              = flagset.Bool("print-flags", false, "Print all flags and their values")
 	)
@@ -135,6 +136,7 @@ func serve(args []string) error {
 		UseDynSCEPChallenge:    *flUseDynChallenge,
 		GenDynSCEPChallenge:    *flGenDynChalEnroll,
 		ValidateSCEPIssuer:     *flValidateSCEPIssuer,
+		UDIDCertAuthWarnOnly:   *flUDIDCertAuthWarnOnly,
 		ValidateSCEPExpiration: *flValidateSCEPExpiration,
 
 		WebhooksHTTPClient: &http.Client{Timeout: time.Second * 30},
