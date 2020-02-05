@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>PayloadDescription</key>
+            <string>Blacklist App</string>
+            <key>PayloadDisplayName</key>
+            <string>Blacklist App</string>
+            <key>PayloadIdentifier</key>
+            <string>882B02ED-BCA7-4129-8190-85FC6CBACD2C</string>
+            <key>PayloadType</key>
+            <string>com.apple.applicationaccess</string>
+            <key>PayloadUUID</key>
+            <string>882B02ED-BCA7-4129-8190-85FC6CBACD2C</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+            <key>blacklistedAppBundleIDs</key>
+            <array>
+                <string>com.apple.mobilemail</string>
+                <string>com.apple.TestFlight</string>
+            </array>
+        </dict>
+    </array>
+    <key>PayloadDisplayName</key>
+    <string>Blacklist App</string>
+    <key>PayloadIdentifier</key>
+    <string>F61583AC-864A-42C3-953C-56F3A88C232B</string>
+    <key>PayloadRemovalDisallowed</key>
+    <true/>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>7C26CA3D-F151-48A2-82D4-C912AE940F88</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>
