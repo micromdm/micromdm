@@ -1,5 +1,5 @@
 #!/bin/bash
-source $MICROMDM_ENV_PATH
+#source $MICROMDM_ENV_PATH
 endpoint="v1/commands"
 jq -n \
   --arg request_type "InstallProfile" \
