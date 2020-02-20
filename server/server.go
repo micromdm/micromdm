@@ -39,25 +39,25 @@ import (
 )
 
 type Server struct {
-	ConfigPath         string
-	Depsim             string
-	PubClient          pubsub.PublishSubscriber
-	DB                 *bolt.DB
-	ServerPublicURL    string
-	SCEPChallenge      string
-	SCEPClientValidity int
-	TLSCertPath        string
-	SCEPDepot          *boltdepot.Depot
-	UseDynSCEPChal     bool
-	GenDynSCEPChal     bool
-	SCEPChallengeDepot *challengestore.Depot
-	ProfileDB          profile.Store
-	ConfigDB           config.Store
-	RemoveDB           block.Store
-	CommandWebhookURL  string
-	DEPClient          *dep.Client
-	SyncDB             *syncbuiltin.DB
-	NoCmdHistory       bool
+	ConfigPath          string
+	Depsim              string
+	PubClient           pubsub.PublishSubscriber
+	DB                  *bolt.DB
+	ServerPublicURL     string
+	SCEPChallenge       string
+	SCEPClientValidity  int
+	TLSCertPath         string
+	SCEPDepot           *boltdepot.Depot
+	UseDynSCEPChallenge bool
+	GenDynSCEPChallenge bool
+	SCEPChallengeDepot  *challengestore.Depot
+	ProfileDB           profile.Store
+	ConfigDB            config.Store
+	RemoveDB            block.Store
+	CommandWebhookURL   string
+	DEPClient           *dep.Client
+	SyncDB              *syncbuiltin.DB
+	NoCmdHistory        bool
 
 	APNSPushService apns.Service
 	CommandService  command.Service
@@ -247,7 +247,7 @@ func (c *Server) setupEnrollmentService() error {
 	)
 
 	chalStore := c.SCEPChallengeDepot
-	if !c.GenDynSCEPChal {
+	if !c.GenDynSCEPChallenge {
 		chalStore = nil
 	}
 
@@ -356,7 +356,7 @@ func (c *Server) setupSCEP(logger log.Logger) error {
 		scep.ClientValidity(c.SCEPClientValidity),
 	}
 	var scepChalOpt scep.ServiceOption
-	if c.UseDynSCEPChal {
+	if c.UseDynSCEPChallenge {
 		c.SCEPChallengeDepot, err = challengestore.NewBoltDepot(c.DB)
 		if err != nil {
 			return err

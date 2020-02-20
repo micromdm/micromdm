@@ -124,20 +124,20 @@ func serve(args []string) error {
 		return errors.Wrapf(err, "creating config directory %s", *flConfigPath)
 	}
 	sm := &server.Server{
-		ConfigPath:        *flConfigPath,
-		ServerPublicURL:   strings.TrimRight(*flServerURL, "/"),
-		Depsim:            *flDepSim,
-		TLSCertPath:       *flTLSCert,
-		CommandWebhookURL: *flCommandWebhookURL,
-		NoCmdHistory:      *flNoCmdHistory,
-		UseDynSCEPChal:    *flUseDynChallenge,
-		GenDynSCEPChal:    *flGenDynChalEnroll,
+		ConfigPath:          *flConfigPath,
+		ServerPublicURL:     strings.TrimRight(*flServerURL, "/"),
+		Depsim:              *flDepSim,
+		TLSCertPath:         *flTLSCert,
+		CommandWebhookURL:   *flCommandWebhookURL,
+		NoCmdHistory:        *flNoCmdHistory,
+		UseDynSCEPChallenge: *flUseDynChallenge,
+		GenDynSCEPChallenge: *flGenDynChalEnroll,
 
 		WebhooksHTTPClient: &http.Client{Timeout: time.Second * 30},
 
 		SCEPClientValidity: *flSCEPClientValidity,
 	}
-	if !sm.UseDynSCEPChal {
+	if !sm.UseDynSCEPChallenge {
 		// TODO: we have a static SCEP challenge password here to prevent
 		// being prompted for the SCEP challenge which happens in a "normal"
 		// (non-DEP) enrollment. While security is not improved it is at least
