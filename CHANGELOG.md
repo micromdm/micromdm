@@ -1,10 +1,15 @@
 ## [v1.7.0](https://github.com/micromdm/micromdm/compare/v1.6.0...master) TBD
 
+### Reliability, scalability, security, and usability improvements:
+
 * Add device DEP status to API response (#617)
 * CLI improvements (#618, #620, #621)
 * Support new values for AccountConfiguration (#627)
 * Fix issue where DEP watcher would stop permanently for transient network issues  (#582, #632)
 * Workaround issue where a newly added DEP token would not be used after a restart (#546, #633)
+* Fix bug with applying an empty blueprint (#615, #634)
+* Add `-no-command-history` flag to disable saving of command history (#640). This works around a race-condition/scalability issue with device records (#556).
+* Add dynamic SCEP challenges (#642). Require dynamic SCEP challenges for certificate issuance with `-use-dynamic-challege` and (only recommended for testing) generate them in enrollment profiles with `-gen-dynamic-challege`.
 
 Thanks to our contributors for this release: @grahamgilbert, @n8felton
 
