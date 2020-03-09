@@ -28,7 +28,7 @@ message Command {
      - DeviceConfigured
      - AvailableOSUpdates
      - EnableRemoteDesktop
-		 - DisableRemoteDesktop
+     - DisableRemoteDesktop
      - NSExtensionMappings
      - ActivationLockBypassCode
    */
