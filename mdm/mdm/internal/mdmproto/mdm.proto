@@ -27,6 +27,8 @@ message Command {
      - ManagedMediaList
      - DeviceConfigured
      - AvailableOSUpdates
+     - EnableRemoteDesktop
+		 - DisableRemoteDesktop
      - NSExtensionMappings
      - ActivationLockBypassCode
    */
