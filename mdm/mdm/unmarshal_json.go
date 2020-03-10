@@ -48,6 +48,8 @@ func (c *Command) UnmarshalJSON(data []byte) error {
 		"AvailableOSUpdates",
 		"NSExtensionMappings",
 		"OSUpdateStatus",
+		"EnableRemoteDesktop",
+		"DisableRemoteDesktop",
 		"ActivationLockBypassCode":
 		return nil
 	case "InstallProfile":

@@ -28,6 +28,8 @@ message Command {
      - DeviceConfigured
      - AvailableOSUpdates
      - NSExtensionMappings
+     - EnableRemoteDesktop
+     - DisableRemoteDesktop
      - ActivationLockBypassCode
    */
   oneof request {
