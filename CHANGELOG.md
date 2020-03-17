@@ -10,8 +10,10 @@
 * Fix bug with applying an empty blueprint (#615, #634)
 * Add `-no-command-history` flag to disable saving of command history (#640). This works around a race-condition/scalability issue with device records (#556).
 * Add dynamic SCEP challenges (#642). Require dynamic SCEP challenges for certificate issuance with `-use-dynamic-challege` and (only recommended for testing) generate them in enrollment profiles with `-gen-dynamic-challege`.
+* Add MDM commands to enable and disable remote desktop (#651)
+* SCEP payload key names were corrected (#652)
 
-Thanks to our contributors for this release: @grahamgilbert, @n8felton
+Thanks to our contributors for this release: @grahamgilbert, @n8felton, @tomaswallentinus
 
 ## [v1.6.0](https://github.com/micromdm/micromdm/compare/v1.5.0...v1.6.0) August 14, 2019
 
