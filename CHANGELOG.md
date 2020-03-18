@@ -9,7 +9,7 @@
 * Workaround issue where a newly added DEP token would not be used after a restart (#546, #633)
 * Fix bug with applying an empty blueprint (#615, #634)
 * Add `-no-command-history` flag to disable saving of command history (#640). This works around a race-condition/scalability issue with device records (#556).
-* Add dynamic SCEP challenges (#642). Require dynamic SCEP challenges for certificate issuance with `-use-dynamic-challege` and (only recommended for testing) generate them in enrollment profiles with `-gen-dynamic-challege`.
+* Add dynamic SCEP challenges (#642). Require dynamic SCEP challenges for certificate issuance with `-use-dynamic-challenge` and (only recommended for testing) generate them in enrollment profiles with `-gen-dynamic-challenge`.
 * Add MDM commands to enable and disable remote desktop (#651)
 * SCEP payload key names were corrected (#652)
 
