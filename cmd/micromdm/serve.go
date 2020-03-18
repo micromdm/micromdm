@@ -267,8 +267,10 @@ func serve(args []string) error {
 		depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncDB), basicAuthEndpointMiddleware)
 		sync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
 
-		challengeEndpoints := challenge.MakeServerEndpoints(challenge.NewService(sm.SCEPChallengeDepot), basicAuthEndpointMiddleware)
-		challenge.RegisterHTTPHandlers(r, challengeEndpoints, options...)
+		if sm.SCEPChallengeDepot != nil {
+			challengeEndpoints := challenge.MakeServerEndpoints(challenge.NewService(sm.SCEPChallengeDepot), basicAuthEndpointMiddleware)
+			challenge.RegisterHTTPHandlers(r, challengeEndpoints, options...)
+		}
 
 		r.HandleFunc("/boltbackup", httputil2.RequireBasicAuth(boltBackup(sm.DB), "micromdm", *flAPIKey, "micromdm"))
 	} else {
