@@ -1,19 +1,26 @@
+image: golang:1.13.4
+
 stages:
   - build
+  - test
 
-# Need go > 1.11 installed
-
-bins:
-  variables:
-    GIT_STRATEGY: clone
+before_script:
+  #- go get github.com/tools/godep
+  # Don't use symlinks. Various tools like go test, etc. ignore symlinks
+  #- cp -r /builds/user /go/src/github.com/user/
+  # With alpine image we also need to do the following:
+  #- apk add --update git
+  #- cd /go/src/gitlab.com/${CI_PROJECT_PATH}
+  
+  # Fetch mods
+  - go mod tidy
+  
+build:
   stage: build
-  before_script:
-    - export PATH=$PATH:/usr/local/go/bin
-    - export MC_HOSTS_tmp=$UPLOAD_PATH
   script:
     - make build
-    - cd build/linux
-    - tar -cvf micromdm.tar micromdm
-    - mc cp micromdm.tar tmp/${UPLOAD_BUCKET}/${CI_COMMIT_REF_SLUG}/micromdm.tar
-    - sha256sum *.tar > micromdm.sha256
-    - mc cp micromdm.sha256 tmp/${UPLOAD_BUCKET}/${CI_COMMIT_REF_SLUG}/micromdm.sha256
+
+test:
+  stage: test
+  script:
+    - make test
