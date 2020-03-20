@@ -85,8 +85,8 @@ func serve(args []string) error {
 		flHomePage           = flagset.Bool("homepage", env.Bool("MICROMDM_HTTP_HOMEPAGE", true), "Hosts a simple built-in webpage at the / address")
 		flSCEPClientValidity = flagset.Int("scep-client-validity", env.Int("MICROMDM_SCEP_CLIENT_VALIDITY", 365), "Sets the scep certificate validity in days")
 		flNoCmdHistory       = flagset.Bool("no-command-history", env.Bool("MICROMDM_NO_COMMAND_HISTORY", false), "disables saving of command history")
-		flUseDynChallenge    = flagset.Bool("use-dynamic-challege", env.Bool("MICROMDM_USE_DYNAMIC_CHALLENGE", false), "require dynamic SCEP challenges")
-		flGenDynChalEnroll   = flagset.Bool("gen-dynamic-challege", env.Bool("MICROMDM_GEN_DYNAMIC_CHALLENGE", false), "generate dynamic SCEP challenges in enrollment profile (built-in only)")
+		flUseDynChallenge    = flagset.Bool("use-dynamic-challenge", env.Bool("MICROMDM_USE_DYNAMIC_CHALLENGE", false), "require dynamic SCEP challenges")
+		flGenDynChalEnroll   = flagset.Bool("gen-dynamic-challenge", env.Bool("MICROMDM_GEN_DYNAMIC_CHALLENGE", false), "generate dynamic SCEP challenges in enrollment profile (built-in only)")
 		flPrintArgs          = flagset.Bool("print-flags", false, "Print all flags and their values")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
@@ -267,8 +267,10 @@ func serve(args []string) error {
 		depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncDB), basicAuthEndpointMiddleware)
 		sync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
 
-		challengeEndpoints := challenge.MakeServerEndpoints(challenge.NewService(sm.SCEPChallengeDepot), basicAuthEndpointMiddleware)
-		challenge.RegisterHTTPHandlers(r, challengeEndpoints, options...)
+		if sm.SCEPChallengeDepot != nil {
+			challengeEndpoints := challenge.MakeServerEndpoints(challenge.NewService(sm.SCEPChallengeDepot), basicAuthEndpointMiddleware)
+			challenge.RegisterHTTPHandlers(r, challengeEndpoints, options...)
+		}
 
 		r.HandleFunc("/boltbackup", httputil2.RequireBasicAuth(boltBackup(sm.DB), "micromdm", *flAPIKey, "micromdm"))
 	} else {
