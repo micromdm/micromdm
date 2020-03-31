@@ -85,6 +85,7 @@ func serve(args []string) error {
 		flExamples          = flagset.Bool("examples", false, "prints some example usage")
 		flCommandWebhookURL = flagset.String("command-webhook-url", "", "URL to send command responses.")
 		flHomePage          = flagset.Bool("homepage", true, "hosts a simple built-in webpage at the / address")
+		flSCEPClientValidity = flagset.Int("scep-client-validity", 365, "sets the scep certificate validity in days")
 		
 		flMysqlUsername 	= flagset.String("mysql-username", "", "Username to login to Mysql")
 		flMysqlPassword 	= flagset.String("mysql-password", "", "Password to login to Mysql")
@@ -134,13 +135,13 @@ func serve(args []string) error {
 		// (non-DEP) enrollment. While security is not improved it is at least
 		// no less secure and prevents a useless dialog from showing.
 		SCEPChallenge: "micromdm",
+		SCEPClientValidity: *flSCEPClientValidity,
 		
 		MysqlUsername: *flMysqlUsername,
 		MysqlPassword: *flMysqlPassword,
 		MysqlDatabase: *flMysqlDatabase,
 		MysqlHost:	   *flMysqlHost,
 		MysqlPort:	   *flMysqlPort,
-		
 	}
 
 	if err := sm.Setup(logger); err != nil {
