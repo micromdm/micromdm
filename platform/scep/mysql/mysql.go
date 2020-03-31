@@ -188,6 +188,11 @@ func (d *Depot) Serial() (*big.Int, error) {
 	fmt.Println(result)
 	return big.NewInt(2), nil
 */
+	_,err := d.db.Exec(`SET @@SESSION.information_schema_stats_expiry = 0;`)
+	if err != nil {
+	   return nil, errors.Wrap(err, "unable to set stats expiration of information_schema to fetch latest auto increment")
+	}
+	
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Select("AUTO_INCREMENT").
