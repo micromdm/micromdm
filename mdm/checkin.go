@@ -11,6 +11,8 @@ import (
 )
 
 func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) error {
+	// reject user settings at the loginwindow.
+	// https://github.com/micromdm/micromdm/pull/379
 	if event.Command.MessageType == "UserAuthenticate" {
 		return &rejectUserAuth{}
 	}
