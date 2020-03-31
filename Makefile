@@ -41,6 +41,10 @@ ifeq ($(PG_HOST),)
 PG_HOST := localhost
 endif
 
+ifeq ($(MYSQL_HOST),)
+MYSQL_HOST := 127.0.0.1
+endif
+
 BUILD_VERSION = "\
 	-X github.com/micromdm/go4/version.appName=${APP_NAME} \
 	-X github.com/micromdm/go4/version.version=${VERSION} \
@@ -118,14 +122,11 @@ ngrok:
 docker-compose:
 	docker-compose -f docker-compose-dev.yaml up -d
 
-######################
-# Preparing Postgres
-# > psql -h localhost     
-# > CREATE ROLE micromdm superuser;
-# > GRANT ROOT TO micromdm;
-# > ALTER ROLE micromdm WITH LOGIN;
-# > exit;
-######################
+
+
+
+
+# PostgreSQL
 db-psql-test:
 	$(call psql_db,micromdm_test)
 
