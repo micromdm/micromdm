@@ -159,6 +159,10 @@ type InstallApplicationAttributes struct{}
 type AccountConfiguration struct {
 	SkipPrimarySetupAccountCreation     bool           `plist:",omitempty" json:"skip_primary_setup_account_creation,omitempty"`
 	SetPrimarySetupAccountAsRegularUser bool           `plist:",omitempty" json:"set_primary_setup_account_as_regular_user,omitempty"`
+	DontAutoPopulatePrimaryAccountInfo  bool           `plist:",omitempty" json:"dont_auto_populate_primary_account_info,omitempty"`
+	LockPrimaryAccountInfo              bool           `plist:",omitempty" json:"lock_primary_account_info,omitempty"`
+	PrimaryAccountFullName              string         `plist:",omitempty" json:"primary_account_full_name,omitempty"`
+	PrimaryAccountUserName              string         `plist:",omitempty" json:"primary_account_user_name,omitempty"`
 	AutoSetupAdminAccounts              []AdminAccount `plist:",omitempty" json:"auto_setup_admin_accounts,omitempty"`
 }
 
