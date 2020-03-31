@@ -78,11 +78,11 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*queue.Com
 	case "Acknowledged":
 		// move to completed, send next
 		x, a := cut(dc.Commands, resp.CommandUUID)
-		x.Acknowledged = time.Now().UTC()
 		dc.Commands = a
 		if x == nil {
 			break
 		}
+		x.Acknowledged = time.Now().UTC()
 		dc.Completed = append(dc.Completed, *x)
 	case "Error":
 		// move to failed, send next
