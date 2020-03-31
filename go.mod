@@ -27,7 +27,7 @@ require (
 	github.com/lib/pq v1.0.0
 	github.com/mattn/go-runewidth v0.0.3 // indirect
 	github.com/mattn/go-sqlite3 v1.9.0 // indirect
-	github.com/micromdm/go4 v0.0.0-20171021081444-deded5397014
+	github.com/micromdm/go4 v0.0.0-20190530145745-54e7af012bbc
 	github.com/micromdm/scep v1.0.1-0.20181014170139-9be65e185499
 	github.com/olekukonko/tablewriter v0.0.1 // indirect
 	github.com/pkg/errors v0.8.0
