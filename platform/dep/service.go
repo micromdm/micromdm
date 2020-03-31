@@ -10,6 +10,7 @@ import (
 
 type Service interface {
 	DefineProfile(ctx context.Context, p *dep.Profile) (*dep.ProfileResponse, error)
+	AssignProfile(ctx context.Context, uuid string, serials ...string) (*dep.ProfileResponse, error)
 	GetAccountInfo(ctx context.Context) (*dep.Account, error)
 	GetDeviceDetails(ctx context.Context, serials []string) (*dep.DeviceDetailsResponse, error)
 	FetchProfile(ctx context.Context, uuid string) (*dep.Profile, error)
