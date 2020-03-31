@@ -16,6 +16,7 @@ import (
 	scepstore "github.com/micromdm/micromdm/platform/scep"
 	scepbuiltin "github.com/micromdm/micromdm/platform/scep/builtin"
 	scepmysql "github.com/micromdm/micromdm/platform/scep/mysql"
+	challengestore "github.com/micromdm/scep/challenge/bolt"
 	scep "github.com/micromdm/scep/server"
 	"github.com/pkg/errors"
 	
@@ -67,6 +68,9 @@ type Server struct {
 	SCEPClientValidity int
 	TLSCertPath       string
 	
+	UseDynSCEPChallenge bool
+	GenDynSCEPChallenge bool
+	SCEPChallengeDepot  *challengestore.Depot
 	SCEPBuiltin	      *scepbuiltin.Depot
 	SCEPMysqlDB       *scepmysql.Depot
 	
@@ -368,6 +372,12 @@ func (c *Server) setupEnrollmentService() error {
 		SCEPCertificateSubject string
 		err                    error
 	)
+
+	chalStore := c.SCEPChallengeDepot
+	if !c.GenDynSCEPChallenge {
+		chalStore = nil
+	}
+
 	// TODO: clean up order of inputs. Maybe pass *SCEPConfig as an arg?
 	// but if you do, the packages are coupled, better not.
 	c.EnrollService, err = enroll.NewService(
@@ -379,6 +389,7 @@ func (c *Server) setupEnrollmentService() error {
 		c.TLSCertPath,
 		SCEPCertificateSubject,
 		c.ProfileDB,
+		chalStore,
 	)
 	return errors.Wrap(err, "setting up enrollment service")
 }
@@ -477,8 +488,19 @@ func (c *Server) setupSCEP(logger log.Logger) error {
 	
 	opts := []scep.ServiceOption{
 		scep.ClientValidity(c.SCEPClientValidity),
-		scep.ChallengePassword(c.SCEPChallenge),
 	}
+	
+	var scepChalOpt scep.ServiceOption
+	if c.UseDynSCEPChallenge {
+		c.SCEPChallengeDepot, err = challengestore.NewBoltDepot(c.DB)
+		if err != nil {
+			return err
+		}
+		scepChalOpt = scep.WithDynamicChallenges(c.SCEPChallengeDepot)
+	} else {
+		scepChalOpt = scep.ChallengePassword(c.SCEPChallenge)
+	}
+	opts = append(opts, scepChalOpt)
 	
 	// If Mysql is set up, use Mysql, else use Bolt as Fallback
 	if c.MysqlDB != nil {
@@ -496,7 +518,6 @@ func (c *Server) setupSCEP(logger log.Logger) error {
 			return err
 		}
 	
-		
 		c.SCEPService, err = scep.NewService(store, opts...)
 	} else {
 		c.SCEPBuiltin, err = scepbuiltin.NewDB(c.DB)
@@ -512,8 +533,7 @@ func (c *Server) setupSCEP(logger log.Logger) error {
 		if err != nil {
 			return err
 		}
-			
-		fmt.Println("NewService")
+		
 		c.SCEPService, err = scep.NewService(store, opts...)
 	}
 	

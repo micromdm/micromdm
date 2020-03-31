@@ -52,6 +52,16 @@ func TestMarshalCommand(t *testing.T) {
 				},
 			},
 		},
+		{
+			Command: Command{
+				RequestType: "EnableRemoteDesktop",
+			},
+		},
+		{
+			Command: Command{
+				RequestType: "DisableRemoteDesktop",
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.Command.RequestType+"_json", func(t *testing.T) {
