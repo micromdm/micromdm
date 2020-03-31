@@ -64,6 +64,7 @@ type Server struct {
 	DB                *bolt.DB
 	ServerPublicURL   string
 	SCEPChallenge     string
+	SCEPClientValidity int
 	TLSCertPath       string
 	
 	SCEPBuiltin	      *scepbuiltin.Depot
@@ -464,7 +465,7 @@ func (c *Server) setupSCEP(logger log.Logger) error {
 	var err error
 	
 	opts := []scep.ServiceOption{
-		scep.ClientValidity(365),
+		scep.ClientValidity(c.SCEPClientValidity),
 		scep.ChallengePassword(c.SCEPChallenge),
 	}
 	
