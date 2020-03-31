@@ -28,6 +28,7 @@ message Command {
      - DeviceConfigured
      - AvailableOSUpdates
      - NSExtensionMappings
+     - ActivationLockBypassCode
    */
   oneof request {
     InstallProfile install_profile = 2;
@@ -138,7 +139,7 @@ message EnableLostMode {
 message InstallApplication {
   int64 itunes_store_id = 1;
   string identifier = 2;
-  InstallApplicationOptions options = 3; 
+  InstallApplicationOptions options = 3;
   string manifest_url = 4;
   int64 management_flags = 5; // bitwise OR
   InstallApplicationConfiguration configuration = 6;
@@ -163,7 +164,7 @@ message InstallEnterpriseApplication {
 }
 
 message Manifest {
-  repeated ManifestItem manifest_items = 1; 
+  repeated ManifestItem manifest_items = 1;
 }
 
 message ManifestItem {
@@ -290,7 +291,7 @@ message ApplicationAttributesSetting {
 
 message ApplicationConfigurationSetting {
   string identifier = 1;
-  bytes configuration_dictionary_data = 2; // A serialized plist of the dictionary. 
+  bytes configuration_dictionary_data = 2; // A serialized plist of the dictionary.
 }
 
 message ApplicationAttributes {
@@ -405,8 +406,8 @@ message ErrorChain {
   string localized_description = 1;
   string us_english_description = 2;
 
-  // The ErrorDomain and ErrorCode keys contain internal codes used by Apple 
-  // that may be useful for diagnostics. Your host should not rely on these 
+  // The ErrorDomain and ErrorCode keys contain internal codes used by Apple
+  // that may be useful for diagnostics. Your host should not rely on these
   // values, as they may change between software releases.
   string error_domain = 3;
   int32  error_code = 4;
