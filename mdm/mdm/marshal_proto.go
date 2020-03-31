@@ -43,6 +43,8 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 		"AvailableOSUpdates",
 		"NSExtensionMappings",
 		"OSUpdateStatus",
+		"EnableRemoteDesktop",
+		"DisableRemoteDesktop",
 		"ActivationLockBypassCode":
 
 	case "InstallProfile":

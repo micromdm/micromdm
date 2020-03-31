@@ -34,6 +34,8 @@ func (c *Command) UnmarshalPlist(unmarshal func(i interface{}) error) error {
 		"AvailableOSUpdates",
 		"NSExtensionMappings",
 		"OSUpdateStatus",
+		"EnableRemoteDesktop",
+		"DisableRemoteDesktop",
 		"ActivationLockBypassCode":
 		return nil
 	case "InstallProfile":
