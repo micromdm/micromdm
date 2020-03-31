@@ -22,6 +22,10 @@ func (db *DB) AddToken(ctx context.Context, consumerKey string, json []byte) err
 		if err != nil {
 			return err
 		}
+		err = b.Put([]byte("last_added"), []byte(consumerKey))
+		if err != nil {
+			return err
+		}
 		return b.Put([]byte(consumerKey), json)
 	})
 	if err != nil {
@@ -33,11 +37,13 @@ func (db *DB) AddToken(ctx context.Context, consumerKey string, json []byte) err
 
 func (db *DB) DEPTokens(ctx context.Context) ([]config.DEPToken, error) {
 	var result []config.DEPToken
+	var lastAdded string
 	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(depTokenBucket))
 		if b == nil {
 			return nil
 		}
+		lastAdded = string(b.Get([]byte("last_added")))
 		c := b.Cursor()
 
 		prefix := []byte("CK_")
@@ -48,7 +54,14 @@ func (db *DB) DEPTokens(ctx context.Context) ([]config.DEPToken, error) {
 				// TODO: log problematic DEP token, or remove altogether?
 				continue
 			}
-			result = append(result, depToken)
+			if lastAdded == depToken.ConsumerKey {
+				// the server merely takes the first DEP token. let's
+				// make sure the most recent one is the one that's
+				// returned first
+				result = append([]config.DEPToken{depToken}, result...)
+			} else {
+				result = append(result, depToken)
+			}
 		}
 		return nil
 	})
