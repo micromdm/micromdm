@@ -165,7 +165,7 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 		)
 		if cmd.InstallApplication.Options != nil {
 			options = &mdmproto.InstallApplicationOptions{
-				PurchaseMethod: cmd.InstallApplication.Options.PurchaseMethod,
+				PurchaseMethod: zeroInt64IfNil(cmd.InstallApplication.Options.PurchaseMethod),
 			}
 		}
 		if cmd.InstallApplication.Configuration != nil {
