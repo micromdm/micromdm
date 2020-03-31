@@ -286,6 +286,12 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 				AllowOroms:      cmd.SetFirmwarePassword.AllowOroms,
 			},
 		}
+	case "SetBootstrapToken":
+		cmdproto.Request = &mdmproto.Command_SetBootstrapToken{
+			SetBootstrapToken: &mdmproto.SetBootstrapToken{
+				BootstrapToken: cmd.SetBootstrapToken.BootstrapToken,
+			},
+		}
 	case "VerifyFirmwarePassword":
 		cmdproto.Request = &mdmproto.Command_VerifyFirmwarePassword{
 			VerifyFirmwarePassword: &mdmproto.VerifyFirmwarePassword{

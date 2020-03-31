@@ -60,6 +60,7 @@ type Command struct {
 	ScheduleOSUpdateScan            *ScheduleOSUpdateScan
 	ActiveNSExtensions              *ActiveNSExtensions
 	RotateFileVaultKey              *RotateFileVaultKey
+	SetBootstrapToken               *SetBootstrapToken
 }
 
 // InstallProfile is an InstallProfile MDM Command
@@ -248,6 +249,10 @@ type VerifyFirmwarePassword struct {
 type SetAutoAdminPassword struct {
 	GUID         string `plist:",omitempty" json:"guid,omitempty"`
 	PasswordHash []byte `plist:"passwordHash" json:"password_hash"`
+}
+
+type SetBootstrapToken struct {
+	BootstrapToken string `plist:",omitempty" json:"bootstrap_token,omitempty"`
 }
 
 type OSUpdate struct {
