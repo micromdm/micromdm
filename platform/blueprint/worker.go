@@ -93,6 +93,11 @@ func (w *Worker) handleTokenUpdateEvent(ctx context.Context, message []byte) err
 		return errors.Wrap(err, "unmarshal checkin event")
 	}
 	if ev.Command.UserID != "" {
+		level.Debug(w.logger).Log(
+			"msg", "skipping user token update in blueprint worker.",
+			"device_udid", ev.Command.UDID,
+			"user_id", ev.Command.UserID,
+		)
 		// skip UserID token updates
 		return nil
 	}
@@ -100,6 +105,15 @@ func (w *Worker) handleTokenUpdateEvent(ctx context.Context, message []byte) err
 	bps, err := w.db.BlueprintsByApplyAt(ctx, ApplyAtEnroll)
 	if err != nil {
 		return errors.Wrap(err, "get blueprints by ApplyAtEnroll")
+	}
+
+	// if there are no blueprints exit early. This will ensure that DeviceConfigured is not sent.
+	if len(bps) == 0 {
+		level.Debug(w.logger).Log(
+			"msg", "no blueprints to apply",
+			"device_udid", ev.Command.UDID,
+		)
+		return nil
 	}
 
 	for _, bp := range bps {
