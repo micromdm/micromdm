@@ -136,7 +136,8 @@ type AutoIncrement struct {
 }
 
 func (d *Depot) Serial() (*big.Int, error) {
-	_,err := d.db.Exec(`SET @@SESSION.information_schema_stats_expiry = 0;`)
+	// Refresh current auto increment value
+	_,err := d.db.Exec(`ANALYZE TABLE scep_certificates;`)
 	if err != nil {
 	   return nil, errors.Wrap(err, "unable to set stats expiration of information_schema to fetch latest auto increment")
 	}
