@@ -19,7 +19,7 @@ import (
 )
 
 type Service interface {
-	Push(ctx context.Context, udid string) (string, error)
+	Push(ctx context.Context, udid string, opts ...PushOption) (string, error)
 }
 
 type Store interface {

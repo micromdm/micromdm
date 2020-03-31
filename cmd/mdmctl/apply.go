@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
+	"crypto"
+	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -15,7 +18,9 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
+	"golang.org/x/crypto/pkcs12"
 
+	"github.com/micromdm/micromdm/pkg/crypto/profileutil"
 	"github.com/micromdm/micromdm/platform/blueprint"
 	"github.com/micromdm/micromdm/platform/profile"
 )
@@ -229,12 +234,89 @@ func (cmd *applyCommand) applyBlock(args []string) error {
 	return nil
 }
 
+func loadSigningKey(keyPass, keyPath, certPath string) (crypto.PrivateKey, *x509.Certificate, error) {
+	certData, err := ioutil.ReadFile(certPath)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	isP12 := filepath.Ext(certPath) == ".p12"
+	if isP12 {
+		pkey, cert, err := pkcs12.Decode(certData, keyPass)
+		return pkey, cert, errors.Wrap(err, "decode p12 contents")
+	}
+
+	keyData, err := ioutil.ReadFile(keyPath)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "read key from file")
+	}
+
+	keyDataBlock, _ := pem.Decode(keyData)
+	if keyDataBlock == nil {
+		return nil, nil, errors.Errorf("invalid PEM data for private key %s", keyPath)
+	}
+	var pemKeyData []byte
+	if x509.IsEncryptedPEMBlock(keyDataBlock) {
+		b, err := x509.DecryptPEMBlock(keyDataBlock, []byte(keyPass))
+		if err != nil {
+			return nil, nil, fmt.Errorf("decrypting DES private key %s", err)
+		}
+		pemKeyData = b
+	} else {
+		pemKeyData = keyDataBlock.Bytes
+	}
+
+	priv, err := x509.ParsePKCS1PrivateKey(pemKeyData)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "parse private key")
+	}
+
+	pub, _ := pem.Decode(certData)
+	if pub == nil {
+		return nil, nil, errors.Errorf("invalid PEM data for certificate %q", certPath)
+	}
+
+	cert, err := x509.ParseCertificate(pub.Bytes)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "parse PEM certificate data")
+	}
+
+	return priv, cert, nil
+}
+
 func (cmd *applyCommand) applyProfile(args []string) error {
 	flagset := flag.NewFlagSet("profiles", flag.ExitOnError)
 	var (
-		flProfilePath = flagset.String("f", "", "filename of profile to apply")
+		flProfilePath = flagset.String("f", "", "Path to profile payload.")
+		flSign        = flagset.Bool("sign", false, "Sign the profile. Requires key and certificate path.")
+		flOut         = flagset.String("out", "", "Output path for signed profile(optional).")
+		flKeyPass     = flagset.String("password", "", "Password to encrypt/read the signing key(optional) or p12 file.")
+		flKeyPath     = flagset.String("private-key", "", "Path to the signing private key. Don't use with p12 file.")
+		flCertPath    = flagset.String("cert", "", "Path to the signing certificate or p12 file.")
 	)
-	flagset.Usage = usageFor(flagset, "mdmctl apply profiles [flags]")
+	flagset.Usage = func() {
+		fmt.Fprintf(os.Stderr, "%s\n",
+			`Upload profiles to the server. 
+			
+Uploaded profiles can also be specified in a blueprint, which will be applied on device enrollment.
+This command can also be used to replace the enrollment profile.
+Profiles can be signed before upload.
+
+Examples
+
+  # Upload a mobileconfig
+  mdmctl apply profiles -f /path/to/profile.mobileconfig
+
+  # Sign and upload
+  mdmctl apply profiles -f /path/to/profile.mobileconfig -private-key key.pem -cert certificate.pem -password secret -sign
+
+  # Sign and save to local directory instead of uploading
+  # Use "-out -" print the output to stdout instead of a file.
+  mdmctl apply profiles -f /path/to/profile.mobileconfig -private-key key.pem -cert certificate.pem -password secret -sign -out signed.mobileconfig
+
+`)
+		usageFor(flagset, "mdmctl apply profiles [flags]")()
+	}
 	if err := flagset.Parse(args); err != nil {
 		return err
 	}
@@ -245,6 +327,26 @@ func (cmd *applyCommand) applyProfile(args []string) error {
 	profileBytes, err := readBytesFromPath(*flProfilePath)
 	if err != nil {
 		return err
+	}
+
+	if *flSign {
+		priv, pub, err := loadSigningKey(*flKeyPass, *flKeyPath, *flCertPath)
+		if err != nil {
+			return errors.Wrap(err, "loading signing certificate and private key")
+		}
+		signed, err := profileutil.Sign(priv, pub, profileBytes)
+		if err != nil {
+			return errors.Wrap(err, "signing profile with the specified key")
+		}
+
+		if *flOut == "-" { // print to stdout and return
+			_, err = os.Stdout.Write(signed)
+			return err
+		} else if *flOut != "" { // write to file and return
+			return ioutil.WriteFile(*flOut, signed, 0644)
+		}
+
+		profileBytes = signed
 	}
 
 	// TODO: to consider just uploading the Mobileconfig data (without a
