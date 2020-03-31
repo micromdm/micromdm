@@ -33,6 +33,7 @@ const (
 type Store struct {
 	db *sqlx.DB
 	logger log.Logger
+	withoutHistory bool
 }
 
 type MysqlCommand struct {
@@ -71,6 +72,12 @@ type Option func(*Store)
 func WithLogger(logger log.Logger) Option {
 	return func(s *Store) {
 		s.logger = logger
+	}
+}
+
+func WithoutHistory() Option {
+	return func(s *Store) {
+		s.withoutHistory = true
 	}
 }
 
@@ -124,7 +131,10 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*queue.Com
 		if x == nil {
 			break
 		}
-		dc.Completed = append(dc.Completed, *x)
+		if !db.withoutHistory {
+			x.Acknowledged = time.Now().UTC()
+			dc.Completed = append(dc.Completed, *x)
+		}
 	case "Error":
 		// move to failed, send next
 		x, a := cut(dc.Commands, resp.CommandUUID)
@@ -133,7 +143,9 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*queue.Com
 		if x == nil { // must've already bin ackd
 			break
 		}
-		dc.Failed = append(dc.Failed, *x)
+		if !db.withoutHistory {
+			dc.Failed = append(dc.Failed, *x)
+		}
 
 	case "CommandFormatError":
 		// move to failed
@@ -142,7 +154,9 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*queue.Com
 		if x == nil {
 			break
 		}
-		dc.Failed = append(dc.Failed, *x)
+		if !db.withoutHistory {
+			dc.Failed = append(dc.Failed, *x)
+		}
 
 	case "Idle":
 		// will send next command below
