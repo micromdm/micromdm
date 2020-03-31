@@ -3,6 +3,7 @@
 * Add support for User Enrollment (#597)
 * Add support for Signing Profiles (#602)
 * Add support for setting APNS message expiration (#609)
+* Update `mdmctl remove devices -serial` flag to be plural (now `-serials`) (#621)
 
 ## [v1.5.0](https://github.com/micromdm/micromdm/compare/v1.4.0...1.5.0) June 15 2019
 
