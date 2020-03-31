@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"testing"
 
-
 	"github.com/micromdm/micromdm/pkg/crypto"
 
 	"github.com/go-kit/kit/log"
@@ -76,11 +75,11 @@ func TestDepot_Put(t *testing.T) {
 	}{
 		{
 			name: "two is the default value.",
-			want: big.NewInt(2),
+			want: big.NewInt(3),
 		},
 		{
 			name: "After Put, expecting increment",
-			want: big.NewInt(3),
+			want: big.NewInt(4),
 		},
 	}
 	for _, tt := range tests {
@@ -93,6 +92,8 @@ func TestDepot_Put(t *testing.T) {
 			t.Errorf("%q. Depot.Serial() error = %v, wantErr %v", tt.name, err, tt.wantErr)
 			continue
 		}
+		
+		got, err = db.Serial()
 		if !reflect.DeepEqual(got, tt.want) {
 			t.Errorf("%q. Depot.Serial() = %v, want %v", tt.name, got, tt.want)
 		}
