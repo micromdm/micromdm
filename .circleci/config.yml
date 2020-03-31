@@ -22,7 +22,7 @@ jobs:
     steps: &steps
       - checkout
       - run: apt-get update -y && apt-get install postgresql-client -y
-      - run: apt-get update -y && apt-get install mysql-client -y
+      - run: apt-get update -y && apt-get install default-mysql-client -y
       - run: make deps
       - run: GO111MODULE=on go install github.com/pressly/goose/cmd/goose
       - run: make db-reset-test
