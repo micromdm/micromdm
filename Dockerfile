@@ -1,14 +1,24 @@
-FROM golang:1.11-alpine
+FROM golang:latest as builder
 
-RUN apk --update add ca-certificates git
-WORKDIR /go/src/app
+WORKDIR /go/src/github.com/micromdm/micromdm/
+
+ENV CGO_ENABLED=0 \
+	GOARCH=amd64 \
+	GOOS=linux
+
 COPY . .
-ENV GO111MODULE on
-RUN go mod download
-RUN GOOS=linux CGO_ENABLED=0 go install ./cmd/micromdm
-RUN mkdir /data; chmod 777 /data
 
-COPY docker-entrypoint.sh /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
-EXPOSE 8080 8443
+RUN make deps
+RUN make
+
+
+FROM alpine:latest
+
+RUN apk --update add ca-certificates
+
+COPY --from=builder /go/src/github.com/micromdm/micromdm/build/linux/micromdm /usr/bin/
+COPY --from=builder /go/src/github.com/micromdm/micromdm/build/linux/mdmctl /usr/bin/
+
+EXPOSE 80 443
+VOLUME ["/var/db/micromdm"]
 CMD ["micromdm", "serve"]
