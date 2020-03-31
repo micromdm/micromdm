@@ -170,6 +170,10 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 		cmd.AccountConfiguration = &AccountConfiguration{
 			SkipPrimarySetupAccountCreation:     pbc.GetSkipPrimarySetupAccountCreation(),
 			SetPrimarySetupAccountAsRegularUser: pbc.GetSetPrimarySetupAccountAsRegularUser(),
+			DontAutoPopulatePrimaryAccountInfo:  pbc.GetDontAutoPopulatePrimaryAccountInfo(),
+			LockPrimaryAccountInfo:              pbc.GetLockPrimaryAccountInfo(),
+			PrimaryAccountFullName:              pbc.GetPrimaryAccountFullName(),
+			PrimaryAccountUserName:              pbc.GetPrimaryAccountUserName(),
 			AutoSetupAdminAccounts:              autosetupadminaccounts,
 		}
 	case "ApplyRedemptionCode":
