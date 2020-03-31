@@ -1,11 +1,34 @@
-## [v1.6.0](https://github.com/micromdm/micromdm/compare/v1.4.0...1.5.0) TBD
+## [v1.7.0](https://github.com/micromdm/micromdm/compare/v1.6.0...master) TBD
+
+### Reliability, scalability, security, and usability improvements:
+
+* Add device DEP status to API response (#617)
+* CLI improvements (#618, #620, #621)
+* Support new values for AccountConfiguration (#627)
+* Fix issue where DEP watcher would stop permanently for transient network issues  (#582, #632)
+* Workaround issue where a newly added DEP token would not be used after a restart (#546, #633)
+* Fix bug with applying an empty blueprint (#615, #634)
+* Add `-no-command-history` flag to disable saving of command history (#640). This works around a race-condition/scalability issue with device records (#556).
+* Add dynamic SCEP challenges (#642). Require dynamic SCEP challenges for certificate issuance with `-use-dynamic-challege` and (only recommended for testing) generate them in enrollment profiles with `-gen-dynamic-challege`.
+* Add MDM commands to enable and disable remote desktop (#651)
+* SCEP payload key names were corrected (#652)
+
+Thanks to our contributors for this release: @grahamgilbert, @n8felton, @tomaswallentinus
+
+## [v1.6.0](https://github.com/micromdm/micromdm/compare/v1.5.0...v1.6.0) August 14, 2019
+
+### Go security update along with updates:
+
+* Add `erase_device` tools script
 * Add assign profile endpoint (#611)
 * Add support for User Enrollment (#597)
 * Add support for Signing Profiles (#602)
 * Add support for setting APNS message expiration (#609)
 * Update `mdmctl remove devices -serial` flag to be plural (now `-serials`) (#621)
 
-## [v1.5.0](https://github.com/micromdm/micromdm/compare/v1.4.0...1.5.0) June 15 2019
+Thanks to our contributors for this release: @WardsParadox, @n8felton
+
+## [v1.5.0](https://github.com/micromdm/micromdm/compare/v1.4.0...v1.5.0) June 15 2019
 
 * Fix DEP token update issue (#513, #510)
 * Refactor certificate verification and implement UDID-cert authentication (#358, #429)
@@ -20,6 +43,8 @@
 * Do not send DeviceConfigured automatically when there are no blueprints (#586)
 * Set acknowledge time when moving command to completed queue (#581)
 * Serialize PurchaseMethod when value is 0. (#592)
+
+Thanks to our contributors for this release: @discentem, @nkllkc, @arubdesu, @bdemetris, @Lepidopteron, @joncrain, @emman27, @jenjac, @daniellockard, and @0xflotus
 
 ## [v1.4.0](https://github.com/micromdm/micromdm/compare/v1.3.1...v1.4.0) September 6 2018
 

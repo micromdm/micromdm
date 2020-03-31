@@ -15,6 +15,7 @@ import (
 	"github.com/micromdm/micromdm/platform/config"
 	"github.com/micromdm/micromdm/platform/profile"
 	"github.com/micromdm/micromdm/platform/pubsub"
+	challengestore "github.com/micromdm/scep/challenge/bolt"
 )
 
 const (
@@ -29,7 +30,7 @@ type Service interface {
 	OTAPhase3(ctx context.Context) (profile.Mobileconfig, error)
 }
 
-func NewService(topic TopicProvider, sub pubsub.Subscriber, scepURL, scepChallenge, url, tlsCertPath, scepSubject string, profileDB profile.Store) (Service, error) {
+func NewService(topic TopicProvider, sub pubsub.Subscriber, scepURL, scepChallenge, url, tlsCertPath, scepSubject string, profileDB profile.Store, cs *challengestore.Depot) (Service, error) {
 	var tlsCert []byte
 	var err error
 
@@ -60,14 +61,15 @@ func NewService(topic TopicProvider, sub pubsub.Subscriber, scepURL, scepChallen
 	// will be "" if the push certificate hasn't been uploaded yet
 	pushTopic, _ := topic.PushTopic(context.Background())
 	svc := &service{
-		URL:           url,
-		SCEPURL:       scepURL,
-		SCEPSubject:   subject,
-		SCEPChallenge: scepChallenge,
-		TLSCert:       tlsCert,
-		ProfileDB:     profileDB,
-		Topic:         pushTopic,
-		topicProvier:  topic,
+		URL:                url,
+		SCEPURL:            scepURL,
+		SCEPSubject:        subject,
+		SCEPChallenge:      scepChallenge,
+		SCEPChallengeStore: cs,
+		TLSCert:            tlsCert,
+		ProfileDB:          profileDB,
+		Topic:              pushTopic,
+		topicProvier:       topic,
 	}
 
 	if err := updateTopic(svc, sub); err != nil {
@@ -105,12 +107,13 @@ func updateTopic(svc *service, sub pubsub.Subscriber) error {
 }
 
 type service struct {
-	URL           string
-	SCEPURL       string
-	SCEPChallenge string
-	SCEPSubject   [][][]string
-	TLSCert       []byte
-	ProfileDB     profile.Store
+	URL                string
+	SCEPURL            string
+	SCEPChallenge      string
+	SCEPChallengeStore *challengestore.Depot
+	SCEPSubject        [][][]string
+	TLSCert            []byte
+	ProfileDB          profile.Store
 
 	topicProvier TopicProvider
 
@@ -204,7 +207,13 @@ func (svc *service) MakeEnrollmentProfile() (Profile, error) {
 			Subject:  svc.SCEPSubject,
 		}
 
-		if svc.SCEPChallenge != "" {
+		if svc.SCEPChallengeStore != nil {
+			challenge, err := svc.SCEPChallengeStore.SCEPChallenge()
+			if err != nil {
+				return *profile, err
+			}
+			scepContent.Challenge = challenge
+		} else if svc.SCEPChallenge != "" {
 			scepContent.Challenge = svc.SCEPChallenge
 		}
 
