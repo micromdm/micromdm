@@ -200,6 +200,10 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 			AccountConfiguration: &mdmproto.AccountConfiguration{
 				SkipPrimarySetupAccountCreation:     cmd.AccountConfiguration.SkipPrimarySetupAccountCreation,
 				SetPrimarySetupAccountAsRegularUser: cmd.AccountConfiguration.SetPrimarySetupAccountAsRegularUser,
+				DontAutoPopulatePrimaryAccountInfo:  cmd.AccountConfiguration.DontAutoPopulatePrimaryAccountInfo,
+				LockPrimaryAccountInfo:              cmd.AccountConfiguration.LockPrimaryAccountInfo,
+				PrimaryAccountFullName:              cmd.AccountConfiguration.PrimaryAccountFullName,
+				PrimaryAccountUserName:              cmd.AccountConfiguration.PrimaryAccountUserName,
 				AutoSetupAdminAccounts:              autosetupadminaccounts,
 			},
 		}
