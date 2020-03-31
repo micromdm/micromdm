@@ -16,5 +16,5 @@ message Response {
     string status = 3;
     string request_type = 4;
     string command_uuid = 5;
+    string enrollment_id = 6;
 }
-

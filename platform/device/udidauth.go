@@ -64,6 +64,11 @@ func (mw *udidCertAuthMiddleware) validateUDIDCertAuth(ctx context.Context, udid
 }
 
 func (mw *udidCertAuthMiddleware) Acknowledge(ctx context.Context, req mdm.AcknowledgeEvent) ([]byte, error) {
+	// only validate device enrollments, user enrollments should be separate.
+	if req.Response.EnrollmentID != nil {
+		return mw.next.Acknowledge(ctx, req)
+	}
+
 	devcert, err := mdm.DeviceCertificateFromContext(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "error retrieving device certificate")
@@ -79,6 +84,10 @@ func (mw *udidCertAuthMiddleware) Acknowledge(ctx context.Context, req mdm.Ackno
 }
 
 func (mw *udidCertAuthMiddleware) Checkin(ctx context.Context, req mdm.CheckinEvent) error {
+	// only validate device enrollments, user enrollments should be separate.
+	if req.Command.EnrollmentID != "" {
+		return mw.next.Checkin(ctx, req)
+	}
 	devcert, err := mdm.DeviceCertificateFromContext(ctx)
 	if err != nil {
 		return errors.Wrap(err, "error retrieving device certificate")
