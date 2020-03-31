@@ -311,7 +311,9 @@ func serve(args []string) error {
 			challenge.RegisterHTTPHandlers(r, challengeEndpoints, options...)
 		}
 
-		r.HandleFunc("/boltbackup", httputil2.RequireBasicAuth(boltBackup(sm.DB), "micromdm", *flAPIKey, "micromdm"))
+		if sm.DB != nil {
+			r.HandleFunc("/boltbackup", httputil2.RequireBasicAuth(boltBackup(sm.DB), "micromdm", *flAPIKey, "micromdm"))
+		}
 	} else {
 		mainLogger.Log("msg", "no api key specified")
 	}
