@@ -63,8 +63,8 @@ github.com/mattn/go-runewidth v0.0.3 h1:a+kO+98RDGEfo6asOGMmpodZq4FNtnGP54yps8Bz
 github.com/mattn/go-runewidth v0.0.3/go.mod h1:LwmH8dsx7+W8Uxz3IHJYH5QSwggIsqBzpuz5H//U1FU=
 github.com/mattn/go-sqlite3 v1.9.0 h1:pDRiWfl+++eC2FEFRy6jXmQlvp4Yh3z1MJKg4UeYM/4=
 github.com/mattn/go-sqlite3 v1.9.0/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
-github.com/micromdm/go4 v0.0.0-20171021081444-deded5397014 h1:8Za9WLoGTSU96EAWFziRCiFmQuBAC6xj9/dKiN45LHw=
-github.com/micromdm/go4 v0.0.0-20171021081444-deded5397014/go.mod h1:8EzTEgA3q2ZdZotWXs1bWnFCXuaFHU0+jDNZbHlwduM=
+github.com/micromdm/go4 v0.0.0-20190530145745-54e7af012bbc h1:lpsBe6vFai/EZTbqK48gnuTjqzjHBcovCughxrNQO4k=
+github.com/micromdm/go4 v0.0.0-20190530145745-54e7af012bbc/go.mod h1:8EzTEgA3q2ZdZotWXs1bWnFCXuaFHU0+jDNZbHlwduM=
 github.com/micromdm/scep v1.0.1-0.20181014170139-9be65e185499 h1:tAPbBGVDrfo7Tv4rvmzVQPfbQTrR/XSLbl4JuGfJbPI=
 github.com/micromdm/scep v1.0.1-0.20181014170139-9be65e185499/go.mod h1:a4hGfYA9e51888COzEduLGsstH9NPxJPndn/Ke5/Tw8=
 github.com/olekukonko/tablewriter v0.0.1 h1:b3iUnf1v+ppJiOfNX4yxxqfWKMQPZR5yoh8urCTFX88=
