@@ -55,7 +55,7 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*queue.Com
 		udid = *resp.EnrollmentID
 	}
 
-	dc, err := db.DeviceCommand(udid)
+	dc, err := db.DeviceCommand(ctx, udid)
 	if err != nil {
 		if isNotFound(err) {
 			return nil, nil
