@@ -76,6 +76,7 @@ type Server struct {
 	RemoveDB          block.Store
 	CommandWebhookURL string
 	DEPClient         *dep.Client
+	NoCmdHistory       bool
 	
 	SyncBuiltin       *syncbuiltin.DB
 	SyncMysqlDB       *syncmysql.Mysql
@@ -221,14 +222,24 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 
 	// If Mysql is set up, use Mysql, else use Bolt as Fallback
 	if c.MysqlDB != nil {
-		q, err = queueMysql.NewQueue(c.MysqlDB, c.PubClient, queueMysql.WithLogger(logger))
+		opts := []queueMysql.Option{queueMysql.WithLogger(logger)}
+		if c.NoCmdHistory {
+			opts = append(opts, queueMysql.WithoutHistory())
+		}
+
+		q, err = queueMysql.NewQueue(c.MysqlDB, c.PubClient, opts...)
 		if err != nil {
 			return err
 		}
 
 		devDB, err = devicemysql.NewDB(c.MysqlDB)
 	} else {
-		q, err = queueBuiltin.NewQueue(c.DB, c.PubClient, queueBuiltin.WithLogger(logger))
+		opts := []queueBuiltin.Option{queueBuiltin.WithLogger(logger)}
+		if c.NoCmdHistory {
+			opts = append(opts, queueBuiltin.WithoutHistory())
+		}
+		
+		q, err = queueBuiltin.NewQueue(c.DB, c.PubClient, opts...)
 		if err != nil {
 			return err
 		}
