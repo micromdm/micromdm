@@ -66,9 +66,14 @@ func (w *Worker) updatePushInfoFromTokenUpdate(ctx context.Context, message []by
 		PushMagic: ev.Command.PushMagic,
 		MDMTopic:  ev.Command.Topic,
 	}
+	// UDID is the primary key for storing the APNS values.
+	// For MDM managed users, use the UserID instead,
+	// and for BYOD User Enrollment, use the EnrollmentID.
 	if ev.Command.UserID != "" {
-		// use the GUID if this is a user TokenUpdate.
 		info.UDID = ev.Command.UserID
+	}
+	if ev.Command.EnrollmentID != "" {
+		info.UDID = ev.Command.EnrollmentID
 	}
 	err := w.db.Save(ctx, &info)
 	return errors.Wrapf(err, "saving pushinfo for udid=%s", info.UDID)
