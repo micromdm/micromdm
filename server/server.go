@@ -58,6 +58,7 @@ import (
 )
 
 type Server struct {
+<<<<<<< HEAD
 	ConfigPath        string
 	Depsim            string
 	PubClient         pubsub.PublishSubscriber
@@ -86,6 +87,23 @@ type Server struct {
 	MysqlDatabase     string
 	MysqlHost 	      string
 	MysqlPort 	      string
+=======
+	ConfigPath         string
+	Depsim             string
+	PubClient          pubsub.PublishSubscriber
+	DB                 *bolt.DB
+	ServerPublicURL    string
+	SCEPChallenge      string
+	SCEPClientValidity int
+	TLSCertPath        string
+	SCEPDepot          *boltdepot.Depot
+	ProfileDB          profile.Store
+	ConfigDB           config.Store
+	RemoveDB           block.Store
+	CommandWebhookURL  string
+	DEPClient          *dep.Client
+	SyncDB             *syncbuiltin.DB
+>>>>>>> 8e0d722d61cfd50b631f15912488f9ac2de3117e
 
 	APNSPushService apns.Service
 	CommandService  command.Service

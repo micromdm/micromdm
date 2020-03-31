@@ -27,7 +27,8 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 		"DeviceConfigured",
 		"AvailableOSUpdates",
 		"NSExtensionMappings",
-		"OSUpdateStatus":
+		"OSUpdateStatus",
+		"ActivationLockBypassCode":
 
 	case "InstallProfile":
 		cmd.InstallProfile = &InstallProfile{
