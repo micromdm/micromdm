@@ -10,6 +10,9 @@ endif
 
 export GO111MODULE=on
 
+#Specify a minimum version for macos otherwise notarization will fail
+CGO_LDFLAGS=-mmacosx-version-min=10.12 
+
 VERSION = $(shell git describe --tags --always --dirty)
 BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 REVISION = $(shell git rev-parse HEAD)
@@ -17,7 +20,7 @@ REVSHORT = $(shell git rev-parse --short HEAD)
 USER = $(shell whoami)
 GOVERSION = $(shell go version | awk '{print $$3}')
 NOW	= $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
-SHELL = /bin/bash
+SHELL = /bin/sh
 
 ifndef ($(DOCKER_IMAGE_NAME))
 	DOCKER_IMAGE_NAME = micromdm/micromdm
@@ -27,7 +30,7 @@ DOCKER_IMAGE_TAG = $(shell echo ${VERSION} | sed 's/^v//')
 ifneq ($(OS), Windows_NT)
 	CURRENT_PLATFORM = linux
 	ifeq ($(shell uname), Darwin)
-		SHELL := /bin/bash
+		SHELL := /bin/sh
 		CURRENT_PLATFORM = darwin
 	endif
 else
@@ -36,10 +39,6 @@ endif
 
 ifeq ($(PG_HOST),)
 PG_HOST := localhost
-endif
-
-ifeq ($(MYSQL_HOST),)
-MYSQL_HOST := 127.0.0.1
 endif
 
 BUILD_VERSION = "\
@@ -52,7 +51,7 @@ BUILD_VERSION = "\
 	-X github.com/micromdm/go4/version.goVersion=${GOVERSION} \
 	-X github.com/micromdm/micromdm/dep.version=${VERSION}"
 
-gomodcheck: 
+gomodcheck:
 	@go help mod > /dev/null || (@echo micromdm requires Go version 1.11 or higher && exit 1)
 
 deps: gomodcheck
@@ -119,11 +118,14 @@ ngrok:
 docker-compose:
 	docker-compose -f docker-compose-dev.yaml up -d
 
-
-
-
-
-# PostgreSQL
+######################
+# Preparing Postgres
+# > psql -h localhost     
+# > CREATE ROLE micromdm superuser;
+# > GRANT ROOT TO micromdm;
+# > ALTER ROLE micromdm WITH LOGIN;
+# > exit;
+######################
 db-psql-test:
 	$(call psql_db,micromdm_test)
 
