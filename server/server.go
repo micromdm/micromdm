@@ -111,11 +111,9 @@ func (c *Server) Setup(logger log.Logger) error {
 		return err
 	}
 
-/*
 	if err := c.setupMysql(); err != nil {
 		return err
 	}
-*/
 
 	if err := c.setupRemoveService(); err != nil {
 		return err
@@ -304,7 +302,11 @@ func (c *Server) setupMysql() error {
 		return errors.Wrap(err, "opening mysql")
 	}
 	c.MysqlDB = db
-
+	
+	// Set the number of open and idle connection to a maximum total of 2.
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(1)
+	
 	return nil
 }
 
