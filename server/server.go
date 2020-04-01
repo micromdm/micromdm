@@ -1,7 +1,8 @@
 package server
 
 import (
-	"fmt"
+    "fmt"
+    "reflect"
 	
 	"context"
 	"crypto/x509"
@@ -336,35 +337,48 @@ func (c *Server) setupConfigStore() error {
 }
 
 func (c *Server) setupPushService(logger log.Logger) error {
-
 	var service apns.Service
-	var err error
-	var workerStore apns.WorkerStore
 
+	// Code duplication is needed unfortunately...
+	// workerStore may be of different types. (Mysql vs. Bolt)
 	// If Mysql is set up, use Mysql, else use Bolt as Fallback
 	if c.MysqlDB != nil {
 		workerStore, err := apnsmysql.NewDB(c.MysqlDB, c.PubClient)
 		if err != nil {
 			return err
 		}
-		service, err = apns.New(workerStore, c.ConfigDB, c.PubClient)
+	
+		service, err := apns.New(workerStore, c.ConfigDB, c.PubClient)
+
+		if err != nil {
+			return errors.Wrap(err, "starting micromdm push service")
+		}
+		c.APNSPushService = apns.LoggingMiddleware(
+			log.With(level.Info(logger), "component", "apns"),
+		)(service)
+		
+		fmt.Println(reflect.TypeOf(workerStore))
+
+		pushinfoWorker := apns.NewWorker(workerStore, c.PubClient, logger)
+		go pushinfoWorker.Run(context.Background())
+		
 	} else {
 		workerStore, err := apnsbuiltin.NewDB(c.DB, c.PubClient)
 		if err != nil {
 			return err
 		}
 		service, err = apns.New(workerStore, c.ConfigDB, c.PubClient)
-	}
 
-	if err != nil {
-		return errors.Wrap(err, "starting micromdm push service")
-	}
-	c.APNSPushService = apns.LoggingMiddleware(
-		log.With(level.Info(logger), "component", "apns"),
-	)(service)
+		if err != nil {
+			return errors.Wrap(err, "starting micromdm push service")
+		}
+		c.APNSPushService = apns.LoggingMiddleware(
+			log.With(level.Info(logger), "component", "apns"),
+		)(service)
 
-	pushinfoWorker := apns.NewWorker(workerStore, c.PubClient, logger)
-	go pushinfoWorker.Run(context.Background())
+		pushinfoWorker := apns.NewWorker(workerStore, c.PubClient, logger)
+		go pushinfoWorker.Run(context.Background())
+	}
 
 	return nil
 }
