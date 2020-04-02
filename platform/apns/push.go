@@ -3,7 +3,9 @@ package apns
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
@@ -16,7 +18,33 @@ import (
 	"github.com/micromdm/micromdm/pkg/httputil"
 )
 
-func (svc *PushService) Push(ctx context.Context, deviceUDID string) (string, error) {
+type pushOpts struct {
+	expiration time.Time
+}
+
+// WithExpiration sets the expiration of the APNS message.
+// Apple will retry delivery until this time. The default behavior only tries once.
+func WithExpiration(t time.Time) PushOption {
+	return func(opt *pushOpts) {
+		opt.expiration = t
+	}
+}
+
+// PushOption adds optional parameters to the Push method.
+type PushOption func(*pushOpts)
+
+func (svc *PushService) Push(ctx context.Context, deviceUDID string, opts ...PushOption) (string, error) {
+	// loop through defaults and apply user provided overrides
+	var opt pushOpts
+	for _, optFn := range opts {
+		optFn(&opt)
+	}
+
+	headers := &push.Headers{}
+	if !opt.expiration.IsZero() {
+		headers.Expiration = opt.expiration
+	}
+
 	info, err := svc.store.PushInfo(ctx, deviceUDID)
 	if err != nil {
 		return "", errors.Wrap(err, "retrieving PushInfo by UDID")
@@ -31,7 +59,8 @@ func (svc *PushService) Push(ctx context.Context, deviceUDID string) (string, er
 	if err != nil {
 		return "", errors.Wrap(err, "marshalling push notification payload")
 	}
-	result, err := svc.pushsvc.Push(info.Token, nil, jsonPayload)
+
+	result, err := svc.pushsvc.Push(info.Token, headers, jsonPayload)
 	if err != nil && strings.HasSuffix(err.Error(), "remote error: tls: internal error") {
 		// TODO: yuck, error substring searching. see:
 		// https://github.com/micromdm/micromdm/issues/150
@@ -41,7 +70,8 @@ func (svc *PushService) Push(ctx context.Context, deviceUDID string) (string, er
 }
 
 type pushRequest struct {
-	UDID string
+	UDID     string
+	expireAt time.Time
 }
 
 type pushResponse struct {
@@ -58,9 +88,29 @@ func decodePushRequest(ctx context.Context, r *http.Request) (interface{}, error
 	if !ok {
 		return 0, errors.New("apns: bad route")
 	}
+
+	v := r.URL.Query()
+	exp, err := expiration(v.Get("expiration"))
+	if err != nil {
+		return nil, err
+	}
+
 	return pushRequest{
-		UDID: udid,
+		UDID:     udid,
+		expireAt: exp,
 	}, nil
+}
+
+func expiration(s string) (time.Time, error) {
+	if s == "" {
+		return time.Time{}, nil
+	}
+
+	i, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("parsing expiration time: %s", err)
+	}
+	return time.Unix(i, 0).UTC(), nil
 }
 
 func decodePushResponse(_ context.Context, r *http.Response) (interface{}, error) {
@@ -72,7 +122,12 @@ func decodePushResponse(_ context.Context, r *http.Response) (interface{}, error
 func MakePushEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(pushRequest)
-		id, err := svc.Push(ctx, req.UDID)
+		var opts []PushOption
+		if !req.expireAt.IsZero() {
+			opts = append(opts, WithExpiration(req.expireAt))
+		}
+
+		id, err := svc.Push(ctx, req.UDID, opts...)
 		if err != nil {
 			return pushResponse{Err: err, Status: "failure"}, nil
 		}
@@ -80,7 +135,7 @@ func MakePushEndpoint(svc Service) endpoint.Endpoint {
 	}
 }
 
-func (mw loggingMiddleware) Push(ctx context.Context, udid string) (id string, err error) {
+func (mw loggingMiddleware) Push(ctx context.Context, udid string, opts ...PushOption) (id string, err error) {
 	defer func(begin time.Time) {
 		_ = mw.logger.Log(
 			"method", "Push",
@@ -90,6 +145,6 @@ func (mw loggingMiddleware) Push(ctx context.Context, udid string) (id string, e
 		)
 	}(time.Now())
 
-	id, err = mw.next.Push(ctx, udid)
+	id, err = mw.next.Push(ctx, udid, opts...)
 	return
 }
