@@ -1,0 +1,24 @@
+#!/bin/bash
+# populate and lock the account info for the setup assistant.
+# Example:
+#          ./tools/api/commands/account_configuration_populate_user $udid "Full Name" "username"
+#
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+jq -n \
+  --arg request_type "AccountConfiguration" \
+  --arg udid "$1" \
+  --arg fullname "$2" \
+  --arg username "$3" \
+  '.udid = $udid
+  |.skip_primary_setup_account_creation = false
+  |.set_primary_setup_account_as_regular_user = false
+  |.set_primary_setup_account_as_regular_user = false
+  |.dont_auto_populate_primary_account_info = false
+  |.lock_primary_account_info = true
+  |.primary_account_full_name = $fullname
+  |.primary_account_user_name = $username
+  |.request_type = $request_type
+  '|\
+   curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
+

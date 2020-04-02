@@ -34,13 +34,16 @@ import (
 	appsbuiltin "github.com/micromdm/micromdm/platform/appstore/builtin"
 	"github.com/micromdm/micromdm/platform/blueprint"
 	blueprintbuiltin "github.com/micromdm/micromdm/platform/blueprint/builtin"
+	"github.com/micromdm/micromdm/platform/challenge"
 	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/config"
 	depapi "github.com/micromdm/micromdm/platform/dep"
 	"github.com/micromdm/micromdm/platform/dep/sync"
+	
 	"github.com/micromdm/micromdm/platform/device"
-	//devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
+	devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
 	devicemysql "github.com/micromdm/micromdm/platform/device/mysql"
+	
 	"github.com/micromdm/micromdm/platform/profile"
 	block "github.com/micromdm/micromdm/platform/remove"
 	"github.com/micromdm/micromdm/platform/user"
@@ -70,33 +73,6 @@ const homePage = `<!doctype html>
 func serve(args []string) error {
 	flagset := flag.NewFlagSet("serve", flag.ExitOnError)
 	var (
-//<<<<<<< HEAD
-//		flConfigPath        = flagset.String("config-path", "/var/db/micromdm", "path to configuration directory")
-//		flServerURL         = flagset.String("server-url", "", "public HTTPS url of your server")
-//		flAPIKey            = flagset.String("api-key", env.String("MICROMDM_API_KEY", ""), "API Token for mdmctl command")
-//		flTLS               = flagset.Bool("tls", true, "use https")
-//		flTLSCert           = flagset.String("tls-cert", "", "path to TLS certificate")
-//		flTLSKey            = flagset.String("tls-key", "", "path to TLS private key")
-//		flHTTPAddr          = flagset.String("http-addr", ":https", "http(s) listen address of mdm server. defaults to :8080 if tls is false")
-//		flHTTPDebug         = flagset.Bool("http-debug", false, "enable debug for http(dumps full request)")
-//		flRepoPath          = flagset.String("filerepo", "", "path to http file repo")
-//		flDepSim            = flagset.String("depsim", "", "use depsim URL")
-//		flExamples          = flagset.Bool("examples", false, "prints some example usage")
-//		flCommandWebhookURL = flagset.String("command-webhook-url", "", "URL to send command responses.")
-		
-		flCommandWebhookAuthUser = flagset.String("command-webhook-auth-user", "", "Basic auth user for webhook to send command responses.")
-		flCommandWebhookAuthPass = flagset.String("command-webhook-auth-pass", "", "Basic auth password for webhook to send command responses.")
-		
-//		flHomePage          = flagset.Bool("homepage", true, "hosts a simple built-in webpage at the / address")
-//		flSCEPClientValidity = flagset.Int("scep-client-validity", 365, "sets the scep certificate validity in days")
-		
-		flImmutable		 	= flagset.Bool("immutable", true, "If flag is set, it is considered the bolt db is immutable.")
-		flMysqlUsername 	= flagset.String("mysql-username", "", "Username to login to Mysql")
-		flMysqlPassword 	= flagset.String("mysql-password", env.String("MICROMDM_MYSQL_PASSWORD", ""), "Password to login to Mysql")
-		flMysqlDatabase 	= flagset.String("mysql-database", "", "Name of the Mysql Database")
-		flMysqlHost 		= flagset.String("mysql-host", "", "IP or URL to the Mysql Host")
-		flMysqlPort 		= flagset.String("mysql-port", "", "Port to use for Mysql connection")
-//=======
 		flConfigPath         = flagset.String("config-path", env.String("MICROMDM_CONFIG_PATH", "/var/db/micromdm"), "Path to configuration directory")
 		flServerURL          = flagset.String("server-url", env.String("MICROMDM_SERVER_URL", ""), "Public HTTPS url of your server")
 		flAPIKey             = flagset.String("api-key", env.String("MICROMDM_API_KEY", ""), "API Token for mdmctl command")
@@ -109,10 +85,20 @@ func serve(args []string) error {
 		flDepSim             = flagset.String("depsim", env.String("MICROMDM_DEPSIM_URL", ""), "Use depsim URL")
 		flExamples           = flagset.Bool("examples", false, "Prints some example usage")
 		flCommandWebhookURL  = flagset.String("command-webhook-url", env.String("MICROMDM_WEBHOOK_URL", ""), "URL to send command responses")
+		flCommandWebhookAuthUser = flagset.String("command-webhook-auth-user", "", "Basic auth user for webhook to send command responses.")
+		flCommandWebhookAuthPass = flagset.String("command-webhook-auth-pass", "", "Basic auth password for webhook to send command responses.")
 		flHomePage           = flagset.Bool("homepage", env.Bool("MICROMDM_HTTP_HOMEPAGE", true), "Hosts a simple built-in webpage at the / address")
 		flSCEPClientValidity = flagset.Int("scep-client-validity", env.Int("MICROMDM_SCEP_CLIENT_VALIDITY", 365), "Sets the scep certificate validity in days")
+		flNoCmdHistory       = flagset.Bool("no-command-history", env.Bool("MICROMDM_NO_COMMAND_HISTORY", false), "disables saving of command history")
+		flUseDynChallenge    = flagset.Bool("use-dynamic-challenge", env.Bool("MICROMDM_USE_DYNAMIC_CHALLENGE", false), "require dynamic SCEP challenges")
+		flGenDynChalEnroll   = flagset.Bool("gen-dynamic-challenge", env.Bool("MICROMDM_GEN_DYNAMIC_CHALLENGE", false), "generate dynamic SCEP challenges in enrollment profile (built-in only)")
 		flPrintArgs          = flagset.Bool("print-flags", false, "Print all flags and their values")
-//>>>>>>> micromdm/master
+
+		flMysqlUsername 	= flagset.String("mysql-username", "", "Username to login to Mysql")
+		flMysqlPassword 	= flagset.String("mysql-password", "", "Password to login to Mysql")
+		flMysqlDatabase 	= flagset.String("mysql-database", "", "Name of the Mysql Database")
+		flMysqlHost 		= flagset.String("mysql-host", "", "IP or URL to the Mysql Host")
+		flMysqlPort 		= flagset.String("mysql-port", "", "Port to use for Mysql connection")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -149,30 +135,33 @@ func serve(args []string) error {
 		return errors.Wrapf(err, "creating config directory %s", *flConfigPath)
 	}
 	sm := &server.Server{
-		ConfigPath:        *flConfigPath,
-		ServerPublicURL:   strings.TrimRight(*flServerURL, "/"),
-		Depsim:            *flDepSim,
-		TLSCertPath:       *flTLSCert,
-		
-		CommandWebhookURL: 		*flCommandWebhookURL,
+		ConfigPath:          *flConfigPath,
+		ServerPublicURL:     strings.TrimRight(*flServerURL, "/"),
+		Depsim:              *flDepSim,
+		TLSCertPath:         *flTLSCert,
+		CommandWebhookURL:   *flCommandWebhookURL,
 		CommandWebhookAuthUser: *flCommandWebhookAuthUser,
 		CommandWebhookAuthPass: *flCommandWebhookAuthPass,
+		NoCmdHistory:        *flNoCmdHistory,
+		UseDynSCEPChallenge: *flUseDynChallenge,
+		GenDynSCEPChallenge: *flGenDynChalEnroll,
 
 		WebhooksHTTPClient: &http.Client{Timeout: time.Second * 30},
 
-		// TODO: we have a static SCEP challenge password here to prevent
-		// being prompted for the SCEP challenge which happens in a "normal"
-		// (non-DEP) enrollment. While security is not improved it is at least
-		// no less secure and prevents a useless dialog from showing.
-		SCEPChallenge: "micromdm",
 		SCEPClientValidity: *flSCEPClientValidity,
 		
-		DataStoreImmutable: *flImmutable,
 		MysqlUsername: *flMysqlUsername,
 		MysqlPassword: *flMysqlPassword,
 		MysqlDatabase: *flMysqlDatabase,
 		MysqlHost:	   *flMysqlHost,
 		MysqlPort:	   *flMysqlPort,
+	}
+	if !sm.UseDynSCEPChallenge {
+		// TODO: we have a static SCEP challenge password here to prevent
+		// being prompted for the SCEP challenge which happens in a "normal"
+		// (non-DEP) enrollment. While security is not improved it is at least
+		// no less secure and prevents a useless dialog from showing.
+		sm.SCEPChallenge = "micromdm"
 	}
 
 	if err := sm.Setup(logger); err != nil {
@@ -197,11 +186,26 @@ func serve(args []string) error {
 	//	stdlog.Fatal(err)
 	//}
 	
-	devMysqlDB, err := devicemysql.NewDB(sm.MysqlDB)
-
-	//devWorker := device.NewWorker(devDB, sm.PubClient, logger)
-	devWorker := device.NewWorker(devMysqlDB, sm.PubClient, logger)
-	go devWorker.Run(context.Background())
+	var devDB device.Store
+	if sm.MysqlDB != nil {
+		db, err := devicemysql.NewDB(sm.MysqlDB)
+		if err != nil {
+			stdlog.Fatal(err)
+		}
+		devWorker := device.NewWorker(db, sm.PubClient, logger)
+		go devWorker.Run(context.Background())
+		devDB = db
+	} else {
+		db, err := devicebuiltin.NewDB(sm.DB)
+		if err != nil {
+			stdlog.Fatal(err)
+		}
+		devWorker := device.NewWorker(db, sm.PubClient, logger)
+		go devWorker.Run(context.Background())
+		devDB = db
+	}
+	
+	
 
 	userDB, err := userbuiltin.NewDB(sm.DB)
 	if err != nil {
@@ -237,8 +241,13 @@ func serve(args []string) error {
 	scepEndpoints.PostEndpoint = scep.EndpointLoggingMiddleware(scepComponentLogger)(scepEndpoints.PostEndpoint)
 	scepHandler := scep.MakeHTTPHandler(scepEndpoints, sm.SCEPService, scepComponentLogger)
 
-	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPDepot), httptransport.ServerErrorLogger(httpLogger))
-
+	var enrollHandlers enroll.HTTPHandlers
+	if sm.SCEPMysqlDB != nil {
+		enrollHandlers = enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPMysqlDB), httptransport.ServerErrorLogger(httpLogger))	
+	} else {
+		enrollHandlers = enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPBuiltin), httptransport.ServerErrorLogger(httpLogger))	
+	}	
+	
 	r, options := httputil2.NewRouter(logger)
 
 	r.Handle("/version", version.Handler())
@@ -266,8 +275,7 @@ func serve(args []string) error {
 		apnsEndpoints := apns.MakeServerEndpoints(sm.APNSPushService, basicAuthEndpointMiddleware)
 		apns.RegisterHTTPHandlers(r, apnsEndpoints, options...)
 
-		//devicesvc := device.New(devDB)
-		devicesvc := device.New(devMysqlDB)
+		devicesvc := device.New(devDB)
 		deviceEndpoints := device.MakeServerEndpoints(devicesvc, basicAuthEndpointMiddleware)
 		device.RegisterHTTPHandlers(r, deviceEndpoints, options...)
 
@@ -302,7 +310,14 @@ func serve(args []string) error {
 		depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncMysqlDB), basicAuthEndpointMiddleware)
 		sync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
 
-		//r.HandleFunc("/boltbackup", httputil2.RequireBasicAuth(boltBackup(sm.DB), "micromdm", *flAPIKey, "micromdm"))
+		if sm.SCEPChallengeDepot != nil {
+			challengeEndpoints := challenge.MakeServerEndpoints(challenge.NewService(sm.SCEPChallengeDepot), basicAuthEndpointMiddleware)
+			challenge.RegisterHTTPHandlers(r, challengeEndpoints, options...)
+		}
+
+		if sm.DB != nil {
+			r.HandleFunc("/boltbackup", httputil2.RequireBasicAuth(boltBackup(sm.DB), "micromdm", *flAPIKey, "micromdm"))
+		}
 	} else {
 		mainLogger.Log("msg", "no api key specified")
 	}
