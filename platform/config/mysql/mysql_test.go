@@ -73,13 +73,10 @@ func Test_GetNewDEPToken(t *testing.T) {
 	db,err := setup(t)
 	ctx := context.Background()
 
-	key, cert, err := db.DEPKeypair(ctx)
+	_, cert, err := db.DEPKeypair(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
-	
-	fmt.Println(key)
-	fmt.Println(cert)
 	
 	var certBytes []byte
 	if cert != nil {
@@ -172,84 +169,6 @@ func Test_ApplyDEPToken(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Println("stored DEP token with ck", depToken.ConsumerKey)
-
-
-	
-	return
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	conficsvc := config.New(db)
-	err = conficsvc.ApplyDEPToken(ctx, p7mBytes)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Println("imported DEP token")
-
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	depToken = config.DEPToken {
-		ConsumerKey: "ConsumerKey",
-		ConsumerSecret: `MIIDGDCCAgCgAwIBAgIQRn8smoofniLkRwsLyfJpbjANBgkqhkiG9w0BAQsFADAd
-MRswGQYDVQQDExJtaWNyb21kbS1kZXAtdG9rZW4wHhcNMTgxMjA5MTYzNDIxWhcN
-MTkxMjA5MTYzNDIxWjAdMRswGQYDVQQDExJtaWNyb21kbS1kZXAtdG9rZW4wggEi
-MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC8L/YTA+9dX4/tgIaoYS/YLVOE
-so7eu37j4s66BAmcTBkFt+rv9KQlv1vVQaw0ERxjj5zEBGY04QC0tdUtW0kZrXa4
-a2JEdkHMpiywVSmGTm1mJzwlHd4AY7XNBJTpPqvZvODZImA8BnTdmwXnkmer2qyN
-EOW6KEQGApRuBmtQ3AdaztU6Gf+pghV/zbNtuYRSusRfNXYnYhUc7BLPZtcTXZKw
-tQwFZwpG3+T1eDmYQ0J1OM6TKsRP1SIHOb1QcHaXhTyOOv4KhDq6Oz79/iTE5Cic
-QCuyfBEeOdiBCXOnTea8soVRCq4Zmj0c534fI0EXE+JnnaCmXrj/FFM50WSjAgMB
-AAGjVDBSMA4GA1UdDwEB/wQEAwIFoDATBgNVHSUEDDAKBggrBgEFBQcDATAMBgNV
-HRMBAf8EAjAAMB0GA1UdEQQWMBSCEm1pY3JvbWRtLWRlcC10b2tlbjANBgkqhkiG
-9w0BAQsFAAOCAQEAQ6YS+vhi8gMrY76DreO9AK1RTtJhNgMsdNJZ3fCQnTpRZvRB
-Z6Zz3esGhi8Ub5OKSv1JTzYo+e5HV5LLcusKM0pZ8D8C11rPDzVPOvWnsju4XSb3
-CzsdIRHTApHXkG3e3T8IIYQpVbl8qA7C10FqCwLpVpa/E6OARn1e1uT4SBSdmhbo
-eHw88JUunPVCkjZN4quJOBPvbL1zHJMzhGgVgFeU1a1K1G3n0sCuLJyXdmD/tsN1
-psmyEw3tODSRvahnUO+iLGwGO0QVfawQ9DPqoZdPoavlx/+LI1ybZZW+OII73oEX
-c5Zw88Uz8v0IhFORYuCQEJp5jZtGbsr9HX5Qmg==`,
-	}
-	tokenJSON = []byte(depToken.ConsumerSecret)
-	err = json.Unmarshal(tokenJSON, &depToken)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = db.AddToken(ctx, depToken.ConsumerKey, tokenJSON)
-	if err != nil {
-		t.Fatal(err)
-	}
-
 }
 
 func Test_DEPToken(t *testing.T) {
@@ -267,8 +186,6 @@ func Test_DEPToken(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	
-	fmt.Println(tokens)
 	
 	if len(tokens) >= 1 {
 		hasTokenConfig = true

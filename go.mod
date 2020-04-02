@@ -9,8 +9,8 @@ require (
 	github.com/go-kit/kit v0.7.0
 	github.com/go-sql-driver/mysql v1.4.0
 	github.com/go-stack/stack v1.7.0 // indirect
-	github.com/gogo/protobuf v1.0.0
-	github.com/golang/protobuf v1.2.0
+	github.com/gogo/protobuf v1.3.1
+	github.com/golang/protobuf v1.3.2
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v1.6.2
 	github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda

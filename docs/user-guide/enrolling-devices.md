@@ -41,7 +41,7 @@ curl -o enroll.mobileconfig https://mdm.acme.co/mdm/enroll
 ```
 
 Next, use a text editor to modify the payload. 
-You can also [sign](https://github.com/micromdm/micromdm/wiki/Sign-the-enrollment-profile-with-Hancock) the profile. 
+You can also [sign](./mdmctl-signing-profiles.md) the profile. 
 
 Once modified and signed, you can replace the default. 
 
