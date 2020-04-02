@@ -36,7 +36,7 @@ func NewDB(db *sqlx.DB) (*Mysql, error) {
 		    mobileconfig BLOB DEFAULT NULL
 		);`)
 	if err != nil {
-	   return nil, errors.Wrap(err, "creating devices sql table failed")
+	   return nil, errors.Wrap(err, "creating profile sql table failed")
 	}
 	
 	return &Mysql{db: db}, nil
