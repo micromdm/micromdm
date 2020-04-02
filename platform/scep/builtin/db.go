@@ -1,4 +1,4 @@
-package bolt
+package builtin
 
 import (
 	"bytes"
@@ -17,19 +17,17 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-// Depot implements a SCEP certifiacte store using boltdb.
+// Depot implements a SCEP certifiacte store using boltdb.db.
 // https://github.com/boltdb/bolt
 type Depot struct {
-	*bolt.DB
+	db *bolt.DB
 }
 
 const (
 	certBucket = "scep_certificates"
 )
 
-// NewBoltDepot creates a depot.Depot backed by BoltDB.
-func NewBoltDepot(db *bolt.DB) (*Depot, error) {
-	fmt.Println("--- NEW Bolt Depot for SCEP")
+func NewDB(db *bolt.DB) (*Depot, error) {
 	err := db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(certBucket))
 		if err != nil {
@@ -46,7 +44,7 @@ func NewBoltDepot(db *bolt.DB) (*Depot, error) {
 func (db *Depot) CA(pass []byte) ([]*x509.Certificate, *rsa.PrivateKey, error) {
 	chain := []*x509.Certificate{}
 	var key *rsa.PrivateKey
-	err := db.View(func(tx *bolt.Tx) error {
+	err := db.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(certBucket))
 		if bucket == nil {
 			return fmt.Errorf("bucket %q not found!", certBucket)
@@ -92,15 +90,12 @@ func (db *Depot) Put(cn string, crt *x509.Certificate) error {
 		return err
 	}
 
-	err = db.Update(func(tx *bolt.Tx) error {
+	err = db.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(certBucket))
 		if bucket == nil {
 			return fmt.Errorf("bucket %q not found!", certBucket)
 		}
 		name := cn + "." + serial.String()
-		fmt.Println("--- scep/builtin/db.go Put")
-		fmt.Println(name)
-		fmt.Println(crt.Raw)
 		return bucket.Put([]byte(name), crt.Raw)
 	})
 	if err != nil {
@@ -110,17 +105,14 @@ func (db *Depot) Put(cn string, crt *x509.Certificate) error {
 }
 
 func (db *Depot) Serial() (*big.Int, error) {
-	fmt.Println("--- scep/builtin/db.go Serial()")
-		
 	s := big.NewInt(2)
 	if !db.hasKey([]byte("serial")) {
 		if err := db.writeSerial(s); err != nil {
 			return nil, err
 		}
-		fmt.Println(s)
 		return s, nil
 	}
-	err := db.View(func(tx *bolt.Tx) error {
+	err := db.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(certBucket))
 		if bucket == nil {
 			return fmt.Errorf("bucket %q not found!", certBucket)
@@ -130,36 +122,28 @@ func (db *Depot) Serial() (*big.Int, error) {
 			return fmt.Errorf("key %q not found", "serial")
 		}
 		s = s.SetBytes(k)
-		fmt.Println(s)
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(s)
 	return s, nil
 }
 
 func (db *Depot) writeSerial(s *big.Int) error {
-	err := db.Update(func(tx *bolt.Tx) error {
+	err := db.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(certBucket))
 		if bucket == nil {
 			return fmt.Errorf("bucket %q not found!", certBucket)
 		}
-		fmt.Println("--- scep/builtin/db.go writeSerial")
-		fmt.Println("serial")
-		fmt.Println(s.Bytes())
 		return bucket.Put([]byte("serial"), []byte(s.Bytes()))
 	})
 	return err
 }
 
 func (db *Depot) hasKey(name []byte) bool {
-	fmt.Println("--- scep/builtin/db.go hasKey")
-	fmt.Println(name)
-	
 	var present bool
-	db.View(func(tx *bolt.Tx) error {
+	db.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(certBucket))
 		if bucket == nil {
 			return fmt.Errorf("bucket %q not found!", certBucket)
@@ -170,44 +154,33 @@ func (db *Depot) hasKey(name []byte) bool {
 		}
 		return nil
 	})
-	fmt.Println(present)
 	return present
 }
 
 func (db *Depot) incrementSerial(s *big.Int) error {
 	serial := s.Add(s, big.NewInt(1))
-	err := db.Update(func(tx *bolt.Tx) error {
+	err := db.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(certBucket))
 		if bucket == nil {
 			return fmt.Errorf("bucket %q not found!", certBucket)
 		}
-		fmt.Println("--- scep/builtin/db.go incrementSerial")
-		fmt.Println("serial")
-		fmt.Println(serial.Bytes())
 		return bucket.Put([]byte("serial"), []byte(serial.Bytes()))
 	})
 	return err
 }
 
 func (db *Depot) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool) (bool, error) {
-	fmt.Println("--- scep/builtin/db.go HasCN")
-	fmt.Println(cn)
-	fmt.Println(cert.Subject.CommonName)
-	
 	// TODO: implement allowTime
 	// TODO: implement revocation
 	if cert == nil {
 		return false, errors.New("nil certificate provided")
 	}
 	var hasCN bool
-	err := db.View(func(tx *bolt.Tx) error {
+	err := db.db.View(func(tx *bolt.Tx) error {
 		// TODO: "scep_certificates" is internal const in micromdm/scep
 		curs := tx.Bucket([]byte("scep_certificates")).Cursor()
 		prefix := []byte(cert.Subject.CommonName)
 		for k, v := curs.Seek(prefix); k != nil && bytes.HasPrefix(k, prefix); k, v = curs.Next() {
-			fmt.Println("Comparing")
-			fmt.Println(v)
-			fmt.Println(cert.Raw)
 			if bytes.Compare(v, cert.Raw) == 0 {
 				hasCN = true
 				return nil
@@ -216,8 +189,6 @@ func (db *Depot) HasCN(cn string, allowTime int, cert *x509.Certificate, revokeO
 
 		return nil
 	})
-	fmt.Println("Has CN?")
-	fmt.Println(hasCN)
 	return hasCN, err
 }
 
@@ -226,7 +197,7 @@ func (db *Depot) CreateOrLoadKey(bits int) (*rsa.PrivateKey, error) {
 		key *rsa.PrivateKey
 		err error
 	)
-	err = db.View(func(tx *bolt.Tx) error {
+	err = db.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(certBucket))
 		if bucket == nil {
 			return fmt.Errorf("bucket %q not found!", certBucket)
@@ -248,14 +219,11 @@ func (db *Depot) CreateOrLoadKey(bits int) (*rsa.PrivateKey, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = db.Update(func(tx *bolt.Tx) error {
+	err = db.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(certBucket))
 		if bucket == nil {
 			return fmt.Errorf("bucket %q not found!", certBucket)
 		}
-		fmt.Println("--- scep/builtin/db.go CreateOrLoadKey")
-		fmt.Println("ca_key")
-		fmt.Println(x509.MarshalPKCS1PrivateKey(key))
 		return bucket.Put([]byte("ca_key"), x509.MarshalPKCS1PrivateKey(key))
 	})
 	if err != nil {
@@ -269,7 +237,7 @@ func (db *Depot) CreateOrLoadCA(key *rsa.PrivateKey, years int, org, country str
 		cert *x509.Certificate
 		err  error
 	)
-	err = db.View(func(tx *bolt.Tx) error {
+	err = db.db.View(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(certBucket))
 		if bucket == nil {
 			return fmt.Errorf("bucket %q not found!", certBucket)
@@ -328,14 +296,11 @@ func (db *Depot) CreateOrLoadCA(key *rsa.PrivateKey, years int, org, country str
 		return nil, err
 	}
 
-	err = db.Update(func(tx *bolt.Tx) error {
+	err = db.db.Update(func(tx *bolt.Tx) error {
 		bucket := tx.Bucket([]byte(certBucket))
 		if bucket == nil {
 			return fmt.Errorf("bucket %q not found!", certBucket)
 		}
-		fmt.Println("--- 	scep/builtin/db.go CreateOrLoadKey")
-		fmt.Println("ca_certificate")
-		fmt.Println(crtBytes)
 		return bucket.Put([]byte("ca_certificate"), crtBytes)
 	})
 	if err != nil {
@@ -353,9 +318,6 @@ type rsaPublicKey struct {
 // GenerateSubjectKeyID generates SubjectKeyId used in Certificate
 // ID is 160-bit SHA-1 hash of the value of the BIT STRING subjectPublicKey
 func generateSubjectKeyID(pub crypto.PublicKey) ([]byte, error) {
-	fmt.Println("--- scep/builtin/db.go generateSubjectKeyID")
-	fmt.Println(pub)
-	
 	var pubBytes []byte
 	var err error
 	switch pub := pub.(type) {

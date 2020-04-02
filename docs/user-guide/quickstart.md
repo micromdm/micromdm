@@ -73,9 +73,13 @@ After this step you will have a new `mdm-certificates` directory, with the neces
 ```
 mdmctl mdmcert vendor -password=secret -country=US -email=admin@acme.co
 ```
-
-Log in to the Apple Developer Portal, and navigate to the MDM CSR request tab. The first screen might ask you to use Keychain Assistant to create a certificate request. Skip it, you created one with `mdmcert` above.  
-Upload the `VendorCertificateRequest.csr` file and then download the certificate. Move the downloaded certificate file(likely called mdm.cer) to the `mdm-certificates` folder. 
+### Generate MDM CSR
+Log in to the Apple Developer Portal (https://developer.apple.com/account), and navigate to the Certificates, IDs & Profiles section (https://developer.apple.com/account/resources/certificates/list).
+  1. Click the plus symbol (+) next to *Certificates*
+  2. Select *MDM CSR* under the *Services* section, click *Continue*
+  3. Upload the `VendorCertificateRequest.csr` file, click *Continue*
+  4. Click *Download* to download the certificate.
+  5. Move the downloaded certificate file (likely called mdm.cer) to the `mdm-certificates` folder. 
 
 You now have the vendor side of the certificate flow complete, and you need to complete the customer side of this flow, with the help of the vendor cert. 
 

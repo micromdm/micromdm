@@ -27,6 +27,17 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 		).Endpoint()
 	}
 
+	var assignProfileEndpoint endpoint.Endpoint
+	{
+		assignProfileEndpoint = httptransport.NewClient(
+			"POST",
+			httputil.CopyURL(u, "/v1/dep/assign"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			decodeAssignProfileResponse,
+			opts...,
+		).Endpoint()
+	}
+
 	var fetchProfileEndpoint endpoint.Endpoint
 	{
 		fetchProfileEndpoint = httptransport.NewClient(
@@ -62,6 +73,7 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 
 	return Endpoints{
 		DefineProfileEndpoint:    defineProfileEndpoint,
+		AssignProfileEndpoint:    assignProfileEndpoint,
 		FetchProfileEndpoint:     fetchProfileEndpoint,
 		GetAccountInfoEndpoint:   getAccountInfoEndpoint,
 		GetDeviceDetailsEndpoint: getDeviceDetailsEndpoint,

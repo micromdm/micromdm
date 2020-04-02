@@ -8,17 +8,28 @@ jobs:
             POSTGRES_DB: micromdm
             POSTGRES_USER: micromdm
             POSTGRES_PASSWORD: micromdm
+        - image: mysql:5.7
+          environment:
+            - MYSQL_DATABASE=micromdm_test
+            - MYSQL_USER=micromdm
+            - MYSQL_ROOT_PASSWORD=micromdm
+            - MYSQL_PASSWORD=micromdm
+            - MYSQL_ROOT_HOST=%
+            - DB_HOST=127.0.0.1
+            - DB_PORT=3306
 
     working_directory: /go/src/github.com/micromdm/micromdm
     steps: &steps
       - checkout
       - run: apt-get update -y && apt-get install postgresql-client -y
+      - run: apt-get update -y && apt-get install default-mysql-client -y
       - run: make deps
       - run: GO111MODULE=on go install github.com/pressly/goose/cmd/goose
       - run: make db-reset-test
       - run: make db-migrate-test
       - run: make test
       - run: make
+
 
 workflows:
   version: 2

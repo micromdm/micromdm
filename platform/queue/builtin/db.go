@@ -1,5 +1,5 @@
 // Package queue implements a boldDB backed queue for MDM Commands.
-package queue
+package builtin
 
 import (
 	"context"
@@ -15,17 +15,13 @@ import (
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/pubsub"
-)
-
-const (
-	DeviceCommandBucket = "mdm.DeviceCommands"
-
-	CommandQueuedTopic = "mdm.CommandQueued"
+	"github.com/micromdm/micromdm/platform/queue"
 )
 
 type Store struct {
 	*bolt.DB
-	logger log.Logger
+	logger         log.Logger
+	withoutHistory bool
 }
 
 type Option func(*Store)
@@ -33,6 +29,12 @@ type Option func(*Store)
 func WithLogger(logger log.Logger) Option {
 	return func(s *Store) {
 		s.logger = logger
+	}
+}
+
+func WithoutHistory() Option {
+	return func(s *Store) {
+		s.withoutHistory = true
 	}
 }
 
@@ -47,7 +49,7 @@ func (db *Store) Next(ctx context.Context, resp mdm.Response) ([]byte, error) {
 	return cmd.Payload, nil
 }
 
-func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*Command, error) {
+func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*queue.Command, error) {
 	// The UDID is the primary key for the queue.
 	// Depending on the enrollment type, replace the UDID with a different ID type.
 	// UserID for managed user channel
@@ -60,7 +62,7 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*Command, 
 		udid = *resp.EnrollmentID
 	}
 
-	dc, err := db.DeviceCommand(udid)
+	dc, err := db.DeviceCommand(ctx, udid)
 	if err != nil {
 		if isNotFound(err) {
 			return nil, nil
@@ -68,7 +70,7 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*Command, 
 		return nil, errors.Wrapf(err, "get device command from queue, udid: %s", resp.UDID)
 	}
 
-	var cmd *Command
+	var cmd *queue.Command
 	switch resp.Status {
 	case "NotNow":
 		// We will try this command later when the device is not
@@ -87,8 +89,11 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*Command, 
 		if x == nil {
 			break
 		}
-		x.Acknowledged = time.Now().UTC()
-		dc.Completed = append(dc.Completed, *x)
+		if !db.withoutHistory {
+			x.Acknowledged = time.Now().UTC()
+			dc.Completed = append(dc.Completed, *x)
+		}
+
 	case "Error":
 		// move to failed, send next
 		x, a := cut(dc.Commands, resp.CommandUUID)
@@ -96,7 +101,9 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*Command, 
 		if x == nil { // must've already bin ackd
 			break
 		}
-		dc.Failed = append(dc.Failed, *x)
+		if !db.withoutHistory {
+			dc.Failed = append(dc.Failed, *x)
+		}
 
 	case "CommandFormatError":
 		// move to failed
@@ -105,7 +112,9 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*Command, 
 		if x == nil {
 			break
 		}
-		dc.Failed = append(dc.Failed, *x)
+		if !db.withoutHistory {
+			dc.Failed = append(dc.Failed, *x)
+		}
 
 	case "Idle":
 
@@ -128,14 +137,14 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*Command, 
 		}
 	}
 
-	if err := db.Save(dc); err != nil {
+	if err := db.Save(ctx, dc); err != nil {
 		return nil, err
 	}
 
 	return cmd, nil
 }
 
-func popFirst(all []Command) (*Command, []Command) {
+func popFirst(all []queue.Command) (*queue.Command, []queue.Command) {
 	if len(all) == 0 {
 		return nil, all
 	}
@@ -144,7 +153,7 @@ func popFirst(all []Command) (*Command, []Command) {
 	return &first, all
 }
 
-func cut(all []Command, uuid string) (*Command, []Command) {
+func cut(all []queue.Command, uuid string) (*queue.Command, []queue.Command) {
 	for i, cmd := range all {
 		if cmd.UUID == uuid {
 			all = append(all[:i], all[i+1:]...)
@@ -156,11 +165,11 @@ func cut(all []Command, uuid string) (*Command, []Command) {
 
 func NewQueue(db *bolt.DB, pubsub pubsub.PublishSubscriber, opts ...Option) (*Store, error) {
 	err := db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte(DeviceCommandBucket))
+		_, err := tx.CreateBucketIfNotExists([]byte(queue.DeviceCommandBucket))
 		return err
 	})
 	if err != nil {
-		return nil, errors.Wrapf(err, "creating %s bucket", DeviceCommandBucket)
+		return nil, errors.Wrapf(err, "creating %s bucket", queue.DeviceCommandBucket)
 	}
 
 	datastore := &Store{DB: db, logger: log.NewNopLogger()}
@@ -168,23 +177,23 @@ func NewQueue(db *bolt.DB, pubsub pubsub.PublishSubscriber, opts ...Option) (*St
 		fn(datastore)
 	}
 
-	if err := datastore.pollCommands(pubsub); err != nil {
+	if err := datastore.pollCommands(context.Background(), pubsub); err != nil {
 		return nil, err
 	}
 
 	return datastore, nil
 }
 
-func (db *Store) Save(cmd *DeviceCommand) error {
+func (db *Store) Save(ctx context.Context, cmd *queue.DeviceCommand) error {
 	tx, err := db.DB.Begin(true)
 	if err != nil {
 		return errors.Wrap(err, "begin transaction")
 	}
-	bkt := tx.Bucket([]byte(DeviceCommandBucket))
+	bkt := tx.Bucket([]byte(queue.DeviceCommandBucket))
 	if bkt == nil {
-		return fmt.Errorf("bucket %q not found!", DeviceCommandBucket)
+		return fmt.Errorf("bucket %q not found!", queue.DeviceCommandBucket)
 	}
-	devproto, err := MarshalDeviceCommand(cmd)
+	devproto, err := queue.MarshalDeviceCommand(cmd)
 	if err != nil {
 		return errors.Wrap(err, "marshalling DeviceCommand")
 	}
@@ -195,15 +204,15 @@ func (db *Store) Save(cmd *DeviceCommand) error {
 	return tx.Commit()
 }
 
-func (db *Store) DeviceCommand(udid string) (*DeviceCommand, error) {
-	var dev DeviceCommand
+func (db *Store) DeviceCommand(ctx context.Context, udid string) (*queue.DeviceCommand, error) {
+	var dev queue.DeviceCommand
 	err := db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte(DeviceCommandBucket))
+		b := tx.Bucket([]byte(queue.DeviceCommandBucket))
 		v := b.Get([]byte(udid))
 		if v == nil {
 			return &notFound{"DeviceCommand", fmt.Sprintf("udid %s", udid)}
 		}
-		return UnmarshalDeviceCommand(v, &dev)
+		return queue.UnmarshalDeviceCommand(v, &dev)
 	})
 	if err != nil {
 		return nil, err
@@ -220,7 +229,7 @@ func (e *notFound) Error() string {
 	return fmt.Sprintf("not found: %s %s", e.ResourceType, e.Message)
 }
 
-func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
+func (db *Store) pollCommands(ctx context.Context, pubsub pubsub.PublishSubscriber) error {
 	commandEvents, err := pubsub.Subscribe(context.TODO(), "command-queue", command.CommandTopic)
 	if err != nil {
 		return errors.Wrapf(err,
@@ -235,16 +244,10 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 					level.Info(db.logger).Log("msg", "unmarshal command event in queue", "err", err)
 					continue
 				}
-				
-				// Newer than 1 day in the past!
-				if ev.Time.Before(time.Now().AddDate(0, 0, -1)) {
-					level.Info(db.logger).Log("msg", "skipped command, because of queue date", "err", ev.Time)
-					continue
-				}
-				
-				cmd := new(DeviceCommand)
+
+				cmd := new(queue.DeviceCommand)
 				cmd.DeviceUDID = ev.DeviceUDID
-				byUDID, err := db.DeviceCommand(ev.DeviceUDID)
+				byUDID, err := db.DeviceCommand(ctx, ev.DeviceUDID)
 				if err == nil && byUDID != nil {
 					cmd = byUDID
 				}
@@ -253,12 +256,12 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 					level.Info(db.logger).Log("msg", "marshal event payload", "err", err)
 					continue
 				}
-				newCmd := Command{
+				newCmd := queue.Command{
 					UUID:    ev.Payload.CommandUUID,
 					Payload: newPayload,
 				}
 				cmd.Commands = append(cmd.Commands, newCmd)
-				if err := db.Save(cmd); err != nil {
+				if err := db.Save(ctx, cmd); err != nil {
 					level.Info(db.logger).Log("msg", "save command in db", "err", err)
 					continue
 				}
@@ -269,17 +272,17 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 					"request_type", ev.Payload.Command.RequestType,
 				)
 
-				cq := new(QueueCommandQueued)
+				cq := new(queue.QueueCommandQueued)
 				cq.DeviceUDID = ev.DeviceUDID
 				cq.CommandUUID = ev.Payload.CommandUUID
 
-				msgBytes, err := MarshalQueuedCommand(cq)
+				msgBytes, err := queue.MarshalQueuedCommand(cq)
 				if err != nil {
 					level.Info(db.logger).Log("msg", "marshal queued command", "err", err)
 					continue
 				}
 
-				if err := pubsub.Publish(context.TODO(), CommandQueuedTopic, msgBytes); err != nil {
+				if err := pubsub.Publish(context.TODO(), queue.CommandQueuedTopic, msgBytes); err != nil {
 					level.Info(db.logger).Log("msg", "publish command to queued topic", "err", err)
 				}
 			}
