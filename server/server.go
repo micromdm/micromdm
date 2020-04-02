@@ -2,7 +2,6 @@ package server
 
 import (
     "fmt"
-    "reflect"
 	
 	"context"
 	"crypto/x509"
@@ -357,8 +356,6 @@ func (c *Server) setupPushService(logger log.Logger) error {
 			log.With(level.Info(logger), "component", "apns"),
 		)(service)
 		
-		fmt.Println(reflect.TypeOf(workerStore))
-
 		pushinfoWorker := apns.NewWorker(workerStore, c.PubClient, logger)
 		go pushinfoWorker.Run(context.Background())
 		
