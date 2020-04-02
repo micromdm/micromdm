@@ -10,6 +10,9 @@ endif
 
 export GO111MODULE=on
 
+#Specify a minimum version for macos otherwise notarization will fail
+CGO_LDFLAGS=-mmacosx-version-min=10.12 
+
 VERSION = $(shell git describe --tags --always --dirty)
 BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
 REVISION = $(shell git rev-parse HEAD)

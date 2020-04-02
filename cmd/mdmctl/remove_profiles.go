@@ -10,7 +10,7 @@ import (
 func (cmd *removeCommand) removeProfiles(args []string) error {
 	flagset := flag.NewFlagSet("remove-profiles", flag.ExitOnError)
 	var (
-		flIdentifier = flagset.String("id", "", "profile Identifier, optionally comma separated")
+		flIdentifier = flagset.String("id", "", "profile identifier, optionally comma-separated")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl remove profiles [flags]")
 	if err := flagset.Parse(args); err != nil {

@@ -26,9 +26,9 @@ const (
 type Syncer interface{ SyncNow() }
 
 type WatcherDB interface {
-	LoadCursor(ctx context.Context) (*Cursor, error)
-	SaveCursor(ctx context.Context, c Cursor) error
-	LoadAutoAssigners(ctx context.Context) ([]AutoAssigner, error)
+    LoadCursor(ctx context.Context) (*Cursor, error)
+    SaveCursor(ctx context.Context, c Cursor) error
+    LoadAutoAssigners(ctx context.Context) ([]AutoAssigner, error)
 }
 
 type Watcher struct {
@@ -57,7 +57,7 @@ func NewWatcher(db WatcherDB, pub pubsub.PublishSubscriber, opts ...Option) (*Wa
 	}
 
 	cursor, err := w.db.LoadCursor(context.Background())
-	if err != nil {
+    if err != nil {
 		return nil, err
 	}
 	if cursor.Valid() {
@@ -270,78 +270,83 @@ func (w *Watcher) publishAndProcessDevices(devices []dep.Device) error {
 }
 
 func (w *Watcher) Run() error {
-	ticker := time.NewTicker(syncDuration).C
-FETCH:
-	for {
-		resp, err := w.client.FetchDevices(dep.Limit(100), dep.Cursor(w.cursor.Value))
-		if err != nil && isCursorExhausted(err) {
-			goto SYNC
-		} else if err != nil && isCursorInvalid(err) {
-			level.Info(w.logger).Log(
-				"msg", "DEP fetch cursor response",
-				"cursor", w.cursor.Value,
-				"err", err,
-				"msg", "retrying DEP fetch with empty cursor",
-			)
-			w.cursor.Value = ""
-			goto FETCH
-		} else if err != nil {
-			return err
+	var (
+		err       error
+		resp      *dep.DeviceResponse
+		fetchNext = true
+		// for logging
+		fetchNextLabel = map[bool]string{
+			true:  "fetch",
+			false: "sync",
 		}
-		level.Info(w.logger).Log(
-			"msg", "DEP fetch",
-			"more", resp.MoreToFollow,
-			"cursor", resp.Cursor,
-			"fetched", resp.FetchedUntil,
-			"devices", len(resp.Devices),
-		)
-		w.cursor = Cursor{Value: resp.Cursor, CreatedAt: time.Now()}
-		if err := w.db.SaveCursor(context.Background(), w.cursor); err != nil {
-			return errors.Wrap(err, "saving cursor from fetch")
-		}
-		if err := w.publishAndProcessDevices(resp.Devices); err != nil {
-			return err
-		}
-		if !resp.MoreToFollow {
-			goto SYNC
-		}
-	}
+	)
 
-SYNC:
+	ticker := time.NewTicker(syncDuration).C
 	for {
-		resp, err := w.client.SyncDevices(w.cursor.Value, dep.Cursor(w.cursor.Value))
+		if fetchNext {
+			resp, err = w.client.FetchDevices(dep.Limit(100), dep.Cursor(w.cursor.Value))
+			if err != nil && isCursorExhausted(err) {
+				level.Info(w.logger).Log(
+					"msg", "DEP cursor returned all devices previously",
+					"phase", fetchNextLabel[fetchNext],
+					"cursor", w.cursor.Value,
+				)
+				fetchNext = false
+				continue
+			}
+		} else {
+			resp, err = w.client.SyncDevices(w.cursor.Value)
+		}
+
 		if err != nil && (isCursorExpired(err) || isCursorInvalid(err)) {
 			level.Info(w.logger).Log(
-				"msg", "DEP sync cursor response",
+				"msg", "DEP cursor error, retrying with empty cursor",
+				"phase", fetchNextLabel[fetchNext],
 				"cursor", w.cursor.Value,
 				"err", err,
-				"msg", "retrying DEP fetch with empty cursor",
 			)
 			w.cursor.Value = ""
-			goto FETCH
+			fetchNext = true
+			continue
 		} else if err != nil {
-			return err
-		}
-		level.Info(w.logger).Log(
-			"msg", "DEP sync",
-			"more", resp.MoreToFollow,
-			"cursor", resp.Cursor,
-			"fetched", resp.FetchedUntil,
-			"devices", len(resp.Devices),
-		)
-		w.cursor = Cursor{Value: resp.Cursor, CreatedAt: time.Now()}
-		if err := w.db.SaveCursor(context.Background(), w.cursor); err != nil {
-			return errors.Wrap(err, "saving cursor from sync")
-		}
-		if err := w.publishAndProcessDevices(resp.Devices); err != nil {
-			return err
-		}
-		if !resp.MoreToFollow {
-			select {
-			case <-ticker:
-			case <-w.syncNow:
-				level.Info(w.logger).Log("msg", "explicit DEP sync requested")
+			// log any other error, but do not return from the run loop.
+			// probably just a transient network issue.
+			level.Info(w.logger).Log(
+				"msg", "error syncing DEP devices",
+				"phase", fetchNextLabel[fetchNext],
+				"cursor", w.cursor.Value,
+				"err", err,
+			)
+		} else {
+			level.Info(w.logger).Log(
+				"msg", "DEP sync",
+				"phase", fetchNextLabel[fetchNext],
+				"cursor", resp.Cursor,
+				"fetched", resp.FetchedUntil,
+				"devices", len(resp.Devices),
+				"more", resp.MoreToFollow,
+			)
+
+			w.cursor = Cursor{Value: resp.Cursor, CreatedAt: time.Now()}
+			if err := w.db.SaveCursor(context.Background(), w.cursor); err != nil {
+				return errors.Wrap(err, "saving cursor from fetch")
 			}
+			if err := w.publishAndProcessDevices(resp.Devices); err != nil {
+				return err
+			}
+
+			if resp.MoreToFollow {
+				continue
+			} else if fetchNext {
+				fetchNext = false
+				continue
+			}
+		}
+
+		select {
+		case <-ticker:
+		case <-w.syncNow:
+			level.Info(w.logger).Log("msg", "explicit DEP sync requested")
 		}
 	}
 }

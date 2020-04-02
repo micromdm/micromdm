@@ -28,7 +28,7 @@ func createDB(t *testing.T) *Depot {
 		t.Fatal(err)
 	}
 	
-	d, err := NewBoltDepot(db)
+	d, err := NewDB(db)
 	if err != nil {
 		t.Fatal(err)
 	}

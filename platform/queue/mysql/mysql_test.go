@@ -2,12 +2,9 @@ package mysql
 
 import (
 	"context"
+//	"io/ioutil"
+//	"os"
 	"testing"
-	
-	"time"
-	
-	"strconv"
-    
 
 	"github.com/go-kit/kit/log"
 	"github.com/kolide/kit/dbutil"
@@ -92,97 +89,6 @@ func TestNext_NotNow(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Run("withOneCommand", tf)
-}
-
-func TestOnlyLastDayCommands(t *testing.T) {
-	store := setupDB(t)
-	store.db.SetMaxOpenConns(5)
-	store.db.SetConnMaxLifetime(time.Hour)
-	store.db.SetMaxIdleConns(3)
-	ctx := context.Background()
-
-	dc := &queue.DeviceCommand{DeviceUDID: "TestDevice"}
-	responses := []mdm.Response{}
-
-	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd"})
-	resp := mdm.Response {
-		UDID:        dc.DeviceUDID,
-		CommandUUID: "xCmd",
-		Status:      "Idle",
-	}
-	responses =  append(responses, resp)
-	
-	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd1", CreatedAt: time.Now()})
-	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd2", CreatedAt: time.Now().AddDate(0, -3, 0)}) // 3 months in the past
-	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd3", CreatedAt: time.Now().AddDate(0, 0, -2)}) // 2 days in the past
-    
-	if err := store.Save(ctx, dc); err != nil {
-		t.Fatal(err)
-	}
-
-	dc, _error := store.DeviceCommand(ctx, dc.DeviceUDID)
-	if _error != nil {
-		t.Fatal(_error)
-	}
-	
-	if len(dc.Commands) != 2 {
-		t.Fatal("Expected to have exactly 2 commands that are within the threshold created_at within 'last 1 days'")
-	}
-}
-
-func TestTransaction(t *testing.T) {
-	store := setupDB(t)
-	store.db.SetMaxOpenConns(5)
-	store.db.SetConnMaxLifetime(time.Hour)
-	store.db.SetMaxIdleConns(3)
-
-	dc := &queue.DeviceCommand{DeviceUDID: "TestDevice"}
-	responses := []mdm.Response{}
-
-	dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd"})
-	resp := mdm.Response {
-		UDID:        dc.DeviceUDID,
-		CommandUUID: "xCmd",
-		Status:      "Idle",
-	}
-	responses =  append(responses, resp)
-	
-	for i := 0; i < 10; i++ {
-		dc.Commands = append(dc.Commands, queue.Command{UUID: "xCmd"+strconv.Itoa(i)})
-		resp := mdm.Response {
-			UDID:        dc.DeviceUDID,
-			CommandUUID: "xCmd"+strconv.Itoa(i),
-			Status:      "Idle",
-		}
-		responses = append(responses, resp)
-	}
-	
-	ctx := context.Background()
-	if err := store.Save(ctx, dc); err != nil {
-		t.Fatal(err)
-	}
-	
-	
-	for i, _cmd := range dc.Commands {
-		
-		resp := mdm.Response {
-			UDID:        dc.DeviceUDID,
-			CommandUUID: _cmd.UUID,
-			Status:      "Idle",
-		}
-		
-		cmd, err := store.nextCommand(ctx, resp)
-		if err != nil {
-			t.Fatalf("expected nil, but got err: %s", err)
-		}
-		if cmd == nil {
-			t.Fatal("expected cmd but got nil")
-		}
-
-		if have, want := cmd.UUID, dc.Commands[i].UUID; have != want {
-			t.Errorf("have %s, want %s, index %d", have, want, i)
-		}
-	}
 }
 
 func TestNext_Idle(t *testing.T) {
