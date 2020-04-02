@@ -33,6 +33,7 @@ const (
 type Store struct {
 	db *sqlx.DB
 	logger log.Logger
+	withoutHistory bool
 }
 
 type MysqlCommand struct {
@@ -71,6 +72,12 @@ type Option func(*Store)
 func WithLogger(logger log.Logger) Option {
 	return func(s *Store) {
 		s.logger = logger
+	}
+}
+
+func WithoutHistory() Option {
+	return func(s *Store) {
+		s.withoutHistory = true
 	}
 }
 
@@ -124,7 +131,10 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*queue.Com
 		if x == nil {
 			break
 		}
-		dc.Completed = append(dc.Completed, *x)
+		if !db.withoutHistory {
+			x.Acknowledged = time.Now().UTC()
+			dc.Completed = append(dc.Completed, *x)
+		}
 	case "Error":
 		// move to failed, send next
 		x, a := cut(dc.Commands, resp.CommandUUID)
@@ -133,7 +143,9 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*queue.Com
 		if x == nil { // must've already bin ackd
 			break
 		}
-		dc.Failed = append(dc.Failed, *x)
+		if !db.withoutHistory {
+			dc.Failed = append(dc.Failed, *x)
+		}
 
 	case "CommandFormatError":
 		// move to failed
@@ -142,7 +154,9 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*queue.Com
 		if x == nil {
 			break
 		}
-		dc.Failed = append(dc.Failed, *x)
+		if !db.withoutHistory {
+			dc.Failed = append(dc.Failed, *x)
+		}
 
 	case "Idle":
 		// will send next command below
@@ -248,7 +262,7 @@ func (db *Store) SaveCommand(ctx context.Context, cmd queue.Command, deviceUDID 
 	var min_timestamp_sec int64 = int64(offset) * 60 * 60 * 24
 	
 	if (cmd.CreatedAt.IsZero() || cmd.CreatedAt.Unix() < min_timestamp_sec) {
-		cmd.CreatedAt = time.Now()
+		cmd.CreatedAt = time.Unix(min_timestamp_sec, 0)
 	}
 	
 	if (cmd.LastSentAt.IsZero() || cmd.LastSentAt.Unix() < min_timestamp_sec) {
@@ -307,26 +321,7 @@ func (db *Store) SaveCommand(ctx context.Context, cmd queue.Command, deviceUDID 
 		return errors.Wrap(err, "building command save query")
 	}
 	
-	//fmt.Println(db.db.MaxOpenConns)
-
-	dbParallelAccess := false
-	if dbParallelAccess {
-		// Will only work, if MaxOpenConns Count > 1 !	
-		tx, err := db.db.Begin() // open new connect
-		defer tx.Rollback()
-		insert_stmt, err := db.db.Prepare(query) // deadlock here -- 
-		defer insert_stmt.Close()
-		//-- db.Prepare - try to get a new connect (all connects (1) is busy, we can't return an error because we expect that someone will release connect
-		
-		insert_stmt_r1 := tx.Stmt(insert_stmt)
-		_, err = insert_stmt_r1.ExecContext(ctx, all_args...)
-		if err != nil {
-			return errors.Wrap(err, "building command save query")
-		}
-		err = tx.Commit() // -- release  connect 
-	} else {
-		_, err = db.db.ExecContext(ctx, query, all_args...)
-	}
+	_, err = db.db.ExecContext(ctx, query, all_args...)
 	
 	return errors.Wrap(err, "exec command save in mysql")
 }
@@ -351,13 +346,12 @@ func (db *Store) DeviceCommand(ctx context.Context, udid string) (*queue.DeviceC
 		Select(command_columns()...).
 		From(DeviceCommandTable).
 		Where(sq.Eq{"device_udid": udid}).
-		Where(sq.GtOrEq{"created_at": time.Now().AddDate(0, 0, -1)}). // One day in the past
 		OrderBy("command_order").
 		ToSql()
 	if err != nil {
 		return nil, errors.Wrap(err, "building sql")
 	}
-	
+
 	var list []MysqlCommand
 	err = db.db.SelectContext(ctx, &list, query, args...)
 	if errors.Cause(err) == sql.ErrNoRows {
@@ -479,7 +473,7 @@ func (db *Store) UpdateCommandStatus(ctx context.Context, resp mdm.Response) err
 		return errors.Wrap(err, "building update query for command save")
 	}
 	
-	return errors.Wrap(err, "exec command update in mysql")
+	return errors.Wrap(err, "exec command save in mysql")
 }
 
 func UnmarshalMysqlCommand(udid string, mysqlCommands []MysqlCommand) (queue.DeviceCommand, error) {
