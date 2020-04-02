@@ -27,6 +27,8 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 		"AvailableOSUpdates",
 		"NSExtensionMappings",
 		"OSUpdateStatus",
+		"EnableRemoteDesktop",
+		"DisableRemoteDesktop",
 		"ActivationLockBypassCode":
 		return &struct {
 			RequestType string

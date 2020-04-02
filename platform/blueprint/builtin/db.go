@@ -63,6 +63,9 @@ func (db *DB) List() ([]blueprint.Blueprint, error) {
 }
 
 func (db *DB) Save(bp *blueprint.Blueprint) error {
+	if bp == nil {
+		return errors.New("no blueprint supplied")
+	}
 	ctx := context.TODO()
 	err := bp.Verify()
 	if err != nil {

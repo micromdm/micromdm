@@ -7,10 +7,9 @@ import (
 
 	"github.com/fullsailor/pkcs7"
 	"github.com/go-kit/kit/endpoint"
-	//boltdepot "github.com/micromdm/scep/depot/bolt"
-	//boltdepot "github.com/micromdm/micromdm/platform/scep/builtin"
-	boltdepot "github.com/micromdm/micromdm/platform/scep/mysql"
 	
+	scep "github.com/micromdm/micromdm/platform/scep"
+
 	"github.com/micromdm/micromdm/pkg/crypto"
 	"github.com/micromdm/micromdm/platform/profile"
 )
@@ -61,7 +60,7 @@ type mdmOTAPhase2Phase3Request struct {
 	p7                   *pkcs7.PKCS7
 }
 
-func MakeServerEndpoints(s Service, scepDepot *boltdepot.Depot) Endpoints {
+func MakeServerEndpoints(s Service, scepDepot scep.Store) Endpoints {
 	return Endpoints{
 		GetEnrollEndpoint:       MakeGetEnrollEndpoint(s),
 		OTAEnrollEndpoint:       MakeOTAEnrollEndpoint(s),
@@ -92,7 +91,7 @@ func MakeOTAEnrollEndpoint(s Service) endpoint.Endpoint {
 	}
 }
 
-func MakeOTAPhase2Phase3Endpoint(s Service, scepDepot *boltdepot.Depot) endpoint.Endpoint {
+func MakeOTAPhase2Phase3Endpoint(s Service, scepDepot scep.Store) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(mdmOTAPhase2Phase3Request)
 

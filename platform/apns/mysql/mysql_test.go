@@ -7,22 +7,20 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/kolide/kit/dbutil"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/micromdm/micromdm/platform/pubsub/inmem"
 	"github.com/micromdm/micromdm/platform/apns"
+	"github.com/micromdm/micromdm/platform/pubsub/inmem"
+	
 )
 
 func TestMysqlCrud(t *testing.T) {
-	db, err := setup(t)
+	db := setup(t)
 	ctx := context.Background()
-	if err != nil {
-		t.Fatal(err)
-	}
-	
+
 	info := apns.PushInfo{
 		UDID:  "UDID-foo-bar-baz",
 		Token: "tok",
 	}
-	err = db.Save(ctx, &info)
+	err := db.Save(ctx, &info)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +35,7 @@ func TestMysqlCrud(t *testing.T) {
 	}
 }
 
-func setup(t *testing.T) (*Mysql, error) {
+func setup(t *testing.T) *Mysql {
 	// https://stackoverflow.com/a/23550874/464016
 	db, err := dbutil.OpenDBX(
 		"mysql",
@@ -50,5 +48,11 @@ func setup(t *testing.T) (*Mysql, error) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	return NewDB(db, inmem.NewPubSub())
+
+	store, err := NewDB(db, inmem.NewPubSub())
+	if err != nil {
+		t.Fatal(err)
+	}
+	
+	return store
 }
