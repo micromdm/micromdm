@@ -105,6 +105,7 @@ type Server struct {
 }
 
 func (c *Server) Setup(logger log.Logger) error {
+	fmt.Println("v1.7.0")
 	if err := c.setupPubSub(); err != nil {
 		return err
 	}
