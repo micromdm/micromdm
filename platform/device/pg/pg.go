@@ -10,12 +10,13 @@ import (
 	sq "gopkg.in/Masterminds/squirrel.v1"
 
 	"github.com/micromdm/micromdm/platform/device"
+	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
 type Postgres struct{ db *sqlx.DB }
 
-func New(db *sqlx.DB) *Postgres {
-	return &Postgres{db: db}
+func NewDB(db *sqlx.DB, sub pubsub.Subscriber) (*Postgres, error) {
+	return &Postgres{db: db}, nil
 }
 
 func columns() []string {
