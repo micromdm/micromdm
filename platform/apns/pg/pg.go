@@ -46,7 +46,8 @@ func columns() []string {
 const tableName = "push_info"
 
 func (d *Postgres) Save(ctx context.Context, i *apns.PushInfo) error {
-	updateQuery, _, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
+	updateQuery, _, err := sq.StatementBuilder.
+		PlaceholderFormat(sq.Dollar).
 		Update(tableName).
 		Prefix("ON CONFLICT (udid) DO").
 		Set("udid", i.UDID).
