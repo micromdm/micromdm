@@ -10,12 +10,28 @@ import (
 	sq "gopkg.in/Masterminds/squirrel.v1"
 
 	"github.com/micromdm/micromdm/platform/apns"
+	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
 type Postgres struct{ db *sqlx.DB }
 
-func New(db *sqlx.DB) *Postgres {
-	return &Postgres{db: db}
+func NewDB(db *sqlx.DB, sub pubsub.Subscriber) (*Postgres, error) {
+	
+	// Required for TIMESTAMP DEFAULT 0
+	_,err := db.Exec(`SET sql_mode = '';`)
+	
+	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS push_info (
+		    udid VARCHAR(40) PRIMARY KEY,
+		    token TEXT DEFAULT '',
+		    push_magic TEXT DEFAULT '',
+		    mdm_topic TEXT DEFAULT ''
+		);`)
+		
+	if err != nil {
+	   return nil, errors.Wrap(err, "creating push_info table failed")
+	}
+	
+	return &Postgres{db: db}, nil
 }
 
 func columns() []string {
@@ -63,7 +79,8 @@ func (d *Postgres) Save(ctx context.Context, i *apns.PushInfo) error {
 }
 
 func (d *Postgres) PushInfo(ctx context.Context, udid string) (*apns.PushInfo, error) {
-	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
+	query, args, err := sq.StatementBuilder.
+		PlaceholderFormat(sq.Dollar).
 		Select(columns()...).
 		From(tableName).
 		Where(sq.Eq{"udid": udid}).
