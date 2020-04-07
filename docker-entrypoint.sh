@@ -6,6 +6,7 @@ SERVER_URL=${SERVER_URL:-https://mdm.example.com/}
 WEBHOOK_URL=${WEBHOOK_URL:-http://127.0.0.1:5000/webhook}
 WEBHOOK_AUTH_USER=${WEBHOOK_AUTH_USER:-}
 WEBHOOK_AUTH_PASSWORD=${WEBHOOK_AUTH_PASSWORD:-}
+RDBMS=${RDBMS:-mysql}
 MYSQL_USER=${MYSQL_USER:-micromdm}
 MYSQL_PASSWORD=${MYSQL_PASSWORD:-micromdm}
 MYSQL_DATABASE=${MYSQL_DATABASE:-micromdm}
@@ -21,9 +22,10 @@ micromdm serve \
   -command-webhook-url ${WEBHOOK_URL} \
   -command-webhook-auth-user ${WEBHOOK_AUTH_USER} \
   -command-webhook-auth-pass ${WEBHOOK_AUTH_PASSWORD} \
-  -mysql-username ${MYSQL_USER} \
-  -mysql-password ${MYSQL_PASSWORD} \
-  -mysql-database ${MYSQL_DATABASE} \
-  -mysql-host ${MYSQL_HOST} \
-  -mysql-port ${MYSQL_PORT} \
+  -rdbms ${RDBMS} \
+  -rdbms-username ${MYSQL_USER} \
+  -rdbms-password ${MYSQL_PASSWORD} \
+  -rdbms-database ${MYSQL_DATABASE} \
+  -rdbms-host ${MYSQL_HOST} \
+  -rdbms-port ${MYSQL_PORT} \
   -tls=false

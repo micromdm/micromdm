@@ -8,6 +8,8 @@ jobs:
             POSTGRES_DB: micromdm
             POSTGRES_USER: micromdm
             POSTGRES_PASSWORD: micromdm
+            DB_HOST=127.0.0.1
+            DB_PORT=5432
         - image: mysql:5.7
           environment:
             - MYSQL_DATABASE=micromdm_test
