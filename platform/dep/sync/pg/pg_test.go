@@ -8,7 +8,6 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/kolide/kit/dbutil"
 	_ "github.com/lib/pq"
-	"github.com/micromdm/micromdm/platform/pubsub/inmem"
 	"github.com/micromdm/micromdm/platform/dep/sync"
 )
 
@@ -55,7 +54,7 @@ func setup(t *testing.T) *Postgres {
 		t.Fatal(err)
 	}
 
-	store, err := NewDB(db, inmem.NewPubSub())
+	store, err := NewDB(db)
 	if err != nil {
 		t.Fatal(err)
 	}

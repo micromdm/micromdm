@@ -175,6 +175,11 @@ func setupDB(t *testing.T) *Store {
 	if err != nil {
 		t.Fatal(err)
 	}
+	
+	err = SetupDB(db)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	store := &Store{db: db, logger: log.NewNopLogger()}
 	_,err = db.Exec(`TRUNCATE TABLE device_commands;`)
