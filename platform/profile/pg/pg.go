@@ -30,7 +30,6 @@ func NewDB(db *sqlx.DB) (*Postgres, error) {
 	_,err := db.Exec(`SET sql_mode = '';`)
 	
 	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS profiles (
-			profile_id INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 		    identifier TEXT DEFAULT NULL,
 		    mobileconfig bytea DEFAULT NULL
 		);`)
