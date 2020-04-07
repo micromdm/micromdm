@@ -196,8 +196,14 @@ func TestDepot_CreateOrLoadCA(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%d. Depot.CreateOrLoadKey() error = %v", i, err)
 		}
+		if key == nil {
+			panic("Expected public key not to be nil when creating new Key")
+		}
 
-		if _, err := db.CreateOrLoadCA(key, 10, "MicroMDM", "US"); (err != nil) != tt.wantErr {
+		if ca, err := db.CreateOrLoadCA(key, 10, "MicroMDM", "US"); (err != nil) != tt.wantErr {
+			if ca == nil {
+				panic("Expected private key not to be nil when creating new CA for Key")
+			}
 			t.Errorf("%d. Depot.CreateOrLoadCA() error = %v, wantErr %v", i, err, tt.wantErr)
 		}
 	}
