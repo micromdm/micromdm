@@ -10,12 +10,11 @@ import (
 	sq "gopkg.in/Masterminds/squirrel.v1"
 
 	"github.com/micromdm/micromdm/platform/device"
-	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
 type Postgres struct{ db *sqlx.DB }
 
-func NewDB(db *sqlx.DB, sub pubsub.Subscriber) (*Postgres, error) {
+func NewDB(db *sqlx.DB) (*Postgres, error) {
 	return &Postgres{db: db}, nil
 }
 
@@ -165,8 +164,8 @@ func (d *Postgres) DeviceBySerial(ctx context.Context, serial string) (*device.D
 	return &dev, errors.Wrap(err, "finding device by serial")
 }
 
-func (d *Postgres) ListDevices(ctx context.Context, opt device.ListDevicesOption) ([]device.Device, error) {
-	query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
+func (d *Postgres) List(ctx context.Context, opt device.ListDevicesOption) ([]device.Device, error) {
+query, args, err := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).
 		Select(columns()...).
 		From(tableName).
 		ToSql()
@@ -176,6 +175,10 @@ func (d *Postgres) ListDevices(ctx context.Context, opt device.ListDevicesOption
 	var list []device.Device
 	err = d.db.SelectContext(ctx, &list, query, args...)
 	return list, errors.Wrap(err, "list devices")
+}
+
+func (d *Postgres) ListDevices(ctx context.Context, opt device.ListDevicesOption) ([]device.Device, error) {
+	return d.List(ctx, opt)
 }
 
 func (d *Postgres) DeleteByUDID(ctx context.Context, udid string) error {
@@ -200,6 +203,68 @@ func (d *Postgres) DeleteBySerial(ctx context.Context, serial string) error {
 	}
 	_, err = d.db.ExecContext(ctx, query, args...)
 	return errors.Wrap(err, "delete device by serial_number")
+}
+
+func (d *Postgres) SaveUDIDCertHash(ctx context.Context, udid, certHash []byte) error {
+	updateQuery, args, err := sq.StatementBuilder.
+		PlaceholderFormat(sq.Dollar).
+		Update("uuid_cert_auth").
+		Prefix("ON CONFLICT (udid) DO").
+		Set("udid", udid).
+		Set("cert_auth", certHash).
+		ToSql()
+	if err != nil {
+		return errors.Wrap(err, "building update query for save udid cert hash")
+	}
+	
+	// MySql Convention
+	// Replace "ON DUPLICATE KEY UPDATE TABLE_NAME SET" to "ON DUPLICATE KEY UPDATE"
+	updateQuery = strings.Replace(updateQuery, "uuid_cert_auth", "", -1)
+
+	query, args, err := sq.StatementBuilder.
+		PlaceholderFormat(sq.Question).
+		Insert("uuid_cert_auth").
+		Columns("udid", "cert_auth").
+		Values(
+			udid,
+			certHash,
+		).
+		Suffix(updateQuery).
+		ToSql()
+	
+	if err != nil {
+		return errors.Wrap(err, "building udid cert auth save query")
+	}
+	
+	_, err = d.db.ExecContext(ctx, query, args...)
+	
+	return errors.Wrap(err, "exec udid cert auth save in pg")
+}
+
+func (d *Postgres) GetUDIDCertHash(ctx context.Context, udid []byte) ([]byte, error) {
+	query, args, err := sq.StatementBuilder.
+		PlaceholderFormat(sq.Dollar).
+		Select("udid", "cert_auth").
+		From("uuid_cert_auth").
+		Where(sq.Eq{"udid": udid}).
+		ToSql()
+	
+	if err != nil {
+		return nil, errors.Wrap(err, "building sql")
+	}
+
+	var i device.DeviceCertAuth
+	err = d.db.QueryRowxContext(ctx, query, args...).StructScan(&i)
+	if errors.Cause(err) == sql.ErrNoRows {
+		return nil, errors.Wrap(err, "udidCertAuthBucket not found!")
+	}
+	
+	certHash := i.CertAuth
+	if certHash == nil {
+		return nil, errors.Wrap(err, "certhash for udid is empty")
+	}
+	
+	return certHash, errors.Wrap(err, "finding uuid cert hash by udid")
 }
 
 type deviceNotFoundErr struct{}
