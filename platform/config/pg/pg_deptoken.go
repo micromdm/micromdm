@@ -33,7 +33,6 @@ func dep_columns() []string {
 }
 
 func (d *Postgres) AddToken(ctx context.Context, consumerKey string, json []byte) error {
-	
 	updateQuery, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Dollar).
 		Update("server_config").
@@ -46,12 +45,12 @@ func (d *Postgres) AddToken(ctx context.Context, consumerKey string, json []byte
 		return errors.Wrap(err, "building update query for dep_tokens save")
 	}
 	
-	updateQuery = strings.Replace(updateQuery, "", "server_config", -1)
-
+	updateQuery = strings.Replace(updateQuery, "server_config", "", -1)
+	
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Dollar).
 		Insert("server_config").
-		Columns(columns()...).
+		Columns("config_id", "push_certificate", "private_key").
 		Values(
 			3,
 			[]byte(consumerKey),
