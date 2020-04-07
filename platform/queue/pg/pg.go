@@ -213,24 +213,19 @@ func SetupDB(db *sqlx.DB) error {
 	    uuid VARCHAR(40) PRIMARY KEY,
 	    device_udid VARCHAR(40) NOT NULL,
 	    payload bytea DEFAULT NULL,
-	    created_at TIMESTAMPTZ DEFAULT '1970-01-01 00:00:00+00'
-	    last_sent_at TIMESTAMPTZ DEFAULT '1970-01-01 00:00:00+00'
-	    acknowledged_at TIMESTAMPTZ DEFAULT '1970-01-01 00:00:00+00'
-	    times_sent int(11) DEFAULT 0,
+	    created_at TIMESTAMPTZ DEFAULT '1970-01-01 00:00:00+00',
+	    last_sent_at TIMESTAMPTZ DEFAULT '1970-01-01 00:00:00+00',
+	    acknowledged_at TIMESTAMPTZ DEFAULT '1970-01-01 00:00:00+00',
+	    times_sent integer DEFAULT 0,
 	    last_status VARCHAR(32) DEFAULT NULL,
 	    failure_message bytea DEFAULT NULL,
-	    command_order int(11) DEFAULT 0
+	    command_order integer DEFAULT 0
 	);`)
 
 	if err != nil {
 	   return errors.Wrap(err, "creating "+DeviceCommandTable+" sql table failed")
 	}
 	
-	_,err = db.Exec(`ALTER TABLE `+DeviceCommandTable+` MODIFY payload bytea DEFAULT NULL;`)
-	if err != nil {
-	   return errors.Wrap(err, "altering "+DeviceCommandTable+" sql table failed")
-	}
-
 	return nil
 }
 
