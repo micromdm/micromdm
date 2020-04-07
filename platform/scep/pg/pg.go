@@ -357,7 +357,7 @@ func generateAndStoreCA(ctx context.Context, d *Depot, key *rsa.PrivateKey, year
 	updateQuery, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Dollar).
 		Update("server_config").
-		Prefix("ON DUPLICATE KEY").
+		Prefix("ON CONFLICT (config_id) DO").
 		Set("config_id", 4).
 		Set("private_key", crtBytes).
 		ToSql()
@@ -365,7 +365,7 @@ func generateAndStoreCA(ctx context.Context, d *Depot, key *rsa.PrivateKey, year
 		return nil, errors.Wrap(err, "building update query for server_config save")
 	}
 	updateQuery = strings.Replace(updateQuery, "server_config", "", -1)
-
+	
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Dollar).
 		Insert("server_config").
