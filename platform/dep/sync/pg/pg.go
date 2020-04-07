@@ -12,12 +12,11 @@ import (
 	sq "gopkg.in/Masterminds/squirrel.v1"
 
 	"github.com/micromdm/micromdm/platform/dep/sync"
-	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
 type Postgres struct{ db *sqlx.DB }
 
-func NewDB(db *sqlx.DB, sub pubsub.Subscriber) (*Postgres, error) {
+func NewDB(db *sqlx.DB) (*Postgres, error) {
 	// Required for TIMESTAMP DEFAULT 0
 	_,err := db.Exec(`SET sql_mode = '';`)
 
@@ -87,6 +86,18 @@ func (d *Postgres) SaveCursor(ctx context.Context, cursor sync.Cursor) error {
 		cursor.CreatedAt = time.Unix(min_timestamp_sec, 0)
 	}
 	
+	updateQuery, args, err := sq.StatementBuilder.
+		PlaceholderFormat(sq.Dollar).
+		Update(tableName).
+		Prefix("ON CONFLICT (value) DO").
+		Set("value", cursor.Value).
+		Set("created_at", cursor.CreatedAt).
+		ToSql()
+	if err != nil {
+		return errors.Wrap(err, "building update query for cursors save")
+	}
+	updateQuery = strings.Replace(updateQuery, tableName, "", -1)
+	
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Dollar).
 		Insert(tableName).
@@ -95,12 +106,15 @@ func (d *Postgres) SaveCursor(ctx context.Context, cursor sync.Cursor) error {
 			cursor.Value,
 			cursor.CreatedAt,
 		).
+		Suffix(updateQuery).
 		ToSql()
+	
 	if err != nil {
 		return errors.Wrap(err, "building cursor save query")
 	}
-
+	
 	_, err = d.db.ExecContext(ctx, query, args...)
+	
 	return errors.Wrap(err, "exec cursor save in pg")
 }
 

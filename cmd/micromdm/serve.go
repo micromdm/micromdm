@@ -43,6 +43,7 @@ import (
 	"github.com/micromdm/micromdm/platform/device"
 	devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
 	devicemysql "github.com/micromdm/micromdm/platform/device/mysql"
+	devicepg "github.com/micromdm/micromdm/platform/device/pg"
 	
 	"github.com/micromdm/micromdm/platform/profile"
 	block "github.com/micromdm/micromdm/platform/remove"
@@ -94,11 +95,12 @@ func serve(args []string) error {
 		flGenDynChalEnroll   = flagset.Bool("gen-dynamic-challenge", env.Bool("MICROMDM_GEN_DYNAMIC_CHALLENGE", false), "generate dynamic SCEP challenges in enrollment profile (built-in only)")
 		flPrintArgs          = flagset.Bool("print-flags", false, "Print all flags and their values")
 
-		flMysqlUsername 	= flagset.String("mysql-username", "", "Username to login to Mysql")
-		flMysqlPassword 	= flagset.String("mysql-password", "", "Password to login to Mysql")
-		flMysqlDatabase 	= flagset.String("mysql-database", "", "Name of the Mysql Database")
-		flMysqlHost 		= flagset.String("mysql-host", "", "IP or URL to the Mysql Host")
-		flMysqlPort 		= flagset.String("mysql-port", "", "Port to use for Mysql connection")
+		flRdbms			 	= flagset.String("rdbms", env.String("rdbms", "boltdb"), "Select RDBMS ['boltdb', 'mysql', 'postgres']")
+		flRdbmsUsername 	= flagset.String("rdbms-username", "", "Username to login to Rdbms")
+		flRdbmsPassword 	= flagset.String("rdbms-password", "", "Password to login to Rdbms")
+		flRdbmsDatabase 	= flagset.String("rdbms-database", "", "Name of the Rdbms Database")
+		flRdbmsHost 		= flagset.String("rdbms-host", "", "IP or URL to the Rdbms Host")
+		flRdbmsPort 		= flagset.String("rdbms-port", "", "Port to use for Rdbms connection")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -150,11 +152,12 @@ func serve(args []string) error {
 
 		SCEPClientValidity: *flSCEPClientValidity,
 		
-		MysqlUsername: *flMysqlUsername,
-		MysqlPassword: *flMysqlPassword,
-		MysqlDatabase: *flMysqlDatabase,
-		MysqlHost:	   *flMysqlHost,
-		MysqlPort:	   *flMysqlPort,
+		Rdbms:		   server.Rdbms(*flRdbms),
+		RdbmsUsername: *flRdbmsUsername,
+		RdbmsPassword: *flRdbmsPassword,
+		RdbmsDatabase: *flRdbmsDatabase,
+		RdbmsHost:	   *flRdbmsHost,
+		RdbmsPort:	   *flRdbmsPort,
 	}
 	if !sm.UseDynSCEPChallenge {
 		// TODO: we have a static SCEP challenge password here to prevent
@@ -189,6 +192,14 @@ func serve(args []string) error {
 	var devDB device.Store
 	if sm.MysqlDB != nil {
 		db, err := devicemysql.NewDB(sm.MysqlDB)
+		if err != nil {
+			stdlog.Fatal(err)
+		}
+		devWorker := device.NewWorker(db, sm.PubClient, logger)
+		go devWorker.Run(context.Background())
+		devDB = db
+	} else if sm.PostgresDB != nil {
+		db, err := devicepg.NewDB(sm.PostgresDB)
 		if err != nil {
 			stdlog.Fatal(err)
 		}
@@ -244,9 +255,11 @@ func serve(args []string) error {
 	var enrollHandlers enroll.HTTPHandlers
 	if sm.SCEPMysqlDB != nil {
 		enrollHandlers = enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPMysqlDB), httptransport.ServerErrorLogger(httpLogger))	
+	} else if sm.SCEPPostgresDB != nil {
+		enrollHandlers = enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPPostgresDB), httptransport.ServerErrorLogger(httpLogger))	
 	} else {
 		enrollHandlers = enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPBuiltin), httptransport.ServerErrorLogger(httpLogger))	
-	}	
+	}
 	
 	r, options := httputil2.NewRouter(logger)
 
@@ -306,9 +319,16 @@ func serve(args []string) error {
 		depEndpoints := depapi.MakeServerEndpoints(depsvc, basicAuthEndpointMiddleware)
 		depapi.RegisterHTTPHandlers(r, depEndpoints, options...)
 
-		//depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncDB), basicAuthEndpointMiddleware)
-		depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncMysqlDB), basicAuthEndpointMiddleware)
-		sync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
+		if sm.SyncMysqlDB != nil {
+			depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncMysqlDB), basicAuthEndpointMiddleware)
+			sync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
+		} else if sm.SyncPostgresDB != nil {
+			depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncPostgresDB), basicAuthEndpointMiddleware)
+			sync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
+		} else {
+			depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncBuiltin), basicAuthEndpointMiddleware)
+			sync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
+		}
 
 		if sm.SCEPChallengeDepot != nil {
 			challengeEndpoints := challenge.MakeServerEndpoints(challenge.NewService(sm.SCEPChallengeDepot), basicAuthEndpointMiddleware)
