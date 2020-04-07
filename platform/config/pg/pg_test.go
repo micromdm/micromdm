@@ -223,7 +223,7 @@ func setup(t *testing.T) *Postgres {
 	if err != nil {
 		t.Fatal(err)
 	}
-
+	
 	store, err := NewDB(db, inmem.NewPubSub())
 	if err != nil {
 		t.Fatal(err)
