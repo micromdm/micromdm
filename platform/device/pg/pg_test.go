@@ -9,7 +9,6 @@ import (
 	"github.com/kolide/kit/dbutil"
 	_ "github.com/lib/pq"
 	"github.com/micromdm/micromdm/platform/device"
-	"github.com/micromdm/micromdm/platform/pubsub/inmem"
 )
 
 func TestPGCrud(t *testing.T) {
@@ -70,7 +69,7 @@ func setup(t *testing.T) *Postgres {
 		t.Fatal(err)
 	}
 
-	store, err := NewDB(db, inmem.NewPubSub())
+	store, err := NewDB(db)
 	if err != nil {
 		t.Fatal(err)
 	}
