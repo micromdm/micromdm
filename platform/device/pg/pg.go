@@ -222,7 +222,7 @@ func (d *Postgres) SaveUDIDCertHash(ctx context.Context, udid, certHash []byte) 
 	updateQuery = strings.Replace(updateQuery, "uuid_cert_auth", "", -1)
 
 	query, args, err := sq.StatementBuilder.
-		PlaceholderFormat(sq.Question).
+		PlaceholderFormat(sq.Dollar).
 		Insert("uuid_cert_auth").
 		Columns("udid", "cert_auth").
 		Values(
