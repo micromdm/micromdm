@@ -201,7 +201,7 @@ func (d *Depot) listCertificates(ctx context.Context, prefix string) ([]SCEPCert
 		PlaceholderFormat(sq.Dollar).
 		Select("scep_id", "cert_name", "scep_cert").
 		From("scep_certificates").
-		Where("cert_name LIKE $", fmt.Sprint("", prefix, "%")).
+		Where("cert_name LIKE ?", fmt.Sprint("", prefix, "%")).
 		ToSql()
 		
 	if err != nil {
