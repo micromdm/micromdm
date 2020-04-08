@@ -85,7 +85,7 @@ func (d *Postgres) Save(ctx context.Context, p *profile.Profile) error {
 			//Prefix("ON DUPLICATE KEY").
 			//Set("identifier", p.Identifier).
 			Set("mobileconfig", p.Mobileconfig).
-			Where("identifier LIKE $", p.Identifier).
+			Where(sq.Eq{"identifier": p.Identifier}).
 			ToSql()
 		if err != nil {
 			return errors.Wrap(err, "building update query for device save")
@@ -104,8 +104,7 @@ func (d *Postgres) ProfileById(ctx context.Context, id string) (*profile.Profile
 		PlaceholderFormat(sq.Dollar).
 		Select(columns()...).
 		From(tableName).
-		Where("identifier LIKE $", id).
-		//Where(sq.Eq{"identifier": id}).
+		Where(sq.Eq{"identifier": id}).
 		ToSql()
 	
 	if err != nil {
@@ -125,8 +124,7 @@ func (d *Postgres) Delete(ctx context.Context, id string) error {
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Dollar).
 		Delete(tableName).
-		Where("identifier LIKE $", id).
-		//Where(sq.Eq{"identifier": id}).		
+		Where(sq.Eq{"identifier": id}).		
 		ToSql()
 	if err != nil {
 		return errors.Wrap(err, "building sql")
