@@ -1,6 +1,7 @@
 package enroll
 
 import (
+	"fmt"
 	"bytes"
 	"crypto/x509"
 	"io/ioutil"
@@ -147,7 +148,10 @@ func profileOrPayloadToMobileconfig(in interface{}) (profile.Mobileconfig, error
 }
 
 func (svc *service) findOrMakeMobileconfig(ctx context.Context, id string, f interface{}) (profile.Mobileconfig, error) {
+	fmt.Println("findOrMakeMobileconfig")
 	p, err := svc.ProfileDB.ProfileById(ctx, id)
+	fmt.Println(p)
+	fmt.Println(err)
 	if err != nil {
 		if profile.IsNotFound(err) {
 			profile, err := profileOrPayloadFromFunc(f)
