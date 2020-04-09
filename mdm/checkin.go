@@ -1,7 +1,6 @@
 package mdm
 
 import (
-	"fmt"
 	"context"
 	"net/http"
 	"time"
@@ -12,30 +11,23 @@ import (
 )
 
 func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) error {
-	fmt.Println("-- Checkin --")
-	fmt.Println(event.Command.MessageType)
 	// reject user settings at the loginwindow.
 	// https://github.com/micromdm/micromdm/pull/379
 	if event.Command.MessageType == "UserAuthenticate" {
 		return &rejectUserAuth{}
 	}
 
-	fmt.Println(event)
 	msg, err := MarshalCheckinEvent(&event)
 	if err != nil {
 		return errors.Wrap(err, "marshal checkin event")
 	}
 
-	fmt.Println(msg)
 	topic, err := topicFromMessage(event.Command.MessageType)
 	if err != nil {
 		return errors.Wrap(err, "get checkin topic from message")
 	}
 
-	fmt.Println(topic)
 	err = svc.pub.Publish(ctx, topic, msg)
-	
-	fmt.Println(err)
 	return errors.Wrapf(err, "publish checkin on topic: %s", topic)
 }
 
