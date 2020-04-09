@@ -1,0 +1,19 @@
+[Unit]
+Description=Micro MDM
+After=syslog.target network.target
+
+[Service]
+User=micromdm
+Group=micromdm
+{% for n, v in pillar_g['env_secrets'].items()|sort %}
+Environment={{n}}={{v}}
+{% endfor %}
+ExecStart=/opt/micromdm/micromdm
+WorkingDirectory=/opt/micromdm/
+SyslogIdentifier=micromdm
+#Restarting on healthcheck failures needs to be configured separately in zabbix - this just restart on crash.
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
