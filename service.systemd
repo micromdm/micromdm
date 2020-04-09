@@ -8,7 +8,7 @@ Group=micromdm
 {% for n, v in env_secrets.items()|sort %}
 Environment={{n}}={{v}}
 {% endfor %}
-ExecStart=/opt/micromdm/micromdm serve
+ExecStart=/opt/micromdm/micromdm serve -tls=false -rdbms=postgres -http-addr=:8080 -config-path=/opt/micromdm/db/
 WorkingDirectory=/opt/micromdm/
 SyslogIdentifier=micromdm
 #Restarting on healthcheck failures needs to be configured separately in zabbix - this just restart on crash.
