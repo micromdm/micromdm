@@ -1,6 +1,7 @@
 package pg
 
 import (
+	"fmt"
 	"context"
 	"strings"
 	"database/sql"
@@ -100,6 +101,7 @@ func (d *Postgres) Save(ctx context.Context, p *profile.Profile) error {
 }
 
 func (d *Postgres) ProfileById(ctx context.Context, id string) (*profile.Profile, error) {
+	fmt.Println("ProfileById")
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Dollar).
 		Select(columns()...).
@@ -107,6 +109,7 @@ func (d *Postgres) ProfileById(ctx context.Context, id string) (*profile.Profile
 		Where(sq.Eq{"identifier": id}).
 		ToSql()
 	
+	fmt.Println(query)
 	if err != nil {
 		return nil, errors.Wrap(err, "building sql")
 	}
@@ -115,8 +118,10 @@ func (d *Postgres) ProfileById(ctx context.Context, id string) (*profile.Profile
 	
 	err = d.db.QueryRowxContext(ctx, query, args...).StructScan(&p)
 	if errors.Cause(err) == sql.ErrNoRows {
+		fmt.Println("No Profile Found")
 		return nil, profileNotFoundErr{}
 	}
+	fmt.Println(p)
 	return &p, errors.Wrap(err, "finding profile by identifier")
 }
 
