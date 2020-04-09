@@ -5,7 +5,7 @@ After=syslog.target network.target
 [Service]
 User=micromdm
 Group=micromdm
-{% for n, v in pillar_g['env_secrets'].items()|sort %}
+{% for n, v in env_secrets.items()|sort %}
 Environment={{n}}={{v}}
 {% endfor %}
 ExecStart=/opt/micromdm/micromdm
