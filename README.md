@@ -31,7 +31,6 @@
 In addition, to official README of the source project: https://github.com/micromdm/micromdm
 
 ## Requirements
-
 Make sure, go version 1.11 or newer is installed:
 `go version`
 
@@ -143,11 +142,12 @@ sudo ./micromdm serve \
     -api-key secret \
     -server-url https://mdm.abacus.ch/ \
     -command-webhook-url http://127.0.0.1:5000/webhook \
-    -mysql-username micromdm \
-    -mysql-password micromdm \
-    -mysql-database micromdm_test \
-    -mysql-host 127.0.0.1 \
-    -mysql-port 3306 \
+    -rdbms mysql
+    -rdbms-username micromdm \
+    -rdbms-password micromdm \
+    -rdbms-database micromdm_test \
+    -rdbms-host 127.0.0.1 \
+    -rdbms-port 3306 \
     -tls=false
 ```
 Info: the above parameter `api-key` equals the parameter `api-token` and is a settable secret in your OpenShift configuration of the micromdm deployment.
@@ -188,11 +188,28 @@ docker run -v /absolute/path/to/micromdm/assets/:/data  micromdm \
     -api-key secret \
     -server-url https://mdm.abacus.ch/ \
     -command-webhook-url http://127.0.0.1:5000/webhook \
-    -mysql-username micromdm \
-    -mysql-password micromdm \
-    -mysql-database micromdm_test \
-    -mysql-host 127.0.0.1 \
-    -mysql-port 3306 \
+    -rdbms mysql
+    -rdbms-username micromdm \
+    -rdbms-password micromdm \
+    -rdbms-database micromdm_test \
+    -rdbms-host 127.0.0.1 \
+    -rdbms-port 3306 \
+    -tls=false
+```
+
+```
+docker run -v /absolute/path/to/micromdm/assets/:/data  micromdm \
+    micromdm serve \
+    -config-path /data \
+    -api-key secret \
+    -server-url https://mdm.abacus.ch/ \
+    -command-webhook-url http://127.0.0.1:5000/webhook \
+    -rdbms postgres
+    -rdbms-username micromdm \
+    -rdbms-password micromdm \
+    -rdbms-database micromdm_test \
+    -rdbms-host 127.0.0.1 \
+    -rdbms-port 5432 \
     -tls=false
 ```
 ---
@@ -310,5 +327,3 @@ If this Token was expired, its not too much of a problem. Enrolled iPads still c
 ``` 
 ./mdmctl get dep-tokens
 ```
-
->>>>>>> mysql
