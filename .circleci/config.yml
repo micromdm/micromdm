@@ -27,9 +27,6 @@ jobs:
       - run: apt-get update -y && apt-get install default-mysql-client -y
       - run: make deps
       - run: GO111MODULE=on go install github.com/pressly/goose/cmd/goose
-      #- run: make db-reset-test
-      #- run: make db-migrate-test
-      #- run: make test
       - run: make build
 
 
