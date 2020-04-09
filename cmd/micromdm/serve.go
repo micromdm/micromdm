@@ -96,11 +96,11 @@ func serve(args []string) error {
 		flPrintArgs          = flagset.Bool("print-flags", false, "Print all flags and their values")
 
 		flRdbms			 	= flagset.String("rdbms", env.String("rdbms", "boltdb"), "Select RDBMS ['boltdb', 'mysql', 'postgres']")
-		flRdbmsUsername 	= flagset.String("rdbms-username", "", "Username to login to Rdbms")
-		flRdbmsPassword 	= flagset.String("rdbms-password", "", "Password to login to Rdbms")
-		flRdbmsDatabase 	= flagset.String("rdbms-database", "", "Name of the Rdbms Database")
-		flRdbmsHost 		= flagset.String("rdbms-host", "", "IP or URL to the Rdbms Host")
-		flRdbmsPort 		= flagset.String("rdbms-port", "", "Port to use for Rdbms connection")
+		flRdbmsUsername 	= flagset.String("rdbms-username", env.String("MICROMDM_RDBMS_USERNAME", ""), "Username to login to Rdbms")
+		flRdbmsPassword 	= flagset.String("rdbms-password", env.String("MICROMDM_RDBMS_PASSWORD", ""), "Password to login to Rdbms")
+		flRdbmsDatabase 	= flagset.String("rdbms-database", env.String("MICROMDM_RDBMS_DATABASE", ""), "Name of the Rdbms Database")
+		flRdbmsHost 		= flagset.String("rdbms-host", env.String("MICROMDM_RDBMS_HOST", ""), "IP or URL to the Rdbms Host")
+		flRdbmsPort 		= flagset.String("rdbms-port", env.String("MICROMDM_RDBMS_PORT", ""), "Port to use for Rdbms connection")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
