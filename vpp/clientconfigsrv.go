@@ -2,9 +2,10 @@ package vpp
 
 import (
 	"encoding/json"
-	"github.com/pkg/errors"
-	"github.com/satori/go.uuid"
 	"strings"
+
+	"github.com/google/uuid"
+	"github.com/pkg/errors"
 )
 
 // Contains information that associates your particular mdm server to a VPP account token
@@ -119,7 +120,7 @@ func (c *Client) GetClientContext() (*ClientContext, error) {
 // Sets the values that determine which mdm server is associated with a VPP account token
 func (c *Client) SetClientContext(serverURL string) (*ClientContext, error) {
 	// Generate a UUID that is tracked to ensure VPP licenses are up to date
-	uuid := uuid.NewV4().String()
+	uuid := uuid.New().String()
 
 	// Generate a ClientContext string with the new UUID and the current serverURL
 	context := ClientContext{serverURL, uuid}
