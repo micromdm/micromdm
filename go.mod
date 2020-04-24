@@ -11,13 +11,13 @@ require (
 	github.com/go-stack/stack v1.7.0 // indirect
 	github.com/gogo/protobuf v1.3.1
 	github.com/golang/protobuf v1.3.2
+	github.com/google/uuid v1.1.1
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v1.6.2
 	github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda
 	github.com/groob/plist v0.0.0-20180203051248-dd56909aee38
 	github.com/jmoiron/sqlx v0.0.0-20180614180643-0dae4fefe7c0
 	github.com/kolide/kit v0.0.0-20180912215818-0c28f72eb2b0
-	github.com/kr/pretty v0.1.0 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/lib/pq v1.0.0
@@ -27,16 +27,13 @@ require (
 	github.com/pkg/errors v0.8.0
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/pressly/goose v2.3.0+incompatible
-	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.2.2 // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	golang.org/x/crypto v0.0.0-20180614174826-fd5f17ee7299
 	golang.org/x/net v0.0.0-20180724234803-3673e40ba225
-	golang.org/x/sync v0.0.0-20180314180146-1d60e4601c6f // indirect
 	golang.org/x/sys v0.0.0-20180614134839-8883426083c0 // indirect
 	google.golang.org/appengine v1.2.0 // indirect
 	gopkg.in/Masterminds/squirrel.v1 v1.0.0-20170825200431-a6b93000bd21
-	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )
 
 replace github.com/fullsailor/pkcs7 => github.com/groob/pkcs7 v0.0.0-20180824154052-36585635cb64
