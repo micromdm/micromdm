@@ -196,6 +196,18 @@ func TestEndToEnd(t *testing.T) {
 				}
 			},
 		},
+
+		{
+			name: "InstallEnterpriseApplication",
+			requestBytes: []byte(
+				`{"udid":"B59A5A44-EC36-4244-AB52-C40F6100528A","request_type":"InstallEnterpriseApplication","manifest":{"ManifestItems":[{"Assets":[{"URL":"https://example.com/p.pkg","Kind":"software-package","MD5Size":1234,"MD5s":["cfdc14fa22a79bab2a8b423daca2c076"]}]}]}}`,
+			),
+			testFn: func(t *testing.T, parts endToEndParts) {
+				if !bytes.Contains(parts.plistData, []byte(`cfdc14fa22a79bab2a8b423daca2c076`)) || !bytes.Contains(parts.plistData, []byte(`https://example.com/p.pkg`)) {
+					t.Error("marshaled plist does not contain the required payload")
+				}
+			},
+		},
 	}
 
 	for _, tt := range tests {

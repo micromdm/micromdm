@@ -152,8 +152,28 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 			},
 		}
 	case "InstallEnterpriseApplication":
+		var pbManifest *mdmproto.Manifest
+		if pbManifest = &(mdmproto.Manifest{}); cmd.InstallEnterpriseApplication.Manifest != nil {
+			for _, item := range cmd.InstallEnterpriseApplication.Manifest.ManifestItems {
+				var pbManifestItem mdmproto.ManifestItem
+				for _, asset := range item.Assets {
+					pbAsset := mdmproto.Asset{
+						Kind:    asset.Kind,
+						Md5Size: asset.MD5Size,
+						Md5S:    asset.MD5s,
+						Url:     asset.URL,
+					}
+					pbManifestItem.Assets = append(pbManifestItem.Assets, &pbAsset)
+				}
+				// TODO: handle Metadata fields
+				if len(pbManifestItem.Assets) > 0 {
+					pbManifest.ManifestItems = append(pbManifest.ManifestItems, &pbManifestItem)
+				}
+			}
+		}
 		cmdproto.Request = &mdmproto.Command_InstallEnterpriseApplication{
 			InstallEnterpriseApplication: &mdmproto.InstallEnterpriseApplication{
+				Manifest:                       pbManifest,
 				ManifestUrl:                    emptyStringIfNil(cmd.InstallEnterpriseApplication.ManifestURL),
 				ManifestUrlPinningCerts:        cmd.InstallEnterpriseApplication.ManifestURLPinningCerts,
 				PinningRevocationCheckRequired: falseIfNil(cmd.InstallEnterpriseApplication.PinningRevocationCheckRequired),

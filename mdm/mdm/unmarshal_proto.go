@@ -2,6 +2,7 @@ package mdm
 
 import (
 	"github.com/gogo/protobuf/proto"
+	"github.com/micromdm/micromdm/mdm/appmanifest"
 	"github.com/micromdm/micromdm/mdm/mdm/internal/mdmproto"
 )
 
@@ -110,7 +111,33 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 		}
 	case "InstallEnterpriseApplication":
 		pbc := pb.GetInstallEnterpriseApplication()
+		var manifest *appmanifest.Manifest
+		if pbManifest := pbc.GetManifest(); pbManifest != nil {
+			manifest = &(appmanifest.Manifest{})
+			if pbManifestItems := pbManifest.GetManifestItems(); pbManifestItems != nil {
+				for _, pbManifestItem := range pbManifestItems {
+					var manifestItem appmanifest.Item
+					if pbAssets := pbManifestItem.GetAssets(); pbAssets != nil {
+						for _, pbAsset := range pbAssets {
+							asset := appmanifest.Asset{
+								Kind:    pbAsset.Kind,
+								MD5s:    pbAsset.Md5S,
+								MD5Size: pbAsset.Md5Size,
+								URL:     pbAsset.Url,
+							}
+							manifestItem.Assets = append(manifestItem.Assets, asset)
+						}
+					}
+					// TODO: handle Metadata fields
+					if len(manifestItem.Assets) > 0 {
+						manifest.ManifestItems = append(manifest.ManifestItems, manifestItem)
+					}
+				}
+			}
+		}
+
 		cmd.InstallEnterpriseApplication = &InstallEnterpriseApplication{
+			Manifest:                       manifest,
 			ManifestURL:                    nilIfEmptyString(pbc.GetManifestUrl()),
 			ManifestURLPinningCerts:        pbc.GetManifestUrlPinningCerts(),
 			PinningRevocationCheckRequired: nilIfFalse(pbc.GetPinningRevocationCheckRequired()),
