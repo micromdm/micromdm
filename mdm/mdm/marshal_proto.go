@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/micromdm/micromdm/mdm/appmanifest"
 	"github.com/micromdm/micromdm/mdm/mdm/internal/mdmproto"
 )
 
@@ -153,20 +154,39 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 		}
 	case "InstallEnterpriseApplication":
 		var pbManifest *mdmproto.Manifest
-		if pbManifest = &(mdmproto.Manifest{}); cmd.InstallEnterpriseApplication.Manifest != nil {
+		if cmd.InstallEnterpriseApplication.Manifest != nil {
+			pbManifest = &(mdmproto.Manifest{})
 			for _, item := range cmd.InstallEnterpriseApplication.Manifest.ManifestItems {
 				var pbManifestItem mdmproto.ManifestItem
 				for _, asset := range item.Assets {
 					pbAsset := mdmproto.Asset{
-						Kind:    asset.Kind,
-						Md5Size: asset.MD5Size,
-						Md5S:    asset.MD5s,
-						Url:     asset.URL,
+						Kind:       asset.Kind,
+						Md5Size:    asset.MD5Size,
+						Md5S:       asset.MD5s,
+						Sha256Size: asset.SHA256Size,
+						Sha256S:    asset.SHA256s,
+						Url:        asset.URL,
 					}
 					pbManifestItem.Assets = append(pbManifestItem.Assets, &pbAsset)
 				}
-				// TODO: handle Metadata fields
-				if len(pbManifestItem.Assets) > 0 {
+				if item.Metadata != nil {
+					pbManifestItem.Metadata = &(mdmproto.Metadata{
+						BundleIdentifier: item.Metadata.BundleInfo.BundleIdentifier,
+						BundleVersion:    item.Metadata.BundleInfo.BundleVersion,
+						Kind:             item.Metadata.Kind,
+						SizeInBytes:      item.Metadata.SizeInBytes,
+						Title:            item.Metadata.Title,
+						Subtitle:         item.Metadata.Subtitle,
+					})
+					for _, bundleInfo := range item.Metadata.Items {
+						bpBundleInfo := &(mdmproto.BundleInfo{
+							BundleIdentifier: bundleInfo.BundleIdentifier,
+							BundleVersion:    bundleInfo.BundleVersion,
+						})
+						pbManifestItem.Metadata.Items = append(pbManifestItem.Metadata.Items, bpBundleInfo)
+					}
+				}
+				if len(pbManifestItem.Assets) > 0 || pbManifestItem.Metadata != nil {
 					pbManifest.ManifestItems = append(pbManifest.ManifestItems, &pbManifestItem)
 				}
 			}
@@ -448,6 +468,17 @@ func settingToProto(s Setting) *mdmproto.Setting {
 		}
 	}
 	return &pbs
+}
+
+func bundleInfoToProto(bundleInfo *appmanifest.BundleInfo) *mdmproto.BundleInfo {
+	var pbBundleInfo *mdmproto.BundleInfo
+	if bundleInfo != nil {
+		pbBundleInfo = &(mdmproto.BundleInfo{
+			BundleIdentifier: bundleInfo.BundleIdentifier,
+			BundleVersion:    bundleInfo.BundleVersion,
+		})
+	}
+	return pbBundleInfo
 }
 
 func falseIfNil(b *bool) bool {

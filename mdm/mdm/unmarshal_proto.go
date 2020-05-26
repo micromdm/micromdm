@@ -120,16 +120,38 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 					if pbAssets := pbManifestItem.GetAssets(); pbAssets != nil {
 						for _, pbAsset := range pbAssets {
 							asset := appmanifest.Asset{
-								Kind:    pbAsset.Kind,
-								MD5s:    pbAsset.Md5S,
-								MD5Size: pbAsset.Md5Size,
-								URL:     pbAsset.Url,
+								Kind:       pbAsset.Kind,
+								MD5s:       pbAsset.Md5S,
+								MD5Size:    pbAsset.Md5Size,
+								URL:        pbAsset.Url,
+								SHA256s:    pbAsset.Sha256S,
+								SHA256Size: pbAsset.Sha256Size,
 							}
 							manifestItem.Assets = append(manifestItem.Assets, asset)
 						}
 					}
-					// TODO: handle Metadata fields
-					if len(manifestItem.Assets) > 0 {
+					if pbMetadata := pbManifestItem.GetMetadata(); pbMetadata != nil {
+						manifestItem.Metadata = &(appmanifest.Metadata{
+							Kind:        pbMetadata.Kind,
+							SizeInBytes: pbMetadata.SizeInBytes,
+							Title:       pbMetadata.Title,
+							Subtitle:    pbMetadata.Subtitle,
+							BundleInfo: appmanifest.BundleInfo{
+								BundleIdentifier: pbMetadata.BundleIdentifier,
+								BundleVersion:    pbMetadata.BundleVersion,
+							},
+						})
+						if pbMetadataItems := pbMetadata.GetItems(); pbMetadataItems != nil {
+							for _, pbMetadataItem := range pbMetadataItems {
+								bundleInfo := appmanifest.BundleInfo{
+									BundleIdentifier: pbMetadataItem.BundleIdentifier,
+									BundleVersion:    pbMetadataItem.BundleVersion,
+								}
+								manifestItem.Metadata.Items = append(manifestItem.Metadata.Items, bundleInfo)
+							}
+						}
+					}
+					if len(manifestItem.Assets) > 0 || manifestItem.Metadata != nil {
 						manifest.ManifestItems = append(manifest.ManifestItems, manifestItem)
 					}
 				}

@@ -26,18 +26,21 @@ type Item struct {
 }
 
 type Asset struct {
-	Kind    string   `plist:"kind"`
-	MD5Size int64    `plist:"md5-size"`
-	MD5s    []string `plist:"md5s"`
-	URL     string   `plist:"url"`
+	Kind       string   `plist:"kind"`
+	MD5Size    int64    `plist:"md5-size"`
+	MD5s       []string `plist:"md5s"`
+	SHA256Size int64    `plist:"sha256-size,omitempty"`
+	SHA256s    []string `plist:"sha256s,omitempty"`
+	URL        string   `plist:"url"`
 }
 
 type Metadata struct {
 	BundleInfo
-	Items    []BundleInfo `plist:"items,omitempty"`
-	Kind     string       `plist:"kind"`
-	Subtitle string       `plist:"subtitle"`
-	Title    string       `plist:"title"`
+	Items       []BundleInfo `plist:"items,omitempty"`
+	Kind        string       `plist:"kind"`
+	Subtitle    string       `plist:"subtitle"`
+	Title       string       `plist:"title"`
+	SizeInBytes int64        `plist:"sizeInBytes,omitempty"`
 }
 
 type BundleInfo struct {
