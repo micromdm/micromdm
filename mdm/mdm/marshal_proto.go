@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/gogo/protobuf/proto"
-	"github.com/micromdm/micromdm/mdm/appmanifest"
 	"github.com/micromdm/micromdm/mdm/mdm/internal/mdmproto"
 )
 
@@ -468,17 +467,6 @@ func settingToProto(s Setting) *mdmproto.Setting {
 		}
 	}
 	return &pbs
-}
-
-func bundleInfoToProto(bundleInfo *appmanifest.BundleInfo) *mdmproto.BundleInfo {
-	var pbBundleInfo *mdmproto.BundleInfo
-	if bundleInfo != nil {
-		pbBundleInfo = &(mdmproto.BundleInfo{
-			BundleIdentifier: bundleInfo.BundleIdentifier,
-			BundleVersion:    bundleInfo.BundleVersion,
-		})
-	}
-	return pbBundleInfo
 }
 
 func falseIfNil(b *bool) bool {
