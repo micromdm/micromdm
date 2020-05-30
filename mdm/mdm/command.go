@@ -6,7 +6,8 @@ import (
 )
 
 type CommandRequest struct {
-	UDID string `json:"udid"`
+	UDID        string  `json:"udid"`
+	CommandUUID *string `json:"command_uuid,omitempty"`
 	*Command
 }
 
@@ -16,8 +17,16 @@ type CommandPayload struct {
 }
 
 func NewCommandPayload(request *CommandRequest) (*CommandPayload, error) {
+	var CommandUUID string
+	// The `CommandUUID` parameter is optional. If it was not sent, the default behavior is to provide one randomly.
+	if request.CommandUUID != nil {
+		CommandUUID = *request.CommandUUID
+	} else {
+		CommandUUID = uuid.New().String()
+	}
+
 	payload := &CommandPayload{
-		CommandUUID: uuid.New().String(),
+		CommandUUID: CommandUUID,
 		Command:     request.Command,
 	}
 	return payload, nil
