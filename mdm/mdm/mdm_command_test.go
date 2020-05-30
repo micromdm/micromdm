@@ -198,7 +198,7 @@ func TestEndToEnd(t *testing.T) {
 		{
 			name: "InstallEnterpriseApplication",
 			requestBytes: []byte(
-				`{"udid":"B59A5A44-EC36-4244-AB52-C40F6100528A","request_type":"InstallEnterpriseApplication","manifest":{"ManifestItems":[{"Metadata":{"Items":[{"BundleVersion":"1.7.5","BundleIdentifier":"com.myenterprise.MyAppNotMAS"}],"BundleVersion":"1.1","BundleIdentifier":"com.myenterprise.MyAppPackage","Kind":"display-image","SizeInBytes":1234,"Title":"Test Title","Subtitle":"Test Subtitle"},"Assets":[{"SHA256Size":1234,"SHA256s":["2a8a98c146c35ce29f8b9af4cf8218d2c026058e7eb35adb4a00236997593471"],"URL":"https://example.com/p.pkg","Kind":"software-package","MD5Size":1234,"MD5s":["cfdc14fa22a79bab2a8b423daca2c076"]}]}]}}`,
+				`{"udid":"B59A5A44-EC36-4244-AB52-C40F6100528A","request_type":"InstallEnterpriseApplication","manifest":{"items":[{"metadata":{"items":[{"bundle-version":"1.7.5","bundle-identifier":"com.myenterprise.MyAppNotMAS"}],"bundle-version":"1.1","bundle-identifier":"com.myenterprise.MyAppPackage","kind":"display-image","sizeInBytes":1234,"title":"Test Title","subtitle":"Test Subtitle"},"Assets":[{"sha256-size":1234,"sha256s":["2a8a98c146c35ce29f8b9af4cf8218d2c026058e7eb35adb4a00236997593471"],"url":"https://example.com/p.pkg","kind":"software-package","md5-size":1234,"md5s":["cfdc14fa22a79bab2a8b423daca2c076"]}]}]}}`,
 			),
 			testFn: func(t *testing.T, parts endToEndParts) {
 				needToSee := [][]byte{
@@ -213,6 +213,8 @@ func TestEndToEnd(t *testing.T) {
 					[]byte(`1.7.5`),
 					[]byte(`software-package`),
 					[]byte(`display-image`),
+					[]byte(`Test Title`),
+					[]byte(`Test Subtitle`),
 				}
 				for _, b := range needToSee {
 					if !bytes.Contains(parts.plistData, b) {
