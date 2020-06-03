@@ -27,8 +27,8 @@ type Item struct {
 
 type Asset struct {
 	Kind       string   `plist:"kind" json:"kind"`
-	MD5Size    int64    `plist:"md5-size" json:"md5-size"`
-	MD5s       []string `plist:"md5s" json:"md5s"`
+	MD5Size    int64    `plist:"md5-size,omitempty" json:"md5-size,omitempty"`
+	MD5s       []string `plist:"md5s,omitempty" json:"md5s,omitempty"`
 	SHA256Size int64    `plist:"sha256-size,omitempty" json:"sha256-size,omitempty"`
 	SHA256s    []string `plist:"sha256s,omitempty" json:"sha256s,omitempty"`
 	URL        string   `plist:"url" json:"url"`
