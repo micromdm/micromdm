@@ -22,7 +22,7 @@ require (
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/lib/pq v1.0.0
 	github.com/mattn/go-sqlite3 v1.9.0 // indirect
-	github.com/micromdm/go4 v0.0.0-20190530145745-54e7af012bbc
+	github.com/micromdm/go4 v0.0.0-20191221011012-654e10aaab18
 	github.com/micromdm/scep v1.0.1-0.20181014170139-9be65e185499
 	github.com/pkg/errors v0.8.0
 	github.com/pmezard/go-difflib v1.0.0 // indirect
