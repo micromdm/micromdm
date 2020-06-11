@@ -95,7 +95,7 @@ func serve(args []string) error {
 		flGenDynChalEnroll   = flagset.Bool("gen-dynamic-challenge", env.Bool("MICROMDM_GEN_DYNAMIC_CHALLENGE", false), "generate dynamic SCEP challenges in enrollment profile (built-in only)")
 		flPrintArgs          = flagset.Bool("print-flags", false, "Print all flags and their values")
 
-		flRdbms			 	= flagset.String("rdbms", env.String("rdbms", "boltdb"), "Select RDBMS ['boltdb', 'mysql', 'postgres']")
+		flRdbms			 	= flagset.String("rdbms", env.String("MICROMDM_RDBMS", "boltdb"), "Select RDBMS ['boltdb', 'mysql', 'postgres']")
 		flRdbmsUsername 	= flagset.String("rdbms-username", env.String("MICROMDM_RDBMS_USERNAME", ""), "Username to login to Rdbms")
 		flRdbmsPassword 	= flagset.String("rdbms-password", env.String("MICROMDM_RDBMS_PASSWORD", ""), "Password to login to Rdbms")
 		flRdbmsDatabase 	= flagset.String("rdbms-database", env.String("MICROMDM_RDBMS_DATABASE", ""), "Name of the Rdbms Database")
