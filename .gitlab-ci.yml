@@ -38,6 +38,7 @@ build:
     - if [ "$CI_COMMIT_REF_SLUG" == "int" ]; then wget --method=POST $HOOK_int 2> /dev/null 1> /dev/null ; fi
   only:
     - develop
+    - int
 
 test:
   stage: test
