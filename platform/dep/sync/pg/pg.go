@@ -136,7 +136,7 @@ func (d *Postgres) SaveAutoAssigner(ctx context.Context, a *sync.AutoAssigner) e
 		return errors.Wrap(err, "building update query for cursor save")
 	}
 	
-	updateQuery = strings.Replace(updateQuery, "dep_auto_assign SET ", "", -1)
+	updateQuery = strings.Replace(updateQuery, "dep_auto_assign", "", -1)
 
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
