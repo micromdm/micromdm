@@ -61,7 +61,7 @@ gomodcheck:
 deps: gomodcheck
 	@go mod download
 
-test:
+test: db-migrate-test db-mysql-migrate-test
 	go test -cover -race ./...
 
 build: micromdm mdmctl
