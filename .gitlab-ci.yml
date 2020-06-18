@@ -2,7 +2,7 @@ image: golang:1.13.4
 
 stages:
   - build
-  - test
+  #- test
 
 before_script:
   #- go get github.com/tools/godep
