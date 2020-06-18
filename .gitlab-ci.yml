@@ -2,7 +2,7 @@ image: golang:1.13.4
 
 stages:
   - build
-  #- test
+  - test
 
 before_script:
   #- go get github.com/tools/godep
@@ -44,3 +44,6 @@ test:
   stage: test
   script:
     - make test
+  only:
+    - dev_not_working
+
