@@ -11,6 +11,10 @@ before_script:
   # With alpine image we also need to do the following:
   #- apk add --update git
   #- cd /go/src/gitlab.com/${CI_PROJECT_PATH}
+  
+  # Add necessary trusted certificates
+  - apk --no-cache add ca-certificates
+
 
   # Fetch mods
   - go mod tidy
