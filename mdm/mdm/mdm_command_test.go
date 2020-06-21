@@ -72,7 +72,6 @@ func TestMarshalCommand(t *testing.T) {
 			if err := enc.Encode(&payload); err != nil {
 				t.Fatal(err)
 			}
-			fmt.Println(buf.String())
 		})
 
 		t.Run(tt.Command.RequestType+"_plist", func(t *testing.T) {
@@ -83,7 +82,6 @@ func TestMarshalCommand(t *testing.T) {
 			if err := enc.Encode(&payload); err != nil {
 				t.Fatal(err)
 			}
-			fmt.Println(buf.String())
 		})
 	}
 }
@@ -193,6 +191,35 @@ func TestEndToEnd(t *testing.T) {
 				}
 				if !bytes.Contains(parts.plistData, []byte(`PD94bWwgdm`)) {
 					t.Error("marshaled plist does not contain the required payload")
+				}
+			},
+		},
+
+		{
+			name: "InstallEnterpriseApplication",
+			requestBytes: []byte(
+				`{"udid":"B59A5A44-EC36-4244-AB52-C40F6100528A","request_type":"InstallEnterpriseApplication","manifest":{"items":[{"metadata":{"items":[{"bundle-version":"1.7.5","bundle-identifier":"com.myenterprise.MyAppNotMAS"}],"bundle-version":"1.1","bundle-identifier":"com.myenterprise.MyAppPackage","kind":"display-image","sizeInBytes":1234,"title":"Test Title","subtitle":"Test Subtitle"},"Assets":[{"sha256-size":1234,"sha256s":["2a8a98c146c35ce29f8b9af4cf8218d2c026058e7eb35adb4a00236997593471"],"url":"https://example.com/p.pkg","kind":"software-package","md5-size":1234,"md5s":["cfdc14fa22a79bab2a8b423daca2c076"]}]}]}}`,
+			),
+			testFn: func(t *testing.T, parts endToEndParts) {
+				needToSee := [][]byte{
+					[]byte(`cfdc14fa22a79bab2a8b423daca2c076`),
+					[]byte(`https://example.com/p.pkg`),
+					[]byte(`com.myenterprise.MyAppPackage`),
+					[]byte(`1.1`),
+					[]byte(`1234`),
+					[]byte(`2a8a98c146c35ce29f8b9af4cf8218d2c026058e7eb35adb4a00236997593471`),
+					[]byte(`com.myenterprise.MyAppPackage`),
+					[]byte(`com.myenterprise.MyAppNotMAS`),
+					[]byte(`1.7.5`),
+					[]byte(`software-package`),
+					[]byte(`display-image`),
+					[]byte(`Test Title`),
+					[]byte(`Test Subtitle`),
+				}
+				for _, b := range needToSee {
+					if !bytes.Contains(parts.plistData, b) {
+						t.Error(fmt.Sprintf("marshaled plist does not contain required bytes: '%s'", string(b)))
+					}
 				}
 			},
 		},
