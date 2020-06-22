@@ -1,6 +1,6 @@
 # Getting Help
 
-The best place to get help with setting up and ongoing maintenance of MicroMDM is the MacAdmins Slack. Join by getting an [invitation here](https://macadmins.herokuapp.com/).
+The best place to get help with setting up and ongoing maintenance of MicroMDM is the MacAdmins Slack. Join by getting an [invitation here](https://www.macadmins.org/).
 
 Once you join Slack, the following channels will be useful.
 - `#micromdm` for MicroMDM specific questions.
