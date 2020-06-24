@@ -148,6 +148,7 @@ message InstallApplication {
   InstallApplicationConfiguration configuration = 6;
   InstallApplicationAttributes attributes = 7;
   string change_management_state = 8;
+  bool install_as_managed = 9;
 }
 
 message InstallApplicationOptions {
@@ -164,7 +165,13 @@ message InstallEnterpriseApplication {
   string manifest_url = 2;
   repeated bytes manifest_url_pinning_certs = 3;
   bool pinning_revocation_check_required = 4;
+  InstallEnterpriseApplicationConfiguration configuration = 5;
+  string change_management_state = 6;
+  bool install_as_managed = 7;
+  int64 management_flags = 8;
 }
+
+message InstallEnterpriseApplicationConfiguration {}
 
 message Manifest {
   repeated ManifestItem manifest_items = 1;
