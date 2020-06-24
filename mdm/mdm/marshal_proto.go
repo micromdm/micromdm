@@ -196,6 +196,7 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 				ManifestUrl:                    emptyStringIfNil(cmd.InstallEnterpriseApplication.ManifestURL),
 				ManifestUrlPinningCerts:        cmd.InstallEnterpriseApplication.ManifestURLPinningCerts,
 				PinningRevocationCheckRequired: falseIfNil(cmd.InstallEnterpriseApplication.PinningRevocationCheckRequired),
+				InstallAsManaged:               falseIfNil(cmd.InstallApplication.InstallAsManaged),
 			},
 		}
 	case "InstallApplication":
@@ -225,6 +226,7 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 				Options:               options,
 				Configuration:         configuration,
 				Attributes:            attributes,
+				InstallAsManaged:      falseIfNil(cmd.InstallApplication.InstallAsManaged),
 			},
 		}
 	case "AccountConfiguration":
