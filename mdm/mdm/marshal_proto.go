@@ -152,7 +152,10 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 			},
 		}
 	case "InstallEnterpriseApplication":
-		var pbManifest *mdmproto.Manifest
+		var (
+			pbManifest *mdmproto.Manifest
+			configuration *mdmproto.InstallEnterpriseApplicationConfiguration
+		)
 		if cmd.InstallEnterpriseApplication.Manifest != nil {
 			pbManifest = &(mdmproto.Manifest{})
 			for _, item := range cmd.InstallEnterpriseApplication.Manifest.ManifestItems {
@@ -190,13 +193,19 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 				}
 			}
 		}
+		if cmd.InstallEnterpriseApplication.Configuration != nil {
+			configuration = &mdmproto.InstallEnterpriseApplicationConfiguration{}
+		}
 		cmdproto.Request = &mdmproto.Command_InstallEnterpriseApplication{
 			InstallEnterpriseApplication: &mdmproto.InstallEnterpriseApplication{
 				Manifest:                       pbManifest,
 				ManifestUrl:                    emptyStringIfNil(cmd.InstallEnterpriseApplication.ManifestURL),
 				ManifestUrlPinningCerts:        cmd.InstallEnterpriseApplication.ManifestURLPinningCerts,
 				PinningRevocationCheckRequired: falseIfNil(cmd.InstallEnterpriseApplication.PinningRevocationCheckRequired),
-				InstallAsManaged:               falseIfNil(cmd.InstallApplication.InstallAsManaged),
+				Configuration:                  configuration,
+				ChangeManagementState:          emptyStringIfNil(cmd.InstallEnterpriseApplication.ChangeManagementState),
+				InstallAsManaged:               falseIfNil(cmd.InstallEnterpriseApplication.InstallAsManaged),
+				ManagementFlags:                int64(zeroIntIfNil(cmd.InstallEnterpriseApplication.ManagementFlags)),
 			},
 		}
 	case "InstallApplication":
