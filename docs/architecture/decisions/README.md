@@ -1,4 +1,4 @@
-# Architecte Decision Records
+# Architecture Decision Records
 
 An Architecture Decision Record (ADR) is a document that captures the context and consequences of adopting a specific decision.
 
