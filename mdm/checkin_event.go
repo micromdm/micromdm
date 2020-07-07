@@ -39,11 +39,11 @@ type auth struct {
 	MEID         string
 	DeviceName   string `plist:"DeviceName,omitempty"`
 	Challenge    []byte `plist:"Challenge,omitempty"`
-	Model        string `plist:"Model,omitpempty"`
+	Model        string `plist:"Model,omitempty"`
 	ModelName    string `plist:"ModelName,omitempty"`
 }
 
-// TokenUpdate Mesage Type
+// TokenUpdate Message Type
 type update struct {
 	Token                 hexData
 	PushMagic             string
