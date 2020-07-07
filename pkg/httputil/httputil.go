@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"path"
 	"strings"
 
 	"github.com/go-kit/kit/log"
@@ -103,9 +104,9 @@ func EncodeRequestWithToken(token string, next httptransport.EncodeRequestFunc) 
 	}
 }
 
-func CopyURL(base *url.URL, path string) *url.URL {
+func CopyURL(base *url.URL, appendPath string) *url.URL {
 	next := *base
-	next.Path = path
+	next.Path = path.Join(base.Path, appendPath)
 	return &next
 }
 
