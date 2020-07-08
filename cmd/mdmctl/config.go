@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"os"
 	"os/user"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -207,7 +208,9 @@ func validateServerURL(serverURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	serverURL = u.String()
+	const tempPath = "x"
+	u.Path = path.Join(u.Path, tempPath)
+	serverURL = strings.TrimSuffix(u.String(), tempPath) // assure URL ends with "/"
 
 	return serverURL, nil
 }
