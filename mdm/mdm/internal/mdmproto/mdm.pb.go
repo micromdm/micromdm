@@ -1427,6 +1427,7 @@ type InstallApplication struct {
 	Configuration         *InstallApplicationConfiguration `protobuf:"bytes,6,opt,name=configuration,proto3" json:"configuration,omitempty"`
 	Attributes            *InstallApplicationAttributes    `protobuf:"bytes,7,opt,name=attributes,proto3" json:"attributes,omitempty"`
 	ChangeManagementState string                           `protobuf:"bytes,8,opt,name=change_management_state,json=changeManagementState,proto3" json:"change_management_state,omitempty"`
+	InstallAsManaged      bool                             `protobuf:"varint,2,opt,name=install_as_managed,json=installAsManaged,proto3" json:"install_as_managed,omitempty"`
 	XXX_NoUnkeyedLiteral  struct{}                         `json:"-"`
 	XXX_unrecognized      []byte                           `json:"-"`
 	XXX_sizecache         int32                            `json:"-"`
@@ -1464,7 +1465,12 @@ func (m *InstallApplication) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_InstallApplication proto.InternalMessageInfo
-
+func (m *InstallApplication) InstallAsManaged() bool {
+	if m != nil {
+		return m.InstallAsManaged
+	}
+	return false
+}
 func (m *InstallApplication) GetItunesStoreId() int64 {
 	if m != nil {
 		return m.ItunesStoreId
@@ -1647,10 +1653,14 @@ func (m *InstallApplicationAttributes) XXX_DiscardUnknown() {
 var xxx_messageInfo_InstallApplicationAttributes proto.InternalMessageInfo
 
 type InstallEnterpriseApplication struct {
-	Manifest                       *Manifest `protobuf:"bytes,1,opt,name=manifest,proto3" json:"manifest,omitempty"`
-	ManifestUrl                    string    `protobuf:"bytes,2,opt,name=manifest_url,json=manifestUrl,proto3" json:"manifest_url,omitempty"`
-	ManifestUrlPinningCerts        [][]byte  `protobuf:"bytes,3,rep,name=manifest_url_pinning_certs,json=manifestUrlPinningCerts,proto3" json:"manifest_url_pinning_certs,omitempty"`
-	PinningRevocationCheckRequired bool      `protobuf:"varint,4,opt,name=pinning_revocation_check_required,json=pinningRevocationCheckRequired,proto3" json:"pinning_revocation_check_required,omitempty"`
+	Manifest                       *Manifest                                  `protobuf:"bytes,1,opt,name=manifest,proto3" json:"manifest,omitempty"`
+	ManifestUrl                    string                                     `protobuf:"bytes,2,opt,name=manifest_url,json=manifestUrl,proto3" json:"manifest_url,omitempty"`
+	ManifestUrlPinningCerts        [][]byte                                   `protobuf:"bytes,3,rep,name=manifest_url_pinning_certs,json=manifestUrlPinningCerts,proto3" json:"manifest_url_pinning_certs,omitempty"`
+	PinningRevocationCheckRequired bool                                       `protobuf:"varint,4,opt,name=pinning_revocation_check_required,json=pinningRevocationCheckRequired,proto3" json:"pinning_revocation_check_required,omitempty"`
+	ChangeManagementState          string                                     `protobuf:"bytes,8,opt,name=change_management_state,json=changeManagementState,proto3" json:"change_management_state,omitempty"`
+	Configuration                  *InstallEnterpriseApplicationConfiguration `protobuf:"bytes,6,opt,name=configuration,proto3" json:"configuration,omitempty"`
+	ManagementFlags                int64                                      `protobuf:"varint,5,opt,name=management_flags,json=managementFlags,proto3" json:"management_flags,omitempty"`
+	InstallAsManaged               bool                                       `protobuf:"varint,2,opt,name=install_as_managed,json=installAsManaged,proto3" json:"install_as_managed,omitempty"`
 	XXX_NoUnkeyedLiteral           struct{}  `json:"-"`
 	XXX_unrecognized               []byte    `json:"-"`
 	XXX_sizecache                  int32     `json:"-"`
@@ -1716,6 +1726,68 @@ func (m *InstallEnterpriseApplication) GetPinningRevocationCheckRequired() bool 
 	}
 	return false
 }
+
+func (m *InstallEnterpriseApplication) InstallAsManaged() bool {
+	if m != nil {
+		return m.InstallAsManaged
+	}
+	return false
+}
+func (m *InstallEnterpriseApplication) GetManagementFlags() int64 {
+	if m != nil {
+		return m.ManagementFlags
+	}
+	return 0
+}
+func (m *InstallEnterpriseApplication) GetConfiguration() *InstallEnterpriseApplicationConfiguration {
+	if m != nil {
+		return m.Configuration
+	}
+	return nil
+}
+func (m *InstallEnterpriseApplication) GetChangeManagementState() string {
+	if m != nil {
+		return m.ChangeManagementState
+	}
+	return ""
+}
+type InstallEnterpriseApplicationConfiguration struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+func (m *InstallEnterpriseApplicationConfiguration) Reset()         { *m = InstallEnterpriseApplicationConfiguration{} }
+func (m *InstallEnterpriseApplicationConfiguration) String() string { return proto.CompactTextString(m) }
+func (*InstallEnterpriseApplicationConfiguration) ProtoMessage()    {}
+func (*InstallEnterpriseApplicationConfiguration) Descriptor() ([]byte, []int) {
+	return fileDescriptor_fd1fa389f704dbf7, []int{18}
+}
+func (m *InstallEnterpriseApplicationConfiguration) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *InstallEnterpriseApplicationConfiguration) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_InstallEnterpriseApplicationConfiguration.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *InstallEnterpriseApplicationConfiguration) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_InstallEnterpriseApplicationConfiguration.Merge(m, src)
+}
+func (m *InstallEnterpriseApplicationConfiguration) XXX_Size() int {
+	return m.Size()
+}
+func (m *InstallEnterpriseApplicationConfiguration) XXX_DiscardUnknown() {
+	xxx_messageInfo_InstallEnterpriseApplicationConfiguration.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_InstallEnterpriseApplicationConfiguration proto.InternalMessageInfo
 
 type Manifest struct {
 	ManifestItems        []*ManifestItem `protobuf:"bytes,1,rep,name=manifest_items,json=manifestItems,proto3" json:"manifest_items,omitempty"`
@@ -6270,6 +6342,16 @@ func (m *InstallApplication) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i--
 		dAtA[i] = 0x22
 	}
+	if m.InstallAsManaged {
+		i--
+		if m.InstallAsManaged {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x20
+	}
 	if m.Options != nil {
 		{
 			size, err := m.Options.MarshalToSizedBuffer(dAtA[:i])
@@ -6444,6 +6526,67 @@ func (m *InstallEnterpriseApplication) MarshalToSizedBuffer(dAtA []byte) (int, e
 		}
 		i--
 		dAtA[i] = 0xa
+	}
+	if len(m.ChangeManagementState) > 0 {
+		i -= len(m.ChangeManagementState)
+		copy(dAtA[i:], m.ChangeManagementState)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.ChangeManagementState)))
+		i--
+		dAtA[i] = 0x42
+	}
+	if m.Configuration != nil {
+		{
+			size, err := m.Configuration.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x32
+	}
+	if m.ManagementFlags != 0 {
+		i = encodeVarintMdm(dAtA, i, uint64(m.ManagementFlags))
+		i--
+		dAtA[i] = 0x28
+	}
+	if m.InstallAsManaged {
+		i--
+		if m.InstallAsManaged {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x20
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *InstallEnterpriseApplicationConfiguration) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *InstallEnterpriseApplicationConfiguration) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *InstallEnterpriseApplicationConfiguration) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	return len(dAtA) - i, nil
 }
@@ -9450,6 +9593,9 @@ func (m *InstallApplication) Size() (n int) {
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
 	}
+	if m.InstallAsManaged {
+		n += 2
+	}
 	return n
 }
 
@@ -9512,9 +9658,35 @@ func (m *InstallEnterpriseApplication) Size() (n int) {
 			n += 1 + l + sovMdm(uint64(l))
 		}
 	}
+	if m.Configuration != nil {
+		l = m.Configuration.Size()
+		n += 1 + l + sovMdm(uint64(l))
+	}
+	if m.ManagementFlags != 0 {
+		n += 1 + sovMdm(uint64(m.ManagementFlags))
+	}
+	l = len(m.ChangeManagementState)
+	if l > 0 {
+		n += 1 + l + sovMdm(uint64(l))
+	}
 	if m.PinningRevocationCheckRequired {
 		n += 2
 	}
+	if m.InstallAsManaged {
+		n += 2
+	}
+	if m.XXX_unrecognized != nil {
+		n += len(m.XXX_unrecognized)
+	}
+	return n
+}
+
+func (m *InstallEnterpriseApplicationConfiguration) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
 	if m.XXX_unrecognized != nil {
 		n += len(m.XXX_unrecognized)
 	}
@@ -14217,6 +14389,60 @@ func (m *Manifest) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipMdm(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if skippy < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) < 0 {
+				return ErrInvalidLengthMdm
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.XXX_unrecognized = append(m.XXX_unrecognized, dAtA[iNdEx:iNdEx+skippy]...)
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *InstallEnterpriseApplicationConfiguration) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowMdm
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: InstallEnterpriseApplicationConfiguration: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: InstallEnterpriseApplicationConfiguration: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
 		default:
 			iNdEx = preIndex
 			skippy, err := skipMdm(dAtA[iNdEx:])
