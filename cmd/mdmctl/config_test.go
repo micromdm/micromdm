@@ -24,12 +24,12 @@ func TestValidateServerURL(t *testing.T) {
 		{
 			name:     "http",
 			input:    "http://localhost:8000",
-			expected: "http://localhost:8000/",
+			expected: "http://localhost:8000",
 		},
 		{
 			name:     "https",
 			input:    "https://localhost:8000",
-			expected: "https://localhost:8000/",
+			expected: "https://localhost:8000",
 		},
 		{
 			name:     "trailing_slash",
@@ -39,17 +39,17 @@ func TestValidateServerURL(t *testing.T) {
 		{
 			name:     "no_prefix",
 			input:    "localhost:8000",
-			expected: "https://localhost:8000/",
+			expected: "https://localhost:8000",
 		},
 		{
 			name:     "http_path",
 			input:    "http://localhost:8000/path",
-			expected: "http://localhost:8000/path/",
+			expected: "http://localhost:8000/path",
 		},
 		{
 			name:     "https_path",
 			input:    "https://localhost:8000/path",
-			expected: "https://localhost:8000/path/",
+			expected: "https://localhost:8000/path",
 		},
 		{
 			name:     "trailing_slash_path",
@@ -59,12 +59,12 @@ func TestValidateServerURL(t *testing.T) {
 		{
 			name:     "no_prefix_path",
 			input:    "localhost:8000/path",
-			expected: "https://localhost:8000/path/",
+			expected: "https://localhost:8000/path",
 		},
 		{
 			name:     "multipart_path",
 			input:    "https://localhost:8000/path1/path2/path3",
-			expected: "https://localhost:8000/path1/path2/path3/",
+			expected: "https://localhost:8000/path1/path2/path3",
 		},
 		{
 			name:     "multipart_path_trailing_slash",
