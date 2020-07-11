@@ -31,7 +31,7 @@ func writePID(path string) error {
 func micromdm(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	var (
 		ctx       = context.Background()
-		logger    = log.New()
+		logger    = log.New(log.Output(stderr))
 		ffOptions = []ff.Option{ff.WithConfigFileParser(ff.PlainParser), ff.WithConfigFileFlag("config")}
 		rootfs    = flag.NewFlagSet("micromdm", flag.ContinueOnError)
 		pidfile   = rootfs.String("pidfile", "/tmp/micromdm.pid", "Path to server pidfile")
@@ -126,7 +126,6 @@ func micromdm(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	case errors.Is(err, flag.ErrHelp):
 		return 2
 	default:
-		fmt.Fprintln(stderr) // when Ctrl+C is used, avoid messing up the logger line
 		log.Info(logger).Log("exit", err)
 		return 1
 	}

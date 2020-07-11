@@ -1,6 +1,6 @@
-// +build windows
+// +build test windows
 
-package log
+package main
 
 import "os"
 
