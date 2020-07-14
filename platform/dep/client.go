@@ -38,6 +38,17 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 		).Endpoint()
 	}
 
+	var removeProfileEndpoint endpoint.Endpoint
+	{
+		removeProfileEndpoint = httptransport.NewClient(
+			"DELETE",
+			httputil.CopyURL(u, "/v1/dep/profiles"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			decodeRemoveProfileResponse,
+			opts...,
+		).Endpoint()
+	}
+
 	var fetchProfileEndpoint endpoint.Endpoint
 	{
 		fetchProfileEndpoint = httptransport.NewClient(
@@ -74,6 +85,7 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	return Endpoints{
 		DefineProfileEndpoint:    defineProfileEndpoint,
 		AssignProfileEndpoint:    assignProfileEndpoint,
+		RemoveProfileEndpoint:    removeProfileEndpoint,
 		FetchProfileEndpoint:     fetchProfileEndpoint,
 		GetAccountInfoEndpoint:   getAccountInfoEndpoint,
 		GetDeviceDetailsEndpoint: getDeviceDetailsEndpoint,
