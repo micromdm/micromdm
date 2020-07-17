@@ -1,0 +1,13 @@
+{{ define "title"}}
+  <title>Internal Server Error</title>
+{{ end }}
+{{ define "content" }}
+  <div class="error-page">
+    {{ with .siteName }}<h1>{{.}}</h1>{{ end }}
+    <h2>500 Internal Server Error</h2>
+    <p>
+    You encountered an unknown error. We are looking into it. <a href="/">Return</a>
+    {{ with .trace_id }}<p>Error ID: {{.}}</p>{{ end }}
+    </p>
+  </div>
+{{ end }}

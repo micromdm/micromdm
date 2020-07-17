@@ -7,10 +7,12 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
+	"time"
 
 	"github.com/oklog/run"
 	"github.com/peterbourgon/ff/v3"
@@ -28,14 +30,23 @@ func writePID(path string) error {
 	return nil
 }
 
+type cliFlags struct {
+	siteName string
+	http     string
+}
+
 func micromdm(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	var (
 		ctx     = context.Background()
 		logger  = log.New(log.Output(stderr))
+		cli     = &cliFlags{}
 		rootfs  = flag.NewFlagSet("micromdm", flag.ContinueOnError)
 		pidfile = rootfs.String("pidfile", "/tmp/micromdm.pid", "Path to server pidfile")
 		_       = rootfs.String("config", "", "Path to config file (optional)")
 	)
+
+	rootfs.StringVar(&cli.siteName, "site_name", "Acme", "Name of the site as it would appear in the top left of the HTML UI")
+	rootfs.StringVar(&cli.http, "http", "localhost:9000", "HTTP service address")
 
 	// default output is os.Stderr.
 	// setting the output and flag.ContinueOnError overrides allows testing usage.
@@ -54,6 +65,7 @@ func micromdm(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	// add a help subcommand to make usage more discoverable.
 	helpCmd := &ffcli.Command{
 		Name:      "help",
+		ShortHelp: "Print this help text.",
 		UsageFunc: func(c *ffcli.Command) string { return "" },
 		Exec: func(_ context.Context, args []string) error {
 			rootfs.Usage()
@@ -71,11 +83,30 @@ func micromdm(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 				return err
 			}
 
+			srv, err := setup(cli, logger)
+			if err != nil {
+				return err
+			}
+
 			// run.Group manages lifecycles of various long running goroutines:
 			// - signal handlers for SIGTERM/SIGHUP etc.
 			// - http.Server listeners.
 			var g run.Group
+			{
+				server := &http.Server{
+					Handler: srv.ui.Handler(),
+					Addr:    cli.http,
+				}
 
+				g.Add(func() error {
+					log.Info(logger).Log("component", "frontend", "msg", "started")
+					return server.ListenAndServe()
+				}, func(error) {
+					ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+					defer cancel()
+					server.Shutdown(ctx)
+				})
+			}
 			{
 				// when the binary receives SIGINT or SIGTERM, execution is cancelled
 				ctx, cancel := context.WithCancel(ctx)
