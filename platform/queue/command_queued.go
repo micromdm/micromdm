@@ -18,7 +18,7 @@ func MarshalQueuedCommand(cq *QueueCommandQueued) ([]byte, error) {
 	}
 	return proto.Marshal(&commandqueued.CommandQueued{
 		DeviceUdid:  cq.DeviceUDID,
-		CommandUuid: cq.DeviceUDID,
+		CommandUuid: cq.CommandUUID,
 	})
 }
 
