@@ -27,6 +27,13 @@ func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) error {
 		return errors.Wrap(err, "get checkin topic from message")
 	}
 
+	if topic == AuthenticateTopic {
+		err = svc.queue.Clear(ctx, event)
+		if err != nil {
+			return errors.Wrap(err, "clearing queue on enrollment attempt")
+		}
+	}
+
 	err = svc.pub.Publish(ctx, topic, msg)
 	return errors.Wrapf(err, "publish checkin on topic: %s", topic)
 }
