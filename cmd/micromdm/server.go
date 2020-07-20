@@ -1,6 +1,7 @@
 package main
 
 import (
+	"micromdm.io/v2/internal/frontend/account"
 	"micromdm.io/v2/pkg/frontend"
 	"micromdm.io/v2/pkg/log"
 )
@@ -26,5 +27,10 @@ func setup(f *cliFlags, logger log.Logger) (*server, error) {
 	}
 
 	srv := &server{ui: uisrv}
+
+	account.HTTP(account.Config{
+		HTTP: srv.ui,
+	})
+
 	return srv, nil
 }

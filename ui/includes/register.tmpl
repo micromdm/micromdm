@@ -1,0 +1,48 @@
+{{ define "title" }}
+  <title>Register for {{ .siteName }}</title>
+{{ end }}
+{{ define "content" }}
+<div class="page">
+  <form class="single-page-form signup" method="post">
+    <legend>Sign up</legend>
+    {{ .csrfField }}
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        autocorrect="off"
+        autocapitalize="none"
+        {{with .form.username}}value="{{.}}"{{end}} />
+        {{with .errors -}}
+        <div class="invalid-input">{{.username}}</div>
+        {{end}}
+    </div>
+    <div class="form-group">
+      <label for="email">Email</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        {{ with .form.email }}value="{{.}}"{{ end }} />
+        {{with .errors -}}
+        <div class="invalid-input">{{.email}}</div>
+        {{end}}
+    </div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        {{ with .form.password }}value="{{.}}"{{ end }} />
+        {{with .errors}}
+        <div class="invalid-input">{{.password}}</div>
+        {{end}}
+    </div>
+    <div class="button-container"><button class="btn">Sign Up</button></div>
+    <div class="form-footer">Already have an account?<a href="/login">Sign In</a></div>
+  </form>
+</div>
+{{ end }}

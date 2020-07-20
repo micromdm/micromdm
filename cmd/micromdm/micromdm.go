@@ -34,7 +34,6 @@ type cliFlags struct {
 	debug    bool
 	siteName string
 	http     string
-	pidfile  string
 
 	csrfKey        string
 	csrfCookieName string
