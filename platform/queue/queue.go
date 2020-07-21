@@ -64,22 +64,16 @@ func (db *Store) Clear(ctx context.Context, event mdm.CheckinEvent) error {
 	}
 
 	dc, err := db.DeviceCommand(udid)
-	if err != nil {
-		if isNotFound(err) {
-			return nil
-		}
-		return errors.Wrapf(err, "get device command from queue, udid: %s", udid)
+	if isNotFound(err) {
+		return nil
+	} else if err != nil {
+		return errors.Wrapf(err, "get device to clear queue, udid: %s", udid)
 	}
 
 	dc.Commands = nil
 	dc.NotNow = nil
 
-	err = db.Save(dc)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return db.Save(dc)
 }
 
 func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*Command, error) {

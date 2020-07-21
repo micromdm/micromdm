@@ -28,8 +28,7 @@ func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) error {
 	}
 
 	if topic == AuthenticateTopic {
-		err = svc.queue.Clear(ctx, event)
-		if err != nil {
+		if err := svc.queue.Clear(ctx, event); err != nil {
 			return errors.Wrap(err, "clearing queue on enrollment attempt")
 		}
 	}
