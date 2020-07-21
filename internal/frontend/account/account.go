@@ -30,4 +30,5 @@ func HTTP(config Config) {
 	}
 
 	srv.http.HandleFunc("/register", srv.registerForm, http.MethodGet, http.MethodPost)
+	srv.http.HandleFunc("/register/done", srv.registerComplete)
 }

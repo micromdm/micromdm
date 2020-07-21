@@ -37,5 +37,16 @@ func (srv server) registerForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Debug(logger).Log("msg", "account created", "username", usr.Username, "id", usr.ID)
+	log.Debug(logger).Log(
+		"msg", "account created",
+		"username", usr.Username,
+		"id", usr.ID,
+		"confirmation_hash", *usr.ConfirmationHash,
+	)
+
+	http.Redirect(w, r, "/register/done", http.StatusFound)
+}
+
+func (srv server) registerComplete(w http.ResponseWriter, r *http.Request) {
+	srv.http.RenderTemplate(r.Context(), w, "register-done.tmpl", frontend.Data{})
 }
