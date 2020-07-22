@@ -112,3 +112,7 @@ func create(username, email, password string) (*User, error) {
 
 	return u, nil
 }
+
+var constraints = map[string]string{
+	"chk_email_not_empty": "You must provide an email address.",
+}

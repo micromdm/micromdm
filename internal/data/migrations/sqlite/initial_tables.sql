@@ -11,8 +11,8 @@ CREATE TABLE IF NOT EXISTS users (
   confirmation_hash text,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  CHECK (username != ''),
-  CHECK (email != ''),
+  CONSTRAINT chk_username_not_empty CHECK (username != ''),
+  CONSTRAINT chk_email_not_empty CHECK (email != ''),
   UNIQUE (email),
   UNIQUE (username)
 );

@@ -259,14 +259,28 @@ func (srv *Server) recoverPanic(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+func csrfDisabled(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		logger := log.FromContext(r.Context())
+		log.Info(logger).Log("msg", "CSRF Protection disabled", "reason", "CSRF key not set.")
+		next.ServeHTTP(w, r)
+	})
+}
 
 func (srv *Server) csrf(next http.Handler) http.Handler {
-	mw := csrf.Protect(
-		srv.csrfKey,
-		csrf.CookieName(srv.csrfCookieName),
-		csrf.FieldName(srv.csrfFieldName),
-		csrf.ErrorHandler(http.HandlerFunc(srv.csrfErrorHandler)),
-	)
+	var mw func(http.Handler) http.Handler
+
+	if string(srv.csrfKey) == "" {
+		mw = csrfDisabled
+	} else {
+		mw = csrf.Protect(
+			srv.csrfKey,
+			csrf.CookieName(srv.csrfCookieName),
+			csrf.FieldName(srv.csrfFieldName),
+			csrf.ErrorHandler(http.HandlerFunc(srv.csrfErrorHandler)),
+		)
+	}
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Excluding assets from setting the cookie.
 		// Refactor into a switch or callback? if adding other paths.

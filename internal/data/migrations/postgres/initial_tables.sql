@@ -1,4 +1,4 @@
---DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS users;
 
 CREATE TABLE IF NOT EXISTS users (
   id text PRIMARY KEY NOT NULL,
@@ -9,8 +9,8 @@ CREATE TABLE IF NOT EXISTS users (
   confirmation_hash text,
   created_at timestamptz DEFAULT (now() at time zone 'utc'),
   updated_at timestamptz DEFAULT (now() at time zone 'utc'),
-  CHECK (username != ''),
-  CHECK (email != ''),
+  CONSTRAINT chk_username_not_empty CHECK (username != ''),
+  CONSTRAINT chk_email_not_empty CHECK (email != ''),
   UNIQUE (email),
   UNIQUE (username)
 );

@@ -16,3 +16,5 @@ require (
 	golang.org/x/crypto v0.0.0-20200709230013-948cd5f35899
 	rsc.io/goversion v1.2.0
 )
+
+replace crawshaw.io/sqlite => github.com/groob/sqlite v0.3.3-0.20200721040052-b46ed0907467

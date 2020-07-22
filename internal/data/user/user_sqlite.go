@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
+	"crawshaw.io/sqlite"
 	"crawshaw.io/sqlite/sqlitex"
 )
 
@@ -42,7 +44,7 @@ func (d *SQLite) CreateUser(ctx context.Context, username, email, password strin
 	stmt.SetBytes("$salt", u.Salt)
 	stmt.SetText("$confirmationHash", *u.ConfirmationHash)
 	if _, err := stmt.Step(); err != nil {
-		return nil, err
+		return nil, checkConstraint(err)
 	}
 
 	stmt = conn.Prep(`SELECT created_at, updated_at FROM users WHERE id = $id`)
@@ -86,4 +88,20 @@ func (d *SQLite) ConfirmUser(ctx context.Context, confirmation string) error {
 	}
 
 	return nil
+}
+
+func checkConstraint(err error) error {
+	var sErr sqlite.Error
+	if !errors.As(err, &sErr) {
+		return err
+	}
+
+	if sErr.Code == sqlite.SQLITE_CONSTRAINT_CHECK {
+		c := strings.Split(sErr.Msg, ": ")
+		if msg, ok := constraints[c[len(c)-1]]; ok {
+			return errors.New(msg)
+		}
+	}
+
+	return err
 }
