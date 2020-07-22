@@ -68,6 +68,8 @@ To communicate with your device fleet, MDM needs an APNS certificate issued by A
 
 Apple has a separate flow for the MDM vendor than the one for customers. For an in-house deployment without third parties, you must complete boththe vendor and the customer process yourself. The `mdmctl mdmcert` command will help you with your APNS certificate needs.
 
+## Vendor Process
+
 Create a request for the MDM CSR, with a password used to encrypt the private key. 
 After this step you will have a new `mdm-certificates` directory, with the necessary files. 
 ```
@@ -83,7 +85,23 @@ Log in to the Apple Developer Portal (https://developer.apple.com/account), and 
 
 You now have the vendor side of the certificate flow complete, and you need to complete the customer side of this flow, with the help of the vendor cert. 
 
-Sign a push certificate request with the vendor certificate. This step uses the private key you created above, so specify the same password to be able to decrypt it. 
+## Customer Process
+
+### MicroMDM Push Certificate Request[¶](http://localhost:1313/micromdm/create-dep-certificates/#micromdm-push-certificate-request)
+
+Next, create a push CSR. This step generates a CSR required to get a signed a push certificate.
+
+> Note: This is using the same secret as the initial vendor CSR
+
+```
+mdmctl mdmcert push -password=secret -country=US -email=admin@acme.co
+```
+
+This command creates two files: `PushCertificateRequest.csr` and `PushCertificatePrivateKey.key`.
+
+### Sign the Push CSR with the MDM Vendor Certificate
+
+Sign a push certificate request with the vendor certificate. This step uses the vendor private key you created above, so specify the same password to be able to decrypt it. 
 
 ```
 mdmctl mdmcert vendor -sign -cert=./mdm-certificates/mdm.cer -password=secret
