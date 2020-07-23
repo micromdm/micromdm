@@ -268,11 +268,8 @@ func csrfDisabled(next http.Handler) http.Handler {
 }
 
 func (srv *Server) csrf(next http.Handler) http.Handler {
-	var mw func(http.Handler) http.Handler
-
-	if string(srv.csrfKey) == "" {
-		mw = csrfDisabled
-	} else {
+	mw := csrfDisabled
+	if string(srv.csrfKey) != "" {
 		mw = csrf.Protect(
 			srv.csrfKey,
 			csrf.CookieName(srv.csrfCookieName),
