@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -38,7 +39,7 @@ func (d *Postgres) CreateUser(ctx context.Context, username, email, password str
 		u.Salt,
 		u.ConfirmationHash,
 	).Scan(&u.CreatedAt, &u.UpdatedAt); err != nil {
-		return nil, fmt.Errorf("store created user in postgres: %w", err)
+		return nil, fmt.Errorf("store created user in postgres: %w", checkPostgres(err))
 	}
 
 	return u, nil
@@ -57,4 +58,20 @@ func (d *Postgres) ConfirmUser(ctx context.Context, confirmation string) error {
 	}
 
 	return nil
+}
+
+func checkPostgres(err error) error {
+	var dbErr *pgconn.PgError
+	if !errors.As(err, &dbErr) {
+		return err
+	}
+
+	switch dbErr.Code {
+	case "23514":
+		if kv, ok := constraints[dbErr.ConstraintName]; ok {
+			return Error{invalid: kv}
+		}
+	}
+
+	return err
 }

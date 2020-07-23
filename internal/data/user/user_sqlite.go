@@ -44,7 +44,7 @@ func (d *SQLite) CreateUser(ctx context.Context, username, email, password strin
 	stmt.SetBytes("$salt", u.Salt)
 	stmt.SetText("$confirmationHash", *u.ConfirmationHash)
 	if _, err := stmt.Step(); err != nil {
-		return nil, checkSqlite(err)
+		return nil, fmt.Errorf("store created user in sqlite: %w", checkSqlite(err))
 	}
 
 	stmt = conn.Prep(`SELECT created_at, updated_at FROM users WHERE id = $id`)
