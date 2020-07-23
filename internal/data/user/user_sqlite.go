@@ -44,7 +44,7 @@ func (d *SQLite) CreateUser(ctx context.Context, username, email, password strin
 	stmt.SetBytes("$salt", u.Salt)
 	stmt.SetText("$confirmationHash", *u.ConfirmationHash)
 	if _, err := stmt.Step(); err != nil {
-		return nil, checkConstraint(err)
+		return nil, checkSqlite(err)
 	}
 
 	stmt = conn.Prep(`SELECT created_at, updated_at FROM users WHERE id = $id`)
@@ -90,18 +90,19 @@ func (d *SQLite) ConfirmUser(ctx context.Context, confirmation string) error {
 	return nil
 }
 
-func checkConstraint(err error) error {
+func checkSqlite(err error) error {
 	var sErr sqlite.Error
 	if !errors.As(err, &sErr) {
 		return err
 	}
 
-	if sErr.Code == sqlite.SQLITE_CONSTRAINT_CHECK {
+	switch sErr.Code {
+	case sqlite.SQLITE_CONSTRAINT_CHECK:
 		c := strings.Split(sErr.Msg, ": ")
-		if msg, ok := constraints[c[len(c)-1]]; ok {
-			return errors.New(msg)
+		if kv, ok := constraints[c[len(c)-1]]; ok {
+			return Error{invalid: kv}
 		}
 	}
 
-	return err
+	return fmt.Errorf("user: %w", err)
 }

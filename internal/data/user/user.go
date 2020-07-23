@@ -60,10 +60,6 @@ func (u *User) ValidatePassword(plaintext string) error {
 }
 
 func (u *User) setPassword(plaintext string) error {
-	if plaintext == "" {
-		return errors.New("password cannot be empty")
-	}
-
 	salt, err := random(32, base64.StdEncoding)
 	if err != nil {
 		return err
@@ -93,6 +89,24 @@ func random(keySize int, enc *base64.Encoding) ([]byte, error) {
 // DB
 
 func create(username, email, password string) (*User, error) {
+	val := Error{invalid: make(map[string]string)}
+
+	if username == "" {
+		val.invalid["username"] = constraints["chk_username_not_empty"]["username"]
+	}
+
+	if email == "" {
+		val.invalid["email"] = constraints["chk_email_not_empty"]["email"]
+	}
+
+	if password == "" {
+		val.invalid["password"] = constraints["chk_password_not_empty"]["password"]
+	}
+
+	if len(val.invalid) > 0 {
+		return nil, val
+	}
+
 	u := &User{
 		ID:       id.New(),
 		Username: username,
@@ -113,6 +127,37 @@ func create(username, email, password string) (*User, error) {
 	return u, nil
 }
 
-var constraints = map[string]string{
-	"chk_email_not_empty": "You must provide an email address.",
+type Error struct {
+	invalid map[string]string
+}
+
+func (err Error) Invalid() map[string]string { return err.invalid }
+
+func (err Error) Error() string {
+	switch len(err.invalid) {
+	case 0:
+		return "user validation failed"
+	case 1:
+		var key, value string
+		for k, v := range err.invalid {
+			key = k
+			value = v
+			break
+		}
+		return fmt.Sprintf("user validation failed: %s - %s", key, value)
+	default:
+		var key, value string
+		for k, v := range err.invalid {
+			key = k
+			value = v
+			break
+		}
+		return fmt.Sprintf("user validation failed: %s - %s and %d other errors", key, value, len(err.invalid)-1)
+	}
+}
+
+var constraints = map[string]map[string]string{
+	"chk_email_not_empty":    map[string]string{"email": "You must provide an email address."},
+	"chk_username_not_empty": map[string]string{"username": "You must provide a username."},
+	"chk_password_not_empty": map[string]string{"password": "You must provide a password."},
 }

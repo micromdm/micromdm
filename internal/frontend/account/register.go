@@ -33,7 +33,7 @@ func (srv server) registerForm(w http.ResponseWriter, r *http.Request) {
 
 	usr, err := srv.userdb.CreateUser(ctx, username, email, password)
 	if err != nil {
-		srv.http.Fail(ctx, w, err, "msg", "creating user")
+		srv.http.Fail(ctx, w, err, "register.tmpl", "msg", "creating user")
 		return
 	}
 
