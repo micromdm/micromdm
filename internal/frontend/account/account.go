@@ -11,6 +11,7 @@ import (
 
 type UserStore interface {
 	CreateUser(ctx context.Context, username, email, password string) (*user.User, error)
+	ConfirmUser(ctx context.Context, token string) error
 }
 
 type server struct {
@@ -31,4 +32,5 @@ func HTTP(config Config) {
 
 	srv.http.HandleFunc("/register", srv.registerForm, http.MethodGet, http.MethodPost)
 	srv.http.HandleFunc("/register/done", srv.registerComplete)
+	srv.http.HandleFunc("/registered/confirm/{token}", srv.registerConfirm)
 }
