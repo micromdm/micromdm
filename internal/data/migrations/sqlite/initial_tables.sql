@@ -1,6 +1,8 @@
 PRAGMA auto_vacuum = INCREMENTAL;
+PRAGMA foreign_keys = ON;
 
--- DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS sessions;
 
 CREATE TABLE IF NOT EXISTS users (
   id text PRIMARY KEY,
@@ -25,3 +27,12 @@ BEGIN
 WHERE
   id = old.id;
 END;
+
+CREATE TABLE IF NOT EXISTS sessions (
+  id text PRIMARY KEY NOT NULL,
+  user_id text REFERENCES users(id) ON DELETE CASCADE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  accessed_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS session_users_idx ON sessions(user_id);

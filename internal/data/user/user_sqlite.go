@@ -47,23 +47,21 @@ func (d *SQLite) CreateUser(ctx context.Context, username, email, password strin
 		return nil, fmt.Errorf("store created user in sqlite: %w", checkSqlite(err))
 	}
 
-	stmt = conn.Prep(`SELECT created_at, updated_at FROM users WHERE id = $id`)
+	stmt = conn.Prep(fmt.Sprintf(
+		`SELECT %s FROM users WHERE id = $id;`, strings.Join(columns(), `, `)))
 	stmt.SetText("$id", u.ID)
-	if _, err := stmt.Step(); err != nil {
+	if found, err := stmt.Step(); err != nil {
 		return nil, err
+	} else if !found {
+		return nil, fmt.Errorf("user (email %q) not found in sqlite", email)
 	}
 
-	u.CreatedAt, err = time.Parse("2006-01-02 15:04:05", stmt.GetText("created_at"))
+	usr, err := sqliteUser(stmt)
 	if err != nil {
 		return nil, err
 	}
 
-	u.UpdatedAt, err = time.Parse("2006-01-02 15:04:05", stmt.GetText("updated_at"))
-	if err != nil {
-		return nil, err
-	}
-
-	return u, stmt.Reset()
+	return usr, nil
 }
 
 func (d *SQLite) ConfirmUser(ctx context.Context, confirmation string) error {
@@ -88,6 +86,62 @@ func (d *SQLite) ConfirmUser(ctx context.Context, confirmation string) error {
 	}
 
 	return nil
+}
+
+func (d *SQLite) FindUserByEmail(ctx context.Context, email string) (*User, error) {
+	conn := d.db.Get(ctx)
+	if conn == nil {
+		return nil, context.Canceled
+	}
+	defer d.db.Put(conn)
+
+	if email == "" {
+		return nil, Error{invalid: constraints["chk_email_not_empty"]}
+	}
+
+	stmt := conn.Prep(fmt.Sprintf(
+		`SELECT %s FROM users WHERE email = $email;`, strings.Join(columns(), `, `)))
+	stmt.SetText("$email", email)
+	if found, err := stmt.Step(); err != nil {
+		return nil, err
+	} else if !found {
+		return nil, fmt.Errorf("user (email %q) not found in sqlite", email)
+	}
+
+	usr, err := sqliteUser(stmt)
+	if err != nil {
+		return nil, err
+	}
+	return usr, stmt.Reset()
+}
+
+func sqliteUser(stmt *sqlite.Stmt) (*User, error) {
+	var (
+		u   = new(User)
+		err error
+	)
+
+	u.ID = stmt.GetText("id")
+	u.Email = stmt.GetText("email")
+	u.Password = []byte(stmt.GetText("password"))
+	u.Salt = []byte(stmt.GetText("salt"))
+
+	// TODO: do we really need the pointer?
+	if hash := stmt.GetText("confirmation_hash"); hash != "" {
+		u.ConfirmationHash = &hash
+	}
+
+	u.CreatedAt, err = time.Parse("2006-01-02 15:04:05", stmt.GetText("created_at"))
+	if err != nil {
+		return nil, err
+	}
+
+	u.UpdatedAt, err = time.Parse("2006-01-02 15:04:05", stmt.GetText("updated_at"))
+	if err != nil {
+		return nil, err
+	}
+
+	return u, stmt.Reset()
 }
 
 func checkSqlite(err error) error {

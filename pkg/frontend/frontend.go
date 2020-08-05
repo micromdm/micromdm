@@ -12,11 +12,16 @@ import (
 	"strings"
 	"sync"
 	"text/template"
+	"time"
 
+	"github.com/go-kit/kit/log/level"
 	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/securecookie"
 
+	"micromdm.io/v2/internal/data/session"
 	"micromdm.io/v2/pkg/log"
+	"micromdm.io/v2/pkg/viewer"
 )
 
 // Data keys. Private, set via helper methods.
@@ -60,6 +65,10 @@ type Framework interface {
 	HandleFunc(path string, f func(http.ResponseWriter, *http.Request), methods ...string)
 }
 
+type SessionStore interface {
+	FindSession(ctx context.Context, id string) (*session.Session, error)
+}
+
 // Server implements Framework.
 type Server struct {
 	r *mux.Router
@@ -72,6 +81,10 @@ type Server struct {
 	csrfKey        []byte
 	csrfCookieName string
 	csrfFieldName  string
+
+	authCookieName string
+	sessiondb      SessionStore
+	cookie         *securecookie.SecureCookie
 }
 
 // Config parameters to create a new Server.
@@ -82,6 +95,10 @@ type Config struct {
 	CSRFKey        []byte
 	CSRFCookieName string
 	CSRFFieldName  string
+
+	AuthCookieName string
+	SessionStore   SessionStore
+	Cookie         *securecookie.SecureCookie
 }
 
 // New creates a Server.
@@ -94,10 +111,14 @@ func New(config Config) (*Server, error) {
 		csrfKey:        config.CSRFKey,
 		csrfFieldName:  config.CSRFFieldName,
 		csrfCookieName: config.CSRFCookieName,
+		authCookieName: config.AuthCookieName,
+		sessiondb:      config.SessionStore,
+		cookie:         config.Cookie,
 	}
 
 	srv.r.Use(
 		log.HTTP(config.Logger), // HTTP logging middleware.
+		srv.authMW,              // check auth, add viewer
 		srv.csrf,                // CSRF protection.
 		srv.recoverPanic,        // convert any panic into 500 errors.
 	)
@@ -124,6 +145,9 @@ func New(config Config) (*Server, error) {
 
 // Handler returns the mux router used by the Server.
 func (srv *Server) Handler() http.Handler { return srv.r }
+
+// AuthCookieName exposes the cookie name used for authentication.
+func (srv *Server) AuthCookieName() string { return srv.authCookieName }
 
 // HandleFunc wraps *mux.Router, allowing other packages to register with the router.
 func (srv *Server) HandleFunc(path string, f func(http.ResponseWriter, *http.Request), methods ...string) {
@@ -259,6 +283,7 @@ func (srv *Server) recoverPanic(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
+
 func csrfDisabled(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logger := log.FromContext(r.Context())
@@ -305,4 +330,83 @@ func (srv *Server) notFound(w http.ResponseWriter, r *http.Request) {
 
 func (srv *Server) indexPage(w http.ResponseWriter, r *http.Request) {
 	srv.RenderTemplate(r.Context(), w, "home.tmpl", Data{})
+}
+
+// SESSION
+
+var pubicPagePrefix = []string{
+	"/login",
+	"/assets/",
+	"/forgot",
+	"/register",
+}
+
+func isPublic(path string) bool {
+	for _, k := range pubicPagePrefix {
+		if strings.HasPrefix(path, k) {
+			return true
+		}
+	}
+	return false
+}
+
+func (srv *Server) sessionFromRequest(r *http.Request) (*session.Session, error) {
+	ctx := r.Context()
+
+	cookie, err := r.Cookie(srv.authCookieName)
+	if err != nil {
+		return nil, err
+	}
+
+	value := make(map[string]string)
+	if err := srv.cookie.Decode(srv.authCookieName, cookie.Value, &value); err != nil {
+		return nil, err
+	}
+
+	id, ok := value["id"]
+	if !ok {
+		return nil, errors.New("auth cookie present but no id value")
+	}
+
+	sess, err := srv.sessiondb.FindSession(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if sess.CreatedAt.Before(time.Now().UTC().Add(time.Duration(-30) * time.Minute)) {
+		return nil, fmt.Errorf("session (id %s) expired", sess.ID)
+	}
+
+	return sess, nil
+}
+
+func (srv *Server) authMW(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var (
+			ctx    = r.Context()
+			logger = log.FromContext(ctx)
+		)
+		sess, err := srv.sessionFromRequest(r)
+		if err == http.ErrNoCookie && isPublic(r.URL.Path) {
+			next.ServeHTTP(w, r.WithContext(ctx))
+			return
+		} else if err != nil {
+			log.Debug(logger).Log("err", err, "msg", "check auth")
+			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
+			return
+		}
+
+		ctx = viewer.NewContext(ctx, viewer.Viewer{
+			UserID:    sess.UserID,
+			SessionID: sess.ID,
+		})
+
+		if strings.HasPrefix(r.URL.Path, "/login") {
+			level.Debug(logger).Log("msg", "redirect session to dashboard page", "session_id", sess.ID)
+			http.Redirect(w, r, "/dashboard", http.StatusFound)
+			return
+		}
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }

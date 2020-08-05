@@ -8,6 +8,7 @@ require (
 	github.com/go-kit/kit v0.10.0
 	github.com/gorilla/csrf v1.7.0
 	github.com/gorilla/mux v1.7.4
+	github.com/gorilla/securecookie v1.1.1
 	github.com/jackc/pgconn v1.6.2
 	github.com/jackc/pgx/v4 v4.7.2
 	github.com/oklog/run v1.1.0

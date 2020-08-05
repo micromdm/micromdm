@@ -1,0 +1,42 @@
+{{ define "title"}}
+  <title>Sign In to {{.siteName}}</title>
+{{ end }}
+{{ define "content" }}
+  <div class="page">
+    <div class="auth-page-container">
+      <form class="single-page-form" method="post">
+        <legend>Sign In</legend>
+        {{ .csrfField }}
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            {{with .form.email}}value="{{.}}"{{end}} />
+            {{with .errors}}
+              <div class="invalid-input">{{ .email}}</div>
+            {{end}}
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            {{with .form.password}}value="{{.}}"{{end}} />
+            {{with .errors}}
+              <div class="invalid-input">{{ .password}}</div>
+            {{end}}
+        </div>
+        {{with .alert}}
+          <div class="invalid-alert">{{.}}</div>
+        {{end}}
+        <div class="button-container">
+          <button class="btn">Sign In</button>
+        </div>
+        <div class="form-footer">Don't have an account?<a href="/register">Sign Up</a></div>
+      </form>
+    </div>
+  </div>
+{{ end }}

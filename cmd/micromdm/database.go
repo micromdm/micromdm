@@ -10,6 +10,7 @@ import (
 	"crawshaw.io/sqlite/sqlitex"
 	"github.com/jackc/pgx/v4/pgxpool"
 
+	"micromdm.io/v2/internal/data/session"
 	"micromdm.io/v2/internal/data/user"
 	"micromdm.io/v2/pkg/log"
 )
@@ -33,8 +34,16 @@ func (db *database) userdb() interface{} {
 	return db.pg.userdb
 }
 
+func (db *database) sessiondb() interface{} {
+	if db.sq != nil {
+		return db.sq.sessiondb
+	}
+	return db.pg.sessiondb
+}
+
 type sqlitedb struct {
-	userdb *user.SQLite
+	userdb    *user.SQLite
+	sessiondb *session.SQLite
 }
 
 func setupSQLite(ctx context.Context, f *cliFlags, logger log.Logger) (*sqlitedb, error) {
@@ -58,7 +67,8 @@ func setupSQLite(ctx context.Context, f *cliFlags, logger log.Logger) (*sqlitedb
 	}
 
 	db := &sqlitedb{
-		userdb: user.NewSQLite(pool),
+		userdb:    user.NewSQLite(pool),
+		sessiondb: session.NewSQLite(pool),
 	}
 
 	log.Debug(logger).Log("msg", "connected to db", "backend", "sqlite")
@@ -97,7 +107,8 @@ func sqliteInit(conn *sqlite.Conn) error {
 }
 
 type postgresdb struct {
-	userdb *user.Postgres
+	userdb    *user.Postgres
+	sessiondb *session.Postgres
 }
 
 func setupPostgres(ctx context.Context, f *cliFlags, logger log.Logger) (*postgresdb, error) {
@@ -115,7 +126,8 @@ func setupPostgres(ctx context.Context, f *cliFlags, logger log.Logger) (*postgr
 	}
 
 	db := &postgresdb{
-		userdb: user.NewPostgres(dbpool),
+		userdb:    user.NewPostgres(dbpool),
+		sessiondb: session.NewPostgres(dbpool),
 	}
 
 	log.Debug(logger).Log("msg", "connected to db", "backend", "postgres")

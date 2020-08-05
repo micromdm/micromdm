@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE IF NOT EXISTS users (
@@ -13,4 +14,11 @@ CREATE TABLE IF NOT EXISTS users (
   CONSTRAINT chk_email_not_empty CHECK (email != ''),
   UNIQUE (email),
   UNIQUE (username)
+);
+
+CREATE TABLE IF NOT EXISTS sessions (
+  id text PRIMARY KEY NOT NULL,
+  user_id text REFERENCES users(id) ON DELETE CASCADE,
+  created_at timestamptz DEFAULT (now() at time zone 'utc'),
+  accessed_at timestamptz DEFAULT (now() at time zone 'utc')
 );
