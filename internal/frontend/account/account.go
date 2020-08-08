@@ -19,6 +19,7 @@ type UserStore interface {
 
 type SessionStore interface {
 	CreateSession(ctx context.Context) (*session.Session, error)
+	DestroySession(ctx context.Context) error
 }
 
 type CookieAuthFramework interface {
@@ -51,5 +52,7 @@ func HTTP(config Config) {
 	srv.http.HandleFunc("/register", srv.registerForm, http.MethodGet, http.MethodPost)
 	srv.http.HandleFunc("/register/done", srv.registerComplete)
 	srv.http.HandleFunc("/registered/confirm/{token}", srv.registerConfirm)
+
 	srv.http.HandleFunc("/login", srv.loginForm, http.MethodGet, http.MethodPost)
+	srv.http.HandleFunc("/logout", srv.logout)
 }

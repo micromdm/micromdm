@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"crawshaw.io/sqlite/sqlitex"
+	"micromdm.io/v2/pkg/viewer"
 )
 
 // SQLite provides methods for creating users in SQLite.
@@ -53,6 +54,26 @@ func (d *SQLite) CreateSession(ctx context.Context) (*Session, error) {
 	}
 
 	return s, stmt.Reset()
+}
+
+func (d *SQLite) DestroySession(ctx context.Context) error {
+	v, ok := viewer.FromContext(ctx)
+	if !ok || v.SessionID == "" {
+		return fmt.Errorf("session: missing valid viewer %v", v)
+	}
+
+	conn := d.db.Get(ctx)
+	if conn == nil {
+		return context.Canceled
+	}
+	defer d.db.Put(conn)
+
+	stmt := conn.Prep(`DELETE FROM sessions WHERE id = $id;`)
+	stmt.SetText("$id", v.SessionID)
+	if _, err := stmt.Step(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (d *SQLite) FindSession(ctx context.Context, id string) (*Session, error) {

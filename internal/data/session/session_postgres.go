@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v4/pgxpool"
+	"micromdm.io/v2/pkg/viewer"
 )
 
 // Postgres provides methods for creating sessions in PostgreSQL.
@@ -31,6 +32,21 @@ func (d *Postgres) CreateSession(ctx context.Context) (*Session, error) {
 	}
 
 	return s, nil
+}
+
+func (d *Postgres) DestroySession(ctx context.Context) error {
+	v, ok := viewer.FromContext(ctx)
+	if !ok || v.SessionID == "" {
+		return fmt.Errorf("session: missing valid viewer %v", v)
+	}
+
+	q := `DELETE FROM sessions WHERE id = $1;`
+
+	if _, err := d.db.Exec(ctx, q, v.SessionID); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (d *Postgres) FindSession(ctx context.Context, id string) (*Session, error) {

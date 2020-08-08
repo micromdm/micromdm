@@ -56,6 +56,29 @@ func (srv server) loginForm(w http.ResponseWriter, r *http.Request) {
 	log.Debug(logger).Log("msg", "logged in", "user_id", usr.ID)
 }
 
+func (srv server) logout(w http.ResponseWriter, r *http.Request) {
+	var (
+		ctx    = r.Context()
+		logger = log.FromContext(ctx)
+		v, _   = viewer.FromContext(ctx)
+	)
+
+	if err := srv.sessiondb.DestroySession(ctx); err != nil {
+		log.Info(logger).Log("err", err, "msg", "destroy session on logout")
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     srv.http.AuthCookieName(),
+		Path:     "/",
+		Secure:   true,
+		HttpOnly: true,
+		MaxAge:   -1,
+	})
+
+	log.Debug(logger).Log("msg", "user logged out", "user_id", v.UserID, "session_id", v.SessionID)
+	http.Redirect(w, r, "/login", http.StatusFound)
+}
+
 func (srv server) createSession(ctx context.Context, w http.ResponseWriter, userID string) error {
 	ctx = viewer.NewContext(ctx, viewer.Viewer{UserID: userID})
 	sess, err := srv.sessiondb.CreateSession(ctx)
