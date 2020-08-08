@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/jackc/pgconn"
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -58,6 +60,31 @@ func (d *Postgres) ConfirmUser(ctx context.Context, confirmation string) error {
 	}
 
 	return nil
+}
+
+func (d *Postgres) FindUserByEmail(ctx context.Context, email string) (*User, error) {
+	if email == "" {
+		return nil, Error{invalid: constraints["chk_email_not_empty"]}
+	}
+
+	u := &User{}
+	q := fmt.Sprintf(`SELECT %s FROM users WHERE email = $1;`, strings.Join(columns(), `, `))
+	if err := d.db.QueryRow(ctx, q, email).Scan(
+		&u.ID,
+		&u.Username,
+		&u.Email,
+		&u.Password,
+		&u.Salt,
+		&u.ConfirmationHash,
+		&u.CreatedAt,
+		&u.UpdatedAt,
+	); err == pgx.ErrNoRows {
+		return nil, fmt.Errorf("user (email %q) not found in postgres", email)
+	} else if err != nil {
+		return nil, err
+	}
+
+	return u, nil
 }
 
 func checkPostgres(err error) error {
