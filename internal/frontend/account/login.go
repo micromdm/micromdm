@@ -43,12 +43,14 @@ func (srv server) loginForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Info(logger).Log("msg", "got user", "user_id", usr.ID)
+	log.Debug(logger).Log("msg", "got user", "user_id", usr.ID)
+
 	if err := srv.createSession(ctx, w, usr.ID); err != nil {
 		srv.http.Fail(ctx, w, err, "msg", "create session")
 		return
 	}
-	log.Info(logger).Log("msg", "logged in", "user_id", usr.ID)
+
+	log.Debug(logger).Log("msg", "logged in", "user_id", usr.ID)
 }
 
 func (srv server) createSession(ctx context.Context, w http.ResponseWriter, userID string) error {
