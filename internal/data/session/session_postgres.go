@@ -3,6 +3,7 @@ package session
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/jackc/pgx/v4/pgxpool"
 )
@@ -30,4 +31,43 @@ func (d *Postgres) CreateSession(ctx context.Context) (*Session, error) {
 	}
 
 	return s, nil
+}
+
+func (d *Postgres) FindSession(ctx context.Context, id string) (*Session, error) {
+	q := fmt.Sprintf(`WITH updated AS (
+  UPDATE sessions SET accessed_at = now() at time zone 'utc'
+  FROM (
+    SELECT user_id FROM sessions
+    WHERE id = $1
+    LIMIT 1
+    ) sub
+    JOIN users u on u.id = sub.user_id
+    WHERE sessions.id = $2
+    RETURNING %s, u.username, u.full_name
+  )
+  SELECT %s, username, full_name from updated;`,
+		strings.Join(prefixTable("sessions", columns()), `, `),
+		strings.Join(columns(), `, `),
+	)
+
+	s := &Session{ID: id}
+	if err := d.db.QueryRow(ctx, q, id, id).Scan(
+		&s.ID,
+		&s.UserID,
+		&s.CreatedAt,
+		&s.AccessedAt,
+	); err != nil {
+		return nil, err
+	}
+
+	return s, nil
+
+}
+
+func prefixTable(prefix string, ss []string) []string {
+	result := make([]string, len(ss), cap(ss))
+	for i, s := range ss {
+		result[i] = fmt.Sprintf("%s.%s", prefix, s)
+	}
+	return result
 }
