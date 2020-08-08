@@ -32,6 +32,9 @@ func (srv server) loginForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO handle errors other than 500.
+	// alert: Username or password incorrect.
+
 	usr, err := srv.userdb.FindUserByEmail(ctx, email)
 	if err != nil {
 		srv.http.Fail(ctx, w, err, "msg", "find user for auth")
