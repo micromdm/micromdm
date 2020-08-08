@@ -276,8 +276,7 @@ func (srv *Server) recoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
 			if err := recover(); err != nil {
-				srv.Fail(r.Context(), w, fmt.Errorf("panic: %v", err), "msg", "recover panic")
-				debug.PrintStack()
+				srv.Fail(r.Context(), w, fmt.Errorf("panic: %v", err), "msg", "recover panic", "debug_stack", string(debug.Stack()))
 			}
 		}()
 		next.ServeHTTP(w, r)
