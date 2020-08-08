@@ -17,6 +17,15 @@ type Session struct {
 	AccessedAt time.Time
 }
 
+func columns() []string {
+	return []string{
+		"id",
+		"user_id",
+		"created_at",
+		"accessed_at",
+	}
+}
+
 func create(ctx context.Context) (*Session, error) {
 	v, ok := viewer.FromContext(ctx)
 	if !ok {
