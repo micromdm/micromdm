@@ -59,9 +59,9 @@ func (d *Postgres) FindSession(ctx context.Context, id string) (*Session, error)
     ) sub
     JOIN users u on u.id = sub.user_id
     WHERE sessions.id = $2
-    RETURNING %s, u.username, u.full_name
+    RETURNING %s
   )
-  SELECT %s, username, full_name from updated;`,
+	SELECT %s from updated;`, // TODO: add username, full_name to session struct.
 		strings.Join(prefixTable("sessions", columns()), `, `),
 		strings.Join(columns(), `, `),
 	)
