@@ -1,6 +1,7 @@
 .PHONY: build
 
-WORKSPACE := $(dir $(shell go env GOMOD))
+GO := go
+WORKSPACE := $(dir $(shell ${GO} env GOMOD))
 BUILD_DIR := $(WORKSPACE)/build
 
 export GOBIN=$(BUILD_DIR)
@@ -22,12 +23,12 @@ BUILD_VERSION = "\
 
 download:
 	@echo "Download dependencies"
-	@go mod download
+	@${GO} mod download
 
 install-tools: download
 	@echo "Installing tools"
-	@cat cmd/tools/tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %
+	@cat cmd/tools/tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % ${GO} install %
 
 micromdm:
 	$(eval APP_NAME = micromdm)
-	go install -race -ldflags ${BUILD_VERSION} ./cmd/micromdm
+	${GO} install -race -ldflags ${BUILD_VERSION} ./cmd/micromdm
