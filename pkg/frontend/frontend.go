@@ -389,7 +389,11 @@ func (srv *Server) authMW(next http.Handler) http.Handler {
 		if err == http.ErrNoCookie && isPublic(r.URL.Path) {
 			next.ServeHTTP(w, r.WithContext(ctx))
 			return
+		} else if err != nil && isPublic(r.URL.Path) {
+			srv.Fail(r.Context(), w, err, "msg", "auth mw failed to render")
+			return
 		} else if err != nil {
+			// TODO: handle not found and destroy the session somewhere.
 			log.Debug(logger).Log("err", err, "msg", "check auth")
 			http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
 			return
