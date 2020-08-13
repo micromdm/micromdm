@@ -58,6 +58,8 @@ type Server struct {
 	DEPClient           *dep.Client
 	SyncDB              *syncbuiltin.DB
 	NoCmdHistory        bool
+	SCEPIssuer          string
+	ValidateSCEPIssuer  bool
 
 	APNSPushService apns.Service
 	CommandService  command.Service
@@ -186,7 +188,7 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 		mdmService = device.UDIDCertAuthMiddleware(devDB, udidauthLogger)(mdmService)
 
 		verifycertLogger := log.With(logger, "component", "verifycert")
-		mdmService = VerifyCertificateMiddleware(c.SCEPDepot, verifycertLogger)(mdmService)
+		mdmService = VerifyCertificateMiddleware(c.ValidateSCEPIssuer, c.SCEPIssuer, c.SCEPDepot, c.SCEPDepot, verifycertLogger)(mdmService)
 	}
 	c.MDMService = mdmService
 
