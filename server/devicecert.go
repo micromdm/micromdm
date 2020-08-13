@@ -44,7 +44,7 @@ func verifyIssuer(devcert *x509.Certificate, scepIssuer string, scepDepot *boltd
 	issuer := devcert.Issuer.String()
 	expiration := devcert.NotAfter
 
-	if expiration.After(time.Now()) {
+	if time.Now().After(expiration) {
 		err := errors.New("device certificate is expired")
 		return false, err
 	}
