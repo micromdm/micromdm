@@ -18,31 +18,33 @@ type ScepVerifyDepot interface {
 	HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool) (bool, error)
 }
 
-func VerifyCertificateMiddleware(validateSCEPIssuer bool, store ScepVerifyDepot, logger log.Logger) mdm.Middleware {
+func VerifyCertificateMiddleware(validateSCEPIssuer bool, validateSCEPExpiration bool, store ScepVerifyDepot, logger log.Logger) mdm.Middleware {
 	return func(next mdm.Service) mdm.Service {
 		return &verifyCertificateMiddleware{
-			store:              store,
-			next:               next,
-			logger:             logger,
-			validateSCEPIssuer: validateSCEPIssuer,
+			store:                  store,
+			next:                   next,
+			logger:                 logger,
+			validateSCEPIssuer:     validateSCEPIssuer,
+			validateSCEPExpiration: validateSCEPExpiration,
 		}
 	}
 }
 
 type verifyCertificateMiddleware struct {
-	store              ScepVerifyDepot
-	next               mdm.Service
-	logger             log.Logger
-	validateSCEPIssuer bool
+	store                  ScepVerifyDepot
+	next                   mdm.Service
+	logger                 log.Logger
+	validateSCEPIssuer     bool
+	validateSCEPExpiration bool
 }
 
 func (mw *verifyCertificateMiddleware) verifyIssuer(devcert *x509.Certificate) error {
-	expiration := devcert.NotAfter
-
-	if time.Now().After(expiration) {
-		return errors.New("device certificate is expired")
+	if mw.validateSCEPExpiration {
+		expiration := devcert.NotAfter
+		if time.Now().After(expiration) {
+			return errors.New("device certificate is expired")
+		}
 	}
-
 	ca, _, err := mw.store.CA(nil)
 	if err != nil {
 		return errors.Wrap(err, "error retrieving CA")
@@ -82,6 +84,7 @@ func (mw *verifyCertificateMiddleware) Acknowledge(ctx context.Context, req mdm.
 		_ = level.Info(mw.logger).Log("err", unauth_err, "issuer", devcert.Issuer.String(), "expiration", devcert.NotAfter)
 		return nil, unauth_err
 	}
+
 	if !hasCN && mw.validateSCEPIssuer {
 		err := mw.verifyIssuer(devcert)
 		if err != nil {

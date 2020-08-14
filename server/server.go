@@ -39,26 +39,27 @@ import (
 )
 
 type Server struct {
-	ConfigPath          string
-	Depsim              string
-	PubClient           pubsub.PublishSubscriber
-	DB                  *bolt.DB
-	ServerPublicURL     string
-	SCEPChallenge       string
-	SCEPClientValidity  int
-	TLSCertPath         string
-	SCEPDepot           *boltdepot.Depot
-	UseDynSCEPChallenge bool
-	GenDynSCEPChallenge bool
-	SCEPChallengeDepot  *challengestore.Depot
-	ProfileDB           profile.Store
-	ConfigDB            config.Store
-	RemoveDB            block.Store
-	CommandWebhookURL   string
-	DEPClient           *dep.Client
-	SyncDB              *syncbuiltin.DB
-	NoCmdHistory        bool
-	ValidateSCEPIssuer  bool
+	ConfigPath             string
+	Depsim                 string
+	PubClient              pubsub.PublishSubscriber
+	DB                     *bolt.DB
+	ServerPublicURL        string
+	SCEPChallenge          string
+	SCEPClientValidity     int
+	TLSCertPath            string
+	SCEPDepot              *boltdepot.Depot
+	UseDynSCEPChallenge    bool
+	GenDynSCEPChallenge    bool
+	SCEPChallengeDepot     *challengestore.Depot
+	ProfileDB              profile.Store
+	ConfigDB               config.Store
+	RemoveDB               block.Store
+	CommandWebhookURL      string
+	DEPClient              *dep.Client
+	SyncDB                 *syncbuiltin.DB
+	NoCmdHistory           bool
+	ValidateSCEPIssuer     bool
+	ValidateSCEPExpiration bool
 
 	APNSPushService apns.Service
 	CommandService  command.Service
@@ -187,7 +188,7 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 		mdmService = device.UDIDCertAuthMiddleware(devDB, udidauthLogger)(mdmService)
 
 		verifycertLogger := log.With(logger, "component", "verifycert")
-		mdmService = VerifyCertificateMiddleware(c.ValidateSCEPIssuer, c.SCEPDepot, verifycertLogger)(mdmService)
+		mdmService = VerifyCertificateMiddleware(c.ValidateSCEPIssuer, c.ValidateSCEPExpiration, c.SCEPDepot, verifycertLogger)(mdmService)
 	}
 	c.MDMService = mdmService
 

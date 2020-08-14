@@ -70,25 +70,26 @@ const homePage = `<!doctype html>
 func serve(args []string) error {
 	flagset := flag.NewFlagSet("serve", flag.ExitOnError)
 	var (
-		flConfigPath         = flagset.String("config-path", env.String("MICROMDM_CONFIG_PATH", "/var/db/micromdm"), "Path to configuration directory")
-		flServerURL          = flagset.String("server-url", env.String("MICROMDM_SERVER_URL", ""), "Public HTTPS url of your server")
-		flAPIKey             = flagset.String("api-key", env.String("MICROMDM_API_KEY", ""), "API Token for mdmctl command")
-		flTLS                = flagset.Bool("tls", env.Bool("MICROMDM_TLS", true), "Use https")
-		flTLSCert            = flagset.String("tls-cert", env.String("MICROMDM_TLS_CERT", ""), "Path to TLS certificate")
-		flTLSKey             = flagset.String("tls-key", env.String("MICROMDM_TLS_KEY", ""), "Path to TLS private key")
-		flHTTPAddr           = flagset.String("http-addr", env.String("MICROMDM_HTTP_ADDR", ":https"), "http(s) listen address of mdm server. defaults to :8080 if tls is false")
-		flHTTPDebug          = flagset.Bool("http-debug", env.Bool("MICROMDM_HTTP_DEBUG", false), "Enable debug for http(dumps full request)")
-		flRepoPath           = flagset.String("filerepo", env.String("MICROMDM_FILE_REPO", ""), "Path to http file repo")
-		flDepSim             = flagset.String("depsim", env.String("MICROMDM_DEPSIM_URL", ""), "Use depsim URL")
-		flExamples           = flagset.Bool("examples", false, "Prints some example usage")
-		flCommandWebhookURL  = flagset.String("command-webhook-url", env.String("MICROMDM_WEBHOOK_URL", ""), "URL to send command responses")
-		flHomePage           = flagset.Bool("homepage", env.Bool("MICROMDM_HTTP_HOMEPAGE", true), "Hosts a simple built-in webpage at the / address")
-		flSCEPClientValidity = flagset.Int("scep-client-validity", env.Int("MICROMDM_SCEP_CLIENT_VALIDITY", 365), "Sets the scep certificate validity in days")
-		flNoCmdHistory       = flagset.Bool("no-command-history", env.Bool("MICROMDM_NO_COMMAND_HISTORY", false), "disables saving of command history")
-		flUseDynChallenge    = flagset.Bool("use-dynamic-challenge", env.Bool("MICROMDM_USE_DYNAMIC_CHALLENGE", false), "require dynamic SCEP challenges")
-		flGenDynChalEnroll   = flagset.Bool("gen-dynamic-challenge", env.Bool("MICROMDM_GEN_DYNAMIC_CHALLENGE", false), "generate dynamic SCEP challenges in enrollment profile (built-in only)")
-		flValidateSCEPIssuer = flagset.Bool("validate-scep-issuer", env.Bool("MICROMDM_VALIDATE_SCEP_ISSUER", false), "validate only the issuer of the SCEP certificate rather than the whole certificate")
-		flPrintArgs          = flagset.Bool("print-flags", false, "Print all flags and their values")
+		flConfigPath             = flagset.String("config-path", env.String("MICROMDM_CONFIG_PATH", "/var/db/micromdm"), "Path to configuration directory")
+		flServerURL              = flagset.String("server-url", env.String("MICROMDM_SERVER_URL", ""), "Public HTTPS url of your server")
+		flAPIKey                 = flagset.String("api-key", env.String("MICROMDM_API_KEY", ""), "API Token for mdmctl command")
+		flTLS                    = flagset.Bool("tls", env.Bool("MICROMDM_TLS", true), "Use https")
+		flTLSCert                = flagset.String("tls-cert", env.String("MICROMDM_TLS_CERT", ""), "Path to TLS certificate")
+		flTLSKey                 = flagset.String("tls-key", env.String("MICROMDM_TLS_KEY", ""), "Path to TLS private key")
+		flHTTPAddr               = flagset.String("http-addr", env.String("MICROMDM_HTTP_ADDR", ":https"), "http(s) listen address of mdm server. defaults to :8080 if tls is false")
+		flHTTPDebug              = flagset.Bool("http-debug", env.Bool("MICROMDM_HTTP_DEBUG", false), "Enable debug for http(dumps full request)")
+		flRepoPath               = flagset.String("filerepo", env.String("MICROMDM_FILE_REPO", ""), "Path to http file repo")
+		flDepSim                 = flagset.String("depsim", env.String("MICROMDM_DEPSIM_URL", ""), "Use depsim URL")
+		flExamples               = flagset.Bool("examples", false, "Prints some example usage")
+		flCommandWebhookURL      = flagset.String("command-webhook-url", env.String("MICROMDM_WEBHOOK_URL", ""), "URL to send command responses")
+		flHomePage               = flagset.Bool("homepage", env.Bool("MICROMDM_HTTP_HOMEPAGE", true), "Hosts a simple built-in webpage at the / address")
+		flSCEPClientValidity     = flagset.Int("scep-client-validity", env.Int("MICROMDM_SCEP_CLIENT_VALIDITY", 365), "Sets the scep certificate validity in days")
+		flNoCmdHistory           = flagset.Bool("no-command-history", env.Bool("MICROMDM_NO_COMMAND_HISTORY", false), "disables saving of command history")
+		flUseDynChallenge        = flagset.Bool("use-dynamic-challenge", env.Bool("MICROMDM_USE_DYNAMIC_CHALLENGE", false), "require dynamic SCEP challenges")
+		flGenDynChalEnroll       = flagset.Bool("gen-dynamic-challenge", env.Bool("MICROMDM_GEN_DYNAMIC_CHALLENGE", false), "generate dynamic SCEP challenges in enrollment profile (built-in only)")
+		flValidateSCEPIssuer     = flagset.Bool("validate-scep-issuer", env.Bool("MICROMDM_VALIDATE_SCEP_ISSUER", false), "validate only the issuer of the SCEP certificate rather than the whole certificate")
+		flValidateSCEPExpiration = flagset.Bool("validate-scep-expiration", env.Bool("MICROMDM_VALIDATE_SCEP_EXPIRATION", false), "validate that the SCEP certificate is still valid")
+		flPrintArgs              = flagset.Bool("print-flags", false, "Print all flags and their values")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -125,15 +126,16 @@ func serve(args []string) error {
 		return errors.Wrapf(err, "creating config directory %s", *flConfigPath)
 	}
 	sm := &server.Server{
-		ConfigPath:          *flConfigPath,
-		ServerPublicURL:     strings.TrimRight(*flServerURL, "/"),
-		Depsim:              *flDepSim,
-		TLSCertPath:         *flTLSCert,
-		CommandWebhookURL:   *flCommandWebhookURL,
-		NoCmdHistory:        *flNoCmdHistory,
-		UseDynSCEPChallenge: *flUseDynChallenge,
-		GenDynSCEPChallenge: *flGenDynChalEnroll,
-		ValidateSCEPIssuer:  *flValidateSCEPIssuer,
+		ConfigPath:             *flConfigPath,
+		ServerPublicURL:        strings.TrimRight(*flServerURL, "/"),
+		Depsim:                 *flDepSim,
+		TLSCertPath:            *flTLSCert,
+		CommandWebhookURL:      *flCommandWebhookURL,
+		NoCmdHistory:           *flNoCmdHistory,
+		UseDynSCEPChallenge:    *flUseDynChallenge,
+		GenDynSCEPChallenge:    *flGenDynChalEnroll,
+		ValidateSCEPIssuer:     *flValidateSCEPIssuer,
+		ValidateSCEPExpiration: *flValidateSCEPExpiration,
 
 		WebhooksHTTPClient: &http.Client{Timeout: time.Second * 30},
 
