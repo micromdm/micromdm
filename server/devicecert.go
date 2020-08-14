@@ -2,8 +2,8 @@ package server
 
 import (
 	"context"
+	"crypto/rsa"
 	"crypto/x509"
-	"fmt"
 	"time"
 
 	"github.com/go-kit/kit/log"
@@ -11,22 +11,20 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/mdm"
-	boltdepot "github.com/micromdm/scep/depot/bolt"
 )
 
 type ScepVerifyDepot interface {
+	CA(pass []byte) ([]*x509.Certificate, *rsa.PrivateKey, error)
 	HasCN(cn string, allowTime int, cert *x509.Certificate, revokeOldCertificate bool) (bool, error)
 }
 
-func VerifyCertificateMiddleware(validateSCEPIssuer bool, scepIssuer string, scepDepot *boltdepot.Depot, store ScepVerifyDepot, logger log.Logger) mdm.Middleware {
+func VerifyCertificateMiddleware(validateSCEPIssuer bool, store ScepVerifyDepot, logger log.Logger) mdm.Middleware {
 	return func(next mdm.Service) mdm.Service {
 		return &verifyCertificateMiddleware{
 			store:              store,
 			next:               next,
 			logger:             logger,
 			validateSCEPIssuer: validateSCEPIssuer,
-			scepIssuer:         scepIssuer,
-			scepDepot:          scepDepot,
 		}
 	}
 }
@@ -36,22 +34,18 @@ type verifyCertificateMiddleware struct {
 	next               mdm.Service
 	logger             log.Logger
 	validateSCEPIssuer bool
-	scepIssuer         string
-	scepDepot          *boltdepot.Depot
 }
 
-func verifyIssuer(devcert *x509.Certificate, scepIssuer string, scepDepot *boltdepot.Depot) (bool, error) {
-	issuer := devcert.Issuer.String()
+func (mw *verifyCertificateMiddleware) verifyIssuer(devcert *x509.Certificate) error {
 	expiration := devcert.NotAfter
 
 	if time.Now().After(expiration) {
-		err := errors.New("device certificate is expired")
-		return false, err
+		return errors.New("device certificate is expired")
 	}
 
-	ca, _, err := scepDepot.CA(nil)
+	ca, _, err := mw.store.CA(nil)
 	if err != nil {
-		return false, errors.Wrap(err, "error retrieving CA")
+		return errors.Wrap(err, "error retrieving CA")
 	}
 
 	roots := x509.NewCertPool()
@@ -61,18 +55,16 @@ func verifyIssuer(devcert *x509.Certificate, scepIssuer string, scepDepot *boltd
 
 	opts := x509.VerifyOptions{
 		Roots: roots,
+		KeyUsages: []x509.ExtKeyUsage{
+			x509.ExtKeyUsageAny,
+		},
 	}
 
 	if _, err := devcert.Verify(opts); err != nil {
-		return false, errors.Wrap(err, "error verifying certificate")
+		return errors.Wrap(err, "error verifying certificate")
 	}
 
-	if issuer != scepIssuer {
-		err := fmt.Errorf("device certificate not issued by %v", scepIssuer)
-		return false, err
-	}
-
-	return true, nil
+	return nil
 }
 
 func (mw *verifyCertificateMiddleware) Acknowledge(ctx context.Context, req mdm.AcknowledgeEvent) ([]byte, error) {
@@ -84,22 +76,20 @@ func (mw *verifyCertificateMiddleware) Acknowledge(ctx context.Context, req mdm.
 	if err != nil {
 		return nil, errors.Wrap(err, "error checking device certificate")
 	}
-	if !hasCN {
-		verifiedIssuer := false
-		if mw.validateSCEPIssuer {
-			verifiedIssuer, err = verifyIssuer(devcert, mw.scepIssuer, mw.scepDepot)
-			if err != nil {
-				_ = level.Info(mw.logger).Log("err", err, "issuer", devcert.Issuer.String(), "expiration", devcert.NotAfter)
-				return nil, errors.Wrap(err, "error verifying CN")
-			}
-		}
 
-		if !verifiedIssuer {
-			err := errors.New("unauthorized client")
+	unauth_err := errors.New("unauthorized client")
+	if !hasCN && !mw.validateSCEPIssuer {
+		_ = level.Info(mw.logger).Log("err", unauth_err, "issuer", devcert.Issuer.String(), "expiration", devcert.NotAfter)
+		return nil, unauth_err
+	}
+	if !hasCN && mw.validateSCEPIssuer {
+		err := mw.verifyIssuer(devcert)
+		if err != nil {
 			_ = level.Info(mw.logger).Log("err", err, "issuer", devcert.Issuer.String(), "expiration", devcert.NotAfter)
-			return nil, err
+			return nil, unauth_err
 		}
 	}
+
 	return mw.next.Acknowledge(ctx, req)
 }
 
@@ -112,20 +102,16 @@ func (mw *verifyCertificateMiddleware) Checkin(ctx context.Context, req mdm.Chec
 	if err != nil {
 		return errors.Wrap(err, "error checking device certificate")
 	}
-	if !hasCN {
-		verifiedIssuer := false
-		if mw.validateSCEPIssuer {
-			verifiedIssuer, err = verifyIssuer(devcert, mw.scepIssuer, mw.scepDepot)
-			if err != nil {
-				_ = level.Info(mw.logger).Log("err", err, "issuer", devcert.Issuer.String(), "expiration", devcert.NotAfter)
-				return errors.Wrap(err, "error verifying CN")
-			}
-		}
-
-		if !verifiedIssuer {
-			err := errors.New("unauthorized client")
+	unauth_err := errors.New("unauthorized client")
+	if !hasCN && !mw.validateSCEPIssuer {
+		_ = level.Info(mw.logger).Log("err", unauth_err, "issuer", devcert.Issuer.String(), "expiration", devcert.NotAfter)
+		return unauth_err
+	}
+	if !hasCN && mw.validateSCEPIssuer {
+		err := mw.verifyIssuer(devcert)
+		if err != nil {
 			_ = level.Info(mw.logger).Log("err", err, "issuer", devcert.Issuer.String(), "expiration", devcert.NotAfter)
-			return err
+			return unauth_err
 		}
 	}
 	return mw.next.Checkin(ctx, req)

@@ -88,7 +88,6 @@ func serve(args []string) error {
 		flUseDynChallenge    = flagset.Bool("use-dynamic-challenge", env.Bool("MICROMDM_USE_DYNAMIC_CHALLENGE", false), "require dynamic SCEP challenges")
 		flGenDynChalEnroll   = flagset.Bool("gen-dynamic-challenge", env.Bool("MICROMDM_GEN_DYNAMIC_CHALLENGE", false), "generate dynamic SCEP challenges in enrollment profile (built-in only)")
 		flValidateSCEPIssuer = flagset.Bool("validate-scep-issuer", env.Bool("MICROMDM_VALIDATE_SCEP_ISSUER", false), "validate only the issuer of the SCEP certificate rather than the whole certificate")
-		flSCEPIssuer         = flagset.String("scep-issuer", env.String("MICROMDM_SCEP_ISSUER", "OU=MICROMDM SCEP CA,O=MicroMDM,C=US"), "the issuer to validate against")
 		flPrintArgs          = flagset.Bool("print-flags", false, "Print all flags and their values")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
@@ -135,7 +134,6 @@ func serve(args []string) error {
 		UseDynSCEPChallenge: *flUseDynChallenge,
 		GenDynSCEPChallenge: *flGenDynChalEnroll,
 		ValidateSCEPIssuer:  *flValidateSCEPIssuer,
-		SCEPIssuer:          *flSCEPIssuer,
 
 		WebhooksHTTPClient: &http.Client{Timeout: time.Second * 30},
 
