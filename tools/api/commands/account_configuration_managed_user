@@ -1,0 +1,5 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+go run ./tools/api/commands/account_configuration_managed_user.go | jq --arg udid "$1" '. + {udid: $udid}' | curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
+

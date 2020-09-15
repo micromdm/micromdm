@@ -163,6 +163,10 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			ManifestURL:                    nilIfEmptyString(pbc.GetManifestUrl()),
 			ManifestURLPinningCerts:        pbc.GetManifestUrlPinningCerts(),
 			PinningRevocationCheckRequired: nilIfFalse(pbc.GetPinningRevocationCheckRequired()),
+			ManagementFlags:                mgmt,
+			Configuration:                  configuration,
+			ChangeManagementState:          nilIfEmptyString(pbc.GetChangeManagementState()),
+			InstallAsManaged:               nilIfFalse(pbc.GetInstallAsManaged()),
 		}
 	case "InstallApplication":
 		pbc := pb.GetInstallApplication()
@@ -203,6 +207,7 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			ManagementFlags:       mgmt,
 			ChangeManagementState: nilIfEmptyString(pbc.GetChangeManagementState()),
 			ManifestURL:           nilIfEmptyString(pbc.GetManifestUrl()),
+			InstallAsManaged:      nilIfFalse(pbc.GetInstallAsManaged()),
 			Options:               options,
 			Configuration:         configuration,
 			Attributes:            attributes,
@@ -223,6 +228,7 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			SetPrimarySetupAccountAsRegularUser: pbc.GetSetPrimarySetupAccountAsRegularUser(),
 			DontAutoPopulatePrimaryAccountInfo:  pbc.GetDontAutoPopulatePrimaryAccountInfo(),
 			LockPrimaryAccountInfo:              pbc.GetLockPrimaryAccountInfo(),
+			ManagedLocalUserShortName:           pbc.GetManagedLocalUserShortName(),
 			PrimaryAccountFullName:              pbc.GetPrimaryAccountFullName(),
 			PrimaryAccountUserName:              pbc.GetPrimaryAccountUserName(),
 			AutoSetupAdminAccounts:              autosetupadminaccounts,
