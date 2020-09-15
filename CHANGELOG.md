@@ -1,12 +1,28 @@
-## [v1.8.0](https://github.com/micromdm/micromdm/compare/v1.7.1...master) TBD
+## [v1.8.0](https://github.com/micromdm/micromdm/compare/v1.7.1...main) TBD
 
+- Fix embedded manifest of InstallEnterpriseApplication (#669)
+- Added Activation Lock Bypass support code (#677)
+- Fix DEP device serialization so that `ProfileStatus` of device now works (#682)
+- mdmctl can now have a base server URL (#683)
+- Fix an asymptomatic queue marshaling bug (#690)
+- Add ability to unassign DEP devices via API (#687)
+- APNS is now proxy aware (#698)
 - Add `-validate-scep-issuer` and `-validate-scep-expiration` flags to only validate the SCEP certificate was issued by the MicrMDM SCEP CA, and optionally to validate that the certificate hasn't expired (#700)
+- Add `-udid-cert-auth-warn-only` flag that disables the UDID-certificate authentication mechanism. Can be used to help remediate [expiring device identity certificates](https://github.com/micromdm/micromdm/wiki/Device-Identity-Certificate-Expiration) (#643)
+- Fix for multiple InstallApplications in Blueprints (#643, #704)
 
-## [v1.7.1](https://github.com/micromdm/micromdm/compare/v1.6.0...v1.7.1) April, 2020
+Thanks to our contributors for this release: @MobileDan, @meta-gitub, @grahamgilbert, @tperfitt
 
-- Replace un-maintained UUID dependency #665
+## [v1.7.1](https://github.com/micromdm/micromdm/compare/v1.7.0-alpha...v1.7.1) April, 2020
 
-## [v1.7.0](https://github.com/micromdm/micromdm/compare/v1.6.0...v1.7.0-alpha) March, 2020
+- Replace un-maintained UUID dependency (#665)
+- Correctly handle DEP profile removal response (#666)
+- Fix permissions on API command tools (#667)
+- Fix TLS startup issue (#673)
+
+Thanks to our contributors for this release: @bdemetris, @tricknotes, @netproteus
+
+## [v1.7.0](https://github.com/micromdm/micromdm/compare/v1.6.0...v1.7.0-alpha) (alpha) March, 2020
 
 ### Reliability, scalability, security, and usability improvements:
 
