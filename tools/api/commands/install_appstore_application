@@ -11,4 +11,4 @@ jq -n \
   '|\
   curl $CURL_OPTS \
     -H "Content-Type: application/json" \
-    -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
+    -K <(cat <<< "-u micromdm:$API_TOKEN") "$SERVER_URL/$endpoint" -d@-

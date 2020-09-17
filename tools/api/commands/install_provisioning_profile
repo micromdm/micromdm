@@ -9,4 +9,4 @@ jq -n \
   |.provisioning_profile = $provisioning_profile
   |.request_type = $request_type
   '|\
-  curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
+  curl $CURL_OPTS -K <(cat <<< "-u micromdm:$API_TOKEN") "$SERVER_URL/$endpoint" -d@-

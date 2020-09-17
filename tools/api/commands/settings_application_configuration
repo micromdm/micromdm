@@ -30,4 +30,4 @@ jq -n \
   |.settings[0].identifier = $identifier
   |.settings[0].configuration = $payload
   '|\
-  curl $CURL_OPTS -u "micromdm:$API_TOKEN" "$SERVER_URL/$endpoint" -d@-
+  curl $CURL_OPTS -K <(cat <<< "-u micromdm:$API_TOKEN") "$SERVER_URL/$endpoint" -d@-
