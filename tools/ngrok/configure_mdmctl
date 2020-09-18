@@ -1,7 +1,7 @@
 #!/bin/bash
 source $MICROMDM_ENV_PATH
-mdmctl="$(PWD)/build/$(uname |tr [:upper:] [:lower:])/mdmctl"
-config_root="$(PWD)/tools/ngrok/config_root"
+mdmctl="$(pwd)/build/$(uname |tr [:upper:] [:lower:])/mdmctl"
+config_root="$(pwd)/tools/ngrok/config_root"
 
 $mdmctl config set -name ngrok -api-token=$API_TOKEN -server-url=$SERVER_URL
 $mdmctl config switch -name=ngrok
