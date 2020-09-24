@@ -164,8 +164,10 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*Command, 
 		}
 	}
 
-	if err := db.Save(dc); err != nil {
-		return nil, err
+	if resp.Status != "Idle" || cmd != nil {
+		if err := db.Save(dc); err != nil {
+			return nil, err
+		}
 	}
 
 	return cmd, nil
