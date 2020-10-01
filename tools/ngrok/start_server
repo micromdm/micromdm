@@ -1,8 +1,8 @@
 #!/bin/bash
 
 source $MICROMDM_ENV_PATH
-micromdm="$(PWD)/build/$(uname |tr [:upper:] [:lower:])/micromdm"
-config_root="$(PWD)/tools/ngrok/config_root"
+micromdm="$PWD/build/$(uname |tr [:upper:] [:lower:])/micromdm"
+config_root="$PWD/tools/ngrok/config_root"
 mkdir -p $config_root
 
 $micromdm serve \

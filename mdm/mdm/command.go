@@ -161,6 +161,7 @@ type AccountConfiguration struct {
 	SetPrimarySetupAccountAsRegularUser bool           `plist:",omitempty" json:"set_primary_setup_account_as_regular_user,omitempty"`
 	DontAutoPopulatePrimaryAccountInfo  bool           `plist:",omitempty" json:"dont_auto_populate_primary_account_info,omitempty"`
 	LockPrimaryAccountInfo              bool           `plist:",omitempty" json:"lock_primary_account_info,omitempty"`
+	ManagedLocalUserShortName           string         `plist:",omitempty" json:"managed_local_user_short_name,omitempty"`
 	PrimaryAccountFullName              string         `plist:",omitempty" json:"primary_account_full_name,omitempty"`
 	PrimaryAccountUserName              string         `plist:",omitempty" json:"primary_account_user_name,omitempty"`
 	AutoSetupAdminAccounts              []AdminAccount `plist:",omitempty" json:"auto_setup_admin_accounts,omitempty"`

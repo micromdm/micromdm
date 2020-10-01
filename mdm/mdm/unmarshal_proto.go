@@ -223,6 +223,7 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			SetPrimarySetupAccountAsRegularUser: pbc.GetSetPrimarySetupAccountAsRegularUser(),
 			DontAutoPopulatePrimaryAccountInfo:  pbc.GetDontAutoPopulatePrimaryAccountInfo(),
 			LockPrimaryAccountInfo:              pbc.GetLockPrimaryAccountInfo(),
+			ManagedLocalUserShortName:           pbc.GetManagedLocalUserShortName(),
 			PrimaryAccountFullName:              pbc.GetPrimaryAccountFullName(),
 			PrimaryAccountUserName:              pbc.GetPrimaryAccountUserName(),
 			AutoSetupAdminAccounts:              autosetupadminaccounts,

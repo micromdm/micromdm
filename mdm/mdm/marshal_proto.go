@@ -245,6 +245,7 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 				LockPrimaryAccountInfo:              cmd.AccountConfiguration.LockPrimaryAccountInfo,
 				PrimaryAccountFullName:              cmd.AccountConfiguration.PrimaryAccountFullName,
 				PrimaryAccountUserName:              cmd.AccountConfiguration.PrimaryAccountUserName,
+				ManagedLocalUserShortName:           cmd.AccountConfiguration.ManagedLocalUserShortName,
 				AutoSetupAdminAccounts:              autosetupadminaccounts,
 			},
 		}
