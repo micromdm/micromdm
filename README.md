@@ -1,4 +1,5 @@
 # MicroMDM - a devops friendly MDM server 
+amazing project
 
 [![CircleCI](https://circleci.com/gh/micromdm/micromdm/tree/main.svg?style=svg)](https://circleci.com/gh/micromdm/micromdm/tree/main)
 
