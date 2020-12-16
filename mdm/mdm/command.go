@@ -217,6 +217,7 @@ type Setting struct {
 	DeviceName              *string                `plist:",omitempty" json:"device_name,omitempty"`
 	HostName                *string                `plist:",omitempty" json:"hostname,omitempty"`
 	Identifier              *string                `plist:",omitempty" json:"identifier"`
+	TimeZone              	*string                `plist:",omitempty" json:"time_zone,omitempty"`
 	Attributes              map[string]string      `plist:",omitempty" json:"attributes,omitempty"`
 	Image                   []byte                 `plist:",omitempty" json:"image,omitempty"`
 	Where                   *int                   `plist:",omitempty" json:"where,omitempty"`

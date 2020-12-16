@@ -271,6 +271,7 @@ message Setting {
   DiagnosticSubmissionSetting diagnostic_submission = 13;
   AppAnalyticsSetting app_analytics = 14;
   ApplicationConfigurationSetting application_configuration = 15;
+  TimeZoneSetting time_zone = 16;
 }
 
 message VoiceRoamingSetting {
@@ -310,6 +311,10 @@ message ApplicationAttributes {
 
 message DeviceNameSetting {
   string device_name = 1;
+}
+
+message TimeZoneSetting {
+  string time_zone = 1;
 }
 
 message HostnameSetting {

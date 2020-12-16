@@ -392,6 +392,9 @@ func protoToSetting(s *mdmproto.Setting) Setting {
 	case "DeviceName":
 		pbs := s.GetDeviceName()
 		setting.DeviceName = nilIfEmptyString(pbs.GetDeviceName())
+	case "TimeZone":
+		pbs := s.GetTimeZone()
+		setting.TimeZone = nilIfEmptyString(pbs.GetTimeZone())
 	case "HostName":
 		pbs := s.GetHostname()
 		setting.HostName = nilIfEmptyString(pbs.GetHostname())
