@@ -182,6 +182,7 @@ func (srv *Server) Fail(ctx context.Context, w http.ResponseWriter, err error, k
 		return
 	}
 
+	tpl = "500.tmpl" // set back to 500 for Internal Server Error
 	srv.RenderTemplate(ctx, w, tpl, Data{}.
 		WithLog(err, keyvals...).
 		WithCode(http.StatusInternalServerError),

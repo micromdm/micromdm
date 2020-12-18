@@ -128,12 +128,25 @@ func create(username, email, password string) (*User, error) {
 }
 
 type Error struct {
-	invalid map[string]string
+	invalid      map[string]string
+	missingEmail string
 }
 
-func (err Error) Invalid() map[string]string { return err.invalid }
+func (err Error) Invalid() map[string]string {
+	if err.missingEmail != "" {
+		return map[string]string{
+			"email":    "Invalid email or password.",
+			"password": "Invalid email or password.",
+		}
+	}
+	return err.invalid
+}
 
 func (err Error) Error() string {
+	if err.missingEmail != "" {
+		return fmt.Sprintf("user with email %q not found", err.missingEmail)
+	}
+
 	switch len(err.invalid) {
 	case 0:
 		return "user validation failed"

@@ -79,7 +79,7 @@ func (d *Postgres) FindUserByEmail(ctx context.Context, email string) (*User, er
 		&u.CreatedAt,
 		&u.UpdatedAt,
 	); err == pgx.ErrNoRows {
-		return nil, fmt.Errorf("user (email %q) not found in postgres", email)
+		return nil, Error{missingEmail: email}
 	} else if err != nil {
 		return nil, err
 	}
