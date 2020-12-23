@@ -128,7 +128,10 @@ func create(username, email, password string) (*User, error) {
 }
 
 type Error struct {
-	invalid      map[string]string
+	invalid map[string]string
+	// missingEmail gets set when the user tries to log in without a real email.
+	// This causes the frontend to respond with an "Invalid email or password" message.
+	// Might want to change this implementation later, just needed something quick.
 	missingEmail string
 }
 
