@@ -82,7 +82,7 @@ func (d *SQLite) ConfirmUser(ctx context.Context, confirmation string) error {
 	}
 
 	if conn.Changes() == 0 {
-		return errors.New("unknown confirmation_hash in sqlite")
+		return Error{missingHash: confirmation}
 	}
 
 	return nil

@@ -56,7 +56,7 @@ func (d *Postgres) ConfirmUser(ctx context.Context, confirmation string) error {
 	if tag, err := d.db.Exec(ctx, q, confirmation); err != nil {
 		return fmt.Errorf("set postgres confirmation_hash to NULL: %w", err)
 	} else if tag.RowsAffected() == 0 {
-		return errors.New("unknown confirmation_hash in postgres")
+		return Error{missingHash: confirmation}
 	}
 
 	return nil

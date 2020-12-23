@@ -6,8 +6,12 @@
     <h3>Thank you for signing up</h3>
     <div class="msg">
       <p>
-      We confirmed your account. You can now use the site. 
+      {{- if .errors -}}
+          <div class="invalid-input">{{ .errors.confirmation_hash }}</div>
+      {{ else }}
       <a href="/login">Sign In</a>
+      We confirmed your account. You can now use the site. 
+      {{ end }}
       </p>
     </div>
   </div>

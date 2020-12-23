@@ -70,7 +70,7 @@ func (srv server) registerConfirm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := srv.userdb.ConfirmUser(ctx, confirmation); err != nil {
-		srv.http.Fail(ctx, w, err, "msg", "confirm user", "confirmation_hash", confirmation)
+		srv.http.Fail(ctx, w, err, "register-confirmed.tmpl", "msg", "confirm user", "confirmation_hash", confirmation)
 		return
 	}
 
