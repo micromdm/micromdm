@@ -54,15 +54,46 @@ const homePage = `<!doctype html>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>MicroMDM</title>
-	<style>
-		body {
-			font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-		}
-	</style>
-</head>
+  <style>
+@font-face {
+  font-family: system;
+  font-weight: 900;
+  src: local(".SFNSText-Heavy"), local(".HelveticaNeueDeskInterface-Heavy"), local(".LucidaGrandeUI"), local("Ubuntu Heavy"), local("Segoe UI Heavy"), local("Roboto-Heavy"), local("DroidSans"), local("Tahoma");
+}
+
+/* Global */
+body {
+  position: relative;
+  font-family: "system", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+  margin: 0;
+  text-align: center;
+  font-size: 48px;
+}
+
+.enrollment {
+  background: #4a9dff;
+  color: #fff;
+  padding: 15px;
+  border-radius: 3px;
+  font-size: 30px;
+  text-decoration: none;
+}
+  </style>
+ </head>
 <body>
-	<h3>Welcome to MicroMDM!</h3>
-	<p><a href="mdm/enroll">Enroll a device</a></p>
+
+<h1>MicroMDM</h1>
+<svg xmlns="http://www.w3.org/2000/svg" width="204" height="192" viewBox="0 0 51 48">
+  <g fill="none" fill-rule="evenodd">
+      <path fill="#366BE0" d="M34 38L0 20 34 0z"/>
+      <path fill="#4A9DFF" d="M17 10l34 18-34 20z"/>
+      <path fill="#80CFFF" d="M17 29L0 39l17 9zM51 28L34 38l17 9z"/>
+  </g>
+</svg>
+
+
+<p><a class=enrollment href="mdm/enroll">Enroll a device</a></p>
+
 </body>
 </html>
 `
