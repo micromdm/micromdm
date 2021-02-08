@@ -4,7 +4,7 @@ require (
 	github.com/RobotsAndPencils/buford v0.12.0
 	github.com/boltdb/bolt v1.3.1
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/fullsailor/pkcs7 v0.0.0-20180824154052-36585635cb64
+	github.com/groob/pkcs7 v0.0.0-20180824154052-36585635cb64
 	github.com/garyburd/go-oauth v0.0.0-20180319155456-bca2e7f09a17
 	github.com/go-kit/kit v0.7.0
 	github.com/go-sql-driver/mysql v1.4.0 // indirect
@@ -34,7 +34,5 @@ require (
 	google.golang.org/appengine v1.2.0 // indirect
 	gopkg.in/Masterminds/squirrel.v1 v1.0.0-20170825200431-a6b93000bd21
 )
-
-replace github.com/fullsailor/pkcs7 => github.com/groob/pkcs7 v0.0.0-20180824154052-36585635cb64
 
 go 1.13
