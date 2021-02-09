@@ -11,7 +11,7 @@ endif
 export GO111MODULE=on
 
 #Specify a minimum version for macos otherwise notarization will fail
-CGO_LDFLAGS=-mmacosx-version-min=10.12 
+CGO_LDFLAGS=-mmacosx-version-min=10.12
 
 VERSION = $(shell git describe --tags --always --dirty)
 BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
@@ -140,6 +140,8 @@ endef
 db-reset-test:
 	$(call psql_exec,'DROP DATABASE IF EXISTS micromdm_test;')
 	$(call psql_exec,'CREATE DATABASE micromdm_test;')
+	$(call psql_exec,'CREATE ROLE micromdm WITH LOGIN PASSWORD "micromdm";')
+  $(call psql_exec,'GRANT ALL PRIVILEGES ON DATABASE micromdm_test TO micromdm;')
 
 define psql_exec
 	PGPASSWORD=micromdm psql --host=${PG_HOST} --port=5432 --username=micromdm -c $(1)
