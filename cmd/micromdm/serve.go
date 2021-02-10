@@ -67,7 +67,7 @@ body {
   font-family: "system", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
   margin: 0;
   text-align: center;
-  font-size: 48px;
+  font-size: 35px;
 }
 
 .enrollment {
