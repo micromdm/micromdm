@@ -1,4 +1,6 @@
-## [v1.8.0](https://github.com/micromdm/micromdm/compare/v1.7.1...main) TBD
+## [Unreleased](https://github.com/micromdm/micromdm/compare/v1.8.0...main) TBD
+
+## [v1.8.0](https://github.com/micromdm/micromdm/compare/v1.7.1...v1.8.0) February, 2021
 
 - Fix embedded manifest of InstallEnterpriseApplication (#669)
 - Added Activation Lock Bypass support code (#677)
@@ -6,12 +8,18 @@
 - mdmctl can now have a base server URL (#683)
 - Fix an asymptomatic queue marshaling bug (#690)
 - Add ability to unassign DEP devices via API (#687)
+- A device's command queue is now cleared during enrollment (#692)
 - APNS is now proxy aware (#698)
 - Add `-validate-scep-issuer` and `-validate-scep-expiration` flags to only validate the SCEP certificate was issued by the MicrMDM SCEP CA, and optionally to validate that the certificate hasn't expired (#700)
 - Add `-udid-cert-auth-warn-only` flag that disables the UDID-certificate authentication mechanism. Can be used to help remediate [expiring device identity certificates](https://github.com/micromdm/micromdm/wiki/Device-Identity-Certificate-Expiration) (#643)
-- Fix for multiple InstallApplications in Blueprints (#643, #704)
+- Fix for multiple InstallApplications in Blueprints (#549, #704)
+- More secure argument passing in API scripts (#709)
+- TimeZone setting support in Settings command (#719)
+- Support tls-alpn-01 for Let's Encrypt certificates (#720)
+- Update MDM Vendor CSR signing to SHA-2 and use new Apple intermediate cert (#723, #725)
+- Documentation updates
 
-Thanks to our contributors for this release: @MobileDan, @meta-gitub, @grahamgilbert, @tperfitt
+Thanks to our contributors for this release: @MobileDan, @meta-gitub, @grahamgilbert, @tperfitt, @williamtheaker, @slawoslawo, @choehn-signogy, @natewalck, @korylprince
 
 ## [v1.7.1](https://github.com/micromdm/micromdm/compare/v1.7.0-alpha...v1.7.1) April, 2020
 
@@ -19,10 +27,11 @@ Thanks to our contributors for this release: @MobileDan, @meta-gitub, @grahamgil
 - Correctly handle DEP profile removal response (#666)
 - Fix permissions on API command tools (#667)
 - Fix TLS startup issue (#673)
+- Documentation updates
 
 Thanks to our contributors for this release: @bdemetris, @tricknotes, @netproteus
 
-## [v1.7.0](https://github.com/micromdm/micromdm/compare/v1.6.0...v1.7.0-alpha) (alpha) March, 2020
+## [v1.7.0-alpha](https://github.com/micromdm/micromdm/compare/v1.6.0...v1.7.0-alpha) March, 2020
 
 ### Reliability, scalability, security, and usability improvements:
 
