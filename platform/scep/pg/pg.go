@@ -300,7 +300,7 @@ func (d *Depot) CreateOrLoadCA(key *rsa.PrivateKey, years int, org, country stri
 	}
 	var certBytes []byte
 	certBytes = config.PrivateKey
-	if certBytes == nil {
+	if cert == nil {
 		cert, err = generateAndStoreCA(ctx,d,key,years,org,country)
 	} else {
 		cert, err = x509.ParseCertificate(certBytes)
