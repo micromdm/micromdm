@@ -5,7 +5,8 @@ import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/sha1"
+	//"crypto/sha1"
+	"crypto/sha256"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/asn1"
@@ -19,7 +20,7 @@ import (
 
 	"strings"
 	"database/sql"
-	
+
 	//"fmt"
 
 	"github.com/jmoiron/sqlx"
@@ -42,7 +43,7 @@ type SCEPCertificate struct {
 func NewDB(db *sqlx.DB) (*Depot, error) {
 	// Required for TIMESTAMP DEFAULT 0
 	_,err := db.Exec(`SET sql_mode = '';`)
-	
+
 	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS server_config (
 			config_id INT PRIMARY KEY,
 		    push_certificate BLOB DEFAULT NULL,
@@ -51,7 +52,7 @@ func NewDB(db *sqlx.DB) (*Depot, error) {
 	if err != nil {
 	   return nil, errors.Wrap(err, "creating server_config sql table failed")
 	}
-	
+
 	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS scep_certificates (
 			scep_id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
 			cert_name TEXT NULL,
@@ -69,7 +70,7 @@ func NewDB(db *sqlx.DB) (*Depot, error) {
 func (d *Depot) CA(pass []byte) ([]*x509.Certificate, *rsa.PrivateKey, error) {
 	ctx := context.Background()
 	chain := []*x509.Certificate{}
-	
+
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Select("push_certificate", "private_key").
@@ -85,7 +86,7 @@ func (d *Depot) CA(pass []byte) ([]*x509.Certificate, *rsa.PrivateKey, error) {
 	var keyBytes, certBytes []byte
 	keyBytes = config.PushCertificate
 	certBytes = config.PrivateKey
-	
+
 	key, err := x509.ParsePKCS1PrivateKey(keyBytes)
 	if err != nil {
 		return chain, key, err
@@ -103,7 +104,7 @@ func (d *Depot) Put(cn string, crt *x509.Certificate) error {
 	if crt == nil || crt.Raw == nil {
 		return fmt.Errorf("%q does not specify a valid certificate for storage", cn)
 	}
-	
+
 	serial, err := d.Serial()
 	if err != nil {
 		return err
@@ -121,13 +122,13 @@ func (d *Depot) Put(cn string, crt *x509.Certificate) error {
 			crt.Raw,
 		).
 		ToSql()
-	
+
 	if err != nil {
 		return errors.Wrap(err, "building scep_certificates save query")
 	}
 	ctx := context.Background()
 	_, err = d.db.ExecContext(ctx, query, args...)
-	
+
 	return errors.Wrap(err, "exec scep_certificates save in mysql")
 }
 
@@ -141,15 +142,15 @@ func (d *Depot) Serial() (*big.Int, error) {
 	if err != nil {
 	   return nil, errors.Wrap(err, "unable to set stats expiration of information_schema to fetch latest auto increment")
 	}
-	
+
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Select("AUTO_INCREMENT").
 		From("INFORMATION_SCHEMA.TABLES").
 		Where("TABLE_NAME = 'scep_certificates'").
-		ToSql()	
-	
-		
+		ToSql()
+
+
 	if err != nil {
 	   return nil, errors.Wrap(err, "retrieving serial count from scep_certificates sql table failed")
 	}
@@ -188,7 +189,7 @@ func (d *Depot) listCertificates(ctx context.Context, prefix string) ([]SCEPCert
 		From("scep_certificates").
 		Where("cert_name LIKE ?", fmt.Sprint("", prefix, "%")).
 		ToSql()
-		
+
 	if err != nil {
 		return nil, errors.Wrap(err, "building sql")
 	}
@@ -202,7 +203,7 @@ func (d *Depot) CreateOrLoadKey(bits int) (*rsa.PrivateKey, error) {
 		key *rsa.PrivateKey
 		err error
 	)
-	
+
 	ctx := context.Background()
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
@@ -218,7 +219,7 @@ func (d *Depot) CreateOrLoadKey(bits int) (*rsa.PrivateKey, error) {
 	}
 	var keyBytes []byte
 	keyBytes = config.PushCertificate
-	
+
 	if keyBytes == nil {
 		// if there is no certificate or private key then generate
 		key, err = generateAndStoreKey(ctx, d, bits)
@@ -233,7 +234,7 @@ func generateAndStoreKey(ctx context.Context, d *Depot, bits int) (key *rsa.Priv
 	if err != nil {
 		return nil, err
 	}
-	
+
 	updateQuery, args_update, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Update("server_config").
@@ -247,7 +248,7 @@ func generateAndStoreKey(ctx context.Context, d *Depot, bits int) (key *rsa.Priv
 	// MySql Convention
 	// Replace "ON DUPLICATE KEY UPDATE TABLE_NAME SET" to "ON DUPLICATE KEY UPDATE"
 	updateQuery = strings.Replace(updateQuery, "server_config SET ", "", -1)
-	
+
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Insert("server_config").
@@ -258,15 +259,15 @@ func generateAndStoreKey(ctx context.Context, d *Depot, bits int) (key *rsa.Priv
 		).
 		Suffix(updateQuery).
 		ToSql()
-	
+
 	var all_args = append(args, args_update...)
-	
+
 	if err != nil {
 		return nil, errors.Wrap(err, "building server_config save query")
 	}
-	
+
 	_, err = d.db.ExecContext(ctx, query, all_args...)
-	
+
 	return key, errors.Wrap(err, "exec server_config save in mysql")
 }
 
@@ -291,7 +292,7 @@ func (d *Depot) CreateOrLoadCA(key *rsa.PrivateKey, years int, org, country stri
 	}
 	var certBytes []byte
 	certBytes = config.PrivateKey
-	
+
 	if cert == nil {
 		cert, err = generateAndStoreCA(ctx,d,key,years,org,country)
 	} else {
@@ -342,7 +343,7 @@ func generateAndStoreCA(ctx context.Context, d *Depot, key *rsa.PrivateKey, year
 		return nil, err
 	}
 
-	
+
 	updateQuery, args_update, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Update("server_config").
@@ -356,7 +357,7 @@ func generateAndStoreCA(ctx context.Context, d *Depot, key *rsa.PrivateKey, year
 	// MySql Convention
 	// Replace "ON DUPLICATE KEY UPDATE TABLE_NAME SET" to "ON DUPLICATE KEY UPDATE"
 	updateQuery = strings.Replace(updateQuery, "server_config SET ", "", -1)
-	
+
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Insert("server_config").
@@ -367,14 +368,14 @@ func generateAndStoreCA(ctx context.Context, d *Depot, key *rsa.PrivateKey, year
 		).
 		Suffix(updateQuery).
 		ToSql()
-	
+
 	var all_args = append(args, args_update...)
 	if err != nil {
 		return nil, errors.Wrap(err, "building server_config save query")
 	}
-	
+
 	_, err = d.db.ExecContext(ctx, query, all_args...)
-	
+
 	return x509.ParseCertificate(crtBytes)
 }
 
@@ -402,7 +403,7 @@ func generateSubjectKeyID(pub crypto.PublicKey) ([]byte, error) {
 		return nil, errors.New("only RSA public key is supported")
 	}
 
-	hash := sha1.Sum(pubBytes)
+	hash := sha256.Sum256(pubBytes)
 
 	return hash[:], nil
 }
