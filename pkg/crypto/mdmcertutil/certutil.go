@@ -7,7 +7,8 @@ import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/sha1"
+	//"crypto/sha1"
+	"crypto/sha256"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/base64"
@@ -72,7 +73,7 @@ func (p *PushCertificateRequest) Encode() ([]byte, error) {
 }
 
 const (
-	wwdrIntermediaryURL = "https://developer.apple.com/certificationauthority/AppleWWDRCA.cer"
+ 	wwdrIntermediaryURL = "https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer"
 	appleRootCAURL      = "http://www.apple.com/appleca/AppleIncRootCertificate.cer"
 )
 
@@ -134,9 +135,9 @@ func makeCertChain(mdmPEM, wwdrPEM, rootPEM []byte) string {
 }
 
 func signPushCSR(csrData []byte, key *rsa.PrivateKey) ([]byte, error) {
-	h := sha1.New()
+	h := sha256.New()
 	h.Write(csrData)
-	signature, err := rsa.SignPKCS1v15(rand.Reader, key, crypto.SHA1, h.Sum(nil))
+	signature, err := rsa.SignPKCS1v15(rand.Reader, key, crypto.SHA256, h.Sum(nil))
 	return signature, errors.Wrap(err, "signing push CSR")
 }
 
