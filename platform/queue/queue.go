@@ -164,6 +164,8 @@ func (db *Store) nextCommand(ctx context.Context, resp mdm.Response) (*Command, 
 		}
 	}
 
+	// we only need to Save if there are command queue changes such as
+	// NowNow and Acknowledged responses or a new popped command.
 	if resp.Status != "Idle" || cmd != nil {
 		if err := db.Save(dc); err != nil {
 			return nil, err
