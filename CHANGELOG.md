@@ -17,6 +17,7 @@
 - TimeZone setting support in Settings command (#719)
 - Support tls-alpn-01 for Let's Encrypt certificates (#720)
 - Update MDM Vendor CSR signing to SHA-2 and use new Apple intermediate cert (#723, #725)
+- Avoid unnecessary command queue save/disk write (#711)
 - Documentation updates
 
 Thanks to our contributors for this release: @MobileDan, @meta-gitub, @grahamgilbert, @tperfitt, @williamtheaker, @slawoslawo, @choehn-signogy, @natewalck, @korylprince
