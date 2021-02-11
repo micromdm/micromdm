@@ -19,3 +19,4 @@ chart/help.md
 service.systemd
 gh-md-toc
 .gitlab-ci.yml
+docker-entrypoint.sh
