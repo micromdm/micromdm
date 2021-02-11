@@ -15,7 +15,7 @@ assets/
 webhook/
 chart/
 mdm-certificates_prod/
-chart/help.md
+help.md
 service.systemd
 gh-md-toc
 .gitlab-ci.yml
