@@ -8,7 +8,7 @@ import (
 
 	"strings"
 	"database/sql"
-	
+
 	//"fmt"
 
 	"github.com/pkg/errors"
@@ -26,7 +26,7 @@ type Mysql struct{ db *sqlx.DB }
 func NewDB(db *sqlx.DB, sub pubsub.Subscriber) (*Mysql, error) {
 	// Required for TIMESTAMP DEFAULT 0
 	_,err := db.Exec(`SET sql_mode = '';`)
-	
+
 	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS server_config (
 			config_id INT PRIMARY KEY,
 		    push_certificate BLOB DEFAULT NULL,
@@ -35,13 +35,13 @@ func NewDB(db *sqlx.DB, sub pubsub.Subscriber) (*Mysql, error) {
 	if err != nil {
 	   return nil, errors.Wrap(err, "creating server_config sql table failed")
 	}
-	
+
 	_,err = db.Exec(`CREATE TABLE IF NOT EXISTS dep_tokens (
 			consumer_key VARCHAR(36) PRIMARY KEY,
 			consumer_secret TEXT NULL,
 			access_token TEXT NULL,
 			access_secret TEXT NULL,
-		    access_token_expiry TIMESTAMP DEFAULT 0
+		    access_token_expiry TIMESTAMP DEFAULT '1970-01-01 00:00:00'
 		);`)
 	if err != nil {
 	   return nil, errors.Wrap(err, "creating dep_tokens sql table failed")
@@ -75,7 +75,7 @@ func (d *Mysql) SavePushCertificate(ctx context.Context, cert []byte, key []byte
 	// MySql Convention
 	// Replace "ON DUPLICATE KEY UPDATE TABLE_NAME SET" to "ON DUPLICATE KEY UPDATE"
 	updateQuery = strings.Replace(updateQuery, tableName+" SET ", "", -1)
-	
+
 	query, args, err := sq.StatementBuilder.
 		PlaceholderFormat(sq.Question).
 		Insert(tableName).
@@ -87,15 +87,15 @@ func (d *Mysql) SavePushCertificate(ctx context.Context, cert []byte, key []byte
 		).
 		Suffix(updateQuery).
 		ToSql()
-	
+
 	var all_args = append(args, args_update...)
-	
+
 	if err != nil {
 		return errors.Wrap(err, "building server_config save query")
 	}
-	
+
 	_, err = d.db.ExecContext(ctx, query, all_args...)
-	
+
 	return errors.Wrap(err, "exec server_config save in mysql")
 }
 
@@ -111,7 +111,7 @@ func (d *Mysql) serverConfig(ctx context.Context) (*config.ServerConfig, error) 
 	}
 
 	var config config.ServerConfig
-	
+
 	err = d.db.QueryRowxContext(ctx, query, args...).StructScan(&config)
 	if errors.Cause(err) == sql.ErrNoRows {
 		return nil, serverConfigNotFoundErr{}
