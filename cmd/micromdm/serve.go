@@ -39,12 +39,12 @@ import (
 	"github.com/micromdm/micromdm/platform/config"
 	depapi "github.com/micromdm/micromdm/platform/dep"
 	"github.com/micromdm/micromdm/platform/dep/sync"
-	
+
 	"github.com/micromdm/micromdm/platform/device"
 	devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
 	devicemysql "github.com/micromdm/micromdm/platform/device/mysql"
 	devicepg "github.com/micromdm/micromdm/platform/device/pg"
-	
+
 	"github.com/micromdm/micromdm/platform/profile"
 	block "github.com/micromdm/micromdm/platform/remove"
 	"github.com/micromdm/micromdm/platform/user"
@@ -57,7 +57,7 @@ const homePage = `<!doctype html>
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>AbaClocK MDM</title>
+	<title>MicroMDM</title>
 	<style>
 		body {
 			font-family: -apple-system, BlinkMacSystemFont, sans-serif;
@@ -65,7 +65,7 @@ const homePage = `<!doctype html>
 	</style>
 </head>
 <body>
-	<h3>Welcome to AbaClocK MDM!</h3>
+	<h3>Welcome to MicroMDM!</h3>
 	<p><a href="mdm/enroll">Enroll a device</a></p>
 </body>
 </html>
@@ -151,7 +151,7 @@ func serve(args []string) error {
 		WebhooksHTTPClient: &http.Client{Timeout: time.Second * 30},
 
 		SCEPClientValidity: *flSCEPClientValidity,
-		
+
 		Rdbms:		   server.Rdbms(*flRdbms),
 		RdbmsUsername: *flRdbmsUsername,
 		RdbmsPassword: *flRdbmsPassword,
@@ -188,7 +188,7 @@ func serve(args []string) error {
 	//if err != nil {
 	//	stdlog.Fatal(err)
 	//}
-	
+
 	var devDB device.Store
 	if sm.MysqlDB != nil {
 		db, err := devicemysql.NewDB(sm.MysqlDB)
@@ -215,8 +215,8 @@ func serve(args []string) error {
 		go devWorker.Run(context.Background())
 		devDB = db
 	}
-	
-	
+
+
 
 	userDB, err := userbuiltin.NewDB(sm.DB)
 	if err != nil {
@@ -254,13 +254,13 @@ func serve(args []string) error {
 
 	var enrollHandlers enroll.HTTPHandlers
 	if sm.SCEPMysqlDB != nil {
-		enrollHandlers = enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPMysqlDB), httptransport.ServerErrorLogger(httpLogger))	
+		enrollHandlers = enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPMysqlDB), httptransport.ServerErrorLogger(httpLogger))
 	} else if sm.SCEPPostgresDB != nil {
-		enrollHandlers = enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPPostgresDB), httptransport.ServerErrorLogger(httpLogger))	
+		enrollHandlers = enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPPostgresDB), httptransport.ServerErrorLogger(httpLogger))
 	} else {
-		enrollHandlers = enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPBuiltin), httptransport.ServerErrorLogger(httpLogger))	
+		enrollHandlers = enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPBuiltin), httptransport.ServerErrorLogger(httpLogger))
 	}
-	
+
 	r, options := httputil2.NewRouter(logger)
 
 	r.Handle("/version", version.Handler())
@@ -387,7 +387,7 @@ func serveOptions(
 	configPath string,
 	tls bool,
 ) []httputil.Option {
-	
+
 	tlsFromFile := (certPath != "" && keyPath != "")
 	serveOpts := []httputil.Option{
 		httputil.WithACMEHosts([]string{hostname}),
@@ -397,7 +397,7 @@ func serveOptions(
 	if tlsFromFile {
 		serveOpts = append(serveOpts, httputil.WithKeyPair(certPath, keyPath))
 	}
-	
+
 	if !tls && addr == ":https" {
 		serveOpts = append(serveOpts, httputil.WithAddress(":8080"))
 	}
