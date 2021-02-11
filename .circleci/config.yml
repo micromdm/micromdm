@@ -9,16 +9,16 @@ jobs:
             MICROMDM_RDBMS_DATABASE: micromdm_test
             MICROMDM_RDBMS_USERNAME: micromdm
             MICROMDM_RDBMS_PASSWORD: micromdm
-            MICROMDM_RDBMS_HOST=127.0.0.1
-            MICROMDM_RDBMS_PORT=5432
+            MICROMDM_RDBMS_HOST: 127.0.0.1
+            MICROMDM_RDBMS_PORT: 5432
         - image: mysql:5.7
           environment:
             MICROMDM_RDBMS: mysql
             MICROMDM_RDBMS_DATABASE: micromdm_test
             MICROMDM_RDBMS_USERNAME: micromdm
             MICROMDM_RDBMS_PASSWORD: micromdm
-            MICROMDM_RDBMS_HOST=127.0.0.1
-            MICROMDM_RDBMS_PORT=3306
+            MICROMDM_RDBMS_HOST: 127.0.0.1
+            MICROMDM_RDBMS_PORT: 3306
 
     working_directory: /go/src/github.com/micromdm/micromdm
     steps: &steps
