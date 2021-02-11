@@ -15,9 +15,4 @@ assets/
 webhook/
 chart/
 mdm-certificates_prod/
-<<<<<<< HEAD
-chart/webhook/
-assets/
-=======
 chart/
->>>>>>> 3f4fa1ffd77022ae46ab002ce19376cacc3b5f29
