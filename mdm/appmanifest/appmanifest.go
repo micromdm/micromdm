@@ -15,34 +15,37 @@ const DefaultMD5Size = 10 << 20 // 10MB
 
 // http://help.apple.com/deployment/osx/#/ior5df10f73a
 type Manifest struct {
-	ManifestItems []Item `plist:"items"`
+	ManifestItems []Item `plist:"items" json:"items"`
 }
 
 type Item struct {
-	Assets []Asset `plist:"assets"`
+	Assets []Asset `plist:"assets" json:"assets"`
 	// Apple claims the metadata struct is required,
 	// but testing shows otherwise.
-	Metadata *Metadata `plist:"metadata,omitempty"`
+	Metadata *Metadata `plist:"metadata,omitempty" json:"metadata,omitempty"`
 }
 
 type Asset struct {
-	Kind    string   `plist:"kind"`
-	MD5Size int64    `plist:"md5-size"`
-	MD5s    []string `plist:"md5s"`
-	URL     string   `plist:"url"`
+	Kind       string   `plist:"kind" json:"kind"`
+	MD5Size    int64    `plist:"md5-size,omitempty" json:"md5-size,omitempty"`
+	MD5s       []string `plist:"md5s,omitempty" json:"md5s,omitempty"`
+	SHA256Size int64    `plist:"sha256-size,omitempty" json:"sha256-size,omitempty"`
+	SHA256s    []string `plist:"sha256s,omitempty" json:"sha256s,omitempty"`
+	URL        string   `plist:"url" json:"url"`
 }
 
 type Metadata struct {
 	BundleInfo
-	Items    []BundleInfo `plist:"items,omitempty"`
-	Kind     string       `plist:"kind"`
-	Subtitle string       `plist:"subtitle"`
-	Title    string       `plist:"title"`
+	Items       []BundleInfo `plist:"items,omitempty" json:"items,omitempty"`
+	Kind        string       `plist:"kind" json:"kind"`
+	Subtitle    string       `plist:"subtitle" json:"subtitle"`
+	Title       string       `plist:"title" json:"title"`
+	SizeInBytes int64        `plist:"sizeInBytes,omitempty" json:"sizeInBytes,omitempty"`
 }
 
 type BundleInfo struct {
-	BundleIdentifier string `plist:"bundle-identifier"`
-	BundleVersion    string `plist:"bundle-version"`
+	BundleIdentifier string `plist:"bundle-identifier" json:"bundle-identifier"`
+	BundleVersion    string `plist:"bundle-version" json:"bundle-version"`
 }
 
 // File is an io.Reader which knows its size.

@@ -1,8 +1,8 @@
 package mdm
 
 import (
+	"github.com/google/uuid"
 	"github.com/micromdm/micromdm/mdm/appmanifest"
-	uuid "github.com/satori/go.uuid"
 )
 
 type CommandRequest struct {
@@ -17,7 +17,7 @@ type CommandPayload struct {
 
 func NewCommandPayload(request *CommandRequest) (*CommandPayload, error) {
 	payload := &CommandPayload{
-		CommandUUID: uuid.NewV4().String(),
+		CommandUUID: uuid.New().String(),
 		Command:     request.Command,
 	}
 	return payload, nil
