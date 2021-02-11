@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/gogo/protobuf/proto"
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 
 	"github.com/micromdm/micromdm/dep"
 	"github.com/micromdm/micromdm/platform/dep/sync/internal/depsyncproto"
@@ -18,7 +18,7 @@ type Event struct {
 
 func NewEvent(devices []dep.Device) *Event {
 	event := Event{
-		ID:      uuid.NewV4().String(),
+		ID:      uuid.New().String(),
 		Time:    time.Now().UTC(),
 		Devices: devices,
 	}
