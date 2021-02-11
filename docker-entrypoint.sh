@@ -6,12 +6,12 @@ SERVER_URL=${SERVER_URL:-https://mdm.example.com/}
 WEBHOOK_URL=${WEBHOOK_URL:-http://127.0.0.1:5000/webhook}
 WEBHOOK_AUTH_USER=${WEBHOOK_AUTH_USER:-}
 WEBHOOK_AUTH_PASSWORD=${WEBHOOK_AUTH_PASSWORD:-}
-RDBMS=${RDBMS:-mysql}
-MYSQL_USER=${MYSQL_USER:-micromdm}
-MYSQL_PASSWORD=${MYSQL_PASSWORD:-micromdm}
-MYSQL_DATABASE=${MYSQL_DATABASE:-micromdm}
-MYSQL_HOST=${MYSQL_HOST:-127.0.0.1}
-MYSQL_PORT=${MYSQL_PORT:-3306}
+RDBMS=${MICROMDM_RDBMS:-mysql}
+RDBMS_USER=${MICROMDM_RDBMS_USER:-micromdm}
+RDBMS_PASSWORD=${MICROMDM_RDBMS_PASSWORD:-micromdm}
+RDBMS_DATABASE=${MICROMDM_RDBMS_DATABASE:-micromdm}
+RDBMS_HOST=${MICROMDM_RDBMS_HOST:-127.0.0.1}
+RDBMS_PORT=${MICROMDM_RDBMS_PORT:-3306}
 SCEP_CLIENT_VALIDITY=${SCEP_CLIENT_VALIDITY:-10000}
 
 micromdm serve \
@@ -23,9 +23,9 @@ micromdm serve \
   -command-webhook-auth-user ${WEBHOOK_AUTH_USER} \
   -command-webhook-auth-pass ${WEBHOOK_AUTH_PASSWORD} \
   -rdbms ${RDBMS} \
-  -rdbms-username ${MYSQL_USER} \
-  -rdbms-password ${MYSQL_PASSWORD} \
-  -rdbms-database ${MYSQL_DATABASE} \
-  -rdbms-host ${MYSQL_HOST} \
-  -rdbms-port ${MYSQL_PORT} \
+  -rdbms-username ${RDBMS_USER} \
+  -rdbms-password ${RDBMS_PASSWORD} \
+  -rdbms-database ${RDBMS_DATABASE} \
+  -rdbms-host ${RDBMS_HOST} \
+  -rdbms-port ${RDBMS_PORT} \
   -tls=false
