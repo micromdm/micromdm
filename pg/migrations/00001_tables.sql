@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS scep_certificates (
     scep_id integer PRIMARY KEY DEFAULT nextval('scep_certificates_scep_id_seq'),
     cert_name TEXT NULL,
     scep_cert bytea DEFAULT NULL
-)
+);
 
 CREATE TABLE IF NOT EXISTS server_config (
     config_id INT PRIMARY KEY,
