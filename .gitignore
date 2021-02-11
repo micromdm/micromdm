@@ -17,3 +17,4 @@ chart/
 mdm-certificates_prod/
 chart/help.md
 service.systemd
+gh-md-toc
