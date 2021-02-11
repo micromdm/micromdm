@@ -2,6 +2,7 @@ package mdm
 
 import (
 	"github.com/gogo/protobuf/proto"
+	"github.com/micromdm/micromdm/mdm/appmanifest"
 	"github.com/micromdm/micromdm/mdm/mdm/internal/mdmproto"
 )
 
@@ -110,7 +111,55 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 		}
 	case "InstallEnterpriseApplication":
 		pbc := pb.GetInstallEnterpriseApplication()
+		var manifest *appmanifest.Manifest
+		if pbManifest := pbc.GetManifest(); pbManifest != nil {
+			manifest = &(appmanifest.Manifest{})
+			if pbManifestItems := pbManifest.GetManifestItems(); pbManifestItems != nil {
+				for _, pbManifestItem := range pbManifestItems {
+					var manifestItem appmanifest.Item
+					if pbAssets := pbManifestItem.GetAssets(); pbAssets != nil {
+						for _, pbAsset := range pbAssets {
+							asset := appmanifest.Asset{
+								Kind:       pbAsset.Kind,
+								MD5s:       pbAsset.Md5S,
+								MD5Size:    pbAsset.Md5Size,
+								URL:        pbAsset.Url,
+								SHA256s:    pbAsset.Sha256S,
+								SHA256Size: pbAsset.Sha256Size,
+							}
+							manifestItem.Assets = append(manifestItem.Assets, asset)
+						}
+					}
+					if pbMetadata := pbManifestItem.GetMetadata(); pbMetadata != nil {
+						manifestItem.Metadata = &(appmanifest.Metadata{
+							Kind:        pbMetadata.Kind,
+							SizeInBytes: pbMetadata.SizeInBytes,
+							Title:       pbMetadata.Title,
+							Subtitle:    pbMetadata.Subtitle,
+							BundleInfo: appmanifest.BundleInfo{
+								BundleIdentifier: pbMetadata.BundleIdentifier,
+								BundleVersion:    pbMetadata.BundleVersion,
+							},
+						})
+						if pbMetadataItems := pbMetadata.GetItems(); pbMetadataItems != nil {
+							for _, pbMetadataItem := range pbMetadataItems {
+								bundleInfo := appmanifest.BundleInfo{
+									BundleIdentifier: pbMetadataItem.BundleIdentifier,
+									BundleVersion:    pbMetadataItem.BundleVersion,
+								}
+								manifestItem.Metadata.Items = append(manifestItem.Metadata.Items, bundleInfo)
+							}
+						}
+					}
+					if len(manifestItem.Assets) > 0 || manifestItem.Metadata != nil {
+						manifest.ManifestItems = append(manifest.ManifestItems, manifestItem)
+					}
+				}
+			}
+		}
+
 		cmd.InstallEnterpriseApplication = &InstallEnterpriseApplication{
+			Manifest:                       manifest,
 			ManifestURL:                    nilIfEmptyString(pbc.GetManifestUrl()),
 			ManifestURLPinningCerts:        pbc.GetManifestUrlPinningCerts(),
 			PinningRevocationCheckRequired: nilIfFalse(pbc.GetPinningRevocationCheckRequired()),
