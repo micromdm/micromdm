@@ -61,7 +61,7 @@ gomodcheck:
 deps: gomodcheck
 	@go mod download
 
-test: db-migrate-test db-mysql-migrate-test
+test:
 	go test -cover -race ./...
 
 build: micromdm mdmctl
@@ -140,8 +140,6 @@ endef
 db-reset-test:
 	$(call psql_exec,'DROP DATABASE IF EXISTS micromdm_test;')
 	$(call psql_exec,'CREATE DATABASE micromdm_test;')
-	$(call psql_exec,'CREATE ROLE micromdm WITH LOGIN PASSWORD "micromdm";')
-  $(call psql_exec,'GRANT ALL PRIVILEGES ON DATABASE micromdm_test TO micromdm;')
 
 define psql_exec
 	PGPASSWORD=micromdm psql --host=${PG_HOST} --port=5432 --username=micromdm -c $(1)
