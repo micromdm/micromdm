@@ -3,8 +3,8 @@ package user
 
 import (
 	"github.com/gogo/protobuf/proto"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
 
 	"github.com/micromdm/micromdm/platform/user/internal/userproto"
 )
@@ -22,7 +22,7 @@ type User struct {
 
 func NewFromRequest(u User) (*User, error) {
 	newUser := User{
-		UUID:          uuid.NewV4().String(),
+		UUID:          uuid.New().String(),
 		UserShortname: u.UserShortname,
 		UserLongname:  u.UserLongname,
 		PasswordHash:  u.PasswordHash,

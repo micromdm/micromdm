@@ -180,6 +180,8 @@ message Asset {
   int64 md5_size = 2;
   repeated string md5s = 3;
   string url = 4;
+  int64 sha256_size = 5;
+  repeated string sha256s = 6;
 }
 
 message Metadata {
@@ -189,6 +191,7 @@ message Metadata {
   string kind = 4;
   string subtitle = 5;
   string title = 6;
+  int64 size_in_bytes = 7;
 }
 
 message BundleInfo {
