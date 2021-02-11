@@ -306,7 +306,7 @@ func generateAndStoreCA(ctx context.Context, d *Depot, key *rsa.PrivateKey, year
 	subject := pkix.Name{
 		Country:            []string{country},
 		Organization:       []string{org},
-		OrganizationalUnit: []string{"Abacus Research AG SCEP CA"},
+		OrganizationalUnit: []string{"MicroMDM SCEP CA"},
 		Locality:           nil,
 		Province:           nil,
 		StreetAddress:      nil,
