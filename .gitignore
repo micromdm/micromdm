@@ -16,3 +16,4 @@ webhook/
 chart/
 mdm-certificates_prod/
 chart/help.md
+service.systemd
