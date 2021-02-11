@@ -5,8 +5,8 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
 
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/pubsub"
@@ -82,7 +82,7 @@ func (w *Worker) updateUserFromTokenUpdate(ctx context.Context, message []byte) 
 				ev.Command.UserID,
 			)
 		}
-		usr.UUID = uuid.NewV4().String()
+		usr.UUID = uuid.New().String()
 	}
 
 	usr.UDID = ev.Command.UDID

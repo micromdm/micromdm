@@ -1,3 +1,7 @@
+## [v1.7.1](https://github.com/micromdm/micromdm/compare/v1.6.0...v1.7.1) April, 2020
+
+* Replace un-maintained UUID dependency #665
+
 ## [v1.7.0](https://github.com/micromdm/micromdm/compare/v1.6.0...v1.7.0-alpha) March, 2020
 
 ### Reliability, scalability, security, and usability improvements:

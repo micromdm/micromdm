@@ -37,7 +37,7 @@ func (cmd *mdmcertCommand) setup() error {
 func (cmd *mdmcertCommand) Usage() error {
 	const usageText = `
 Create new MDM Push Certificate.
-This utility helps obtain a MDM Push Certificate using the Apple Developer MDM CSR option in the enterprise developer portal.
+This utility helps obtain an MDM Push Certificate using the Apple Developer MDM CSR option in the enterprise developer portal.
 
 First you must create a vendor CSR which you will upload to the enterprise developer portal and get a signed MDM Vendor certificate. Use the MDM-CSR option in the dev portal when creating the certificate.
 The MDM Vendor certificate is required in order to obtain the MDM push certificate. After you complete the MDM-CSR step, copy the downloaded file to the same folder as the private key. By default this will be
