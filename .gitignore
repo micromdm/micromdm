@@ -10,3 +10,4 @@ cmd/micromdm/micromdm
 tools/ngrok/config_root
 tools/ngrok/filerepo
 tools/ngrok/env
+mdm-files/
