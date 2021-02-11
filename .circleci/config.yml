@@ -11,6 +11,9 @@ jobs:
             MICROMDM_RDBMS_PASSWORD: micromdm
             MICROMDM_RDBMS_HOST: 127.0.0.1
             MICROMDM_RDBMS_PORT: 5432
+            POSTGRES_DB: micromdm
+            POSTGRES_USER: micromdm
+            POSTGRES_PASSWORD: micromdm
         - image: mysql:5.7
           environment:
             MICROMDM_RDBMS: mysql
@@ -19,6 +22,10 @@ jobs:
             MICROMDM_RDBMS_PASSWORD: micromdm
             MICROMDM_RDBMS_HOST: 127.0.0.1
             MICROMDM_RDBMS_PORT: 3306
+            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_DATABASE: micromdm
+            MYSQL_USER: micromdm
+            MYSQL_PASSWORD: micromdm
 
     working_directory: /go/src/github.com/micromdm/micromdm
     steps: &steps
