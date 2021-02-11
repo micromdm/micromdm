@@ -41,7 +41,7 @@ func NewDB(db *sqlx.DB, sub pubsub.Subscriber) (*Mysql, error) {
 			consumer_secret TEXT NULL,
 			access_token TEXT NULL,
 			access_secret TEXT NULL,
-		    access_token_expiry TIMESTAMP DEFAULT '1970-01-01 00:00:00'
+		    access_token_expiry TIMESTAMP DEFAULT 0
 		);`)
 	if err != nil {
 	   return nil, errors.Wrap(err, "creating dep_tokens sql table failed")
