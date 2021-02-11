@@ -5,20 +5,20 @@ jobs:
         - image: golang:1.11
         - image: postgres:9.6
           environment:
-            POSTGRES_DB: micromdm
-            POSTGRES_USER: micromdm
-            POSTGRES_PASSWORD: micromdm
-            DB_HOST=127.0.0.1
-            DB_PORT=5432
+            MICROMDM_RDBMS: postgres
+            MICROMDM_RDBMS_DATABASE: micromdm_test
+            MICROMDM_RDBMS_USERNAME: micromdm
+            MICROMDM_RDBMS_PASSWORD: micromdm
+            MICROMDM_RDBMS_HOST=127.0.0.1
+            MICROMDM_RDBMS_PORT=5432
         - image: mysql:5.7
           environment:
-            - MYSQL_DATABASE=micromdm_test
-            - MYSQL_USER=micromdm
-            - MYSQL_ROOT_PASSWORD=micromdm
-            - MYSQL_PASSWORD=micromdm
-            - MYSQL_ROOT_HOST=%
-            - DB_HOST=127.0.0.1
-            - DB_PORT=3306
+            MICROMDM_RDBMS: mysql
+            MICROMDM_RDBMS_DATABASE: micromdm_test
+            MICROMDM_RDBMS_USERNAME: micromdm
+            MICROMDM_RDBMS_PASSWORD: micromdm
+            MICROMDM_RDBMS_HOST=127.0.0.1
+            MICROMDM_RDBMS_PORT=3306
 
     working_directory: /go/src/github.com/micromdm/micromdm
     steps: &steps
@@ -27,7 +27,10 @@ jobs:
       - run: apt-get update -y && apt-get install default-mysql-client -y
       - run: make deps
       - run: GO111MODULE=on go install github.com/pressly/goose/cmd/goose
-      - run: make build
+      - run: make db-reset-test
+      - run: make db-migrate-test
+      - run: make test
+      - run: make
 
 
 workflows:
