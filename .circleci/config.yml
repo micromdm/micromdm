@@ -22,7 +22,8 @@ jobs:
             MICROMDM_RDBMS_PASSWORD: micromdm
             MICROMDM_RDBMS_HOST: 127.0.0.1
             MICROMDM_RDBMS_PORT: 3306
-            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_ROOT_HOST: micromdm
+            MYSQL_ROOT_PASSWORD: micromdm
             MYSQL_DATABASE: micromdm
             MYSQL_USER: micromdm
             MYSQL_PASSWORD: micromdm
