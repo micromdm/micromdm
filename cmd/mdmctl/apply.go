@@ -16,8 +16,8 @@ import (
 	"strings"
 
 	"github.com/go-kit/kit/log"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/pkcs12"
 
 	"github.com/micromdm/micromdm/pkg/crypto/profileutil"
@@ -119,7 +119,7 @@ func (cmd *applyCommand) applyBlueprint(args []string) error {
 	if *flTemplate {
 		newBlueprint := &blueprint.Blueprint{
 			Name:               "exampleName",
-			UUID:               uuid.NewV4().String(),
+			UUID:               uuid.New().String(),
 			ApplicationURLs:    []string{cmd.config.ServerURL + "repo/exampleAppManifest.plist"},
 			ProfileIdentifiers: []string{"com.example.my.profile"},
 			UserUUID:           []string{"your-admin-account-uuid"},

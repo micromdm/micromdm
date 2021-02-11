@@ -3,7 +3,7 @@ package enroll
 import (
 	"time"
 
-	"github.com/satori/go.uuid"
+	"github.com/google/uuid"
 )
 
 type Payload struct {
@@ -36,7 +36,7 @@ type Profile struct {
 }
 
 func NewProfile() *Profile {
-	payloadUuid := uuid.NewV4()
+	payloadUuid := uuid.New()
 
 	return &Profile{
 		PayloadVersion: 1,
@@ -46,7 +46,7 @@ func NewProfile() *Profile {
 }
 
 func NewPayload(payloadType string) *Payload {
-	payloadUuid := uuid.NewV4()
+	payloadUuid := uuid.New()
 
 	return &Payload{
 		PayloadVersion: 1,

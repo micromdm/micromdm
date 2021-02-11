@@ -6,8 +6,8 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/kit/log/level"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
 
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/dep/sync"
@@ -113,7 +113,7 @@ func (w *Worker) updateFromDEPSync(ctx context.Context, message []byte) error {
 		}
 
 		if dev.UUID == "" {
-			dev.UUID = uuid.NewV4().String()
+			dev.UUID = uuid.New().String()
 		}
 
 		dev.SerialNumber = dd.SerialNumber
@@ -243,7 +243,7 @@ func (w *Worker) updateFromAuthenticate(ctx context.Context, message []byte) err
 	}
 
 	if device.UUID == "" {
-		device.UUID = uuid.NewV4().String()
+		device.UUID = uuid.New().String()
 	}
 	device.UDID = ev.Command.UDID
 	device.OSVersion = ev.Command.OSVersion

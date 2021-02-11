@@ -4,10 +4,11 @@ import (
 	"time"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/google/uuid"
+	"github.com/pkg/errors"
+
 	"github.com/micromdm/micromdm/mdm/mdm"
 	"github.com/micromdm/micromdm/platform/command/internal/commandproto"
-	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
 )
 
 type Event struct {
@@ -20,7 +21,7 @@ type Event struct {
 // NewEvent returns an Event with a unique ID and the current time.
 func NewEvent(payload *mdm.CommandPayload, udid string) *Event {
 	event := Event{
-		ID:         uuid.NewV4().String(),
+		ID:         uuid.New().String(),
 		Time:       time.Now().UTC(),
 		Payload:    payload,
 		DeviceUDID: udid,

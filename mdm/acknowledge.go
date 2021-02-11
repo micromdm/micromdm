@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	uuid "github.com/satori/go.uuid"
 )
 
 func (svc *MDMService) Acknowledge(ctx context.Context, req AcknowledgeEvent) (payload []byte, err error) {
@@ -51,7 +51,7 @@ func decodeAcknowledgeRequest(ctx context.Context, r *http.Request) (interface{}
 	}
 
 	event := AcknowledgeEvent{
-		ID:       uuid.NewV4().String(),
+		ID:       uuid.New().String(),
 		Time:     time.Now().UTC(),
 		Response: res,
 		Params:   params,
