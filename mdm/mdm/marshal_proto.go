@@ -152,8 +152,47 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 			},
 		}
 	case "InstallEnterpriseApplication":
+		var pbManifest *mdmproto.Manifest
+		if cmd.InstallEnterpriseApplication.Manifest != nil {
+			pbManifest = &(mdmproto.Manifest{})
+			for _, item := range cmd.InstallEnterpriseApplication.Manifest.ManifestItems {
+				var pbManifestItem mdmproto.ManifestItem
+				for _, asset := range item.Assets {
+					pbAsset := mdmproto.Asset{
+						Kind:       asset.Kind,
+						Md5Size:    asset.MD5Size,
+						Md5S:       asset.MD5s,
+						Sha256Size: asset.SHA256Size,
+						Sha256S:    asset.SHA256s,
+						Url:        asset.URL,
+					}
+					pbManifestItem.Assets = append(pbManifestItem.Assets, &pbAsset)
+				}
+				if item.Metadata != nil {
+					pbManifestItem.Metadata = &(mdmproto.Metadata{
+						BundleIdentifier: item.Metadata.BundleInfo.BundleIdentifier,
+						BundleVersion:    item.Metadata.BundleInfo.BundleVersion,
+						Kind:             item.Metadata.Kind,
+						SizeInBytes:      item.Metadata.SizeInBytes,
+						Title:            item.Metadata.Title,
+						Subtitle:         item.Metadata.Subtitle,
+					})
+					for _, bundleInfo := range item.Metadata.Items {
+						bpBundleInfo := &(mdmproto.BundleInfo{
+							BundleIdentifier: bundleInfo.BundleIdentifier,
+							BundleVersion:    bundleInfo.BundleVersion,
+						})
+						pbManifestItem.Metadata.Items = append(pbManifestItem.Metadata.Items, bpBundleInfo)
+					}
+				}
+				if len(pbManifestItem.Assets) > 0 || pbManifestItem.Metadata != nil {
+					pbManifest.ManifestItems = append(pbManifest.ManifestItems, &pbManifestItem)
+				}
+			}
+		}
 		cmdproto.Request = &mdmproto.Command_InstallEnterpriseApplication{
 			InstallEnterpriseApplication: &mdmproto.InstallEnterpriseApplication{
+				Manifest:                       pbManifest,
 				ManifestUrl:                    emptyStringIfNil(cmd.InstallEnterpriseApplication.ManifestURL),
 				ManifestUrlPinningCerts:        cmd.InstallEnterpriseApplication.ManifestURLPinningCerts,
 				PinningRevocationCheckRequired: falseIfNil(cmd.InstallEnterpriseApplication.PinningRevocationCheckRequired),
