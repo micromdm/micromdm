@@ -24,7 +24,7 @@ jobs:
             MICROMDM_RDBMS_PORT: 3306
             MYSQL_ROOT_HOST: micromdm
             MYSQL_ROOT_PASSWORD: micromdm
-            MYSQL_DATABASE: micromdm
+            MYSQL_DATABASE: micromdm_test
             MYSQL_USER: micromdm
             MYSQL_PASSWORD: micromdm
 
@@ -35,6 +35,16 @@ jobs:
       - run: apt-get update -y && apt-get install default-mysql-client -y
       - run: make deps
       - run: GO111MODULE=on go install github.com/pressly/goose/cmd/goose
+      - run:
+          name: Waiting for MySQL to be ready
+            command: |
+              for i in `seq 1 10`;
+              do
+                nc -z 127.0.0.1 3306 && echo Success && exit 0
+                echo -n .
+                sleep 1
+              done
+              echo Failed waiting for MySQL && exit 1
       - run: make db-reset-test
       - run: make db-migrate-test
       - run: make test
