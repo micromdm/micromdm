@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS dep_tokens (
     consumer_secret TEXT NULL,
     access_token TEXT NULL,
     access_secret TEXT NULL,
-    access_token_expiry TIMESTAMP DEFAULT 0
+    access_token_expiry TIMESTAMP DEFAULT '1970-01-01 00:00:00'
 );
 
 CREATE TABLE IF NOT EXISTS devices (
