@@ -12,5 +12,5 @@ tools/ngrok/filerepo
 tools/ngrok/env
 mdm-files/
 assets/
-webhook/assets/
 webhook/
+chart/
