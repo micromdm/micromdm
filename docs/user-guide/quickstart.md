@@ -66,7 +66,7 @@ You're likely to run more than one instance of micromdm(ex: production and stagi
 
 To communicate with your device fleet, MDM needs an APNS certificate issued by Apple. As noted in the introduction, this process requires that you have an Enterprise Developer Account, and the `MDM CSR` option enabled under the *Certificates, IDs & Profiles* tab for *iOS*. 
 
-Apple has a separate flow for the MDM vendor than the one for customers. For an in-house deployment without third parties, you must complete boththe vendor and the customer process yourself. The `mdmctl mdmcert` command will help you with your APNS certificate needs.
+Apple has a separate flow for the MDM vendor than the one for customers. For an in-house deployment without third parties, you must complete both the vendor and the customer process yourself. The `mdmctl mdmcert` command will help you with your APNS certificate needs.
 
 Create a request for the MDM CSR, with a password used to encrypt the private key. 
 After this step you will have a new `mdm-certificates` directory, with the necessary files. 
