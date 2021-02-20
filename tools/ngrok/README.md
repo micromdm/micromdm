@@ -28,7 +28,7 @@ Some of the steps are only required for first time setup.
 
 _Note:_ When the ngrok tunnel expires, you have to re-enroll the test device. The `configure_mdmctl` updates the DEP profile, so all you need to do is either reset the VM, or run `sudo /usr/bin/profiles -e -N` if testing with a real Mac.
 
-1. Run ngrok. A tunnel will be opened. If you're using the free version of `ngrok` this URL is only valid for 8 hours, but you can always start with a new URL.
+1. Run ngrok. A tunnel will be opened. If you're using the free version of `ngrok` this URL is only valid for 2 hours, but you can always start with a new URL.
 ```
 ngrok http 8080
 ```
