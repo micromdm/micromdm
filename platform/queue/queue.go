@@ -260,6 +260,34 @@ func (e *notFound) Error() string {
 	return fmt.Sprintf("not found: %s %s", e.ResourceType, e.Message)
 }
 
+func (db *Store) DeleteOlderThan(uuid string, dur time.Duration) error {
+	err := db.Batch(func(tx *bolt.Tx) error {
+		bucket := tx.Bucket([]byte(DeviceCommandBucket))
+
+		device := bucket.Get([]byte(uuid))
+		var currentDC DeviceCommand
+		if err := UnmarshalDeviceCommand(device, &currentDC); err != nil {
+			return err
+		}
+		newDC := &currentDC
+		for i, c := range currentDC.Commands {
+			cutoff := time.Now().Add(-dur)
+			if c.CreatedAt.Before(cutoff) {
+				// remove Command at i if older than cutoff
+				newDC.Commands = func(s []Command, i int) []Command {
+					s[i] = s[len(s)-1]
+					return s[:len(s)-1]
+				}(currentDC.Commands, i)
+			}
+		}
+		return db.Save(newDC)
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 	commandEvents, err := pubsub.Subscribe(context.TODO(), "command-queue", command.CommandTopic)
 	if err != nil {
