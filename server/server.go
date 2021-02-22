@@ -73,7 +73,7 @@ type Server struct {
 }
 
 func (c *Server) Setup(logger log.Logger) error {
-	if err := c.setupPubSub(); err != nil {
+	if err := c.setupPubSub(logger); err != nil {
 		return err
 	}
 
@@ -131,8 +131,8 @@ func (c *Server) setupProfileDB() error {
 	return nil
 }
 
-func (c *Server) setupPubSub() error {
-	c.PubClient = inmem.NewPubSub()
+func (c *Server) setupPubSub(logger log.Logger) error {
+	c.PubClient = inmem.NewPubSub(logger)
 	return nil
 }
 
