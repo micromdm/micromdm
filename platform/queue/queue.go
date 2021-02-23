@@ -269,9 +269,9 @@ func (db *Store) DeleteOlderThan(uuid string, dur time.Duration) error {
 		if err := UnmarshalDeviceCommand(device, &currentDC); err != nil {
 			return err
 		}
+		cutoff := time.Now().Add(-dur)
 		newDC := &currentDC
 		for i, c := range currentDC.Commands {
-			cutoff := time.Now().Add(-dur)
 			if c.CreatedAt.Before(cutoff) {
 				// remove Command at i if older than cutoff
 				newDC.Commands = func(s []Command, i int) []Command {
