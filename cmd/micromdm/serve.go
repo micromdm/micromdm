@@ -19,6 +19,7 @@ import (
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/groob/finalizer/logutil"
+	"github.com/kolide/kit/debug"
 	"github.com/micromdm/go4/env"
 	"github.com/micromdm/go4/httputil"
 	"github.com/micromdm/go4/version"
@@ -46,6 +47,8 @@ import (
 	"github.com/micromdm/micromdm/platform/user"
 	userbuiltin "github.com/micromdm/micromdm/platform/user/builtin"
 	"github.com/micromdm/micromdm/server"
+
+	_ "net/http/pprof"
 )
 
 const homePage = `<!doctype html>
@@ -289,6 +292,14 @@ func serve(args []string) error {
 		}
 		r.PathPrefix("/repo/").Handler(http.StripPrefix("/repo/", http.FileServer(http.Dir(*flRepoPath))))
 	}
+
+	// add a debug endpoint for pprof.
+
+	debugServer, err := debug.StartServer(debug.WithLogger(mainLogger), debug.WithPrefix("/debug/pprof/"))
+	if err != nil {
+		stdlog.Fatal(err)
+	}
+	defer debugServer.Shutdown()
 
 	var handler http.Handler
 	if *flHTTPDebug {

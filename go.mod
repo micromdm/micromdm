@@ -2,6 +2,7 @@ module github.com/micromdm/micromdm
 
 require (
 	github.com/RobotsAndPencils/buford v0.12.0
+	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 // indirect
 	github.com/boltdb/bolt v1.3.1
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fullsailor/pkcs7 v0.0.0-20180824154052-36585635cb64
