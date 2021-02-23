@@ -271,13 +271,14 @@ func (db *Store) DeleteOlderThan(uuid string, dur time.Duration) error {
 		}
 		cutoff := time.Now().Add(-dur)
 		newDC := &currentDC
+		// remove Command at i if older than cutoff
+		drop := func(s []Command, i int) []Command {
+			s[i] = s[len(s)-1]
+			return s[:len(s)-1]
+		}
 		for i, c := range currentDC.Commands {
 			if c.CreatedAt.Before(cutoff) {
-				// remove Command at i if older than cutoff
-				newDC.Commands = func(s []Command, i int) []Command {
-					s[i] = s[len(s)-1]
-					return s[:len(s)-1]
-				}(currentDC.Commands, i)
+				newDC.Commands = drop(currentDC.Commands, i)
 			}
 		}
 		return db.Save(newDC)
