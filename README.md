@@ -23,3 +23,24 @@ High level overview of the API used for scheduling device actions and processing
 To help with development, start by reading the [CONTRIBUTING](./CONTRIBUTING.md) document, which has relevant resources. 
 
 For a local development environment, or a demo setup, the [ngrok guide](./tools/ngrok/README.md), is the best resource to get something working.  
+
+
+
+# MySQL support
+This version of MicroMDM can be run with Mysql support in place of default BoltDB database
+
+## Test MicroMDM with Mysql
+As root, Add your IP to your hosts file (MySQL don"t accept localhost connexions for users)
+>echo $(hostname -I | cut -d" " -f1)" me.home.local" >>/etc/hosts
+
+Get official MySQL docker image
+>docker-compose -f docker-compose-dev.yaml pull db
+
+Build micromdm with MySQL support (golang and alpine official docker images will be pulled)
+>docker-compose -f docker-compose-dev.yaml build
+
+Start MySQL and MicroMDM containers
+>docker-compose -f docker-compose-dev.yaml up
+
+Enrollement interface should now be available at this address (skip self signed certifcate warnings):
+>https://me.home.local:3478/

@@ -2,7 +2,7 @@ package mysql
 
 import (
 	"context"
-	"strings"
+	// "strings"
 	"database/sql"
 	"fmt"
 
@@ -62,41 +62,37 @@ func (d *Mysql) Save(ctx context.Context, p *profile.Profile) error {
 	// Empty object => insert
 	if (err != nil) {
 		
-		query, args, err := sq.StatementBuilder.
+		query, args, _ := sq.StatementBuilder.
 			PlaceholderFormat(sq.Question).
 			Insert(tableName).
 			Columns(columns()...).
 			Values(
 				p.Identifier,
-				p.Mobileconfig,
+				string(p.Mobileconfig[:]),
 			).
 			//Suffix(updateQuery).
 			ToSql()
-		
-		var all_args = append(args, args...)
-		if err != nil {
-			return errors.Wrap(err, "building profile save query")
-		}
-		
-		_, err = d.db.ExecContext(ctx, query, all_args...)
-		
+
+		_, err = d.db.ExecContext(ctx, query, args...)
+
+
 	} else {
 		// Update existing entry
-		updateQuery, args_update, err := sq.StatementBuilder.
+		updateQuery, args_update, errq := sq.StatementBuilder.
 			PlaceholderFormat(sq.Question).
 			Update(tableName).
 			//Prefix("ON DUPLICATE KEY").
 			//Set("identifier", p.Identifier).
-			Set("mobileconfig", p.Mobileconfig).
+			Set("mobileconfig", string(p.Mobileconfig[:])).
 			Where("identifier LIKE ?", fmt.Sprint("", p.Identifier, "")).
 			ToSql()
-		if err != nil {
-			return errors.Wrap(err, "building update query for device save")
+		if errq != nil {
+			return errors.Wrap(errq, "building update query for device save")
 		}
 		
 		// MySql Convention
 		// Replace "ON DUPLICATE KEY UPDATE TABLE_NAME SET" to "ON DUPLICATE KEY UPDATE"
-		updateQuery = strings.Replace(updateQuery, tableName+" SET ", "", -1)
+		// updateQuery = strings.Replace(updateQuery, tableName+" SET ", "", -1)
 		
 		_, err = d.db.ExecContext(ctx, updateQuery, args_update...)
 	}

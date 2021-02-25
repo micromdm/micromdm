@@ -1,7 +1,8 @@
-version: "2"
+version: "2.1"
 
 services:
   db:
+    network_mode: host
     image: mysql
     command: --default-authentication-plugin=mysql_native_password
     environment:
@@ -11,3 +12,30 @@ services:
       MYSQL_PASSWORD: micromdm
     ports:
       - 3306:3306
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD 
+  micromdm:
+    network_mode: host
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: micromdm
+    environment:
+      MICROMDM_RDBMS: mysql
+      MICROMDM_RDBMS_DATABASE: micromdm
+      MICROMDM_RDBMS_USERNAME: micromdm
+      MICROMDM_RDBMS_PASSWORD: micromdm
+      MICROMDM_RDBMS_HOST: 127.0.0.1
+      MICROMDM_RDBMS_PORT: 3306            
+      MICROMDM_API_KEY: MySuperSecretKey
+      MICROMDM_HTTP_ADDR: ":3478"
+      MICROMDM_TLS: "true"
+      MICROMDM_SERVER_URL: "https://me.home.local:3478/"
+      MICROMDM_FILE_REPO: ./repo
+      MICROMDM_TLS_CERT: server.crt
+      MICROMDM_TLS_KEY: server.key
+    ports:
+      - 3478:3478
+    depends_on:
+      db:
+        condition: service_healthy
