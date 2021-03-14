@@ -91,6 +91,7 @@ func serve(args []string) error {
 		flUDIDCertAuthWarnOnly   = flagset.Bool("udid-cert-auth-warn-only", env.Bool("MICROMDM_UDID_CERT_AUTH_WARN_ONLY", false), "warn only for udid cert mismatches")
 		flValidateSCEPExpiration = flagset.Bool("validate-scep-expiration", env.Bool("MICROMDM_VALIDATE_SCEP_EXPIRATION", false), "validate that the SCEP certificate is still valid")
 		flPrintArgs              = flagset.Bool("print-flags", false, "Print all flags and their values")
+		flQueue                  = flagset.String("queue", env.String("MICROMDM_QUEUE", "builtin"), "command queue type")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -142,6 +143,7 @@ func serve(args []string) error {
 		WebhooksHTTPClient: &http.Client{Timeout: time.Second * 30},
 
 		SCEPClientValidity: *flSCEPClientValidity,
+		Queue:              *flQueue,
 	}
 	if !sm.UseDynSCEPChallenge {
 		// TODO: we have a static SCEP challenge password here to prevent

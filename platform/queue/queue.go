@@ -303,18 +303,13 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 					"request_type", ev.Payload.Command.RequestType,
 				)
 
-				cq := new(QueueCommandQueued)
-				cq.DeviceUDID = ev.DeviceUDID
-				cq.CommandUUID = ev.Payload.CommandUUID
-
-				msgBytes, err := MarshalQueuedCommand(cq)
+				err = PublishCommandQueued(pubsub, ev.DeviceUDID, ev.Payload.CommandUUID)
 				if err != nil {
-					level.Info(db.logger).Log("msg", "marshal queued command", "err", err)
+					level.Info(db.logger).Log(
+						"msg", "publish command to queued topic",
+						"err", err,
+					)
 					continue
-				}
-
-				if err := pubsub.Publish(context.TODO(), CommandQueuedTopic, msgBytes); err != nil {
-					level.Info(db.logger).Log("msg", "publish command to queued topic", "err", err)
 				}
 			}
 		}
@@ -328,4 +323,17 @@ func isNotFound(err error) bool {
 		return true
 	}
 	return false
+}
+
+func PublishCommandQueued(pub pubsub.Publisher, udid, uuid string) error {
+	cq := new(QueueCommandQueued)
+	cq.DeviceUDID = udid
+	cq.CommandUUID = uuid
+
+	msgBytes, err := MarshalQueuedCommand(cq)
+	if err != nil {
+		return err
+	}
+
+	return pub.Publish(context.TODO(), CommandQueuedTopic, msgBytes)
 }

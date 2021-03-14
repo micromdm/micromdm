@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"crypto/x509"
+	"fmt"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -33,6 +34,7 @@ import (
 	"github.com/micromdm/micromdm/platform/pubsub"
 	"github.com/micromdm/micromdm/platform/pubsub/inmem"
 	"github.com/micromdm/micromdm/platform/queue"
+	queueinmem "github.com/micromdm/micromdm/platform/queue/inmem"
 	block "github.com/micromdm/micromdm/platform/remove"
 	blockbuiltin "github.com/micromdm/micromdm/platform/remove/builtin"
 	"github.com/micromdm/micromdm/workflow/webhook"
@@ -61,6 +63,7 @@ type Server struct {
 	ValidateSCEPIssuer     bool
 	ValidateSCEPExpiration bool
 	UDIDCertAuthWarnOnly   bool
+	Queue                  string
 
 	APNSPushService apns.Service
 	CommandService  command.Service
@@ -166,14 +169,26 @@ func (c *Server) setupCommandService() error {
 }
 
 func (c *Server) setupCommandQueue(logger log.Logger) error {
-	opts := []queue.Option{queue.WithLogger(logger)}
-	if c.NoCmdHistory {
-		opts = append(opts, queue.WithoutHistory())
+	var q mdm.Queue
+	switch c.Queue {
+	case "inmem":
+		q = queueinmem.New(c.PubClient, logger)
+	case "builtin":
+		opts := []queue.Option{queue.WithLogger(logger)}
+		if c.NoCmdHistory {
+			opts = append(opts, queue.WithoutHistory())
+		}
+		var err error
+		q, err = queue.NewQueue(c.DB, c.PubClient, opts...)
+		if err != nil {
+			return err
+		}
+	case "":
+		return errors.New("empty command queue type")
+	default:
+		return fmt.Errorf("invalid command queue type: %s", c.Queue)
 	}
-	q, err := queue.NewQueue(c.DB, c.PubClient, opts...)
-	if err != nil {
-		return err
-	}
+
 	devDB, err := devicebuiltin.NewDB(c.DB)
 	if err != nil {
 		return errors.Wrap(err, "new device db")
