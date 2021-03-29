@@ -8,13 +8,13 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/fullsailor/pkcs7"
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/groob/plist"
 	"github.com/pkg/errors"
+	"go.mozilla.org/pkcs7"
 )
 
 type Endpoints struct {

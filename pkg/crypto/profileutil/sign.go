@@ -5,8 +5,8 @@ import (
 	"crypto"
 	"crypto/x509"
 
-	"github.com/fullsailor/pkcs7"
 	"github.com/pkg/errors"
+	"go.mozilla.org/pkcs7"
 )
 
 // Sign takes an unsigned payload and signs it with the provided private key and certificate.

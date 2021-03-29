@@ -14,18 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/boltdb/bolt"
-	"github.com/go-kit/kit/auth/basic"
-	"github.com/go-kit/kit/log"
-	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/groob/finalizer/logutil"
-	"github.com/micromdm/go4/env"
-	"github.com/micromdm/go4/httputil"
-	"github.com/micromdm/go4/version"
-	scep "github.com/micromdm/scep/server"
-	"github.com/pkg/errors"
-	"golang.org/x/crypto/acme/autocert"
-
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/mdm/enroll"
 	httputil2 "github.com/micromdm/micromdm/pkg/httputil"
@@ -46,6 +34,18 @@ import (
 	"github.com/micromdm/micromdm/platform/user"
 	userbuiltin "github.com/micromdm/micromdm/platform/user/builtin"
 	"github.com/micromdm/micromdm/server"
+
+	"github.com/boltdb/bolt"
+	"github.com/go-kit/kit/auth/basic"
+	"github.com/go-kit/kit/log"
+	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/groob/finalizer/logutil"
+	"github.com/micromdm/go4/env"
+	"github.com/micromdm/go4/httputil"
+	"github.com/micromdm/go4/version"
+	scep "github.com/micromdm/scep/v2/server"
+	"github.com/pkg/errors"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 const homePage = `<!doctype html>
