@@ -184,7 +184,7 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			options = &InstallApplicationOptions{
 				PurchaseMethod: new(int64),
 			}
-			*options.PurchaseMethod = pboptions.GetPurchaseMethod()
+			*options.PurchaseMethod = pboptions.GetPurchaseMethod();
 		}
 
 		pbconfig := pbc.GetConfiguration()
@@ -300,11 +300,6 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			NewPassword:     pbc.GetNewPassword(),
 			AllowOroms:      pbc.GetAllowOroms(),
 		}
-	case "SetBootstrapToken":
-		pbc := pb.GetSetBootstrapToken()
-		cmd.SetBootstrapToken = &SetBootstrapToken{
-			BootstrapToken: pbc.GetBootstrapToken(),
-		}
 	case "VerifyFirmwarePassword":
 		pbc := pb.GetVerifyFirmwarePassword()
 		cmd.VerifyFirmwarePassword = &VerifyFirmwarePassword{
@@ -401,9 +396,13 @@ func protoToSetting(s *mdmproto.Setting) Setting {
 	case "MDMOptions":
 		pbs := s.GetMdmOptions()
 		activationLockAllowed := pbs.GetMdmOptions().GetActivationLockAllowedWhileSupervised()
+		bootstrapTokenAllowed := pbs.GetMdmOptions().GetBootstrapTokenAllowed()
+		promptUserToAllowBootstrapToken := pbs.GetMdmOptions().GetPromptUserToAllowBootstrapTokenForAuthentication()
 		setting.MDMOptions = map[string]interface {
 		}{
 			"ActivationLockAllowedWhileSupervised": activationLockAllowed,
+			"BootstrapTokenAllowed": bootstrapTokenAllowed,
+			"PromptUserToAllowBootstrapTokenForAuthentication": promptUserToAllowBootstrapToken,
 		}
 	case "PasscodeLockGracePeriod":
 		pbs := s.GetPasscodeLockGracePeriod()

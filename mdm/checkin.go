@@ -45,6 +45,10 @@ func topicFromMessage(messageType string) (string, error) {
 		return TokenUpdateTopic, nil
 	case "CheckOut":
 		return CheckoutTopic, nil
+	case "GetBootstrapToken":
+		return GetBootstrapTokenTopic, nil
+	case "SetBootstrapToken":
+		return SetBootstrapTokenTopic, nil
 	default:
 		return "", errors.Errorf("unknown checkin message type %s", messageType)
 	}

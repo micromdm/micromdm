@@ -17,6 +17,8 @@ message Command {
     Authenticate authenticate = 4;
     TokenUpdate  token_update = 5;
     string enrollment_id = 6;
+    GetBootstrapToken get_bootstrap_token = 7;
+    SetBootstrapToken set_bootstrap_token = 8;
 }
 
 message Authenticate {
@@ -41,4 +43,13 @@ message TokenUpdate {
     string user_long_name = 6;
     string user_short_name = 7;
     bool   not_on_console = 8;
+}
+
+message GetBootstrapToken {
+    bool   g_awaiting_configuration = 1;
+}
+
+message SetBootstrapToken {
+	bytes  bootstrap_token = 1;
+    bool   s_awaiting_configuration = 2;
 }

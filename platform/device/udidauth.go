@@ -101,7 +101,7 @@ func (mw *udidCertAuthMiddleware) Checkin(ctx context.Context, req mdm.CheckinEv
 			return err
 		}
 		return mw.next.Checkin(ctx, req)
-	case "TokenUpdate", "CheckOut":
+	case "TokenUpdate", "CheckOut", "GetBootstrapToken", "SetBootstrapToken":
 		matched, err := mw.validateUDIDCertAuth([]byte(req.Command.UDID), hashCertRaw(devcert.Raw))
 		if err != nil {
 			return err

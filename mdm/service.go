@@ -14,10 +14,12 @@ type Service interface {
 type Middleware func(Service) Service
 
 const (
-	ConnectTopic      = "mdm.Connect"
-	AuthenticateTopic = "mdm.Authenticate"
-	TokenUpdateTopic  = "mdm.TokenUpdate"
-	CheckoutTopic     = "mdm.CheckOut"
+	ConnectTopic           = "mdm.Connect"
+	AuthenticateTopic      = "mdm.Authenticate"
+	TokenUpdateTopic       = "mdm.TokenUpdate"
+	CheckoutTopic          = "mdm.CheckOut"
+	GetBootstrapTokenTopic = "mdm.GetBootstrapToken"
+	SetBootstrapTokenTopic = "mdm.SetBootstrapToken"
 )
 
 // Queue is an MDM Command Queue.

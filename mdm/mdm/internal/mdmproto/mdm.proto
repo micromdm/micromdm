@@ -327,6 +327,8 @@ message MDMOptionsSetting {
 
 message MDMOptions {
   bool activation_lock_allowed_while_supervised = 1;
+  bool bootstrap_token_allowed = 2;
+  bool prompt_user_to_allow_bootstrap_token_for_authentication = 3;
 }
 
 message PasscodeLockGracePeriodSetting {
@@ -407,7 +409,6 @@ message FileVaultUnlock {
 message SetBootstrapToken {
   string bootstrap_token = 1;
 }
-
 
 message ResultPayload {
   enum Status {

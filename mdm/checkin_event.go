@@ -19,14 +19,18 @@ type CheckinEvent struct {
 
 // CheckinRequest represents an MDM checkin command struct.
 type CheckinCommand struct {
-	// MessageType can be either Authenticate,
-	// TokenUpdate or CheckOut
+	// MessageType can be either Authenticate, 
+	// UserAuthenticate, CheckOut or TokenUpdate
+	// or GetBootstrapToken or SetBootstrapToken
+
 	MessageType  string
 	Topic        string
 	UDID         string
 	EnrollmentID string
 	auth
 	update
+	getbootstrap
+	setbootstrap
 }
 
 // Authenticate Message Type
@@ -58,6 +62,17 @@ type userTokenUpdate struct {
 	UserLongName  string `plist:",omitempty"`
 	UserShortName string `plist:",omitempty"`
 	NotOnConsole  bool   `plist:",omitempty"`
+}
+
+// Get Bootstrap Token Message Type # GetBootstrapTokenRequest
+type getbootstrap struct {
+	GAwaitingConfiguration bool
+}
+
+// Set Bootstrap Token Message Type # SetBootstrapTokenRequest
+type setbootstrap struct {
+	SAwaitingConfiguration bool
+	BootstrapToken        hexData
 }
 
 // data decodes to []byte,
@@ -101,6 +116,15 @@ func MarshalCheckinEvent(e *CheckinEvent) ([]byte, error) {
 			UserLongName:          e.Command.UserLongName,
 			UserShortName:         e.Command.UserShortName,
 			NotOnConsole:          e.Command.NotOnConsole,
+		}
+	case "GetBootstrapToken":
+		command.GetBootstrapToken = &checkinproto.GetBootstrapToken{
+			GAwaitingConfiguration: e.Command.GAwaitingConfiguration,
+		}
+	case "SetBootstrapToken":
+		command.SetBootstrapToken = &checkinproto.SetBootstrapToken{
+			BootstrapToken:        e.Command.BootstrapToken,
+			SAwaitingConfiguration: e.Command.SAwaitingConfiguration,
 		}
 	}
 	return proto.Marshal(&checkinproto.Event{
@@ -151,6 +175,11 @@ func UnmarshalCheckinEvent(data []byte, e *CheckinEvent) error {
 		e.Command.UserLongName = pb.Command.TokenUpdate.UserLongName
 		e.Command.UserShortName = pb.Command.TokenUpdate.UserShortName
 		e.Command.NotOnConsole = pb.Command.TokenUpdate.NotOnConsole
+	case "GetBootstrapToken":
+		e.Command.GAwaitingConfiguration = pb.Command.GetBootstrapToken.GAwaitingConfiguration
+	case "SetBootstrapToken":
+		e.Command.BootstrapToken = pb.Command.SetBootstrapToken.BootstrapToken
+		e.Command.SAwaitingConfiguration = pb.Command.SetBootstrapToken.SAwaitingConfiguration
 	}
 	e.Raw = pb.GetRaw()
 	e.Params = pb.GetParams()

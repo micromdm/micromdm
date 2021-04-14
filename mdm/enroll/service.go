@@ -165,6 +165,7 @@ func (svc *service) Enroll(ctx context.Context) (profile.Mobileconfig, error) {
 }
 
 const perUserConnections = "com.apple.mdm.per-user-connections"
+const bootstrapToken = "com.apple.mdm.bootstraptoken"
 
 func (svc *service) MakeEnrollmentProfile() (Profile, error) {
 	profile := NewProfile()
@@ -192,7 +193,7 @@ func (svc *service) MakeEnrollmentProfile() (Profile, error) {
 		ServerURL:           svc.URL + "/mdm/connect",
 		Topic:               topic,
 		SignMessage:         true,
-		ServerCapabilities:  []string{perUserConnections},
+		ServerCapabilities:  []string{perUserConnections, bootstrapToken},
 	}
 
 	payloadContent := []interface{}{}

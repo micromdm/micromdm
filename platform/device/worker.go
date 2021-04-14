@@ -44,6 +44,14 @@ func (w *Worker) Run(ctx context.Context) error {
 	if err != nil {
 		return errors.Wrapf(err, "subscribing %s to %s", subscription, mdm.TokenUpdateTopic)
 	}
+	getBootstrapTokenEvents, err := w.ps.Subscribe(ctx, subscription, mdm.GetBootstrapTokenTopic)
+	if err != nil {
+		return errors.Wrapf(err, "subscribing %s to %s", subscription, mdm.GetBootstrapTokenTopic)
+	}
+	setBootstrapTokenEvents, err := w.ps.Subscribe(ctx, subscription, mdm.SetBootstrapTokenTopic)
+	if err != nil {
+		return errors.Wrapf(err, "subscribing %s to %s", subscription, mdm.SetBootstrapTokenTopic)
+	}
 	checkoutEvents, err := w.ps.Subscribe(ctx, subscription, mdm.CheckoutTopic)
 	if err != nil {
 		return errors.Wrapf(err, "subscribing %s to %s", subscription, mdm.CheckoutTopic)
@@ -66,6 +74,10 @@ func (w *Worker) Run(ctx context.Context) error {
 			err = w.updateFromAuthenticate(ctx, ev.Message)
 		case ev := <-tokenUpdateEvents:
 			err = w.updateFromTokenUpdate(ctx, ev.Message)
+		case ev := <-getBootstrapTokenEvents:
+			err = w.updateFromGetBootstrapToken(ctx, ev.Message)
+		case ev := <-setBootstrapTokenEvents:
+			err = w.updateFromSetBootstrapToken(ctx, ev.Message)
 		case ev := <-checkoutEvents:
 			err = w.updateFromCheckout(ctx, ev.Message)
 		case ev := <-depSyncEvents:
@@ -176,6 +188,45 @@ func (w *Worker) updateFromCheckout(ctx context.Context, message []byte) error {
 
 	err = w.db.Save(ctx, dev)
 	return errors.Wrapf(err, "saving updated device for checkout event")
+
+}
+
+func (w *Worker) updateFromGetBootstrapToken(ctx context.Context, message []byte) error {
+	var ev mdm.CheckinEvent
+	if err := mdm.UnmarshalCheckinEvent(message, &ev); err != nil {
+		return errors.Wrap(err, "unmarshal checkin event")
+	}
+
+	dev, err := w.db.DeviceByUDID(ctx, ev.Command.UDID)
+	if err != nil {
+		return errors.Wrapf(err, "retrieve device with udid %s", ev.Command.UDID)
+	}
+
+	dev.AwaitingConfiguration = ev.Command.AwaitingConfiguration
+	dev.LastSeen = time.Now()
+
+	err = w.db.Save(ctx, dev)
+	return errors.Wrapf(err, "saving updated device for GetBootstrapToken event")
+
+}
+
+func (w *Worker) updateFromSetBootstrapToken(ctx context.Context, message []byte) error {
+	var ev mdm.CheckinEvent
+	if err := mdm.UnmarshalCheckinEvent(message, &ev); err != nil {
+		return errors.Wrap(err, "unmarshal checkin event")
+	}
+
+	dev, err := w.db.DeviceByUDID(ctx, ev.Command.UDID)
+	if err != nil {
+		return errors.Wrapf(err, "retrieve device with udid %s", ev.Command.UDID)
+	}
+
+	dev.BootstrapToken = ev.Command.BootstrapToken.String()
+	dev.AwaitingConfiguration = ev.Command.AwaitingConfiguration
+	dev.LastSeen = time.Now()
+
+	err = w.db.Save(ctx, dev)
+	return errors.Wrapf(err, "saving updated device for SetBootstrapToken event")
 
 }
 

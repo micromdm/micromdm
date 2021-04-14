@@ -349,15 +349,6 @@ func (c *Command) MarshalJSON() ([]byte, error) {
 			RotateFileVaultKey: c.RotateFileVaultKey,
 		}
 		return json.Marshal(&x)
-	case "SetBootstrapToken":
-		var x = struct {
-			RequestType string `json:"request_type"`
-			*SetBootstrapToken
-		}{
-			RequestType:       c.RequestType,
-			SetBootstrapToken: c.SetBootstrapToken,
-		}
-		return json.Marshal(&x)
 	default:
 		return nil, fmt.Errorf("mdm: unknown RequestType: %s", c.RequestType)
 	}

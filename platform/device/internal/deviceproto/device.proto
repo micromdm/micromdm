@@ -33,5 +33,6 @@ message Device {
     string dep_profile_assigned_by =27;
     int64 last_seen =28;
     bytes last_query_response =29;
+    string bootstrap_token =30;
 
 }

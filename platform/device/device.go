@@ -38,6 +38,7 @@ type Device struct {
 	DEPProfileAssignedDate time.Time        `db:"dep_profile_assigned_date"`
 	DEPProfileAssignedBy   string           `db:"dep_profile_assigned_by"`
 	LastSeen               time.Time        `db:"last_seen"`
+	BootstrapToken         string           `db:"bootstrap_token"`
 }
 
 // DEPProfileStatus is the status of the DEP Profile
@@ -80,6 +81,7 @@ func MarshalDevice(dev *Device) ([]byte, error) {
 		DepProfileAssignedDate: timeToNano(dev.DEPProfileAssignedDate),
 		DepProfileAssignedBy:   dev.DEPProfileAssignedBy,
 		LastSeen:               timeToNano(dev.LastSeen),
+		BootstrapToken:         dev.BootstrapToken,
 	}
 	return proto.Marshal(&protodev)
 }
@@ -115,6 +117,7 @@ func UnmarshalDevice(data []byte, dev *Device) error {
 	dev.DEPProfileAssignedDate = timeFromNano(pb.GetDepProfileAssignedDate())
 	dev.DEPProfileAssignedBy = pb.GetDepProfileAssignedBy()
 	dev.LastSeen = timeFromNano(pb.GetLastSeen())
+	dev.BootstrapToken = pb.GetBootstrapToken()
 	return nil
 }
 
