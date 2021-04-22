@@ -43,7 +43,7 @@ func MarshalBlueprint(bp *Blueprint) ([]byte, error) {
 		UserUuid:                            bp.UserUUID,
 		SkipPrimarySetupAccountCreation:     bp.SkipPrimarySetupAccountCreation,
 		SetPrimarySetupAccountAsRegularUser: bp.SetPrimarySetupAccountAsRegularUser,
-		ApplyAt: bp.ApplyAt,
+		ApplyAt:                             bp.ApplyAt,
 	}
 	return proto.Marshal(&protobp)
 }

@@ -136,7 +136,7 @@ func newClient(cert tls.Certificate) (*http.Client, error) {
 	}
 	config.BuildNameToCertificate()
 	transport := &http.Transport{
-		Proxy: http.ProxyFromEnvironment,
+		Proxy:           http.ProxyFromEnvironment,
 		TLSClientConfig: config,
 		IdleConnTimeout: 90 * time.Second,
 	}

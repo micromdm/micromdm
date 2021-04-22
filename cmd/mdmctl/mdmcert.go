@@ -164,12 +164,12 @@ func (cmd *mdmcertCommand) runPush(args []string) error {
 	flagset := flag.NewFlagSet("push", flag.ExitOnError)
 	flagset.Usage = usageFor(flagset, "mdmctl mdmcert push [flags]")
 	var (
-		flEmail    = flagset.String("email", "", "Email address to use in CSR Subject.")
-		flCountry  = flagset.String("country", "US", "Two letter country code for the CSR Subject(Example: US).")
-		flCN       = flagset.String("cn", "micromdm-user", "CommonName for the CSR Subject.")
-		flPKeyPass = flagset.String("password", "", "Password to encrypt/read the RSA key.")
-		flKeyPath  = flagset.String("private-key", filepath.Join(mdmcertdir, pushCertificatePrivateKeyFilename), "Path to the push certificate private key. A new RSA key will be created at this path.")
-		flLocalOnly= flagset.Bool("local-only",false,"No server configuration required.")
+		flEmail     = flagset.String("email", "", "Email address to use in CSR Subject.")
+		flCountry   = flagset.String("country", "US", "Two letter country code for the CSR Subject(Example: US).")
+		flCN        = flagset.String("cn", "micromdm-user", "CommonName for the CSR Subject.")
+		flPKeyPass  = flagset.String("password", "", "Password to encrypt/read the RSA key.")
+		flKeyPath   = flagset.String("private-key", filepath.Join(mdmcertdir, pushCertificatePrivateKeyFilename), "Path to the push certificate private key. A new RSA key will be created at this path.")
+		flLocalOnly = flagset.Bool("local-only", false, "No server configuration required.")
 
 		flCSRPath = flagset.String("out", filepath.Join(mdmcertdir, pushCSRFilename), "Path to save the MDM Push Certificate request.")
 	)
@@ -178,10 +178,10 @@ func (cmd *mdmcertCommand) runPush(args []string) error {
 		return err
 	}
 
-    if !*flLocalOnly {
-        if err := cmd.setup(); err != nil {
-    		return err
-   		}
+	if !*flLocalOnly {
+		if err := cmd.setup(); err != nil {
+			return err
+		}
 	}
 	if err := os.MkdirAll(filepath.Dir(*flCSRPath), 0755); err != nil {
 		errors.Wrapf(err, "create directory %s", filepath.Dir(*flCSRPath))
