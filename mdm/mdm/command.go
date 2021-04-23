@@ -243,12 +243,12 @@ type ManagedApplicationFeedback struct {
 
 type SetFirmwarePassword struct {
 	CurrentPassword string `plist:",omitempty" json:"current_password,omitempty"`
-	NewPassword     string `plist:",omitempty" json:"new_password,omitempty"`
+	NewPassword     string `json:"new_password"`
 	AllowOroms      bool   `plist:",omitempty" json:"allow_oroms,omitempty"`
 }
 
 type VerifyFirmwarePassword struct {
-	Password string `plist:",omitempty" json:"password,omitempty"`
+	Password string `json:"password"`
 }
 
 type SetAutoAdminPassword struct {
