@@ -10742,10 +10742,7 @@ func (m *CommandPayload) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -12088,10 +12085,7 @@ func (m *Command) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -12176,10 +12170,7 @@ func (m *InstallProfile) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -12262,10 +12253,7 @@ func (m *RemoveProfile) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -12350,10 +12338,7 @@ func (m *InstallProvisioningProfile) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -12436,10 +12421,7 @@ func (m *RemoveProvisioningProfile) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -12542,10 +12524,7 @@ func (m *InstalledApplicationList) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -12628,10 +12607,7 @@ func (m *DeviceInformation) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -12716,10 +12692,7 @@ func (m *ClearPasscode) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -12866,10 +12839,7 @@ func (m *DeviceLock) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -12992,10 +12962,7 @@ func (m *EraseDevice) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -13174,10 +13141,7 @@ func (m *RequestMirroring) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -13248,10 +13212,7 @@ func (m *Restrictions) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -13334,10 +13295,7 @@ func (m *UnlockUserAccount) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -13440,10 +13398,7 @@ func (m *DeleteUser) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -13590,10 +13545,7 @@ func (m *EnableLostMode) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -13886,10 +13838,7 @@ func (m *InstallApplication) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -13959,10 +13908,7 @@ func (m *InstallApplicationOptions) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -14013,10 +13959,7 @@ func (m *InstallApplicationConfiguration) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -14067,10 +14010,7 @@ func (m *InstallApplicationAttributes) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -14241,10 +14181,7 @@ func (m *InstallEnterpriseApplication) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -14329,10 +14266,7 @@ func (m *Manifest) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -14453,10 +14387,7 @@ func (m *ManifestItem) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -14673,10 +14604,7 @@ func (m *Asset) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -14940,10 +14868,7 @@ func (m *Metadata) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -15058,10 +14983,7 @@ func (m *BundleInfo) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -15176,10 +15098,7 @@ func (m *ApplyRedemptionCode) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -15262,10 +15181,7 @@ func (m *ManagedApplicationList) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -15348,10 +15264,7 @@ func (m *RemoveApplication) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -15466,10 +15379,7 @@ func (m *InviteToProgram) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -15552,10 +15462,7 @@ func (m *ValidateApplications) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -15784,10 +15691,7 @@ func (m *AccountConfiguration) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -15956,10 +15860,7 @@ func (m *AutoSetupAdminAccounts) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -16093,10 +15994,7 @@ func (m *InstallMedia) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -16230,10 +16128,7 @@ func (m *RemoveMedia) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -16318,10 +16213,7 @@ func (m *Settings) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -16944,10 +16836,7 @@ func (m *Setting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17018,10 +16907,7 @@ func (m *VoiceRoamingSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17092,10 +16978,7 @@ func (m *PersonalHotspotSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17199,10 +17082,7 @@ func (m *WallpaperSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17273,10 +17153,7 @@ func (m *DataRoamingSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17347,10 +17224,7 @@ func (m *BluetoothSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17469,10 +17343,7 @@ func (m *ApplicationAttributesSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17589,10 +17460,7 @@ func (m *ApplicationConfigurationSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17675,10 +17543,7 @@ func (m *ApplicationAttributes) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17761,10 +17626,7 @@ func (m *DeviceNameSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17847,10 +17709,7 @@ func (m *TimeZoneSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17933,10 +17792,7 @@ func (m *HostnameSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18023,10 +17879,7 @@ func (m *MDMOptionsSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18097,10 +17950,7 @@ func (m *MDMOptions) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18170,10 +18020,7 @@ func (m *PasscodeLockGracePeriodSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18243,10 +18090,7 @@ func (m *MaximumResidentUsersSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18317,10 +18161,7 @@ func (m *DiagnosticSubmissionSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18391,10 +18232,7 @@ func (m *AppAnalyticsSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18477,10 +18315,7 @@ func (m *ManagedApplicationConfiguration) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18563,10 +18398,7 @@ func (m *ManagedApplicationAttributes) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18669,10 +18501,7 @@ func (m *ManagedApplicationFeedback) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18807,10 +18636,7 @@ func (m *SetFirmwarePassword) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18893,10 +18719,7 @@ func (m *VerifyFirmwarePassword) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19013,10 +18836,7 @@ func (m *SetAutoAdminPassword) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19101,10 +18921,7 @@ func (m *ScheduleOSUpdate) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19251,10 +19068,7 @@ func (m *Update) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19325,10 +19139,7 @@ func (m *ScheduleOSUpdateScan) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19411,10 +19222,7 @@ func (m *ActiveNSExtensions) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19601,10 +19409,7 @@ func (m *RotateFileVaultKey) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19753,10 +19558,7 @@ func (m *FileVaultUnlock) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19839,10 +19641,7 @@ func (m *SetBootstrapToken) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19991,10 +19790,7 @@ func (m *ResultPayload) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -20160,10 +19956,7 @@ func (m *ErrorChain) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
