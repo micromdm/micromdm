@@ -39,6 +39,7 @@ import (
 	"github.com/go-kit/kit/auth/basic"
 	"github.com/go-kit/kit/log"
 	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/gorilla/handlers"
 	"github.com/groob/finalizer/logutil"
 	"github.com/micromdm/go4/env"
 	"github.com/micromdm/go4/httputil"
@@ -109,6 +110,7 @@ func serve(args []string) error {
 		flTLSKey                 = flagset.String("tls-key", env.String("MICROMDM_TLS_KEY", ""), "Path to TLS private key")
 		flHTTPAddr               = flagset.String("http-addr", env.String("MICROMDM_HTTP_ADDR", ":https"), "http(s) listen address of mdm server. defaults to :8080 if tls is false")
 		flHTTPDebug              = flagset.Bool("http-debug", env.Bool("MICROMDM_HTTP_DEBUG", false), "Enable debug for http(dumps full request)")
+		flHTTPProxyHeaders       = flagset.Bool("http-proxy-headers", env.Bool("MICROMDM_HTTP_PROXY_HEADERS", false), "Enable parsing of proxy headers for use behind a reverse proxy")
 		flRepoPath               = flagset.String("filerepo", env.String("MICROMDM_FILE_REPO", ""), "Path to http file repo")
 		flDepSim                 = flagset.String("depsim", env.String("MICROMDM_DEPSIM_URL", ""), "Use depsim URL")
 		flExamples               = flagset.Bool("examples", false, "Prints some example usage")
@@ -329,6 +331,9 @@ func serve(args []string) error {
 		handler = httputil.HTTPDebugMiddleware(os.Stdout, true, logger.Log)(r)
 	} else {
 		handler = r
+	}
+	if *flHTTPProxyHeaders {
+		handler = handlers.ProxyHeaders(handler)
 	}
 	handler = logutil.NewHTTPLogger(httpLogger).Middleware(handler)
 
