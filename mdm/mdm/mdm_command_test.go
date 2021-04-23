@@ -62,6 +62,30 @@ func TestMarshalCommand(t *testing.T) {
 				RequestType: "DisableRemoteDesktop",
 			},
 		},
+		{
+			Command: Command{
+				RequestType: "SetFirmwarePassword",
+				SetFirmwarePassword: &SetFirmwarePassword{
+					CurrentPassword: "test",
+				},
+			},
+		},
+		{
+			Command: Command{
+				RequestType: "SetFirmwarePassword",
+				SetFirmwarePassword: &SetFirmwarePassword{
+					NewPassword: "test",
+				},
+			},
+		},
+		{
+			Command: Command{
+				RequestType: "SetFirmwarePassword",
+				VerifyFirmwarePassword: &VerifyFirmwarePassword{
+					Password: "test",
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.Command.RequestType+"_json", func(t *testing.T) {
@@ -215,6 +239,60 @@ func TestEndToEnd(t *testing.T) {
 					[]byte(`display-image`),
 					[]byte(`Test Title`),
 					[]byte(`Test Subtitle`),
+				}
+				for _, b := range needToSee {
+					if !bytes.Contains(parts.plistData, b) {
+						t.Error(fmt.Sprintf("marshaled plist does not contain required bytes: '%s'", string(b)))
+					}
+				}
+			},
+		},
+
+		{
+			name: "SetFirmwarePassword_NoNewPassword",
+			requestBytes: []byte(
+				`{"request_type":"SetFirmwarePassword","current_password":"test"}`,
+			),
+			testFn: func(t *testing.T, parts endToEndParts) {
+				needToSee := [][]byte{
+					[]byte(`CurrentPassword`),
+					[]byte(`test`),
+					[]byte(`NewPassword`),
+				}
+				for _, b := range needToSee {
+					if !bytes.Contains(parts.plistData, b) {
+						t.Error(fmt.Sprintf("marshaled plist does not contain required bytes: '%s'", string(b)))
+					}
+				}
+			},
+		},
+		{
+			name: "SetFirmwarePassword_NewPassword",
+			requestBytes: []byte(
+				`{"request_type":"SetFirmwarePassword","new_password":"test"}`,
+			),
+			testFn: func(t *testing.T, parts endToEndParts) {
+				needToSee := [][]byte{
+					[]byte(`NewPassword`),
+					[]byte(`test`),
+				}
+				for _, b := range needToSee {
+					if !bytes.Contains(parts.plistData, b) {
+						t.Error(fmt.Sprintf("marshaled plist does not contain required bytes: '%s'", string(b)))
+					}
+				}
+			},
+		},
+
+		{
+			name: "VerifyFirmwarePassword",
+			requestBytes: []byte(
+				`{"request_type":"VerifyFirmwarePassword","password":"test"}`,
+			),
+			testFn: func(t *testing.T, parts endToEndParts) {
+				needToSee := [][]byte{
+					[]byte(`Password`),
+					[]byte(`test`),
 				}
 				for _, b := range needToSee {
 					if !bytes.Contains(parts.plistData, b) {
