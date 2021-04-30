@@ -232,7 +232,6 @@ func serve(args []string) error {
 	ctx := context.Background()
 	httpLogger := log.With(logger, "transport", "http")
 
-	dc := sm.DEPClient
 	appDB := &appsbuiltin.Repo{Path: *flRepoPath}
 
 	scepEndpoints := scep.MakeServerEndpoints(sm.SCEPService)
@@ -296,6 +295,10 @@ func serve(args []string) error {
 		commandEndpoints := command.MakeServerEndpoints(sm.CommandService, basicAuthEndpointMiddleware)
 		command.RegisterHTTPHandlers(r, commandEndpoints, options...)
 
+		var dc depapi.DEPClient
+		if sm.DEPClient != nil {
+			dc = sm.DEPClient
+		}
 		depsvc := depapi.New(dc, sm.PubClient)
 		depsvc.Run()
 		depEndpoints := depapi.MakeServerEndpoints(depsvc, basicAuthEndpointMiddleware)
