@@ -3,6 +3,7 @@
 - Fix SetFirmwarePassword and VerifyFirmwarePassword parameters (#743)
 - Command UUID can now be passed in as as a request parameter (#754)
 - Update to SCEP v2, switch to Mozilla PKCS7 fork, interface cleanup (#737)
+- Fix panic when using DEP mdmctl commands with no DEP tokens configured (#750)
 
 ## [v1.8.0](https://github.com/micromdm/micromdm/compare/v1.7.1...v1.8.0) February, 2021
 
