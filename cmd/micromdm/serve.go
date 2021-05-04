@@ -83,7 +83,7 @@ body {
 <body>
 
 <h1>MicroMDM</h1>
-<svg xmlns="http://www.w3.org/2000/svg" width="204" height="192" viewBox="0 0 51 48">
+<svg xmlns="http://www.w3.org/2000/svg" width="204" height="192" viewBox="0 0 51 48" focusable="false" aria-hidden="true">
   <g fill="none" fill-rule="evenodd">
       <path fill="#366BE0" d="M34 38L0 20 34 0z"/>
       <path fill="#4A9DFF" d="M17 10l34 18-34 20z"/>
