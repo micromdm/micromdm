@@ -54,7 +54,7 @@ To filter out MDM specific log message, start by adding the following predicates
 
 ```
 log stream --info --debug --predicate 'subsystem contains "com.apple.ManagedClient.cloudconfigurationd"'
-log stream --info --debug --predicate 'processImagePath contains "mdmclient" OR processImagePath contains "storedownloadd"
+log stream --info --debug --predicate 'processImagePath contains "mdmclient" OR processImagePath contains "storedownloadd"'
 ```
 
 As you're watching the log stream, you might want to adjust the predicates to add or remove new conditions. [This blog](https://eclecticlight.co/2016/10/01/using-the-logs-in-sierra-some-practical-tips/) is a good primer on the log command. `man log` has some additional usage examples as well.
