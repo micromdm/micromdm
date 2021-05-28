@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -13,7 +12,7 @@ func (c *CommandRequest) UnmarshalJSON(data []byte) error {
 		UDID        string `json:"udid"`
 		RequestType string `json:"request_type"`
 		CommandUUID string `json:"command_uuid"`
-	}{CommandUUID: uuid.New().String()}
+	}{}
 	if err := json.Unmarshal(data, &request); err != nil {
 		return errors.Wrap(err, "mdm: unmarshal json command request")
 	}
