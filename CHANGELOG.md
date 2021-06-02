@@ -1,6 +1,7 @@
 ## [Unreleased](https://github.com/micromdm/micromdm/compare/v1.8.0...main) TBD
 
 - Fix SetFirmwarePassword and VerifyFirmwarePassword parameters (#743)
+- Command UUID can now be passed in as as a request parameter (#754)
 
 ## [v1.8.0](https://github.com/micromdm/micromdm/compare/v1.7.1...v1.8.0) February, 2021
 
