@@ -344,6 +344,18 @@ func TestEndToEnd(t *testing.T) {
 				}
 			},
 		},
+
+		{
+			name: "Set Command UUID",
+			requestBytes: []byte(
+				`{"request_type":"VerifyFirmwarePassword","password":"test","command_uuid":"this-uuid-should-be-used"}`,
+			),
+			testFn: func(t *testing.T, parts endToEndParts) {
+				if parts.payload.CommandUUID != "this-uuid-should-be-used" {
+					t.Error("CommandUUID should be set to request payload's command_uuid")
+				}
+			},
+		},
 	}
 
 	for _, tt := range tests {
