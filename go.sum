@@ -1,5 +1,7 @@
 github.com/RobotsAndPencils/buford v0.12.0 h1:2nfOk+N/QVoQHwXIS0m5TFdvlUjEnqAj/0yXKR75azY=
 github.com/RobotsAndPencils/buford v0.12.0/go.mod h1:27KhJZ/wLQHRnsZF+mTWKvF5w8U4dVl4Nh+BfQem4Lo=
+github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751 h1:JYp7IbQjafoB+tBA3gMyHYHrpOtNuDiK/uB5uXxq5wM=
+github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/boltdb/bolt v1.3.1 h1:JQmyP4ZBrce+ZQu0dY660FMfatumYDLun9hBCUVIkF4=
 github.com/boltdb/bolt v1.3.1/go.mod h1:clJnj/oiGkjum5o1McbSZDSLxVThjynRyGBgiAx27Ps=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
