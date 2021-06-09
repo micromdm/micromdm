@@ -22,7 +22,7 @@ require (
 	github.com/lib/pq v1.0.0
 	github.com/mattn/go-sqlite3 v1.9.0 // indirect
 	github.com/micromdm/go4 v0.0.0-20210104222236-8a0936d9e451
-	github.com/micromdm/scep/v2 v2.0.0 // indirect
+	github.com/micromdm/scep/v2 v2.0.0
 	github.com/pkg/errors v0.8.0
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/pressly/goose v2.3.0+incompatible
