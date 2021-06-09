@@ -342,18 +342,18 @@ func (c *Server) CreateDEPSyncer(logger log.Logger) (sync.Syncer, error) {
 }
 
 func (c *Server) setupSCEP(logger log.Logger) error {
-	svcboltdepot, err := boltdepot.NewBoltDepot(c.DB)
+	svcBoltDepot, err := boltdepot.NewBoltDepot(c.DB)
 	if err != nil {
 		return err
 	}
-	c.SCEPDepot = svcboltdepot
+	c.SCEPDepot = svcBoltDepot
 
-	key, err := svcboltdepot.CreateOrLoadKey(2048)
+	key, err := svcBoltDepot.CreateOrLoadKey(2048)
 	if err != nil {
 		return err
 	}
 
-	crt, err := svcboltdepot.CreateOrLoadCA(key, 5, "MicroMDM", "US")
+	crt, err := svcBoltDepot.CreateOrLoadCA(key, 5, "MicroMDM", "US")
 	if err != nil {
 		return err
 	}
