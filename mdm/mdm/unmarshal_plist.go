@@ -262,6 +262,20 @@ func (c *Command) UnmarshalPlist(unmarshal func(i interface{}) error) error {
 		}
 		c.VerifyRecoveryLock = &payload
 		return nil
+	case "SetRecoveryLock":
+		var payload SetRecoveryLock
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.SetRecoveryLock = &payload
+		return nil
+	case "VerifyRecoveryLock":
+		var payload VerifyRecoveryLock
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.VerifyRecoveryLock = &payload
+		return nil
 	case "SetAutoAdminPassword":
 		var payload SetAutoAdminPassword
 		if err := unmarshal(&payload); err != nil {
