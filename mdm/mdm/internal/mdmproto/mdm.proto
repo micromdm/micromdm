@@ -69,6 +69,8 @@ message Command {
     RotateFileVaultKey rotate_filevault_key = 35;
     InstallEnterpriseApplication install_enterprise_application = 36;
     SetBootstrapToken set_bootstrap_token = 37;
+    SetRecoveryLock set_recovery_lock = 38;
+    VerifyRecoveryLock verify_recovery_lock = 39;
   }
 }
 
@@ -365,6 +367,17 @@ message SetFirmwarePassword {
 }
 
 message VerifyFirmwarePassword {
+  string password = 1;
+}
+
+message SetRecoveryLock {
+  string current_password = 1;
+  string new_password = 2;
+  bool allow_oroms = 3;
+  bool request_requires_network_tether = 4;
+}
+
+message VerifyRecoveryLock {
   string password = 1;
 }
 
