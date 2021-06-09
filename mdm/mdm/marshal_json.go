@@ -304,6 +304,24 @@ func (c *Command) MarshalJSON() ([]byte, error) {
 			VerifyFirmwarePassword: c.VerifyFirmwarePassword,
 		}
 		return json.Marshal(&x)
+	case "SetRecoveryLock":
+		var x = struct {
+			RequestType string `json:"request_type"`
+			*SetRecoveryLock
+		}{
+			RequestType:         c.RequestType,
+			SetRecoveryLock: c.SetRecoveryLock,
+		}
+		return json.Marshal(&x)
+	case "VerifyRecoveryLock":
+		var x = struct {
+			RequestType string `json:"request_type"`
+			*VerifyRecoveryLock
+		}{
+			RequestType:            c.RequestType,
+			VerifyRecoveryLock: c.VerifyRecoveryLock,
+		}
+		return json.Marshal(&x)
 	case "SetAutoAdminPassword":
 		var x = struct {
 			RequestType string `json:"request_type"`
