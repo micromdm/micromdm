@@ -85,7 +85,31 @@ func TestMarshalCommand(t *testing.T) {
 					Password: "test",
 				},
 			},
+		},,
+		{
+			Command: Command{
+				RequestType: "SetRecoveryLock",
+				SetRecoveryLock: &SetRecoveryLock{
+					CurrentPassword: "test",
+				},
+			},
 		},
+		{
+			Command: Command{
+				RequestType: "SetRecoveryLock",
+				SetRecoveryLock: &SetRecoveryLock{
+					NewPassword: "test",
+				},
+			},
+		},
+		{
+			Command: Command{
+				RequestType: "SetRecoveryLock",
+				VerifyRecoveryLock: &VerifyRecoveryLock{
+					Password: "test",
+				},
+			},
+		}
 	}
 	for _, tt := range tests {
 		t.Run(tt.Command.RequestType+"_json", func(t *testing.T) {
@@ -349,6 +373,71 @@ func TestEndToEnd(t *testing.T) {
 			name: "Set Command UUID",
 			requestBytes: []byte(
 				`{"request_type":"VerifyFirmwarePassword","password":"test","command_uuid":"this-uuid-should-be-used"}`,
+			),
+			testFn: func(t *testing.T, parts endToEndParts) {
+				if parts.payload.CommandUUID != "this-uuid-should-be-used" {
+					t.Error("CommandUUID should be set to request payload's command_uuid")
+				}
+			},
+		},
+		{
+			name: "SetRecoveryLock_NoNewPassword",
+			requestBytes: []byte(
+				`{"request_type":"SetRecoveryLock","current_password":"test"}`,
+			),
+			testFn: func(t *testing.T, parts endToEndParts) {
+				needToSee := [][]byte{
+					[]byte(`CurrentPassword`),
+					[]byte(`test`),
+					[]byte(`NewPassword`),
+				}
+				for _, b := range needToSee {
+					if !bytes.Contains(parts.plistData, b) {
+						t.Error(fmt.Sprintf("marshaled plist does not contain required bytes: '%s'", string(b)))
+					}
+				}
+			},
+		},
+		{
+			name: "SetRecoveryLock_NewPassword",
+			requestBytes: []byte(
+				`{"request_type":"SetRecoveryLock","new_password":"test"}`,
+			),
+			testFn: func(t *testing.T, parts endToEndParts) {
+				needToSee := [][]byte{
+					[]byte(`NewPassword`),
+					[]byte(`test`),
+				}
+				for _, b := range needToSee {
+					if !bytes.Contains(parts.plistData, b) {
+						t.Error(fmt.Sprintf("marshaled plist does not contain required bytes: '%s'", string(b)))
+					}
+				}
+			},
+		},
+
+		{
+			name: "VerifyRecoveryLock",
+			requestBytes: []byte(
+				`{"request_type":"VerifyRecoveryLock","password":"test"}`,
+			),
+			testFn: func(t *testing.T, parts endToEndParts) {
+				needToSee := [][]byte{
+					[]byte(`Password`),
+					[]byte(`test`),
+				}
+				for _, b := range needToSee {
+					if !bytes.Contains(parts.plistData, b) {
+						t.Error(fmt.Sprintf("marshaled plist does not contain required bytes: '%s'", string(b)))
+					}
+				}
+			},
+		},
+
+		{
+			name: "Set Command UUID",
+			requestBytes: []byte(
+				`{"request_type":"VerifyRecoveryLock","password":"test","command_uuid":"this-uuid-should-be-used"}`,
 			),
 			testFn: func(t *testing.T, parts endToEndParts) {
 				if parts.payload.CommandUUID != "this-uuid-should-be-used" {
