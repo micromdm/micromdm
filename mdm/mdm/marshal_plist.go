@@ -287,6 +287,22 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 			RequestType:            c.RequestType,
 			VerifyFirmwarePassword: c.VerifyFirmwarePassword,
 		}, nil
+	case "SetRecoveryLock":
+		return &struct {
+			RequestType string
+			*SetRecoveryLock
+		}{
+			RequestType:         c.RequestType,
+			SetRecoveryLock: c.SetRecoveryLock,
+		}, nil
+	case "VerifyRecoveryLock":
+		return &struct {
+			RequestType string
+			*VerifyRecoveryLock
+		}{
+			RequestType:            c.RequestType,
+			VerifyRecoveryLock: c.VerifyRecoveryLock,
+		}, nil
 	case "SetAutoAdminPassword":
 		return &struct {
 			RequestType string
