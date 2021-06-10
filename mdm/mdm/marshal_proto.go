@@ -1,4 +1,4 @@
-gofmtpackage mdm
+package mdm
 
 import (
 	"fmt"
