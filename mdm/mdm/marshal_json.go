@@ -309,7 +309,7 @@ func (c *Command) MarshalJSON() ([]byte, error) {
 			RequestType string `json:"request_type"`
 			*SetRecoveryLock
 		}{
-			RequestType:         c.RequestType,
+			RequestType:     c.RequestType,
 			SetRecoveryLock: c.SetRecoveryLock,
 		}
 		return json.Marshal(&x)
@@ -318,7 +318,7 @@ func (c *Command) MarshalJSON() ([]byte, error) {
 			RequestType string `json:"request_type"`
 			*VerifyRecoveryLock
 		}{
-			RequestType:            c.RequestType,
+			RequestType:        c.RequestType,
 			VerifyRecoveryLock: c.VerifyRecoveryLock,
 		}
 		return json.Marshal(&x)

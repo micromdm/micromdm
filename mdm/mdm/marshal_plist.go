@@ -292,7 +292,7 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 			RequestType string
 			*SetRecoveryLock
 		}{
-			RequestType:         c.RequestType,
+			RequestType:     c.RequestType,
 			SetRecoveryLock: c.SetRecoveryLock,
 		}, nil
 	case "VerifyRecoveryLock":
@@ -300,7 +300,7 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 			RequestType string
 			*VerifyRecoveryLock
 		}{
-			RequestType:            c.RequestType,
+			RequestType:        c.RequestType,
 			VerifyRecoveryLock: c.VerifyRecoveryLock,
 		}, nil
 	case "SetAutoAdminPassword":

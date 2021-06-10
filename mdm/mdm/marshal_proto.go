@@ -1,4 +1,4 @@
-package mdm
+gofmtpackage mdm
 
 import (
 	"fmt"
@@ -332,16 +332,15 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 				RequestRequiresNetworkTether: cmd.SetFirmwarePassword.RequestRequiresNetworkTether,
 			},
 		}
-        case "SetRecoveryLock":
-                cmdproto.Request = &mdmproto.Command_SetRecoveryLock{
-                        SetRecoveryLock: &mdmproto.SetRecoveryLock{
-                                CurrentPassword:              cmd.SetRecoveryLock.CurrentPassword,
-                                NewPassword:                  cmd.SetRecoveryLock.NewPassword,
-                                AllowOroms:                   cmd.SetRecoveryLock.AllowOroms,
-                                RequestRequiresNetworkTether: cmd.SetRecoveryLock.RequestRequiresNetworkTether,
-                        },
-                }
-
+	case "SetRecoveryLock":
+		cmdproto.Request = &mdmproto.Command_SetRecoveryLock{
+			SetRecoveryLock: &mdmproto.SetRecoveryLock{
+				CurrentPassword:              cmd.SetRecoveryLock.CurrentPassword,
+				NewPassword:                  cmd.SetRecoveryLock.NewPassword,
+				AllowOroms:                   cmd.SetRecoveryLock.AllowOroms,
+				RequestRequiresNetworkTether: cmd.SetRecoveryLock.RequestRequiresNetworkTether,
+			},
+		}
 	case "SetBootstrapToken":
 		cmdproto.Request = &mdmproto.Command_SetBootstrapToken{
 			SetBootstrapToken: &mdmproto.SetBootstrapToken{
@@ -354,13 +353,12 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 				Password: cmd.VerifyFirmwarePassword.Password,
 			},
 		}
-        case "VerifyRecoveryLock":
-                cmdproto.Request = &mdmproto.Command_VerifyRecoveryLock{
-                        VerifyRecoveryLock: &mdmproto.VerifyRecoveryLock{
-                                Password: cmd.VerifyRecoveryLock.Password,
-                        },
-                }
-
+	case "VerifyRecoveryLock":
+		cmdproto.Request = &mdmproto.Command_VerifyRecoveryLock{
+			VerifyRecoveryLock: &mdmproto.VerifyRecoveryLock{
+				Password: cmd.VerifyRecoveryLock.Password,
+			},
+		}
 	case "SetAutoAdminPassword":
 		cmdproto.Request = &mdmproto.Command_SetAutoAdminPassword{
 			SetAutoAdminPassword: &mdmproto.SetAutoAdminPassword{

@@ -250,10 +250,10 @@ type ManagedApplicationFeedback struct {
 }
 
 type SetFirmwarePassword struct {
-	CurrentPassword                  string `plist:",omitempty" json:"current_password,omitempty"`
-	NewPassword                      string `json:"new_password"`
-	RequestRequiresNetworkTether     bool   `plist:",omitempty" json:"request_requires_network_tether,omitempty"`
-	AllowOroms                       bool   `plist:",omitempty" json:"allow_oroms,omitempty"`
+	CurrentPassword              string `plist:",omitempty" json:"current_password,omitempty"`
+	NewPassword                  string `json:"new_password"`
+	RequestRequiresNetworkTether bool   `plist:",omitempty" json:"request_requires_network_tether,omitempty"`
+	AllowOroms                   bool   `plist:",omitempty" json:"allow_oroms,omitempty"`
 }
 
 type VerifyFirmwarePassword struct {
@@ -261,10 +261,10 @@ type VerifyFirmwarePassword struct {
 }
 
 type SetRecoveryLock struct {
-	CurrentPassword                  string `plist:",omitempty" json:"current_password,omitempty"`
-	NewPassword                      string `json:"new_password"`
-	RequestRequiresNetworkTether     bool   `plist:",omitempty" json:"request_requires_network_tether,omitempty"`
-	AllowOroms                       bool   `plist:",omitempty" json:"allow_oroms,omitempty"`
+	CurrentPassword              string `plist:",omitempty" json:"current_password,omitempty"`
+	NewPassword                  string `json:"new_password"`
+	RequestRequiresNetworkTether bool   `plist:",omitempty" json:"request_requires_network_tether,omitempty"`
+	AllowOroms                   bool   `plist:",omitempty" json:"allow_oroms,omitempty"`
 }
 
 type VerifyRecoveryLock struct {
