@@ -194,6 +194,6 @@ Note the toy server writes out each status to disk, as well with the enrollment 
 
 ## Feedback & Future
 
-I created a [GH Discussion topic under the main MicroMDM site]() for general discussion about open source MDM and Declarative Management. Hopefully we can coordinate discussion there. For any feedback about the above post (and related tools specifically) I would direct you to [the NanoMDM pull-request](https://github.com/micromdm/nanomdm/pull/24) adding this capability.
+I created a [GH Discussion topic under the main MicroMDM site](https://github.com/micromdm/micromdm/discussions/759) for general discussion about open source MDM and Declarative Management. Hopefully we can coordinate discussion there. For any feedback about the above post (and related tools specifically) I would direct you to [the NanoMDM pull-request](https://github.com/micromdm/nanomdm/pull/24) adding this capability.
 
 I hope this is enough to get you started tinkering with Declarative Managament and NanoMDM. Because of Declarative Management's limited scope at this time (iOS and iPadOS User Enrollments only) it is almost useless to the community involved in these open source tools (that is: macOS SysAdmin/IT management). But my hope is to get folks familiar ith the protocol and data models so we all can start thinking about future designs to start supporting declarative management when it comes to other platforms/environments.
