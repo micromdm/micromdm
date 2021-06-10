@@ -85,7 +85,7 @@ func TestMarshalCommand(t *testing.T) {
 					Password: "test",
 				},
 			},
-		},,
+		},
 		{
 			Command: Command{
 				RequestType: "SetRecoveryLock",
