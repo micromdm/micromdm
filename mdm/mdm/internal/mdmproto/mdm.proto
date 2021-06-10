@@ -364,6 +364,7 @@ message SetFirmwarePassword {
   string current_password = 1;
   string new_password = 2;
   bool allow_oroms = 3;
+  bool request_requires_network_tether = 4;
 }
 
 message VerifyFirmwarePassword {
