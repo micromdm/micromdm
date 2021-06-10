@@ -109,7 +109,7 @@ func TestMarshalCommand(t *testing.T) {
 					Password: "test",
 				},
 			},
-		}
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.Command.RequestType+"_json", func(t *testing.T) {
