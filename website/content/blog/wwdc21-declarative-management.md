@@ -8,9 +8,9 @@ frontpage = true
 
 Amongst the many announcements at Apple's WWDC21 was [declarative management](https://developer.apple.com/news/?id=y3h32xgt). I would highly recommend [watching the WWDC session "Meet declarative device management"](https://developer.apple.com/videos/play/wwdc2021/10131/) to get a a general idea of what it is and how it works.
 
-I wanted to tinker with the new capabilities and created some initial support for it and wanted to share how you can try this out, too. My hope is that, if you're inclined, you can get these tools and start playing with it, too.
+I wanted to tinker with the new capabilities and created some initial support for it and wanted to share how you can try this out, too. My hope is that, if you're inclined, you can get these tools and start playing with it.
 
-Note this is a mostly technical how-to to get up and running and testing Declarative Management with NanoMDM. I hope to write more about the conceptual/paragidm changes DM brings as well more broad thinking in how to implement this on a server. See the bottom for links to further discussion. Also note this is all really early stuff, based on beta software and documentation priovided by Apple and of course is all subject to change.
+Note this is a mostly technical how-to to get up and running and testing Declarative Management with NanoMDM. I hope to write more about the conceptual/paragidm changes DM brings as well more broad thinking in how to implement this protocol in a server. See the bottom for links to further discussion. Also note this is all really early stuff, based on beta software and documentation priovided by Apple and of course is all subject to major breaking changes.
 
 <!--more-->
 
