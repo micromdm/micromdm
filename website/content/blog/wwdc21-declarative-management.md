@@ -16,7 +16,7 @@ Note this is a mostly technical how-to to get up and running and testing Declara
 
 ## Requirements
 
-First you'll need to some things to get this going.
+First you'll need to have some things to get this going.
 
 * A running [NanoMDM](https://github.com/micromdm/nanomdm) instance (on a specific code branch, details below). This is probably the most difficult part to get going if you've never run an Open Source MDM solution before.
 * A device running the iOS or iPadOS 15.0 pre-release
