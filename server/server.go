@@ -8,14 +8,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/boltdb/bolt"
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
-	challengestore "github.com/micromdm/scep/challenge/bolt"
-	boltdepot "github.com/micromdm/scep/depot/bolt"
-	scep "github.com/micromdm/scep/server"
-	"github.com/pkg/errors"
-
 	"github.com/micromdm/micromdm/dep"
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/mdm/enroll"
@@ -36,6 +28,16 @@ import (
 	block "github.com/micromdm/micromdm/platform/remove"
 	blockbuiltin "github.com/micromdm/micromdm/platform/remove/builtin"
 	"github.com/micromdm/micromdm/workflow/webhook"
+
+	"github.com/boltdb/bolt"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
+	"github.com/micromdm/scep/v2/challenge"
+	boltchallenge "github.com/micromdm/scep/v2/challenge/bolt"
+	"github.com/micromdm/scep/v2/depot"
+	boltdepot "github.com/micromdm/scep/v2/depot/bolt"
+	scep "github.com/micromdm/scep/v2/server"
+	"github.com/pkg/errors"
 )
 
 type Server struct {
@@ -47,10 +49,10 @@ type Server struct {
 	SCEPChallenge          string
 	SCEPClientValidity     int
 	TLSCertPath            string
-	SCEPDepot              *boltdepot.Depot
+	SCEPDepot              depot.Depot
 	UseDynSCEPChallenge    bool
 	GenDynSCEPChallenge    bool
-	SCEPChallengeDepot     *challengestore.Depot
+	SCEPChallengeDepot     challenge.Store
 	ProfileDB              profile.Store
 	ConfigDB               config.Store
 	RemoveDB               block.Store
@@ -340,37 +342,38 @@ func (c *Server) CreateDEPSyncer(logger log.Logger) (sync.Syncer, error) {
 }
 
 func (c *Server) setupSCEP(logger log.Logger) error {
-	depot, err := boltdepot.NewBoltDepot(c.DB)
+	svcBoltDepot, err := boltdepot.NewBoltDepot(c.DB)
+	if err != nil {
+		return err
+	}
+	c.SCEPDepot = svcBoltDepot
+
+	key, err := svcBoltDepot.CreateOrLoadKey(2048)
 	if err != nil {
 		return err
 	}
 
-	key, err := depot.CreateOrLoadKey(2048)
+	crt, err := svcBoltDepot.CreateOrLoadCA(key, 5, "MicroMDM", "US")
 	if err != nil {
 		return err
 	}
 
-	_, err = depot.CreateOrLoadCA(key, 5, "MicroMDM", "US")
-	if err != nil {
-		return err
-	}
-
-	opts := []scep.ServiceOption{
-		scep.ClientValidity(c.SCEPClientValidity),
-	}
-	var scepChalOpt scep.ServiceOption
+	var signer scep.CSRSigner = depot.NewSigner(
+		c.SCEPDepot,
+		depot.WithAllowRenewalDays(0),
+		depot.WithValidityDays(c.SCEPClientValidity),
+	)
 	if c.UseDynSCEPChallenge {
-		c.SCEPChallengeDepot, err = challengestore.NewBoltDepot(c.DB)
+		c.SCEPChallengeDepot, err = boltchallenge.NewBoltDepot(c.DB)
 		if err != nil {
 			return err
 		}
-		scepChalOpt = scep.WithDynamicChallenges(c.SCEPChallengeDepot)
+		signer = challenge.Middleware(c.SCEPChallengeDepot, signer)
 	} else {
-		scepChalOpt = scep.ChallengePassword(c.SCEPChallenge)
+		signer = scep.ChallengeMiddleware(c.SCEPChallenge, signer)
 	}
-	opts = append(opts, scepChalOpt)
-	c.SCEPDepot = depot
-	c.SCEPService, err = scep.NewService(depot, opts...)
+
+	c.SCEPService, err = scep.NewService(crt, key, signer)
 	if err != nil {
 		return err
 	}

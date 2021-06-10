@@ -11,9 +11,10 @@ import (
 	"net/http"
 	"net/textproto"
 
-	"github.com/fullsailor/pkcs7"
-	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/micromdm/pkg/httputil"
+
+	"github.com/go-kit/kit/endpoint"
+	"go.mozilla.org/pkcs7"
 )
 
 func (svc *ConfigService) ApplyDEPToken(ctx context.Context, P7MContent []byte) error {

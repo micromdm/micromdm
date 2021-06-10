@@ -8,8 +8,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/fullsailor/pkcs7"
 	"github.com/micromdm/micromdm/pkg/crypto"
+
+	"go.mozilla.org/pkcs7"
 )
 
 // imitate a Mdm-Signature header

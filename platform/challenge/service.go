@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 
-	challengestore "github.com/micromdm/scep/challenge/bolt"
+	"github.com/micromdm/scep/v2/challenge"
 )
 
 type Service interface {
@@ -12,18 +12,18 @@ type Service interface {
 }
 
 type ChallengeService struct {
-	scepChallengeStore *challengestore.Depot
+	challenge.Store
 }
 
-func (c *ChallengeService) SCEPChallenge(ctx context.Context) (string, error) {
-	if c.scepChallengeStore == nil {
+func (c *ChallengeService) SCEPChallenge(_ context.Context) (string, error) {
+	if c.Store == nil {
 		return "", errors.New("SCEP challenge store missing")
 	}
-	return c.scepChallengeStore.SCEPChallenge()
+	return c.Store.SCEPChallenge()
 }
 
-func NewService(cs *challengestore.Depot) *ChallengeService {
+func NewService(challengeStore challenge.Store) *ChallengeService {
 	return &ChallengeService{
-		scepChallengeStore: cs,
+		Store: challengeStore,
 	}
 }
