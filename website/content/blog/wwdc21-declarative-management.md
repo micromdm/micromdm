@@ -8,33 +8,32 @@ frontpage = true
 
 Amongst the many announcements at Apple's WWDC21 was [declarative management](https://developer.apple.com/news/?id=y3h32xgt). I would highly recommend [watching the WWDC session "Meet declarative device management"](https://developer.apple.com/videos/play/wwdc2021/10131/) to get a a general idea of what it is and how it works.
 
-I wanted to tinker with the new capabilities and made some initial support for it and thought I'd share how you can, too. My hope is that, if you're inclined, you can get these tools and start playing with it, too.
+I wanted to tinker with the new capabilities and created some initial support for it and wanted to share how you can try this out, too. My hope is that, if you're inclined, you can get these tools and start playing with it, too.
 
-Note this is a mostly technical how-to to get up and running and testing Declarative Management with NanoMDM. I hope to write more about the conceptual/paragidm changes DM brings as well more broad thinking in how to implement this on a server. See the bottom for links to further discussion. Also note this is all really early stuff, based on beta software and documentation priovided by Apple and of course is all subject to change. Tread lightly.
+Note this is a mostly technical how-to to get up and running and testing Declarative Management with NanoMDM. I hope to write more about the conceptual/paragidm changes DM brings as well more broad thinking in how to implement this on a server. See the bottom for links to further discussion. Also note this is all really early stuff, based on beta software and documentation priovided by Apple and of course is all subject to change.
 
 <!--more-->
 
 ## Requirements
 
-First we'll need to discuss what you need for this blog:
+First you'll need to some things to get this going.
 
-* A running [NanoMDM](https://github.com/micromdm/nanomdm) instance on a specific code branch. This is probably the most difficult part to get going if you've never run an Open Source MDM solution before.
-* iOS or iPadOS running the iOS 15.0 pre-release
-* Only [User Enrollment](https://support.apple.com/guide/deployment-reference-ios/user-enrollment-apdeb00576b2/web) is supported at this time with Declarative Management.
+* A running [NanoMDM](https://github.com/micromdm/nanomdm) instance (on a specific code branch, details below). This is probably the most difficult part to get going if you've never run an Open Source MDM solution before.
+* A device running the iOS or iPadOS 15.0 pre-release
+* Only [User Enrollments](https://support.apple.com/guide/deployment-reference-ios/user-enrollment-apdeb00576b2/web) are supported at this time with Declarative Management.
     * Apple Business Manager or Apple School Manager is required to create Managed Apple IDs
-    * If you have ABM/ASM and Managed Apple IDs you can create a User Enrollment profile by adding the `ManagedAppleID` key to the enrollment profile.
+    * If you have ABM/ASM and Managed Apple IDs you can create a User Enrollment profile by adding the `ManagedAppleID` key to an MDM enrollment profile.
     * Check out the [WWDC20 videos from last year](https://developer.apple.com/videos/play/wwdc2019/303/) for more info on User Enrollment.
 
-Putting it all together this means that this iOS/iPadOS 15.0 device needs to be enrolled into the the NanoMDM instance using User Enrollment. NanoMDM will let you know the style of enrollment of the device when it connects as confirmation.
+Putting it all together this means that this iOS/iPadOS 15.0 device needs to be enrolled into the the NanoMDM instance using User Enrollment. NanoMDM will let you know the style of enrollment of the device when it connects (as confirmation).
 
 ## Overview
 
 If you look at the publically available documentation you can see that the [DeclarativeManagement check-in](https://developer.apple.com/documentation/devicemanagement/declarativemanagementrequest?changes=latest_minor) is, essentially, a wrapper for an HTTP service. It contains a body (called `Data`) and a "URL" endpoint (called `Endpoint`).
 
-To that end NanoMDM simply treats it as such and synchronously dispatches to an external HTTP DM "server" with that HTTP data. We return the HTTP result to the client in the body of the HTTP `DeclarativeManagement` check-in — not as a Plist (like other check-ins) but as whatever the DM "server" responds with — either nothing or JSON results.
+To that end NanoMDM simply treats it as such and synchronously dispatches to an external HTTP DM "server" with that HTTP data. We return the HTTP result to the MDM client in the body of the HTTP `DeclarativeManagement` check-in from this DM "server" — not as a Plist (like other check-ins) but as whatever the DM "server" responds with: usually nothing or JSON results.
 
 Note that we also include the NanoMDM enrollment ID in the request in the `X-Enrollment-ID` header.
-
 
 ## Declarative management "server"
 
@@ -95,7 +94,7 @@ The `-dump` switch just tells NanoMDM to print out everything for us so we can i
 Once you've done all this, then you can active Declarative Management by sending your device the `DeclarativeManagement` command. With NanoMDM that looks like (from a check-out of NanoMDM):
 
 ```bash
-./tools/cmdr.py command DeclarativeManagement | curl -v-T - -u nanomdm:api-key '[::1]:9000/v1/enqueue/B367CA4B-A874-DDA6-8168-A6295B54C7DF'
+./tools/cmdr.py command DeclarativeManagement | curl -v -T - -u nanomdm:api-key '[::1]:9000/v1/enqueue/B367CA4B-A874-DDA6-8168-A6295B54C7DF'
 ```
 
 At this point assuming everything is working (and it is a lot of moving parts) you should see the Check-in requests for DeclarativeManagement. 
@@ -104,24 +103,24 @@ At this point assuming everything is working (and it is a lot of moving parts) y
 2021/06/10 12:51:05 level=info service=nanomdm msg=DeclarativeManagement id=B367CA4B-A874-DDA6-8168-A6295B54C7DF type=User Enrollment (Device) endpoint=declaration-items
 ```
 
-Here we see the NanoMDM printed the device, the check-in msg, it's type (User Enrollment) and the DeclarativeManagement endpoint ("declaration-items").
+Here we see that NanoMDM printed the enrollment ID, the check-in msg (DeclarativeManagement), it's type (User Enrollment) and the DM endpoint (declaration-items).
 
-Even cooler this forwared the request over to http://127.0.0.1:5000/declaration-items for processing. Our flask should have printed:
+Even cooler this forwared the request over to http://127.0.0.1:5000/declaration-items for processing by appending the endpoint to the DM URL prefix. Our flask should have received this and printed:
 
 ```bash
 127.0.0.1 - - [10/Jun/2021 12:51:05] "GET /declaration-items HTTP/1.1" 200 -
 ```
 
-What you should then start seeing is the device doing various things with the Declaration Management protocol:
+What you should then start seeing is the device doing various things with the actual Declaration Management protocol:
 
 * `declaration-items` endpoint fetches all of the declarations.
-* After requesting all of the declaration-tiems and seeing they're all new it will start requesting the individual declarations
-* `declaration/<type>/<uuid>` endpoint are the actual declarations getting fetched.
+* After requesting all of the declaration-tiems and seeing if they've changed (the first all of them will be new) it will start requesting the individual declarations
+* `declaration/<type>/<uuid>` endpoints are the actual declarations getting fetched.
 * The example/initial declarations are all specified directly in the server. There's an example set with a couple configurations, an activation, and a management declaration.
-* Importantly you'll also see **status updates**. This is a huge feature if done well.
+* Importantly you'll also see **status updates**. The device will proactively tell you things about its management state (which is amazing, in general). In these cases the status updates are reactionary to the declarations being fetched, but the concept is the same.
 * `status` endpoint will start dumping a lot of JSON for any of the declarations, subscriptions, or other data that the status endpoint supports.
 
-By way of a simple example this is what a status update looks like:
+Here's an example of what this a status update looks like for changing declartions:
 
 ```json
 {
@@ -186,11 +185,11 @@ By way of a simple example this is what a status update looks like:
 }
 ```
 
-In this example the `Error.MissingState` is telling us (I think) that one of the declarations is out of date and was retrieved. We'll get follow-up status updates letting us know each configuration was eventually "valid" and "active".
+In this example the `Error.MissingState` is telling us (I think) that one of the declarations is out of date and was retrieved. We'll get follow-up status updates letting us know each configuration was eventually "valid" or "invalid", it seems, too.
 
 To get updated/changed items make some trivial change to one of the declarations in the toy server then send another `DeclarativeManagement` command. The device will check-in, fetch the declaration items, compute any changes, request the changed declarations, try to apply them, and send back statuses.
 
-Note the toy server writes out each status to disk, as well with the enrollment ID and timestamp in the filename.
+Note the toy server writes out each status to disk with the enrollment ID and timestamp in the filename.
 
 ## Feedback & Future
 
