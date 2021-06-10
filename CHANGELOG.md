@@ -1,5 +1,6 @@
 ## [Unreleased](https://github.com/micromdm/micromdm/compare/v1.8.0...main) TBD
 
+- Added support for SetRecoveryLock and VerifyRecoveryLock (#757)
 - Fix SetFirmwarePassword and VerifyFirmwarePassword parameters (#743)
 - Command UUID can now be passed in as as a request parameter (#754)
 - Update to SCEP v2, switch to Mozilla PKCS7 fork, interface cleanup (#737)
