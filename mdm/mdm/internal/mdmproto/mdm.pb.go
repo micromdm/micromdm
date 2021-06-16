@@ -20,7 +20,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type ResultPayload_Status int32
 
@@ -78,7 +78,7 @@ func (m *CommandPayload) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return xxx_messageInfo_CommandPayload.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -195,7 +195,7 @@ func (m *Command) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_Command.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -221,118 +221,118 @@ type isCommand_Request interface {
 }
 
 type Command_InstallProfile struct {
-	InstallProfile *InstallProfile `protobuf:"bytes,2,opt,name=install_profile,json=installProfile,proto3,oneof"`
+	InstallProfile *InstallProfile `protobuf:"bytes,2,opt,name=install_profile,json=installProfile,proto3,oneof" json:"install_profile,omitempty"`
 }
 type Command_RemoveProfile struct {
-	RemoveProfile *RemoveProfile `protobuf:"bytes,3,opt,name=remove_profile,json=removeProfile,proto3,oneof"`
+	RemoveProfile *RemoveProfile `protobuf:"bytes,3,opt,name=remove_profile,json=removeProfile,proto3,oneof" json:"remove_profile,omitempty"`
 }
 type Command_InstallProvisioningProfile struct {
-	InstallProvisioningProfile *InstallProvisioningProfile `protobuf:"bytes,4,opt,name=install_provisioning_profile,json=installProvisioningProfile,proto3,oneof"`
+	InstallProvisioningProfile *InstallProvisioningProfile `protobuf:"bytes,4,opt,name=install_provisioning_profile,json=installProvisioningProfile,proto3,oneof" json:"install_provisioning_profile,omitempty"`
 }
 type Command_RemoveProfisioningProfile struct {
-	RemoveProfisioningProfile *RemoveProvisioningProfile `protobuf:"bytes,5,opt,name=remove_profisioning_profile,json=removeProfisioningProfile,proto3,oneof"`
+	RemoveProfisioningProfile *RemoveProvisioningProfile `protobuf:"bytes,5,opt,name=remove_profisioning_profile,json=removeProfisioningProfile,proto3,oneof" json:"remove_profisioning_profile,omitempty"`
 }
 type Command_InstalledApplicationList struct {
-	InstalledApplicationList *InstalledApplicationList `protobuf:"bytes,6,opt,name=installed_application_list,json=installedApplicationList,proto3,oneof"`
+	InstalledApplicationList *InstalledApplicationList `protobuf:"bytes,6,opt,name=installed_application_list,json=installedApplicationList,proto3,oneof" json:"installed_application_list,omitempty"`
 }
 type Command_DeviceInformation struct {
-	DeviceInformation *DeviceInformation `protobuf:"bytes,7,opt,name=device_information,json=deviceInformation,proto3,oneof"`
+	DeviceInformation *DeviceInformation `protobuf:"bytes,7,opt,name=device_information,json=deviceInformation,proto3,oneof" json:"device_information,omitempty"`
 }
 type Command_DeviceLock struct {
-	DeviceLock *DeviceLock `protobuf:"bytes,8,opt,name=device_lock,json=deviceLock,proto3,oneof"`
+	DeviceLock *DeviceLock `protobuf:"bytes,8,opt,name=device_lock,json=deviceLock,proto3,oneof" json:"device_lock,omitempty"`
 }
 type Command_ClearPasscode struct {
-	ClearPasscode *ClearPasscode `protobuf:"bytes,9,opt,name=clear_passcode,json=clearPasscode,proto3,oneof"`
+	ClearPasscode *ClearPasscode `protobuf:"bytes,9,opt,name=clear_passcode,json=clearPasscode,proto3,oneof" json:"clear_passcode,omitempty"`
 }
 type Command_EraseDevice struct {
-	EraseDevice *EraseDevice `protobuf:"bytes,10,opt,name=erase_device,json=eraseDevice,proto3,oneof"`
+	EraseDevice *EraseDevice `protobuf:"bytes,10,opt,name=erase_device,json=eraseDevice,proto3,oneof" json:"erase_device,omitempty"`
 }
 type Command_RequestMirroring struct {
-	RequestMirroring *RequestMirroring `protobuf:"bytes,11,opt,name=request_mirroring,json=requestMirroring,proto3,oneof"`
+	RequestMirroring *RequestMirroring `protobuf:"bytes,11,opt,name=request_mirroring,json=requestMirroring,proto3,oneof" json:"request_mirroring,omitempty"`
 }
 type Command_Restrictions struct {
-	Restrictions *Restrictions `protobuf:"bytes,12,opt,name=restrictions,proto3,oneof"`
+	Restrictions *Restrictions `protobuf:"bytes,12,opt,name=restrictions,proto3,oneof" json:"restrictions,omitempty"`
 }
 type Command_UnlockUserAccount struct {
-	UnlockUserAccount *UnlockUserAccount `protobuf:"bytes,13,opt,name=unlock_user_account,json=unlockUserAccount,proto3,oneof"`
+	UnlockUserAccount *UnlockUserAccount `protobuf:"bytes,13,opt,name=unlock_user_account,json=unlockUserAccount,proto3,oneof" json:"unlock_user_account,omitempty"`
 }
 type Command_DeleteUser struct {
-	DeleteUser *DeleteUser `protobuf:"bytes,14,opt,name=delete_user,json=deleteUser,proto3,oneof"`
+	DeleteUser *DeleteUser `protobuf:"bytes,14,opt,name=delete_user,json=deleteUser,proto3,oneof" json:"delete_user,omitempty"`
 }
 type Command_EnableLostMode struct {
-	EnableLostMode *EnableLostMode `protobuf:"bytes,15,opt,name=enable_lost_mode,json=enableLostMode,proto3,oneof"`
+	EnableLostMode *EnableLostMode `protobuf:"bytes,15,opt,name=enable_lost_mode,json=enableLostMode,proto3,oneof" json:"enable_lost_mode,omitempty"`
 }
 type Command_InstallApplication struct {
-	InstallApplication *InstallApplication `protobuf:"bytes,16,opt,name=install_application,json=installApplication,proto3,oneof"`
+	InstallApplication *InstallApplication `protobuf:"bytes,16,opt,name=install_application,json=installApplication,proto3,oneof" json:"install_application,omitempty"`
 }
 type Command_AccountConfiguration struct {
-	AccountConfiguration *AccountConfiguration `protobuf:"bytes,17,opt,name=account_configuration,json=accountConfiguration,proto3,oneof"`
+	AccountConfiguration *AccountConfiguration `protobuf:"bytes,17,opt,name=account_configuration,json=accountConfiguration,proto3,oneof" json:"account_configuration,omitempty"`
 }
 type Command_ApplyRedemptionCode struct {
-	ApplyRedemptionCode *ApplyRedemptionCode `protobuf:"bytes,18,opt,name=apply_redemption_code,json=applyRedemptionCode,proto3,oneof"`
+	ApplyRedemptionCode *ApplyRedemptionCode `protobuf:"bytes,18,opt,name=apply_redemption_code,json=applyRedemptionCode,proto3,oneof" json:"apply_redemption_code,omitempty"`
 }
 type Command_ManagedApplicationList struct {
-	ManagedApplicationList *ManagedApplicationList `protobuf:"bytes,19,opt,name=managed_application_list,json=managedApplicationList,proto3,oneof"`
+	ManagedApplicationList *ManagedApplicationList `protobuf:"bytes,19,opt,name=managed_application_list,json=managedApplicationList,proto3,oneof" json:"managed_application_list,omitempty"`
 }
 type Command_RemoveApplication struct {
-	RemoveApplication *RemoveApplication `protobuf:"bytes,20,opt,name=remove_application,json=removeApplication,proto3,oneof"`
+	RemoveApplication *RemoveApplication `protobuf:"bytes,20,opt,name=remove_application,json=removeApplication,proto3,oneof" json:"remove_application,omitempty"`
 }
 type Command_InviteToProgram struct {
-	InviteToProgram *InviteToProgram `protobuf:"bytes,21,opt,name=invite_to_program,json=inviteToProgram,proto3,oneof"`
+	InviteToProgram *InviteToProgram `protobuf:"bytes,21,opt,name=invite_to_program,json=inviteToProgram,proto3,oneof" json:"invite_to_program,omitempty"`
 }
 type Command_ValidataApplications struct {
-	ValidataApplications *ValidateApplications `protobuf:"bytes,22,opt,name=validata_applications,json=validataApplications,proto3,oneof"`
+	ValidataApplications *ValidateApplications `protobuf:"bytes,22,opt,name=validata_applications,json=validataApplications,proto3,oneof" json:"validata_applications,omitempty"`
 }
 type Command_InstallMedia struct {
-	InstallMedia *InstallMedia `protobuf:"bytes,23,opt,name=install_media,json=installMedia,proto3,oneof"`
+	InstallMedia *InstallMedia `protobuf:"bytes,23,opt,name=install_media,json=installMedia,proto3,oneof" json:"install_media,omitempty"`
 }
 type Command_RemoveMedia struct {
-	RemoveMedia *RemoveMedia `protobuf:"bytes,24,opt,name=remove_media,json=removeMedia,proto3,oneof"`
+	RemoveMedia *RemoveMedia `protobuf:"bytes,24,opt,name=remove_media,json=removeMedia,proto3,oneof" json:"remove_media,omitempty"`
 }
 type Command_Settings struct {
-	Settings *Settings `protobuf:"bytes,25,opt,name=settings,proto3,oneof"`
+	Settings *Settings `protobuf:"bytes,25,opt,name=settings,proto3,oneof" json:"settings,omitempty"`
 }
 type Command_ManagedApplicationConfiguration struct {
-	ManagedApplicationConfiguration *ManagedApplicationConfiguration `protobuf:"bytes,26,opt,name=managed_application_configuration,json=managedApplicationConfiguration,proto3,oneof"`
+	ManagedApplicationConfiguration *ManagedApplicationConfiguration `protobuf:"bytes,26,opt,name=managed_application_configuration,json=managedApplicationConfiguration,proto3,oneof" json:"managed_application_configuration,omitempty"`
 }
 type Command_ManagedApplicationAttributes struct {
-	ManagedApplicationAttributes *ManagedApplicationAttributes `protobuf:"bytes,27,opt,name=managed_application_attributes,json=managedApplicationAttributes,proto3,oneof"`
+	ManagedApplicationAttributes *ManagedApplicationAttributes `protobuf:"bytes,27,opt,name=managed_application_attributes,json=managedApplicationAttributes,proto3,oneof" json:"managed_application_attributes,omitempty"`
 }
 type Command_ManagedApplicationFeedback struct {
-	ManagedApplicationFeedback *ManagedApplicationFeedback `protobuf:"bytes,28,opt,name=managed_application_feedback,json=managedApplicationFeedback,proto3,oneof"`
+	ManagedApplicationFeedback *ManagedApplicationFeedback `protobuf:"bytes,28,opt,name=managed_application_feedback,json=managedApplicationFeedback,proto3,oneof" json:"managed_application_feedback,omitempty"`
 }
 type Command_SetFirmwarePassword struct {
-	SetFirmwarePassword *SetFirmwarePassword `protobuf:"bytes,29,opt,name=set_firmware_password,json=setFirmwarePassword,proto3,oneof"`
+	SetFirmwarePassword *SetFirmwarePassword `protobuf:"bytes,29,opt,name=set_firmware_password,json=setFirmwarePassword,proto3,oneof" json:"set_firmware_password,omitempty"`
 }
 type Command_VerifyFirmwarePassword struct {
-	VerifyFirmwarePassword *VerifyFirmwarePassword `protobuf:"bytes,30,opt,name=verify_firmware_password,json=verifyFirmwarePassword,proto3,oneof"`
+	VerifyFirmwarePassword *VerifyFirmwarePassword `protobuf:"bytes,30,opt,name=verify_firmware_password,json=verifyFirmwarePassword,proto3,oneof" json:"verify_firmware_password,omitempty"`
 }
 type Command_SetAutoAdminPassword struct {
-	SetAutoAdminPassword *SetAutoAdminPassword `protobuf:"bytes,31,opt,name=set_auto_admin_password,json=setAutoAdminPassword,proto3,oneof"`
+	SetAutoAdminPassword *SetAutoAdminPassword `protobuf:"bytes,31,opt,name=set_auto_admin_password,json=setAutoAdminPassword,proto3,oneof" json:"set_auto_admin_password,omitempty"`
 }
 type Command_ScheduleOsUpdate struct {
-	ScheduleOsUpdate *ScheduleOSUpdate `protobuf:"bytes,32,opt,name=schedule_os_update,json=scheduleOsUpdate,proto3,oneof"`
+	ScheduleOsUpdate *ScheduleOSUpdate `protobuf:"bytes,32,opt,name=schedule_os_update,json=scheduleOsUpdate,proto3,oneof" json:"schedule_os_update,omitempty"`
 }
 type Command_ScheduleOsUpdateScan struct {
-	ScheduleOsUpdateScan *ScheduleOSUpdateScan `protobuf:"bytes,33,opt,name=schedule_os_update_scan,json=scheduleOsUpdateScan,proto3,oneof"`
+	ScheduleOsUpdateScan *ScheduleOSUpdateScan `protobuf:"bytes,33,opt,name=schedule_os_update_scan,json=scheduleOsUpdateScan,proto3,oneof" json:"schedule_os_update_scan,omitempty"`
 }
 type Command_ActiveNsExtensions struct {
-	ActiveNsExtensions *ActiveNSExtensions `protobuf:"bytes,34,opt,name=active_ns_extensions,json=activeNsExtensions,proto3,oneof"`
+	ActiveNsExtensions *ActiveNSExtensions `protobuf:"bytes,34,opt,name=active_ns_extensions,json=activeNsExtensions,proto3,oneof" json:"active_ns_extensions,omitempty"`
 }
 type Command_RotateFilevaultKey struct {
-	RotateFilevaultKey *RotateFileVaultKey `protobuf:"bytes,35,opt,name=rotate_filevault_key,json=rotateFilevaultKey,proto3,oneof"`
+	RotateFilevaultKey *RotateFileVaultKey `protobuf:"bytes,35,opt,name=rotate_filevault_key,json=rotateFilevaultKey,proto3,oneof" json:"rotate_filevault_key,omitempty"`
 }
 type Command_InstallEnterpriseApplication struct {
-	InstallEnterpriseApplication *InstallEnterpriseApplication `protobuf:"bytes,36,opt,name=install_enterprise_application,json=installEnterpriseApplication,proto3,oneof"`
+	InstallEnterpriseApplication *InstallEnterpriseApplication `protobuf:"bytes,36,opt,name=install_enterprise_application,json=installEnterpriseApplication,proto3,oneof" json:"install_enterprise_application,omitempty"`
 }
 type Command_SetBootstrapToken struct {
-	SetBootstrapToken *SetBootstrapToken `protobuf:"bytes,37,opt,name=set_bootstrap_token,json=setBootstrapToken,proto3,oneof"`
+	SetBootstrapToken *SetBootstrapToken `protobuf:"bytes,37,opt,name=set_bootstrap_token,json=setBootstrapToken,proto3,oneof" json:"set_bootstrap_token,omitempty"`
 }
 type Command_SetRecoveryLock struct {
-	SetRecoveryLock *SetRecoveryLock `protobuf:"bytes,38,opt,name=set_recovery_lock,json=setRecoveryLock,proto3,oneof"`
+	SetRecoveryLock *SetRecoveryLock `protobuf:"bytes,38,opt,name=set_recovery_lock,json=setRecoveryLock,proto3,oneof" json:"set_recovery_lock,omitempty"`
 }
 type Command_VerifyRecoveryLock struct {
-	VerifyRecoveryLock *VerifyRecoveryLock `protobuf:"bytes,39,opt,name=verify_recovery_lock,json=verifyRecoveryLock,proto3,oneof"`
+	VerifyRecoveryLock *VerifyRecoveryLock `protobuf:"bytes,39,opt,name=verify_recovery_lock,json=verifyRecoveryLock,proto3,oneof" json:"verify_recovery_lock,omitempty"`
 }
 
 func (*Command_InstallProfile) isCommand_Request()                  {}
@@ -654,9 +654,9 @@ func (m *Command) GetVerifyRecoveryLock() *VerifyRecoveryLock {
 	return nil
 }
 
-// XXX_OneofFuncs is for the internal use of the proto package.
-func (*Command) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
-	return _Command_OneofMarshaler, _Command_OneofUnmarshaler, _Command_OneofSizer, []interface{}{
+// XXX_OneofWrappers is for the internal use of the proto package.
+func (*Command) XXX_OneofWrappers() []interface{} {
+	return []interface{}{
 		(*Command_InstallProfile)(nil),
 		(*Command_RemoveProfile)(nil),
 		(*Command_InstallProvisioningProfile)(nil),
@@ -698,720 +698,6 @@ func (*Command) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error
 	}
 }
 
-func _Command_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
-	m := msg.(*Command)
-	// request
-	switch x := m.Request.(type) {
-	case *Command_InstallProfile:
-		_ = b.EncodeVarint(2<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.InstallProfile); err != nil {
-			return err
-		}
-	case *Command_RemoveProfile:
-		_ = b.EncodeVarint(3<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.RemoveProfile); err != nil {
-			return err
-		}
-	case *Command_InstallProvisioningProfile:
-		_ = b.EncodeVarint(4<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.InstallProvisioningProfile); err != nil {
-			return err
-		}
-	case *Command_RemoveProfisioningProfile:
-		_ = b.EncodeVarint(5<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.RemoveProfisioningProfile); err != nil {
-			return err
-		}
-	case *Command_InstalledApplicationList:
-		_ = b.EncodeVarint(6<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.InstalledApplicationList); err != nil {
-			return err
-		}
-	case *Command_DeviceInformation:
-		_ = b.EncodeVarint(7<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.DeviceInformation); err != nil {
-			return err
-		}
-	case *Command_DeviceLock:
-		_ = b.EncodeVarint(8<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.DeviceLock); err != nil {
-			return err
-		}
-	case *Command_ClearPasscode:
-		_ = b.EncodeVarint(9<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.ClearPasscode); err != nil {
-			return err
-		}
-	case *Command_EraseDevice:
-		_ = b.EncodeVarint(10<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.EraseDevice); err != nil {
-			return err
-		}
-	case *Command_RequestMirroring:
-		_ = b.EncodeVarint(11<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.RequestMirroring); err != nil {
-			return err
-		}
-	case *Command_Restrictions:
-		_ = b.EncodeVarint(12<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Restrictions); err != nil {
-			return err
-		}
-	case *Command_UnlockUserAccount:
-		_ = b.EncodeVarint(13<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.UnlockUserAccount); err != nil {
-			return err
-		}
-	case *Command_DeleteUser:
-		_ = b.EncodeVarint(14<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.DeleteUser); err != nil {
-			return err
-		}
-	case *Command_EnableLostMode:
-		_ = b.EncodeVarint(15<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.EnableLostMode); err != nil {
-			return err
-		}
-	case *Command_InstallApplication:
-		_ = b.EncodeVarint(16<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.InstallApplication); err != nil {
-			return err
-		}
-	case *Command_AccountConfiguration:
-		_ = b.EncodeVarint(17<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.AccountConfiguration); err != nil {
-			return err
-		}
-	case *Command_ApplyRedemptionCode:
-		_ = b.EncodeVarint(18<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.ApplyRedemptionCode); err != nil {
-			return err
-		}
-	case *Command_ManagedApplicationList:
-		_ = b.EncodeVarint(19<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.ManagedApplicationList); err != nil {
-			return err
-		}
-	case *Command_RemoveApplication:
-		_ = b.EncodeVarint(20<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.RemoveApplication); err != nil {
-			return err
-		}
-	case *Command_InviteToProgram:
-		_ = b.EncodeVarint(21<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.InviteToProgram); err != nil {
-			return err
-		}
-	case *Command_ValidataApplications:
-		_ = b.EncodeVarint(22<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.ValidataApplications); err != nil {
-			return err
-		}
-	case *Command_InstallMedia:
-		_ = b.EncodeVarint(23<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.InstallMedia); err != nil {
-			return err
-		}
-	case *Command_RemoveMedia:
-		_ = b.EncodeVarint(24<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.RemoveMedia); err != nil {
-			return err
-		}
-	case *Command_Settings:
-		_ = b.EncodeVarint(25<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.Settings); err != nil {
-			return err
-		}
-	case *Command_ManagedApplicationConfiguration:
-		_ = b.EncodeVarint(26<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.ManagedApplicationConfiguration); err != nil {
-			return err
-		}
-	case *Command_ManagedApplicationAttributes:
-		_ = b.EncodeVarint(27<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.ManagedApplicationAttributes); err != nil {
-			return err
-		}
-	case *Command_ManagedApplicationFeedback:
-		_ = b.EncodeVarint(28<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.ManagedApplicationFeedback); err != nil {
-			return err
-		}
-	case *Command_SetFirmwarePassword:
-		_ = b.EncodeVarint(29<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.SetFirmwarePassword); err != nil {
-			return err
-		}
-	case *Command_VerifyFirmwarePassword:
-		_ = b.EncodeVarint(30<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.VerifyFirmwarePassword); err != nil {
-			return err
-		}
-	case *Command_SetAutoAdminPassword:
-		_ = b.EncodeVarint(31<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.SetAutoAdminPassword); err != nil {
-			return err
-		}
-	case *Command_ScheduleOsUpdate:
-		_ = b.EncodeVarint(32<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.ScheduleOsUpdate); err != nil {
-			return err
-		}
-	case *Command_ScheduleOsUpdateScan:
-		_ = b.EncodeVarint(33<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.ScheduleOsUpdateScan); err != nil {
-			return err
-		}
-	case *Command_ActiveNsExtensions:
-		_ = b.EncodeVarint(34<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.ActiveNsExtensions); err != nil {
-			return err
-		}
-	case *Command_RotateFilevaultKey:
-		_ = b.EncodeVarint(35<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.RotateFilevaultKey); err != nil {
-			return err
-		}
-	case *Command_InstallEnterpriseApplication:
-		_ = b.EncodeVarint(36<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.InstallEnterpriseApplication); err != nil {
-			return err
-		}
-	case *Command_SetBootstrapToken:
-		_ = b.EncodeVarint(37<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.SetBootstrapToken); err != nil {
-			return err
-		}
-	case *Command_SetRecoveryLock:
-		_ = b.EncodeVarint(38<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.SetRecoveryLock); err != nil {
-			return err
-		}
-	case *Command_VerifyRecoveryLock:
-		_ = b.EncodeVarint(39<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.VerifyRecoveryLock); err != nil {
-			return err
-		}
-	case nil:
-	default:
-		return fmt.Errorf("Command.Request has unexpected type %T", x)
-	}
-	return nil
-}
-
-func _Command_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
-	m := msg.(*Command)
-	switch tag {
-	case 2: // request.install_profile
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(InstallProfile)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_InstallProfile{msg}
-		return true, err
-	case 3: // request.remove_profile
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(RemoveProfile)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_RemoveProfile{msg}
-		return true, err
-	case 4: // request.install_provisioning_profile
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(InstallProvisioningProfile)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_InstallProvisioningProfile{msg}
-		return true, err
-	case 5: // request.remove_profisioning_profile
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(RemoveProvisioningProfile)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_RemoveProfisioningProfile{msg}
-		return true, err
-	case 6: // request.installed_application_list
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(InstalledApplicationList)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_InstalledApplicationList{msg}
-		return true, err
-	case 7: // request.device_information
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(DeviceInformation)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_DeviceInformation{msg}
-		return true, err
-	case 8: // request.device_lock
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(DeviceLock)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_DeviceLock{msg}
-		return true, err
-	case 9: // request.clear_passcode
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(ClearPasscode)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_ClearPasscode{msg}
-		return true, err
-	case 10: // request.erase_device
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(EraseDevice)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_EraseDevice{msg}
-		return true, err
-	case 11: // request.request_mirroring
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(RequestMirroring)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_RequestMirroring{msg}
-		return true, err
-	case 12: // request.restrictions
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(Restrictions)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_Restrictions{msg}
-		return true, err
-	case 13: // request.unlock_user_account
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(UnlockUserAccount)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_UnlockUserAccount{msg}
-		return true, err
-	case 14: // request.delete_user
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(DeleteUser)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_DeleteUser{msg}
-		return true, err
-	case 15: // request.enable_lost_mode
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(EnableLostMode)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_EnableLostMode{msg}
-		return true, err
-	case 16: // request.install_application
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(InstallApplication)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_InstallApplication{msg}
-		return true, err
-	case 17: // request.account_configuration
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(AccountConfiguration)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_AccountConfiguration{msg}
-		return true, err
-	case 18: // request.apply_redemption_code
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(ApplyRedemptionCode)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_ApplyRedemptionCode{msg}
-		return true, err
-	case 19: // request.managed_application_list
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(ManagedApplicationList)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_ManagedApplicationList{msg}
-		return true, err
-	case 20: // request.remove_application
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(RemoveApplication)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_RemoveApplication{msg}
-		return true, err
-	case 21: // request.invite_to_program
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(InviteToProgram)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_InviteToProgram{msg}
-		return true, err
-	case 22: // request.validata_applications
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(ValidateApplications)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_ValidataApplications{msg}
-		return true, err
-	case 23: // request.install_media
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(InstallMedia)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_InstallMedia{msg}
-		return true, err
-	case 24: // request.remove_media
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(RemoveMedia)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_RemoveMedia{msg}
-		return true, err
-	case 25: // request.settings
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(Settings)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_Settings{msg}
-		return true, err
-	case 26: // request.managed_application_configuration
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(ManagedApplicationConfiguration)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_ManagedApplicationConfiguration{msg}
-		return true, err
-	case 27: // request.managed_application_attributes
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(ManagedApplicationAttributes)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_ManagedApplicationAttributes{msg}
-		return true, err
-	case 28: // request.managed_application_feedback
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(ManagedApplicationFeedback)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_ManagedApplicationFeedback{msg}
-		return true, err
-	case 29: // request.set_firmware_password
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(SetFirmwarePassword)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_SetFirmwarePassword{msg}
-		return true, err
-	case 30: // request.verify_firmware_password
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(VerifyFirmwarePassword)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_VerifyFirmwarePassword{msg}
-		return true, err
-	case 31: // request.set_auto_admin_password
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(SetAutoAdminPassword)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_SetAutoAdminPassword{msg}
-		return true, err
-	case 32: // request.schedule_os_update
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(ScheduleOSUpdate)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_ScheduleOsUpdate{msg}
-		return true, err
-	case 33: // request.schedule_os_update_scan
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(ScheduleOSUpdateScan)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_ScheduleOsUpdateScan{msg}
-		return true, err
-	case 34: // request.active_ns_extensions
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(ActiveNSExtensions)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_ActiveNsExtensions{msg}
-		return true, err
-	case 35: // request.rotate_filevault_key
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(RotateFileVaultKey)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_RotateFilevaultKey{msg}
-		return true, err
-	case 36: // request.install_enterprise_application
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(InstallEnterpriseApplication)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_InstallEnterpriseApplication{msg}
-		return true, err
-	case 37: // request.set_bootstrap_token
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(SetBootstrapToken)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_SetBootstrapToken{msg}
-		return true, err
-	case 38: // request.set_recovery_lock
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(SetRecoveryLock)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_SetRecoveryLock{msg}
-		return true, err
-	case 39: // request.verify_recovery_lock
-		if wire != proto.WireBytes {
-			return true, proto.ErrInternalBadWireType
-		}
-		msg := new(VerifyRecoveryLock)
-		err := b.DecodeMessage(msg)
-		m.Request = &Command_VerifyRecoveryLock{msg}
-		return true, err
-	default:
-		return false, nil
-	}
-}
-
-func _Command_OneofSizer(msg proto.Message) (n int) {
-	m := msg.(*Command)
-	// request
-	switch x := m.Request.(type) {
-	case *Command_InstallProfile:
-		s := proto.Size(x.InstallProfile)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_RemoveProfile:
-		s := proto.Size(x.RemoveProfile)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_InstallProvisioningProfile:
-		s := proto.Size(x.InstallProvisioningProfile)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_RemoveProfisioningProfile:
-		s := proto.Size(x.RemoveProfisioningProfile)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_InstalledApplicationList:
-		s := proto.Size(x.InstalledApplicationList)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_DeviceInformation:
-		s := proto.Size(x.DeviceInformation)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_DeviceLock:
-		s := proto.Size(x.DeviceLock)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_ClearPasscode:
-		s := proto.Size(x.ClearPasscode)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_EraseDevice:
-		s := proto.Size(x.EraseDevice)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_RequestMirroring:
-		s := proto.Size(x.RequestMirroring)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_Restrictions:
-		s := proto.Size(x.Restrictions)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_UnlockUserAccount:
-		s := proto.Size(x.UnlockUserAccount)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_DeleteUser:
-		s := proto.Size(x.DeleteUser)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_EnableLostMode:
-		s := proto.Size(x.EnableLostMode)
-		n += 1 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_InstallApplication:
-		s := proto.Size(x.InstallApplication)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_AccountConfiguration:
-		s := proto.Size(x.AccountConfiguration)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_ApplyRedemptionCode:
-		s := proto.Size(x.ApplyRedemptionCode)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_ManagedApplicationList:
-		s := proto.Size(x.ManagedApplicationList)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_RemoveApplication:
-		s := proto.Size(x.RemoveApplication)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_InviteToProgram:
-		s := proto.Size(x.InviteToProgram)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_ValidataApplications:
-		s := proto.Size(x.ValidataApplications)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_InstallMedia:
-		s := proto.Size(x.InstallMedia)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_RemoveMedia:
-		s := proto.Size(x.RemoveMedia)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_Settings:
-		s := proto.Size(x.Settings)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_ManagedApplicationConfiguration:
-		s := proto.Size(x.ManagedApplicationConfiguration)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_ManagedApplicationAttributes:
-		s := proto.Size(x.ManagedApplicationAttributes)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_ManagedApplicationFeedback:
-		s := proto.Size(x.ManagedApplicationFeedback)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_SetFirmwarePassword:
-		s := proto.Size(x.SetFirmwarePassword)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_VerifyFirmwarePassword:
-		s := proto.Size(x.VerifyFirmwarePassword)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_SetAutoAdminPassword:
-		s := proto.Size(x.SetAutoAdminPassword)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_ScheduleOsUpdate:
-		s := proto.Size(x.ScheduleOsUpdate)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_ScheduleOsUpdateScan:
-		s := proto.Size(x.ScheduleOsUpdateScan)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_ActiveNsExtensions:
-		s := proto.Size(x.ActiveNsExtensions)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_RotateFilevaultKey:
-		s := proto.Size(x.RotateFilevaultKey)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_InstallEnterpriseApplication:
-		s := proto.Size(x.InstallEnterpriseApplication)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_SetBootstrapToken:
-		s := proto.Size(x.SetBootstrapToken)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_SetRecoveryLock:
-		s := proto.Size(x.SetRecoveryLock)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case *Command_VerifyRecoveryLock:
-		s := proto.Size(x.VerifyRecoveryLock)
-		n += 2 // tag and wire
-		n += proto.SizeVarint(uint64(s))
-		n += s
-	case nil:
-	default:
-		panic(fmt.Sprintf("proto: unexpected type %T in oneof", x))
-	}
-	return n
-}
-
 type InstallProfile struct {
 	Payload              []byte   `protobuf:"bytes,1,opt,name=payload,proto3" json:"payload,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -1433,7 +719,7 @@ func (m *InstallProfile) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return xxx_messageInfo_InstallProfile.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1480,7 +766,7 @@ func (m *RemoveProfile) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return xxx_messageInfo_RemoveProfile.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1527,7 +813,7 @@ func (m *InstallProvisioningProfile) XXX_Marshal(b []byte, deterministic bool) (
 		return xxx_messageInfo_InstallProvisioningProfile.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1574,7 +860,7 @@ func (m *RemoveProvisioningProfile) XXX_Marshal(b []byte, deterministic bool) ([
 		return xxx_messageInfo_RemoveProvisioningProfile.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1622,7 +908,7 @@ func (m *InstalledApplicationList) XXX_Marshal(b []byte, deterministic bool) ([]
 		return xxx_messageInfo_InstalledApplicationList.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1676,7 +962,7 @@ func (m *DeviceInformation) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_DeviceInformation.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1723,7 +1009,7 @@ func (m *ClearPasscode) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return xxx_messageInfo_ClearPasscode.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1772,7 +1058,7 @@ func (m *DeviceLock) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_DeviceLock.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1835,7 +1121,7 @@ func (m *EraseDevice) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) 
 		return xxx_messageInfo_EraseDevice.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1899,7 +1185,7 @@ func (m *RequestMirroring) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return xxx_messageInfo_RequestMirroring.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -1967,7 +1253,7 @@ func (m *Restrictions) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return xxx_messageInfo_Restrictions.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2014,7 +1300,7 @@ func (m *UnlockUserAccount) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_UnlockUserAccount.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2062,7 +1348,7 @@ func (m *DeleteUser) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_DeleteUser.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2118,7 +1404,7 @@ func (m *EnableLostMode) XXX_Marshal(b []byte, deterministic bool) ([]byte, erro
 		return xxx_messageInfo_EnableLostMode.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2186,7 +1472,7 @@ func (m *InstallApplication) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_InstallApplication.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2282,7 +1568,7 @@ func (m *InstallApplicationOptions) XXX_Marshal(b []byte, deterministic bool) ([
 		return xxx_messageInfo_InstallApplicationOptions.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2328,7 +1614,7 @@ func (m *InstallApplicationConfiguration) XXX_Marshal(b []byte, deterministic bo
 		return xxx_messageInfo_InstallApplicationConfiguration.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2367,7 +1653,7 @@ func (m *InstallApplicationAttributes) XXX_Marshal(b []byte, deterministic bool)
 		return xxx_messageInfo_InstallApplicationAttributes.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2410,7 +1696,7 @@ func (m *InstallEnterpriseApplication) XXX_Marshal(b []byte, deterministic bool)
 		return xxx_messageInfo_InstallEnterpriseApplication.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2478,7 +1764,7 @@ func (m *Manifest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_Manifest.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2526,7 +1812,7 @@ func (m *ManifestItem) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return xxx_messageInfo_ManifestItem.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2585,7 +1871,7 @@ func (m *Asset) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_Asset.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2673,7 +1959,7 @@ func (m *Metadata) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_Metadata.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2763,7 +2049,7 @@ func (m *BundleInfo) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_BundleInfo.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2818,7 +2104,7 @@ func (m *ApplyRedemptionCode) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return xxx_messageInfo_ApplyRedemptionCode.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2872,7 +2158,7 @@ func (m *ManagedApplicationList) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return xxx_messageInfo_ManagedApplicationList.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2919,7 +2205,7 @@ func (m *RemoveApplication) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_RemoveApplication.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -2967,7 +2253,7 @@ func (m *InviteToProgram) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return xxx_messageInfo_InviteToProgram.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3021,7 +2307,7 @@ func (m *ValidateApplications) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_ValidateApplications.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3074,7 +2360,7 @@ func (m *AccountConfiguration) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_AccountConfiguration.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3166,7 +2452,7 @@ func (m *AutoSetupAdminAccounts) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return xxx_messageInfo_AutoSetupAdminAccounts.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3236,7 +2522,7 @@ func (m *InstallMedia) XXX_Marshal(b []byte, deterministic bool) ([]byte, error)
 		return xxx_messageInfo_InstallMedia.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3299,7 +2585,7 @@ func (m *RemoveMedia) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) 
 		return xxx_messageInfo_RemoveMedia.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3360,7 +2646,7 @@ func (m *Settings) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_Settings.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3422,7 +2708,7 @@ func (m *Setting) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_Setting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3574,7 +2860,7 @@ func (m *VoiceRoamingSetting) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return xxx_messageInfo_VoiceRoamingSetting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3621,7 +2907,7 @@ func (m *PersonalHotspotSetting) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return xxx_messageInfo_PersonalHotspotSetting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3669,7 +2955,7 @@ func (m *WallpaperSetting) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return xxx_messageInfo_WallpaperSetting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3723,7 +3009,7 @@ func (m *DataRoamingSetting) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_DataRoamingSetting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3770,7 +3056,7 @@ func (m *BluetoothSetting) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return xxx_messageInfo_BluetoothSetting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3818,7 +3104,7 @@ func (m *ApplicationAttributesSetting) XXX_Marshal(b []byte, deterministic bool)
 		return xxx_messageInfo_ApplicationAttributesSetting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3873,7 +3159,7 @@ func (m *ApplicationConfigurationSetting) XXX_Marshal(b []byte, deterministic bo
 		return xxx_messageInfo_ApplicationConfigurationSetting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3927,7 +3213,7 @@ func (m *ApplicationAttributes) XXX_Marshal(b []byte, deterministic bool) ([]byt
 		return xxx_messageInfo_ApplicationAttributes.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -3974,7 +3260,7 @@ func (m *DeviceNameSetting) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_DeviceNameSetting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4021,7 +3307,7 @@ func (m *TimeZoneSetting) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return xxx_messageInfo_TimeZoneSetting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4068,7 +3354,7 @@ func (m *HostnameSetting) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return xxx_messageInfo_HostnameSetting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4115,7 +3401,7 @@ func (m *MDMOptionsSetting) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_MDMOptionsSetting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4162,7 +3448,7 @@ func (m *MDMOptions) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_MDMOptions.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4209,7 +3495,7 @@ func (m *PasscodeLockGracePeriodSetting) XXX_Marshal(b []byte, deterministic boo
 		return xxx_messageInfo_PasscodeLockGracePeriodSetting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4256,7 +3542,7 @@ func (m *MaximumResidentUsersSetting) XXX_Marshal(b []byte, deterministic bool) 
 		return xxx_messageInfo_MaximumResidentUsersSetting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4303,7 +3589,7 @@ func (m *DiagnosticSubmissionSetting) XXX_Marshal(b []byte, deterministic bool) 
 		return xxx_messageInfo_DiagnosticSubmissionSetting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4350,7 +3636,7 @@ func (m *AppAnalyticsSetting) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return xxx_messageInfo_AppAnalyticsSetting.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4397,7 +3683,7 @@ func (m *ManagedApplicationConfiguration) XXX_Marshal(b []byte, deterministic bo
 		return xxx_messageInfo_ManagedApplicationConfiguration.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4444,7 +3730,7 @@ func (m *ManagedApplicationAttributes) XXX_Marshal(b []byte, deterministic bool)
 		return xxx_messageInfo_ManagedApplicationAttributes.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4492,7 +3778,7 @@ func (m *ManagedApplicationFeedback) XXX_Marshal(b []byte, deterministic bool) (
 		return xxx_messageInfo_ManagedApplicationFeedback.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4549,7 +3835,7 @@ func (m *SetFirmwarePassword) XXX_Marshal(b []byte, deterministic bool) ([]byte,
 		return xxx_messageInfo_SetFirmwarePassword.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4617,7 +3903,7 @@ func (m *VerifyFirmwarePassword) XXX_Marshal(b []byte, deterministic bool) ([]by
 		return xxx_messageInfo_VerifyFirmwarePassword.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4667,7 +3953,7 @@ func (m *SetRecoveryLock) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return xxx_messageInfo_SetRecoveryLock.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4735,7 +4021,7 @@ func (m *VerifyRecoveryLock) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_VerifyRecoveryLock.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4783,7 +4069,7 @@ func (m *SetAutoAdminPassword) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_SetAutoAdminPassword.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4837,7 +4123,7 @@ func (m *ScheduleOSUpdate) XXX_Marshal(b []byte, deterministic bool) ([]byte, er
 		return xxx_messageInfo_ScheduleOSUpdate.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4886,7 +4172,7 @@ func (m *Update) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_Update.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4947,7 +4233,7 @@ func (m *ScheduleOSUpdateScan) XXX_Marshal(b []byte, deterministic bool) ([]byte
 		return xxx_messageInfo_ScheduleOSUpdateScan.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -4994,7 +4280,7 @@ func (m *ActiveNSExtensions) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_ActiveNSExtensions.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5044,7 +4330,7 @@ func (m *RotateFileVaultKey) XXX_Marshal(b []byte, deterministic bool) ([]byte, 
 		return xxx_messageInfo_RotateFileVaultKey.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5114,7 +4400,7 @@ func (m *FileVaultUnlock) XXX_Marshal(b []byte, deterministic bool) ([]byte, err
 		return xxx_messageInfo_FileVaultUnlock.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5175,7 +4461,7 @@ func (m *SetBootstrapToken) XXX_Marshal(b []byte, deterministic bool) ([]byte, e
 		return xxx_messageInfo_SetBootstrapToken.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5224,7 +4510,7 @@ func (m *ResultPayload) XXX_Marshal(b []byte, deterministic bool) ([]byte, error
 		return xxx_messageInfo_ResultPayload.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5291,7 +4577,7 @@ func (m *ErrorChain) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 		return xxx_messageInfo_ErrorChain.Marshal(b, m, deterministic)
 	} else {
 		b = b[:cap(b)]
-		n, err := m.MarshalTo(b)
+		n, err := m.MarshalToSizedBuffer(b)
 		if err != nil {
 			return nil, err
 		}
@@ -5668,7 +4954,7 @@ var fileDescriptor_fd1fa389f704dbf7 = []byte{
 func (m *CommandPayload) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5676,36 +4962,45 @@ func (m *CommandPayload) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *CommandPayload) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CommandPayload) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.CommandUuid) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.CommandUuid)))
-		i += copy(dAtA[i:], m.CommandUuid)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.Command != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.Command.Size()))
-		n1, err1 := m.Command.MarshalTo(dAtA[i:])
-		if err1 != nil {
-			return 0, err1
+		{
+			size, err := m.Command.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n1
+		i--
+		dAtA[i] = 0x12
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.CommandUuid) > 0 {
+		i -= len(m.CommandUuid)
+		copy(dAtA[i:], m.CommandUuid)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.CommandUuid)))
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *Command) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -5713,613 +5008,888 @@ func (m *Command) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *Command) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.RequestType) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.RequestType)))
-		i += copy(dAtA[i:], m.RequestType)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.Request != nil {
-		nn2, err2 := m.Request.MarshalTo(dAtA[i:])
-		if err2 != nil {
-			return 0, err2
+		{
+			size := m.Request.Size()
+			i -= size
+			if _, err := m.Request.MarshalTo(dAtA[i:]); err != nil {
+				return 0, err
+			}
 		}
-		i += nn2
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.RequestType) > 0 {
+		i -= len(m.RequestType)
+		copy(dAtA[i:], m.RequestType)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.RequestType)))
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *Command_InstallProfile) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_InstallProfile) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.InstallProfile != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.InstallProfile.Size()))
-		n3, err3 := m.InstallProfile.MarshalTo(dAtA[i:])
-		if err3 != nil {
-			return 0, err3
+		{
+			size, err := m.InstallProfile.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n3
+		i--
+		dAtA[i] = 0x12
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_RemoveProfile) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_RemoveProfile) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.RemoveProfile != nil {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.RemoveProfile.Size()))
-		n4, err4 := m.RemoveProfile.MarshalTo(dAtA[i:])
-		if err4 != nil {
-			return 0, err4
+		{
+			size, err := m.RemoveProfile.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n4
+		i--
+		dAtA[i] = 0x1a
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_InstallProvisioningProfile) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_InstallProvisioningProfile) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.InstallProvisioningProfile != nil {
-		dAtA[i] = 0x22
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.InstallProvisioningProfile.Size()))
-		n5, err5 := m.InstallProvisioningProfile.MarshalTo(dAtA[i:])
-		if err5 != nil {
-			return 0, err5
+		{
+			size, err := m.InstallProvisioningProfile.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n5
+		i--
+		dAtA[i] = 0x22
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_RemoveProfisioningProfile) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_RemoveProfisioningProfile) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.RemoveProfisioningProfile != nil {
-		dAtA[i] = 0x2a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.RemoveProfisioningProfile.Size()))
-		n6, err6 := m.RemoveProfisioningProfile.MarshalTo(dAtA[i:])
-		if err6 != nil {
-			return 0, err6
+		{
+			size, err := m.RemoveProfisioningProfile.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n6
+		i--
+		dAtA[i] = 0x2a
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_InstalledApplicationList) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_InstalledApplicationList) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.InstalledApplicationList != nil {
-		dAtA[i] = 0x32
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.InstalledApplicationList.Size()))
-		n7, err7 := m.InstalledApplicationList.MarshalTo(dAtA[i:])
-		if err7 != nil {
-			return 0, err7
+		{
+			size, err := m.InstalledApplicationList.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n7
+		i--
+		dAtA[i] = 0x32
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_DeviceInformation) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_DeviceInformation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.DeviceInformation != nil {
-		dAtA[i] = 0x3a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.DeviceInformation.Size()))
-		n8, err8 := m.DeviceInformation.MarshalTo(dAtA[i:])
-		if err8 != nil {
-			return 0, err8
+		{
+			size, err := m.DeviceInformation.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n8
+		i--
+		dAtA[i] = 0x3a
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_DeviceLock) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_DeviceLock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.DeviceLock != nil {
-		dAtA[i] = 0x42
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.DeviceLock.Size()))
-		n9, err9 := m.DeviceLock.MarshalTo(dAtA[i:])
-		if err9 != nil {
-			return 0, err9
+		{
+			size, err := m.DeviceLock.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n9
+		i--
+		dAtA[i] = 0x42
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_ClearPasscode) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_ClearPasscode) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.ClearPasscode != nil {
-		dAtA[i] = 0x4a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ClearPasscode.Size()))
-		n10, err10 := m.ClearPasscode.MarshalTo(dAtA[i:])
-		if err10 != nil {
-			return 0, err10
+		{
+			size, err := m.ClearPasscode.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n10
+		i--
+		dAtA[i] = 0x4a
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_EraseDevice) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_EraseDevice) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.EraseDevice != nil {
-		dAtA[i] = 0x52
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.EraseDevice.Size()))
-		n11, err11 := m.EraseDevice.MarshalTo(dAtA[i:])
-		if err11 != nil {
-			return 0, err11
+		{
+			size, err := m.EraseDevice.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n11
+		i--
+		dAtA[i] = 0x52
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_RequestMirroring) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_RequestMirroring) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.RequestMirroring != nil {
-		dAtA[i] = 0x5a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.RequestMirroring.Size()))
-		n12, err12 := m.RequestMirroring.MarshalTo(dAtA[i:])
-		if err12 != nil {
-			return 0, err12
+		{
+			size, err := m.RequestMirroring.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n12
+		i--
+		dAtA[i] = 0x5a
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_Restrictions) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_Restrictions) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.Restrictions != nil {
-		dAtA[i] = 0x62
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.Restrictions.Size()))
-		n13, err13 := m.Restrictions.MarshalTo(dAtA[i:])
-		if err13 != nil {
-			return 0, err13
+		{
+			size, err := m.Restrictions.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n13
+		i--
+		dAtA[i] = 0x62
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_UnlockUserAccount) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_UnlockUserAccount) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.UnlockUserAccount != nil {
-		dAtA[i] = 0x6a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.UnlockUserAccount.Size()))
-		n14, err14 := m.UnlockUserAccount.MarshalTo(dAtA[i:])
-		if err14 != nil {
-			return 0, err14
+		{
+			size, err := m.UnlockUserAccount.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n14
+		i--
+		dAtA[i] = 0x6a
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_DeleteUser) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_DeleteUser) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.DeleteUser != nil {
-		dAtA[i] = 0x72
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.DeleteUser.Size()))
-		n15, err15 := m.DeleteUser.MarshalTo(dAtA[i:])
-		if err15 != nil {
-			return 0, err15
+		{
+			size, err := m.DeleteUser.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n15
+		i--
+		dAtA[i] = 0x72
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_EnableLostMode) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_EnableLostMode) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.EnableLostMode != nil {
-		dAtA[i] = 0x7a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.EnableLostMode.Size()))
-		n16, err16 := m.EnableLostMode.MarshalTo(dAtA[i:])
-		if err16 != nil {
-			return 0, err16
+		{
+			size, err := m.EnableLostMode.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n16
+		i--
+		dAtA[i] = 0x7a
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_InstallApplication) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_InstallApplication) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.InstallApplication != nil {
-		dAtA[i] = 0x82
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.InstallApplication.Size()))
-		n17, err17 := m.InstallApplication.MarshalTo(dAtA[i:])
-		if err17 != nil {
-			return 0, err17
+		{
+			size, err := m.InstallApplication.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n17
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x82
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_AccountConfiguration) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_AccountConfiguration) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.AccountConfiguration != nil {
-		dAtA[i] = 0x8a
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.AccountConfiguration.Size()))
-		n18, err18 := m.AccountConfiguration.MarshalTo(dAtA[i:])
-		if err18 != nil {
-			return 0, err18
+		{
+			size, err := m.AccountConfiguration.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n18
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x8a
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_ApplyRedemptionCode) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_ApplyRedemptionCode) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.ApplyRedemptionCode != nil {
-		dAtA[i] = 0x92
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ApplyRedemptionCode.Size()))
-		n19, err19 := m.ApplyRedemptionCode.MarshalTo(dAtA[i:])
-		if err19 != nil {
-			return 0, err19
+		{
+			size, err := m.ApplyRedemptionCode.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n19
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x92
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_ManagedApplicationList) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_ManagedApplicationList) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.ManagedApplicationList != nil {
-		dAtA[i] = 0x9a
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ManagedApplicationList.Size()))
-		n20, err20 := m.ManagedApplicationList.MarshalTo(dAtA[i:])
-		if err20 != nil {
-			return 0, err20
+		{
+			size, err := m.ManagedApplicationList.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n20
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x9a
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_RemoveApplication) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_RemoveApplication) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.RemoveApplication != nil {
-		dAtA[i] = 0xa2
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.RemoveApplication.Size()))
-		n21, err21 := m.RemoveApplication.MarshalTo(dAtA[i:])
-		if err21 != nil {
-			return 0, err21
+		{
+			size, err := m.RemoveApplication.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n21
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xa2
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_InviteToProgram) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_InviteToProgram) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.InviteToProgram != nil {
-		dAtA[i] = 0xaa
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.InviteToProgram.Size()))
-		n22, err22 := m.InviteToProgram.MarshalTo(dAtA[i:])
-		if err22 != nil {
-			return 0, err22
+		{
+			size, err := m.InviteToProgram.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n22
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xaa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_ValidataApplications) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_ValidataApplications) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.ValidataApplications != nil {
-		dAtA[i] = 0xb2
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ValidataApplications.Size()))
-		n23, err23 := m.ValidataApplications.MarshalTo(dAtA[i:])
-		if err23 != nil {
-			return 0, err23
+		{
+			size, err := m.ValidataApplications.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n23
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xb2
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_InstallMedia) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_InstallMedia) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.InstallMedia != nil {
-		dAtA[i] = 0xba
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.InstallMedia.Size()))
-		n24, err24 := m.InstallMedia.MarshalTo(dAtA[i:])
-		if err24 != nil {
-			return 0, err24
+		{
+			size, err := m.InstallMedia.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n24
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xba
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_RemoveMedia) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_RemoveMedia) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.RemoveMedia != nil {
-		dAtA[i] = 0xc2
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.RemoveMedia.Size()))
-		n25, err25 := m.RemoveMedia.MarshalTo(dAtA[i:])
-		if err25 != nil {
-			return 0, err25
+		{
+			size, err := m.RemoveMedia.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n25
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xc2
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_Settings) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_Settings) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.Settings != nil {
-		dAtA[i] = 0xca
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.Settings.Size()))
-		n26, err26 := m.Settings.MarshalTo(dAtA[i:])
-		if err26 != nil {
-			return 0, err26
+		{
+			size, err := m.Settings.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n26
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xca
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_ManagedApplicationConfiguration) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_ManagedApplicationConfiguration) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.ManagedApplicationConfiguration != nil {
-		dAtA[i] = 0xd2
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ManagedApplicationConfiguration.Size()))
-		n27, err27 := m.ManagedApplicationConfiguration.MarshalTo(dAtA[i:])
-		if err27 != nil {
-			return 0, err27
+		{
+			size, err := m.ManagedApplicationConfiguration.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n27
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xd2
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_ManagedApplicationAttributes) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_ManagedApplicationAttributes) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.ManagedApplicationAttributes != nil {
-		dAtA[i] = 0xda
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ManagedApplicationAttributes.Size()))
-		n28, err28 := m.ManagedApplicationAttributes.MarshalTo(dAtA[i:])
-		if err28 != nil {
-			return 0, err28
+		{
+			size, err := m.ManagedApplicationAttributes.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n28
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xda
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_ManagedApplicationFeedback) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_ManagedApplicationFeedback) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.ManagedApplicationFeedback != nil {
-		dAtA[i] = 0xe2
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ManagedApplicationFeedback.Size()))
-		n29, err29 := m.ManagedApplicationFeedback.MarshalTo(dAtA[i:])
-		if err29 != nil {
-			return 0, err29
+		{
+			size, err := m.ManagedApplicationFeedback.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n29
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xe2
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_SetFirmwarePassword) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_SetFirmwarePassword) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.SetFirmwarePassword != nil {
-		dAtA[i] = 0xea
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.SetFirmwarePassword.Size()))
-		n30, err30 := m.SetFirmwarePassword.MarshalTo(dAtA[i:])
-		if err30 != nil {
-			return 0, err30
+		{
+			size, err := m.SetFirmwarePassword.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n30
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xea
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_VerifyFirmwarePassword) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_VerifyFirmwarePassword) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.VerifyFirmwarePassword != nil {
-		dAtA[i] = 0xf2
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.VerifyFirmwarePassword.Size()))
-		n31, err31 := m.VerifyFirmwarePassword.MarshalTo(dAtA[i:])
-		if err31 != nil {
-			return 0, err31
+		{
+			size, err := m.VerifyFirmwarePassword.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n31
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xf2
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_SetAutoAdminPassword) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_SetAutoAdminPassword) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.SetAutoAdminPassword != nil {
-		dAtA[i] = 0xfa
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.SetAutoAdminPassword.Size()))
-		n32, err32 := m.SetAutoAdminPassword.MarshalTo(dAtA[i:])
-		if err32 != nil {
-			return 0, err32
+		{
+			size, err := m.SetAutoAdminPassword.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n32
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xfa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_ScheduleOsUpdate) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_ScheduleOsUpdate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.ScheduleOsUpdate != nil {
-		dAtA[i] = 0x82
-		i++
-		dAtA[i] = 0x2
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ScheduleOsUpdate.Size()))
-		n33, err33 := m.ScheduleOsUpdate.MarshalTo(dAtA[i:])
-		if err33 != nil {
-			return 0, err33
+		{
+			size, err := m.ScheduleOsUpdate.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n33
+		i--
+		dAtA[i] = 0x2
+		i--
+		dAtA[i] = 0x82
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_ScheduleOsUpdateScan) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_ScheduleOsUpdateScan) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.ScheduleOsUpdateScan != nil {
-		dAtA[i] = 0x8a
-		i++
-		dAtA[i] = 0x2
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ScheduleOsUpdateScan.Size()))
-		n34, err34 := m.ScheduleOsUpdateScan.MarshalTo(dAtA[i:])
-		if err34 != nil {
-			return 0, err34
+		{
+			size, err := m.ScheduleOsUpdateScan.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n34
+		i--
+		dAtA[i] = 0x2
+		i--
+		dAtA[i] = 0x8a
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_ActiveNsExtensions) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_ActiveNsExtensions) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.ActiveNsExtensions != nil {
-		dAtA[i] = 0x92
-		i++
-		dAtA[i] = 0x2
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ActiveNsExtensions.Size()))
-		n35, err35 := m.ActiveNsExtensions.MarshalTo(dAtA[i:])
-		if err35 != nil {
-			return 0, err35
+		{
+			size, err := m.ActiveNsExtensions.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n35
+		i--
+		dAtA[i] = 0x2
+		i--
+		dAtA[i] = 0x92
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_RotateFilevaultKey) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_RotateFilevaultKey) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.RotateFilevaultKey != nil {
-		dAtA[i] = 0x9a
-		i++
-		dAtA[i] = 0x2
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.RotateFilevaultKey.Size()))
-		n36, err36 := m.RotateFilevaultKey.MarshalTo(dAtA[i:])
-		if err36 != nil {
-			return 0, err36
+		{
+			size, err := m.RotateFilevaultKey.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n36
+		i--
+		dAtA[i] = 0x2
+		i--
+		dAtA[i] = 0x9a
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_InstallEnterpriseApplication) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_InstallEnterpriseApplication) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.InstallEnterpriseApplication != nil {
-		dAtA[i] = 0xa2
-		i++
-		dAtA[i] = 0x2
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.InstallEnterpriseApplication.Size()))
-		n37, err37 := m.InstallEnterpriseApplication.MarshalTo(dAtA[i:])
-		if err37 != nil {
-			return 0, err37
+		{
+			size, err := m.InstallEnterpriseApplication.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n37
+		i--
+		dAtA[i] = 0x2
+		i--
+		dAtA[i] = 0xa2
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_SetBootstrapToken) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_SetBootstrapToken) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.SetBootstrapToken != nil {
-		dAtA[i] = 0xaa
-		i++
-		dAtA[i] = 0x2
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.SetBootstrapToken.Size()))
-		n38, err38 := m.SetBootstrapToken.MarshalTo(dAtA[i:])
-		if err38 != nil {
-			return 0, err38
+		{
+			size, err := m.SetBootstrapToken.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n38
+		i--
+		dAtA[i] = 0x2
+		i--
+		dAtA[i] = 0xaa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_SetRecoveryLock) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_SetRecoveryLock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.SetRecoveryLock != nil {
-		dAtA[i] = 0xb2
-		i++
-		dAtA[i] = 0x2
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.SetRecoveryLock.Size()))
-		n39, err39 := m.SetRecoveryLock.MarshalTo(dAtA[i:])
-		if err39 != nil {
-			return 0, err39
+		{
+			size, err := m.SetRecoveryLock.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n39
+		i--
+		dAtA[i] = 0x2
+		i--
+		dAtA[i] = 0xb2
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *Command_VerifyRecoveryLock) MarshalTo(dAtA []byte) (int, error) {
-	i := 0
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Command_VerifyRecoveryLock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	if m.VerifyRecoveryLock != nil {
-		dAtA[i] = 0xba
-		i++
-		dAtA[i] = 0x2
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.VerifyRecoveryLock.Size()))
-		n40, err40 := m.VerifyRecoveryLock.MarshalTo(dAtA[i:])
-		if err40 != nil {
-			return 0, err40
+		{
+			size, err := m.VerifyRecoveryLock.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n40
+		i--
+		dAtA[i] = 0x2
+		i--
+		dAtA[i] = 0xba
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 func (m *InstallProfile) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6327,26 +5897,33 @@ func (m *InstallProfile) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *InstallProfile) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *InstallProfile) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Payload) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Payload)))
-		i += copy(dAtA[i:], m.Payload)
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if len(m.Payload) > 0 {
+		i -= len(m.Payload)
+		copy(dAtA[i:], m.Payload)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Payload)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *RemoveProfile) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6354,26 +5931,33 @@ func (m *RemoveProfile) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *RemoveProfile) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RemoveProfile) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Identifier) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifier)))
-		i += copy(dAtA[i:], m.Identifier)
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if len(m.Identifier) > 0 {
+		i -= len(m.Identifier)
+		copy(dAtA[i:], m.Identifier)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifier)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *InstallProvisioningProfile) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6381,26 +5965,33 @@ func (m *InstallProvisioningProfile) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *InstallProvisioningProfile) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *InstallProvisioningProfile) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.ProvisioningProfile) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.ProvisioningProfile)))
-		i += copy(dAtA[i:], m.ProvisioningProfile)
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if len(m.ProvisioningProfile) > 0 {
+		i -= len(m.ProvisioningProfile)
+		copy(dAtA[i:], m.ProvisioningProfile)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.ProvisioningProfile)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *RemoveProvisioningProfile) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6408,26 +5999,33 @@ func (m *RemoveProvisioningProfile) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *RemoveProvisioningProfile) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RemoveProvisioningProfile) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Uuid) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Uuid)))
-		i += copy(dAtA[i:], m.Uuid)
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if len(m.Uuid) > 0 {
+		i -= len(m.Uuid)
+		copy(dAtA[i:], m.Uuid)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Uuid)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *InstalledApplicationList) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6435,45 +6033,45 @@ func (m *InstalledApplicationList) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *InstalledApplicationList) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *InstalledApplicationList) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Identifiers) > 0 {
-		for _, s := range m.Identifiers {
-			dAtA[i] = 0xa
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
-		}
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.ManagedAppsOnly {
-		dAtA[i] = 0x10
-		i++
+		i--
 		if m.ManagedAppsOnly {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x10
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.Identifiers) > 0 {
+		for iNdEx := len(m.Identifiers) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Identifiers[iNdEx])
+			copy(dAtA[i:], m.Identifiers[iNdEx])
+			i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifiers[iNdEx])))
+			i--
+			dAtA[i] = 0xa
+		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *DeviceInformation) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6481,35 +6079,35 @@ func (m *DeviceInformation) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *DeviceInformation) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *DeviceInformation) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if len(m.Queries) > 0 {
-		for _, s := range m.Queries {
+		for iNdEx := len(m.Queries) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Queries[iNdEx])
+			copy(dAtA[i:], m.Queries[iNdEx])
+			i = encodeVarintMdm(dAtA, i, uint64(len(m.Queries[iNdEx])))
+			i--
 			dAtA[i] = 0xa
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
 		}
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *ClearPasscode) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6517,26 +6115,33 @@ func (m *ClearPasscode) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ClearPasscode) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ClearPasscode) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.UnlockToken) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.UnlockToken)))
-		i += copy(dAtA[i:], m.UnlockToken)
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if len(m.UnlockToken) > 0 {
+		i -= len(m.UnlockToken)
+		copy(dAtA[i:], m.UnlockToken)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.UnlockToken)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *DeviceLock) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6544,38 +6149,47 @@ func (m *DeviceLock) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *DeviceLock) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *DeviceLock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Pin) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Pin)))
-		i += copy(dAtA[i:], m.Pin)
-	}
-	if len(m.Message) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Message)))
-		i += copy(dAtA[i:], m.Message)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.PhoneNumber) > 0 {
-		dAtA[i] = 0x1a
-		i++
+		i -= len(m.PhoneNumber)
+		copy(dAtA[i:], m.PhoneNumber)
 		i = encodeVarintMdm(dAtA, i, uint64(len(m.PhoneNumber)))
-		i += copy(dAtA[i:], m.PhoneNumber)
+		i--
+		dAtA[i] = 0x1a
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.Message) > 0 {
+		i -= len(m.Message)
+		copy(dAtA[i:], m.Message)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Message)))
+		i--
+		dAtA[i] = 0x12
 	}
-	return i, nil
+	if len(m.Pin) > 0 {
+		i -= len(m.Pin)
+		copy(dAtA[i:], m.Pin)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Pin)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *EraseDevice) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6583,46 +6197,53 @@ func (m *EraseDevice) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *EraseDevice) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EraseDevice) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Pin) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Pin)))
-		i += copy(dAtA[i:], m.Pin)
-	}
-	if m.PreserveDataPlan {
-		dAtA[i] = 0x10
-		i++
-		if m.PreserveDataPlan {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i++
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.DisallowProximitySetup {
-		dAtA[i] = 0x18
-		i++
+		i--
 		if m.DisallowProximitySetup {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x18
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if m.PreserveDataPlan {
+		i--
+		if m.PreserveDataPlan {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x10
 	}
-	return i, nil
+	if len(m.Pin) > 0 {
+		i -= len(m.Pin)
+		copy(dAtA[i:], m.Pin)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Pin)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *RequestMirroring) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6630,44 +6251,54 @@ func (m *RequestMirroring) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *RequestMirroring) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RequestMirroring) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.DestinationName) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.DestinationName)))
-		i += copy(dAtA[i:], m.DestinationName)
-	}
-	if len(m.DestinationDeviceId) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.DestinationDeviceId)))
-		i += copy(dAtA[i:], m.DestinationDeviceId)
-	}
-	if len(m.ScanTime) > 0 {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.ScanTime)))
-		i += copy(dAtA[i:], m.ScanTime)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.Password) > 0 {
-		dAtA[i] = 0x22
-		i++
+		i -= len(m.Password)
+		copy(dAtA[i:], m.Password)
 		i = encodeVarintMdm(dAtA, i, uint64(len(m.Password)))
-		i += copy(dAtA[i:], m.Password)
+		i--
+		dAtA[i] = 0x22
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.ScanTime) > 0 {
+		i -= len(m.ScanTime)
+		copy(dAtA[i:], m.ScanTime)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.ScanTime)))
+		i--
+		dAtA[i] = 0x1a
 	}
-	return i, nil
+	if len(m.DestinationDeviceId) > 0 {
+		i -= len(m.DestinationDeviceId)
+		copy(dAtA[i:], m.DestinationDeviceId)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.DestinationDeviceId)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.DestinationName) > 0 {
+		i -= len(m.DestinationName)
+		copy(dAtA[i:], m.DestinationName)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.DestinationName)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *Restrictions) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6675,30 +6306,36 @@ func (m *Restrictions) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *Restrictions) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Restrictions) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if m.ProfileRestrictions {
-		dAtA[i] = 0x8
-		i++
+		i--
 		if m.ProfileRestrictions {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x8
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *UnlockUserAccount) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6706,26 +6343,33 @@ func (m *UnlockUserAccount) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *UnlockUserAccount) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *UnlockUserAccount) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Username) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Username)))
-		i += copy(dAtA[i:], m.Username)
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if len(m.Username) > 0 {
+		i -= len(m.Username)
+		copy(dAtA[i:], m.Username)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Username)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *DeleteUser) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6733,36 +6377,43 @@ func (m *DeleteUser) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *DeleteUser) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *DeleteUser) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Username) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Username)))
-		i += copy(dAtA[i:], m.Username)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.ForceDeletion {
-		dAtA[i] = 0x10
-		i++
+		i--
 		if m.ForceDeletion {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x10
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.Username) > 0 {
+		i -= len(m.Username)
+		copy(dAtA[i:], m.Username)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Username)))
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *EnableLostMode) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6770,38 +6421,47 @@ func (m *EnableLostMode) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *EnableLostMode) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *EnableLostMode) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Message) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Message)))
-		i += copy(dAtA[i:], m.Message)
-	}
-	if len(m.PhoneNumber) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.PhoneNumber)))
-		i += copy(dAtA[i:], m.PhoneNumber)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.Footnote) > 0 {
-		dAtA[i] = 0x1a
-		i++
+		i -= len(m.Footnote)
+		copy(dAtA[i:], m.Footnote)
 		i = encodeVarintMdm(dAtA, i, uint64(len(m.Footnote)))
-		i += copy(dAtA[i:], m.Footnote)
+		i--
+		dAtA[i] = 0x1a
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.PhoneNumber) > 0 {
+		i -= len(m.PhoneNumber)
+		copy(dAtA[i:], m.PhoneNumber)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.PhoneNumber)))
+		i--
+		dAtA[i] = 0x12
 	}
-	return i, nil
+	if len(m.Message) > 0 {
+		i -= len(m.Message)
+		copy(dAtA[i:], m.Message)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Message)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *InstallApplication) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6809,78 +6469,93 @@ func (m *InstallApplication) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *InstallApplication) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *InstallApplication) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.ItunesStoreId != 0 {
-		dAtA[i] = 0x8
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ItunesStoreId))
-	}
-	if len(m.Identifier) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifier)))
-		i += copy(dAtA[i:], m.Identifier)
-	}
-	if m.Options != nil {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.Options.Size()))
-		n41, err41 := m.Options.MarshalTo(dAtA[i:])
-		if err41 != nil {
-			return 0, err41
-		}
-		i += n41
-	}
-	if len(m.ManifestUrl) > 0 {
-		dAtA[i] = 0x22
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.ManifestUrl)))
-		i += copy(dAtA[i:], m.ManifestUrl)
-	}
-	if m.ManagementFlags != 0 {
-		dAtA[i] = 0x28
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ManagementFlags))
-	}
-	if m.Configuration != nil {
-		dAtA[i] = 0x32
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.Configuration.Size()))
-		n42, err42 := m.Configuration.MarshalTo(dAtA[i:])
-		if err42 != nil {
-			return 0, err42
-		}
-		i += n42
-	}
-	if m.Attributes != nil {
-		dAtA[i] = 0x3a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.Attributes.Size()))
-		n43, err43 := m.Attributes.MarshalTo(dAtA[i:])
-		if err43 != nil {
-			return 0, err43
-		}
-		i += n43
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.ChangeManagementState) > 0 {
-		dAtA[i] = 0x42
-		i++
+		i -= len(m.ChangeManagementState)
+		copy(dAtA[i:], m.ChangeManagementState)
 		i = encodeVarintMdm(dAtA, i, uint64(len(m.ChangeManagementState)))
-		i += copy(dAtA[i:], m.ChangeManagementState)
+		i--
+		dAtA[i] = 0x42
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if m.Attributes != nil {
+		{
+			size, err := m.Attributes.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x3a
 	}
-	return i, nil
+	if m.Configuration != nil {
+		{
+			size, err := m.Configuration.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x32
+	}
+	if m.ManagementFlags != 0 {
+		i = encodeVarintMdm(dAtA, i, uint64(m.ManagementFlags))
+		i--
+		dAtA[i] = 0x28
+	}
+	if len(m.ManifestUrl) > 0 {
+		i -= len(m.ManifestUrl)
+		copy(dAtA[i:], m.ManifestUrl)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.ManifestUrl)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if m.Options != nil {
+		{
+			size, err := m.Options.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	if len(m.Identifier) > 0 {
+		i -= len(m.Identifier)
+		copy(dAtA[i:], m.Identifier)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifier)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.ItunesStoreId != 0 {
+		i = encodeVarintMdm(dAtA, i, uint64(m.ItunesStoreId))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *InstallApplicationOptions) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6888,25 +6563,31 @@ func (m *InstallApplicationOptions) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *InstallApplicationOptions) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *InstallApplicationOptions) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.PurchaseMethod != 0 {
-		dAtA[i] = 0x8
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.PurchaseMethod))
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if m.PurchaseMethod != 0 {
+		i = encodeVarintMdm(dAtA, i, uint64(m.PurchaseMethod))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *InstallApplicationConfiguration) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6914,20 +6595,26 @@ func (m *InstallApplicationConfiguration) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *InstallApplicationConfiguration) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *InstallApplicationConfiguration) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *InstallApplicationAttributes) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6935,20 +6622,26 @@ func (m *InstallApplicationAttributes) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *InstallApplicationAttributes) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *InstallApplicationAttributes) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *InstallEnterpriseApplication) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -6956,54 +6649,64 @@ func (m *InstallEnterpriseApplication) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *InstallEnterpriseApplication) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *InstallEnterpriseApplication) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.Manifest != nil {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.Manifest.Size()))
-		n44, err44 := m.Manifest.MarshalTo(dAtA[i:])
-		if err44 != nil {
-			return 0, err44
-		}
-		i += n44
-	}
-	if len(m.ManifestUrl) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.ManifestUrl)))
-		i += copy(dAtA[i:], m.ManifestUrl)
-	}
-	if len(m.ManifestUrlPinningCerts) > 0 {
-		for _, b := range m.ManifestUrlPinningCerts {
-			dAtA[i] = 0x1a
-			i++
-			i = encodeVarintMdm(dAtA, i, uint64(len(b)))
-			i += copy(dAtA[i:], b)
-		}
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.PinningRevocationCheckRequired {
-		dAtA[i] = 0x20
-		i++
+		i--
 		if m.PinningRevocationCheckRequired {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x20
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.ManifestUrlPinningCerts) > 0 {
+		for iNdEx := len(m.ManifestUrlPinningCerts) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.ManifestUrlPinningCerts[iNdEx])
+			copy(dAtA[i:], m.ManifestUrlPinningCerts[iNdEx])
+			i = encodeVarintMdm(dAtA, i, uint64(len(m.ManifestUrlPinningCerts[iNdEx])))
+			i--
+			dAtA[i] = 0x1a
+		}
 	}
-	return i, nil
+	if len(m.ManifestUrl) > 0 {
+		i -= len(m.ManifestUrl)
+		copy(dAtA[i:], m.ManifestUrl)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.ManifestUrl)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.Manifest != nil {
+		{
+			size, err := m.Manifest.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *Manifest) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7011,32 +6714,40 @@ func (m *Manifest) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *Manifest) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Manifest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if len(m.ManifestItems) > 0 {
-		for _, msg := range m.ManifestItems {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintMdm(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.ManifestItems) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ManifestItems[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintMdm(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *ManifestItem) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7044,42 +6755,52 @@ func (m *ManifestItem) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ManifestItem) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ManifestItem) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Assets) > 0 {
-		for _, msg := range m.Assets {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintMdm(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
+	if m.Metadata != nil {
+		{
+			size, err := m.Metadata.MarshalToSizedBuffer(dAtA[:i])
 			if err != nil {
 				return 0, err
 			}
-			i += n
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-	}
-	if m.Metadata != nil {
+		i--
 		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.Metadata.Size()))
-		n45, err45 := m.Metadata.MarshalTo(dAtA[i:])
-		if err45 != nil {
-			return 0, err45
+	}
+	if len(m.Assets) > 0 {
+		for iNdEx := len(m.Assets) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Assets[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintMdm(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0xa
 		}
-		i += n45
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *Asset) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7087,72 +6808,68 @@ func (m *Asset) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *Asset) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Asset) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Kind) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Kind)))
-		i += copy(dAtA[i:], m.Kind)
-	}
-	if m.Md5Size != 0 {
-		dAtA[i] = 0x10
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.Md5Size))
-	}
-	if len(m.Md5S) > 0 {
-		for _, s := range m.Md5S {
-			dAtA[i] = 0x1a
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
-		}
-	}
-	if len(m.Url) > 0 {
-		dAtA[i] = 0x22
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Url)))
-		i += copy(dAtA[i:], m.Url)
-	}
-	if m.Sha256Size != 0 {
-		dAtA[i] = 0x28
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.Sha256Size))
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.Sha256S) > 0 {
-		for _, s := range m.Sha256S {
+		for iNdEx := len(m.Sha256S) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Sha256S[iNdEx])
+			copy(dAtA[i:], m.Sha256S[iNdEx])
+			i = encodeVarintMdm(dAtA, i, uint64(len(m.Sha256S[iNdEx])))
+			i--
 			dAtA[i] = 0x32
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
 		}
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if m.Sha256Size != 0 {
+		i = encodeVarintMdm(dAtA, i, uint64(m.Sha256Size))
+		i--
+		dAtA[i] = 0x28
 	}
-	return i, nil
+	if len(m.Url) > 0 {
+		i -= len(m.Url)
+		copy(dAtA[i:], m.Url)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Url)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.Md5S) > 0 {
+		for iNdEx := len(m.Md5S) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Md5S[iNdEx])
+			copy(dAtA[i:], m.Md5S[iNdEx])
+			i = encodeVarintMdm(dAtA, i, uint64(len(m.Md5S[iNdEx])))
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if m.Md5Size != 0 {
+		i = encodeVarintMdm(dAtA, i, uint64(m.Md5Size))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.Kind) > 0 {
+		i -= len(m.Kind)
+		copy(dAtA[i:], m.Kind)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Kind)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *Metadata) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7160,67 +6877,80 @@ func (m *Metadata) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *Metadata) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Metadata) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.BundleIdentifier) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.BundleIdentifier)))
-		i += copy(dAtA[i:], m.BundleIdentifier)
-	}
-	if len(m.BundleVersion) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.BundleVersion)))
-		i += copy(dAtA[i:], m.BundleVersion)
-	}
-	if len(m.Items) > 0 {
-		for _, msg := range m.Items {
-			dAtA[i] = 0x1a
-			i++
-			i = encodeVarintMdm(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
-	if len(m.Kind) > 0 {
-		dAtA[i] = 0x22
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Kind)))
-		i += copy(dAtA[i:], m.Kind)
-	}
-	if len(m.Subtitle) > 0 {
-		dAtA[i] = 0x2a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Subtitle)))
-		i += copy(dAtA[i:], m.Subtitle)
-	}
-	if len(m.Title) > 0 {
-		dAtA[i] = 0x32
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Title)))
-		i += copy(dAtA[i:], m.Title)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.SizeInBytes != 0 {
-		dAtA[i] = 0x38
-		i++
 		i = encodeVarintMdm(dAtA, i, uint64(m.SizeInBytes))
+		i--
+		dAtA[i] = 0x38
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.Title) > 0 {
+		i -= len(m.Title)
+		copy(dAtA[i:], m.Title)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Title)))
+		i--
+		dAtA[i] = 0x32
 	}
-	return i, nil
+	if len(m.Subtitle) > 0 {
+		i -= len(m.Subtitle)
+		copy(dAtA[i:], m.Subtitle)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Subtitle)))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.Kind) > 0 {
+		i -= len(m.Kind)
+		copy(dAtA[i:], m.Kind)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Kind)))
+		i--
+		dAtA[i] = 0x22
+	}
+	if len(m.Items) > 0 {
+		for iNdEx := len(m.Items) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Items[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintMdm(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.BundleVersion) > 0 {
+		i -= len(m.BundleVersion)
+		copy(dAtA[i:], m.BundleVersion)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.BundleVersion)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.BundleIdentifier) > 0 {
+		i -= len(m.BundleIdentifier)
+		copy(dAtA[i:], m.BundleIdentifier)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.BundleIdentifier)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *BundleInfo) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7228,32 +6958,40 @@ func (m *BundleInfo) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *BundleInfo) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *BundleInfo) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.BundleIdentifier) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.BundleIdentifier)))
-		i += copy(dAtA[i:], m.BundleIdentifier)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.BundleVersion) > 0 {
-		dAtA[i] = 0x12
-		i++
+		i -= len(m.BundleVersion)
+		copy(dAtA[i:], m.BundleVersion)
 		i = encodeVarintMdm(dAtA, i, uint64(len(m.BundleVersion)))
-		i += copy(dAtA[i:], m.BundleVersion)
+		i--
+		dAtA[i] = 0x12
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.BundleIdentifier) > 0 {
+		i -= len(m.BundleIdentifier)
+		copy(dAtA[i:], m.BundleIdentifier)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.BundleIdentifier)))
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *ApplyRedemptionCode) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7261,32 +6999,40 @@ func (m *ApplyRedemptionCode) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ApplyRedemptionCode) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ApplyRedemptionCode) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Identifier) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifier)))
-		i += copy(dAtA[i:], m.Identifier)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.RedemptionCode) > 0 {
-		dAtA[i] = 0x12
-		i++
+		i -= len(m.RedemptionCode)
+		copy(dAtA[i:], m.RedemptionCode)
 		i = encodeVarintMdm(dAtA, i, uint64(len(m.RedemptionCode)))
-		i += copy(dAtA[i:], m.RedemptionCode)
+		i--
+		dAtA[i] = 0x12
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.Identifier) > 0 {
+		i -= len(m.Identifier)
+		copy(dAtA[i:], m.Identifier)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifier)))
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *ManagedApplicationList) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7294,35 +7040,35 @@ func (m *ManagedApplicationList) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ManagedApplicationList) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ManagedApplicationList) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if len(m.Identifiers) > 0 {
-		for _, s := range m.Identifiers {
+		for iNdEx := len(m.Identifiers) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Identifiers[iNdEx])
+			copy(dAtA[i:], m.Identifiers[iNdEx])
+			i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifiers[iNdEx])))
+			i--
 			dAtA[i] = 0xa
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
 		}
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *RemoveApplication) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7330,26 +7076,33 @@ func (m *RemoveApplication) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *RemoveApplication) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RemoveApplication) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Identifier) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifier)))
-		i += copy(dAtA[i:], m.Identifier)
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if len(m.Identifier) > 0 {
+		i -= len(m.Identifier)
+		copy(dAtA[i:], m.Identifier)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifier)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *InviteToProgram) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7357,32 +7110,40 @@ func (m *InviteToProgram) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *InviteToProgram) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *InviteToProgram) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.ProgramId) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.ProgramId)))
-		i += copy(dAtA[i:], m.ProgramId)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.InvitationUrl) > 0 {
-		dAtA[i] = 0x12
-		i++
+		i -= len(m.InvitationUrl)
+		copy(dAtA[i:], m.InvitationUrl)
 		i = encodeVarintMdm(dAtA, i, uint64(len(m.InvitationUrl)))
-		i += copy(dAtA[i:], m.InvitationUrl)
+		i--
+		dAtA[i] = 0x12
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.ProgramId) > 0 {
+		i -= len(m.ProgramId)
+		copy(dAtA[i:], m.ProgramId)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.ProgramId)))
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *ValidateApplications) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7390,35 +7151,35 @@ func (m *ValidateApplications) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ValidateApplications) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ValidateApplications) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if len(m.Identifiers) > 0 {
-		for _, s := range m.Identifiers {
+		for iNdEx := len(m.Identifiers) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Identifiers[iNdEx])
+			copy(dAtA[i:], m.Identifiers[iNdEx])
+			i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifiers[iNdEx])))
+			i--
 			dAtA[i] = 0xa
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
 		}
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *AccountConfiguration) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7426,84 +7187,94 @@ func (m *AccountConfiguration) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *AccountConfiguration) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AccountConfiguration) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.SkipPrimarySetupAccountCreation {
-		dAtA[i] = 0x8
-		i++
-		if m.SkipPrimarySetupAccountCreation {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i++
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	if m.SetPrimarySetupAccountAsRegularUser {
-		dAtA[i] = 0x10
-		i++
-		if m.SetPrimarySetupAccountAsRegularUser {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i++
+	if len(m.PrimaryAccountUserName) > 0 {
+		i -= len(m.PrimaryAccountUserName)
+		copy(dAtA[i:], m.PrimaryAccountUserName)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.PrimaryAccountUserName)))
+		i--
+		dAtA[i] = 0x3a
 	}
-	if len(m.AutoSetupAdminAccounts) > 0 {
-		for _, msg := range m.AutoSetupAdminAccounts {
-			dAtA[i] = 0x1a
-			i++
-			i = encodeVarintMdm(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
-			}
-			i += n
-		}
-	}
-	if m.DontAutoPopulatePrimaryAccountInfo {
-		dAtA[i] = 0x20
-		i++
-		if m.DontAutoPopulatePrimaryAccountInfo {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i++
+	if len(m.PrimaryAccountFullName) > 0 {
+		i -= len(m.PrimaryAccountFullName)
+		copy(dAtA[i:], m.PrimaryAccountFullName)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.PrimaryAccountFullName)))
+		i--
+		dAtA[i] = 0x32
 	}
 	if m.LockPrimaryAccountInfo {
-		dAtA[i] = 0x28
-		i++
+		i--
 		if m.LockPrimaryAccountInfo {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x28
 	}
-	if len(m.PrimaryAccountFullName) > 0 {
-		dAtA[i] = 0x32
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.PrimaryAccountFullName)))
-		i += copy(dAtA[i:], m.PrimaryAccountFullName)
+	if m.DontAutoPopulatePrimaryAccountInfo {
+		i--
+		if m.DontAutoPopulatePrimaryAccountInfo {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x20
 	}
-	if len(m.PrimaryAccountUserName) > 0 {
-		dAtA[i] = 0x3a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.PrimaryAccountUserName)))
-		i += copy(dAtA[i:], m.PrimaryAccountUserName)
+	if len(m.AutoSetupAdminAccounts) > 0 {
+		for iNdEx := len(m.AutoSetupAdminAccounts) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.AutoSetupAdminAccounts[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintMdm(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if m.SetPrimarySetupAccountAsRegularUser {
+		i--
+		if m.SetPrimarySetupAccountAsRegularUser {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x10
 	}
-	return i, nil
+	if m.SkipPrimarySetupAccountCreation {
+		i--
+		if m.SkipPrimarySetupAccountCreation {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *AutoSetupAdminAccounts) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7511,48 +7282,57 @@ func (m *AutoSetupAdminAccounts) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *AutoSetupAdminAccounts) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AutoSetupAdminAccounts) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.ShortName) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.ShortName)))
-		i += copy(dAtA[i:], m.ShortName)
-	}
-	if len(m.FullName) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.FullName)))
-		i += copy(dAtA[i:], m.FullName)
-	}
-	if len(m.PasswordHash) > 0 {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.PasswordHash)))
-		i += copy(dAtA[i:], m.PasswordHash)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.Hidden {
-		dAtA[i] = 0x20
-		i++
+		i--
 		if m.Hidden {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x20
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.PasswordHash) > 0 {
+		i -= len(m.PasswordHash)
+		copy(dAtA[i:], m.PasswordHash)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.PasswordHash)))
+		i--
+		dAtA[i] = 0x1a
 	}
-	return i, nil
+	if len(m.FullName) > 0 {
+		i -= len(m.FullName)
+		copy(dAtA[i:], m.FullName)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.FullName)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.ShortName) > 0 {
+		i -= len(m.ShortName)
+		copy(dAtA[i:], m.ShortName)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.ShortName)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *InstallMedia) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7560,37 +7340,45 @@ func (m *InstallMedia) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *InstallMedia) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *InstallMedia) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.ItunesStoreId != 0 {
-		dAtA[i] = 0x8
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ItunesStoreId))
-	}
-	if len(m.MediaUrl) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.MediaUrl)))
-		i += copy(dAtA[i:], m.MediaUrl)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.MediaType) > 0 {
-		dAtA[i] = 0x1a
-		i++
+		i -= len(m.MediaType)
+		copy(dAtA[i:], m.MediaType)
 		i = encodeVarintMdm(dAtA, i, uint64(len(m.MediaType)))
-		i += copy(dAtA[i:], m.MediaType)
+		i--
+		dAtA[i] = 0x1a
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.MediaUrl) > 0 {
+		i -= len(m.MediaUrl)
+		copy(dAtA[i:], m.MediaUrl)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.MediaUrl)))
+		i--
+		dAtA[i] = 0x12
 	}
-	return i, nil
+	if m.ItunesStoreId != 0 {
+		i = encodeVarintMdm(dAtA, i, uint64(m.ItunesStoreId))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *RemoveMedia) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7598,37 +7386,45 @@ func (m *RemoveMedia) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *RemoveMedia) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RemoveMedia) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.MediaType) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.MediaType)))
-		i += copy(dAtA[i:], m.MediaType)
-	}
-	if m.ItunesStoreId != 0 {
-		dAtA[i] = 0x10
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ItunesStoreId))
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.PersistentId) > 0 {
-		dAtA[i] = 0x1a
-		i++
+		i -= len(m.PersistentId)
+		copy(dAtA[i:], m.PersistentId)
 		i = encodeVarintMdm(dAtA, i, uint64(len(m.PersistentId)))
-		i += copy(dAtA[i:], m.PersistentId)
+		i--
+		dAtA[i] = 0x1a
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if m.ItunesStoreId != 0 {
+		i = encodeVarintMdm(dAtA, i, uint64(m.ItunesStoreId))
+		i--
+		dAtA[i] = 0x10
 	}
-	return i, nil
+	if len(m.MediaType) > 0 {
+		i -= len(m.MediaType)
+		copy(dAtA[i:], m.MediaType)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.MediaType)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *Settings) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7636,32 +7432,40 @@ func (m *Settings) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *Settings) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Settings) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if len(m.Settings) > 0 {
-		for _, msg := range m.Settings {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintMdm(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Settings) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Settings[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintMdm(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *Setting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7669,178 +7473,215 @@ func (m *Setting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *Setting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Setting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Item) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Item)))
-		i += copy(dAtA[i:], m.Item)
-	}
-	if m.DeviceName != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.DeviceName.Size()))
-		n46, err46 := m.DeviceName.MarshalTo(dAtA[i:])
-		if err46 != nil {
-			return 0, err46
-		}
-		i += n46
-	}
-	if m.Hostname != nil {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.Hostname.Size()))
-		n47, err47 := m.Hostname.MarshalTo(dAtA[i:])
-		if err47 != nil {
-			return 0, err47
-		}
-		i += n47
-	}
-	if m.VoiceRoaming != nil {
-		dAtA[i] = 0x22
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.VoiceRoaming.Size()))
-		n48, err48 := m.VoiceRoaming.MarshalTo(dAtA[i:])
-		if err48 != nil {
-			return 0, err48
-		}
-		i += n48
-	}
-	if m.PersonalHotspot != nil {
-		dAtA[i] = 0x2a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.PersonalHotspot.Size()))
-		n49, err49 := m.PersonalHotspot.MarshalTo(dAtA[i:])
-		if err49 != nil {
-			return 0, err49
-		}
-		i += n49
-	}
-	if m.Wallpaper != nil {
-		dAtA[i] = 0x32
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.Wallpaper.Size()))
-		n50, err50 := m.Wallpaper.MarshalTo(dAtA[i:])
-		if err50 != nil {
-			return 0, err50
-		}
-		i += n50
-	}
-	if m.DataRoaming != nil {
-		dAtA[i] = 0x3a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.DataRoaming.Size()))
-		n51, err51 := m.DataRoaming.MarshalTo(dAtA[i:])
-		if err51 != nil {
-			return 0, err51
-		}
-		i += n51
-	}
-	if m.Bluetooth != nil {
-		dAtA[i] = 0x42
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.Bluetooth.Size()))
-		n52, err52 := m.Bluetooth.MarshalTo(dAtA[i:])
-		if err52 != nil {
-			return 0, err52
-		}
-		i += n52
-	}
-	if m.ApplicationAttributes != nil {
-		dAtA[i] = 0x4a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ApplicationAttributes.Size()))
-		n53, err53 := m.ApplicationAttributes.MarshalTo(dAtA[i:])
-		if err53 != nil {
-			return 0, err53
-		}
-		i += n53
-	}
-	if m.MdmOptions != nil {
-		dAtA[i] = 0x52
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.MdmOptions.Size()))
-		n54, err54 := m.MdmOptions.MarshalTo(dAtA[i:])
-		if err54 != nil {
-			return 0, err54
-		}
-		i += n54
-	}
-	if m.PasscodeLockGracePeriod != nil {
-		dAtA[i] = 0x5a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.PasscodeLockGracePeriod.Size()))
-		n55, err55 := m.PasscodeLockGracePeriod.MarshalTo(dAtA[i:])
-		if err55 != nil {
-			return 0, err55
-		}
-		i += n55
-	}
-	if m.MaximumResidentUsers != nil {
-		dAtA[i] = 0x62
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.MaximumResidentUsers.Size()))
-		n56, err56 := m.MaximumResidentUsers.MarshalTo(dAtA[i:])
-		if err56 != nil {
-			return 0, err56
-		}
-		i += n56
-	}
-	if m.DiagnosticSubmission != nil {
-		dAtA[i] = 0x6a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.DiagnosticSubmission.Size()))
-		n57, err57 := m.DiagnosticSubmission.MarshalTo(dAtA[i:])
-		if err57 != nil {
-			return 0, err57
-		}
-		i += n57
-	}
-	if m.AppAnalytics != nil {
-		dAtA[i] = 0x72
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.AppAnalytics.Size()))
-		n58, err58 := m.AppAnalytics.MarshalTo(dAtA[i:])
-		if err58 != nil {
-			return 0, err58
-		}
-		i += n58
-	}
-	if m.ApplicationConfiguration != nil {
-		dAtA[i] = 0x7a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ApplicationConfiguration.Size()))
-		n59, err59 := m.ApplicationConfiguration.MarshalTo(dAtA[i:])
-		if err59 != nil {
-			return 0, err59
-		}
-		i += n59
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.TimeZone != nil {
-		dAtA[i] = 0x82
-		i++
-		dAtA[i] = 0x1
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.TimeZone.Size()))
-		n60, err60 := m.TimeZone.MarshalTo(dAtA[i:])
-		if err60 != nil {
-			return 0, err60
+		{
+			size, err := m.TimeZone.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n60
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x82
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if m.ApplicationConfiguration != nil {
+		{
+			size, err := m.ApplicationConfiguration.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x7a
 	}
-	return i, nil
+	if m.AppAnalytics != nil {
+		{
+			size, err := m.AppAnalytics.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x72
+	}
+	if m.DiagnosticSubmission != nil {
+		{
+			size, err := m.DiagnosticSubmission.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x6a
+	}
+	if m.MaximumResidentUsers != nil {
+		{
+			size, err := m.MaximumResidentUsers.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x62
+	}
+	if m.PasscodeLockGracePeriod != nil {
+		{
+			size, err := m.PasscodeLockGracePeriod.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x5a
+	}
+	if m.MdmOptions != nil {
+		{
+			size, err := m.MdmOptions.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x52
+	}
+	if m.ApplicationAttributes != nil {
+		{
+			size, err := m.ApplicationAttributes.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x4a
+	}
+	if m.Bluetooth != nil {
+		{
+			size, err := m.Bluetooth.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x42
+	}
+	if m.DataRoaming != nil {
+		{
+			size, err := m.DataRoaming.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x3a
+	}
+	if m.Wallpaper != nil {
+		{
+			size, err := m.Wallpaper.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x32
+	}
+	if m.PersonalHotspot != nil {
+		{
+			size, err := m.PersonalHotspot.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x2a
+	}
+	if m.VoiceRoaming != nil {
+		{
+			size, err := m.VoiceRoaming.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x22
+	}
+	if m.Hostname != nil {
+		{
+			size, err := m.Hostname.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.DeviceName != nil {
+		{
+			size, err := m.DeviceName.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.Item) > 0 {
+		i -= len(m.Item)
+		copy(dAtA[i:], m.Item)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Item)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *VoiceRoamingSetting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7848,30 +7689,36 @@ func (m *VoiceRoamingSetting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *VoiceRoamingSetting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *VoiceRoamingSetting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if m.Enabled {
-		dAtA[i] = 0x8
-		i++
+		i--
 		if m.Enabled {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x8
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *PersonalHotspotSetting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7879,30 +7726,36 @@ func (m *PersonalHotspotSetting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *PersonalHotspotSetting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PersonalHotspotSetting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if m.Enabled {
-		dAtA[i] = 0x8
-		i++
+		i--
 		if m.Enabled {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x8
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *WallpaperSetting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7910,31 +7763,38 @@ func (m *WallpaperSetting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *WallpaperSetting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *WallpaperSetting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Image) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Image)))
-		i += copy(dAtA[i:], m.Image)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.Where != 0 {
-		dAtA[i] = 0x10
-		i++
 		i = encodeVarintMdm(dAtA, i, uint64(m.Where))
+		i--
+		dAtA[i] = 0x10
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.Image) > 0 {
+		i -= len(m.Image)
+		copy(dAtA[i:], m.Image)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Image)))
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *DataRoamingSetting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7942,30 +7802,36 @@ func (m *DataRoamingSetting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *DataRoamingSetting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *DataRoamingSetting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if m.Enabled {
-		dAtA[i] = 0x8
-		i++
+		i--
 		if m.Enabled {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x8
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *BluetoothSetting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -7973,30 +7839,36 @@ func (m *BluetoothSetting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *BluetoothSetting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *BluetoothSetting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if m.Enabled {
-		dAtA[i] = 0x8
-		i++
+		i--
 		if m.Enabled {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x8
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *ApplicationAttributesSetting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8004,36 +7876,45 @@ func (m *ApplicationAttributesSetting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ApplicationAttributesSetting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ApplicationAttributesSetting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Identifier) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifier)))
-		i += copy(dAtA[i:], m.Identifier)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.ApplicationAttributes != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.ApplicationAttributes.Size()))
-		n61, err61 := m.ApplicationAttributes.MarshalTo(dAtA[i:])
-		if err61 != nil {
-			return 0, err61
+		{
+			size, err := m.ApplicationAttributes.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
 		}
-		i += n61
+		i--
+		dAtA[i] = 0x12
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.Identifier) > 0 {
+		i -= len(m.Identifier)
+		copy(dAtA[i:], m.Identifier)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifier)))
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *ApplicationConfigurationSetting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8041,32 +7922,40 @@ func (m *ApplicationConfigurationSetting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ApplicationConfigurationSetting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ApplicationConfigurationSetting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Identifier) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifier)))
-		i += copy(dAtA[i:], m.Identifier)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.ConfigurationDictionaryData) > 0 {
-		dAtA[i] = 0x12
-		i++
+		i -= len(m.ConfigurationDictionaryData)
+		copy(dAtA[i:], m.ConfigurationDictionaryData)
 		i = encodeVarintMdm(dAtA, i, uint64(len(m.ConfigurationDictionaryData)))
-		i += copy(dAtA[i:], m.ConfigurationDictionaryData)
+		i--
+		dAtA[i] = 0x12
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.Identifier) > 0 {
+		i -= len(m.Identifier)
+		copy(dAtA[i:], m.Identifier)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifier)))
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *ApplicationAttributes) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8074,26 +7963,33 @@ func (m *ApplicationAttributes) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ApplicationAttributes) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ApplicationAttributes) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.VpnUuid) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.VpnUuid)))
-		i += copy(dAtA[i:], m.VpnUuid)
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if len(m.VpnUuid) > 0 {
+		i -= len(m.VpnUuid)
+		copy(dAtA[i:], m.VpnUuid)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.VpnUuid)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *DeviceNameSetting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8101,26 +7997,33 @@ func (m *DeviceNameSetting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *DeviceNameSetting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *DeviceNameSetting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.DeviceName) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.DeviceName)))
-		i += copy(dAtA[i:], m.DeviceName)
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if len(m.DeviceName) > 0 {
+		i -= len(m.DeviceName)
+		copy(dAtA[i:], m.DeviceName)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.DeviceName)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *TimeZoneSetting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8128,26 +8031,33 @@ func (m *TimeZoneSetting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *TimeZoneSetting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *TimeZoneSetting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.TimeZone) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.TimeZone)))
-		i += copy(dAtA[i:], m.TimeZone)
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if len(m.TimeZone) > 0 {
+		i -= len(m.TimeZone)
+		copy(dAtA[i:], m.TimeZone)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.TimeZone)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *HostnameSetting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8155,26 +8065,33 @@ func (m *HostnameSetting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *HostnameSetting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *HostnameSetting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Hostname) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Hostname)))
-		i += copy(dAtA[i:], m.Hostname)
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if len(m.Hostname) > 0 {
+		i -= len(m.Hostname)
+		copy(dAtA[i:], m.Hostname)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Hostname)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *MDMOptionsSetting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8182,30 +8099,38 @@ func (m *MDMOptionsSetting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *MDMOptionsSetting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MDMOptionsSetting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.MdmOptions != nil {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.MdmOptions.Size()))
-		n62, err62 := m.MdmOptions.MarshalTo(dAtA[i:])
-		if err62 != nil {
-			return 0, err62
-		}
-		i += n62
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if m.MdmOptions != nil {
+		{
+			size, err := m.MdmOptions.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *MDMOptions) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8213,30 +8138,36 @@ func (m *MDMOptions) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *MDMOptions) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MDMOptions) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if m.ActivationLockAllowedWhileSupervised {
-		dAtA[i] = 0x8
-		i++
+		i--
 		if m.ActivationLockAllowedWhileSupervised {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x8
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *PasscodeLockGracePeriodSetting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8244,25 +8175,31 @@ func (m *PasscodeLockGracePeriodSetting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *PasscodeLockGracePeriodSetting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *PasscodeLockGracePeriodSetting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.PasscodeLockGracePeriod != 0 {
-		dAtA[i] = 0x8
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.PasscodeLockGracePeriod))
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if m.PasscodeLockGracePeriod != 0 {
+		i = encodeVarintMdm(dAtA, i, uint64(m.PasscodeLockGracePeriod))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *MaximumResidentUsersSetting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8270,25 +8207,31 @@ func (m *MaximumResidentUsersSetting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *MaximumResidentUsersSetting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *MaximumResidentUsersSetting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if m.MaximumResidentUsers != 0 {
-		dAtA[i] = 0x8
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.MaximumResidentUsers))
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if m.MaximumResidentUsers != 0 {
+		i = encodeVarintMdm(dAtA, i, uint64(m.MaximumResidentUsers))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *DiagnosticSubmissionSetting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8296,30 +8239,36 @@ func (m *DiagnosticSubmissionSetting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *DiagnosticSubmissionSetting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *DiagnosticSubmissionSetting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if m.Enabled {
-		dAtA[i] = 0x8
-		i++
+		i--
 		if m.Enabled {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x8
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *AppAnalyticsSetting) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8327,30 +8276,36 @@ func (m *AppAnalyticsSetting) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *AppAnalyticsSetting) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *AppAnalyticsSetting) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if m.Enabled {
-		dAtA[i] = 0x8
-		i++
+		i--
 		if m.Enabled {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x8
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *ManagedApplicationConfiguration) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8358,35 +8313,35 @@ func (m *ManagedApplicationConfiguration) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ManagedApplicationConfiguration) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ManagedApplicationConfiguration) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if len(m.Identifiers) > 0 {
-		for _, s := range m.Identifiers {
+		for iNdEx := len(m.Identifiers) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Identifiers[iNdEx])
+			copy(dAtA[i:], m.Identifiers[iNdEx])
+			i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifiers[iNdEx])))
+			i--
 			dAtA[i] = 0xa
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
 		}
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *ManagedApplicationAttributes) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8394,35 +8349,35 @@ func (m *ManagedApplicationAttributes) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ManagedApplicationAttributes) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ManagedApplicationAttributes) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if len(m.Identifiers) > 0 {
-		for _, s := range m.Identifiers {
+		for iNdEx := len(m.Identifiers) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Identifiers[iNdEx])
+			copy(dAtA[i:], m.Identifiers[iNdEx])
+			i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifiers[iNdEx])))
+			i--
 			dAtA[i] = 0xa
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
 		}
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *ManagedApplicationFeedback) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8430,45 +8385,45 @@ func (m *ManagedApplicationFeedback) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ManagedApplicationFeedback) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ManagedApplicationFeedback) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Identifiers) > 0 {
-		for _, s := range m.Identifiers {
-			dAtA[i] = 0xa
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
-		}
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.DeleteFeedback {
-		dAtA[i] = 0x10
-		i++
+		i--
 		if m.DeleteFeedback {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x10
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.Identifiers) > 0 {
+		for iNdEx := len(m.Identifiers) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Identifiers[iNdEx])
+			copy(dAtA[i:], m.Identifiers[iNdEx])
+			i = encodeVarintMdm(dAtA, i, uint64(len(m.Identifiers[iNdEx])))
+			i--
+			dAtA[i] = 0xa
+		}
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *SetFirmwarePassword) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8476,52 +8431,60 @@ func (m *SetFirmwarePassword) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *SetFirmwarePassword) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SetFirmwarePassword) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.CurrentPassword) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.CurrentPassword)))
-		i += copy(dAtA[i:], m.CurrentPassword)
-	}
-	if len(m.NewPassword) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.NewPassword)))
-		i += copy(dAtA[i:], m.NewPassword)
-	}
-	if m.AllowOroms {
-		dAtA[i] = 0x18
-		i++
-		if m.AllowOroms {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i++
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.RequestRequiresNetworkTether {
-		dAtA[i] = 0x20
-		i++
+		i--
 		if m.RequestRequiresNetworkTether {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x20
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if m.AllowOroms {
+		i--
+		if m.AllowOroms {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x18
 	}
-	return i, nil
+	if len(m.NewPassword) > 0 {
+		i -= len(m.NewPassword)
+		copy(dAtA[i:], m.NewPassword)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.NewPassword)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.CurrentPassword) > 0 {
+		i -= len(m.CurrentPassword)
+		copy(dAtA[i:], m.CurrentPassword)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.CurrentPassword)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *VerifyFirmwarePassword) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8529,26 +8492,33 @@ func (m *VerifyFirmwarePassword) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *VerifyFirmwarePassword) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *VerifyFirmwarePassword) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Password) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Password)))
-		i += copy(dAtA[i:], m.Password)
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if len(m.Password) > 0 {
+		i -= len(m.Password)
+		copy(dAtA[i:], m.Password)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Password)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *SetRecoveryLock) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8556,52 +8526,60 @@ func (m *SetRecoveryLock) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *SetRecoveryLock) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SetRecoveryLock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.CurrentPassword) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.CurrentPassword)))
-		i += copy(dAtA[i:], m.CurrentPassword)
-	}
-	if len(m.NewPassword) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.NewPassword)))
-		i += copy(dAtA[i:], m.NewPassword)
-	}
-	if m.AllowOroms {
-		dAtA[i] = 0x18
-		i++
-		if m.AllowOroms {
-			dAtA[i] = 1
-		} else {
-			dAtA[i] = 0
-		}
-		i++
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.RequestRequiresNetworkTether {
-		dAtA[i] = 0x20
-		i++
+		i--
 		if m.RequestRequiresNetworkTether {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x20
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if m.AllowOroms {
+		i--
+		if m.AllowOroms {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x18
 	}
-	return i, nil
+	if len(m.NewPassword) > 0 {
+		i -= len(m.NewPassword)
+		copy(dAtA[i:], m.NewPassword)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.NewPassword)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.CurrentPassword) > 0 {
+		i -= len(m.CurrentPassword)
+		copy(dAtA[i:], m.CurrentPassword)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.CurrentPassword)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *VerifyRecoveryLock) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8609,26 +8587,33 @@ func (m *VerifyRecoveryLock) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *VerifyRecoveryLock) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *VerifyRecoveryLock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Password) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Password)))
-		i += copy(dAtA[i:], m.Password)
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if len(m.Password) > 0 {
+		i -= len(m.Password)
+		copy(dAtA[i:], m.Password)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Password)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *SetAutoAdminPassword) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8636,32 +8621,40 @@ func (m *SetAutoAdminPassword) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *SetAutoAdminPassword) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SetAutoAdminPassword) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Guid) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Guid)))
-		i += copy(dAtA[i:], m.Guid)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.PasswordHash) > 0 {
-		dAtA[i] = 0x12
-		i++
+		i -= len(m.PasswordHash)
+		copy(dAtA[i:], m.PasswordHash)
 		i = encodeVarintMdm(dAtA, i, uint64(len(m.PasswordHash)))
-		i += copy(dAtA[i:], m.PasswordHash)
+		i--
+		dAtA[i] = 0x12
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.Guid) > 0 {
+		i -= len(m.Guid)
+		copy(dAtA[i:], m.Guid)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Guid)))
+		i--
+		dAtA[i] = 0xa
 	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *ScheduleOSUpdate) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8669,32 +8662,40 @@ func (m *ScheduleOSUpdate) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ScheduleOSUpdate) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ScheduleOSUpdate) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if len(m.Updates) > 0 {
-		for _, msg := range m.Updates {
-			dAtA[i] = 0xa
-			i++
-			i = encodeVarintMdm(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.Updates) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Updates[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintMdm(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0xa
 		}
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *Update) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8702,38 +8703,47 @@ func (m *Update) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *Update) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *Update) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.ProductKey) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.ProductKey)))
-		i += copy(dAtA[i:], m.ProductKey)
-	}
-	if len(m.ProductVersion) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.ProductVersion)))
-		i += copy(dAtA[i:], m.ProductVersion)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.InstallAction) > 0 {
-		dAtA[i] = 0x1a
-		i++
+		i -= len(m.InstallAction)
+		copy(dAtA[i:], m.InstallAction)
 		i = encodeVarintMdm(dAtA, i, uint64(len(m.InstallAction)))
-		i += copy(dAtA[i:], m.InstallAction)
+		i--
+		dAtA[i] = 0x1a
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.ProductVersion) > 0 {
+		i -= len(m.ProductVersion)
+		copy(dAtA[i:], m.ProductVersion)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.ProductVersion)))
+		i--
+		dAtA[i] = 0x12
 	}
-	return i, nil
+	if len(m.ProductKey) > 0 {
+		i -= len(m.ProductKey)
+		copy(dAtA[i:], m.ProductKey)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.ProductKey)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *ScheduleOSUpdateScan) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8741,30 +8751,36 @@ func (m *ScheduleOSUpdateScan) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ScheduleOSUpdateScan) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ScheduleOSUpdateScan) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if m.Force {
-		dAtA[i] = 0x8
-		i++
+		i--
 		if m.Force {
 			dAtA[i] = 1
 		} else {
 			dAtA[i] = 0
 		}
-		i++
+		i--
+		dAtA[i] = 0x8
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *ActiveNSExtensions) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8772,35 +8788,35 @@ func (m *ActiveNSExtensions) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ActiveNSExtensions) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ActiveNSExtensions) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
+	}
 	if len(m.FilterExtensionPoints) > 0 {
-		for _, s := range m.FilterExtensionPoints {
+		for iNdEx := len(m.FilterExtensionPoints) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.FilterExtensionPoints[iNdEx])
+			copy(dAtA[i:], m.FilterExtensionPoints[iNdEx])
+			i = encodeVarintMdm(dAtA, i, uint64(len(m.FilterExtensionPoints[iNdEx])))
+			i--
 			dAtA[i] = 0xa
-			i++
-			l = len(s)
-			for l >= 1<<7 {
-				dAtA[i] = uint8(uint64(l)&0x7f | 0x80)
-				l >>= 7
-				i++
-			}
-			dAtA[i] = uint8(l)
-			i++
-			i += copy(dAtA[i:], s)
 		}
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
-	}
-	return i, nil
+	return len(dAtA) - i, nil
 }
 
 func (m *RotateFileVaultKey) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8808,48 +8824,59 @@ func (m *RotateFileVaultKey) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *RotateFileVaultKey) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RotateFileVaultKey) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.KeyType) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.KeyType)))
-		i += copy(dAtA[i:], m.KeyType)
-	}
-	if m.FilevaultUnlock != nil {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(m.FilevaultUnlock.Size()))
-		n63, err63 := m.FilevaultUnlock.MarshalTo(dAtA[i:])
-		if err63 != nil {
-			return 0, err63
-		}
-		i += n63
-	}
-	if len(m.NewCertificate) > 0 {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.NewCertificate)))
-		i += copy(dAtA[i:], m.NewCertificate)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.ReplyEncryptionCertificate) > 0 {
-		dAtA[i] = 0x22
-		i++
+		i -= len(m.ReplyEncryptionCertificate)
+		copy(dAtA[i:], m.ReplyEncryptionCertificate)
 		i = encodeVarintMdm(dAtA, i, uint64(len(m.ReplyEncryptionCertificate)))
-		i += copy(dAtA[i:], m.ReplyEncryptionCertificate)
+		i--
+		dAtA[i] = 0x22
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.NewCertificate) > 0 {
+		i -= len(m.NewCertificate)
+		copy(dAtA[i:], m.NewCertificate)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.NewCertificate)))
+		i--
+		dAtA[i] = 0x1a
 	}
-	return i, nil
+	if m.FilevaultUnlock != nil {
+		{
+			size, err := m.FilevaultUnlock.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintMdm(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.KeyType) > 0 {
+		i -= len(m.KeyType)
+		copy(dAtA[i:], m.KeyType)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.KeyType)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *FileVaultUnlock) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8857,38 +8884,47 @@ func (m *FileVaultUnlock) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *FileVaultUnlock) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *FileVaultUnlock) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Password) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Password)))
-		i += copy(dAtA[i:], m.Password)
-	}
-	if len(m.PrivateKeyExport) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.PrivateKeyExport)))
-		i += copy(dAtA[i:], m.PrivateKeyExport)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.PrivateKeyExportPassword) > 0 {
-		dAtA[i] = 0x1a
-		i++
+		i -= len(m.PrivateKeyExportPassword)
+		copy(dAtA[i:], m.PrivateKeyExportPassword)
 		i = encodeVarintMdm(dAtA, i, uint64(len(m.PrivateKeyExportPassword)))
-		i += copy(dAtA[i:], m.PrivateKeyExportPassword)
+		i--
+		dAtA[i] = 0x1a
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.PrivateKeyExport) > 0 {
+		i -= len(m.PrivateKeyExport)
+		copy(dAtA[i:], m.PrivateKeyExport)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.PrivateKeyExport)))
+		i--
+		dAtA[i] = 0x12
 	}
-	return i, nil
+	if len(m.Password) > 0 {
+		i -= len(m.Password)
+		copy(dAtA[i:], m.Password)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Password)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *SetBootstrapToken) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8896,26 +8932,33 @@ func (m *SetBootstrapToken) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *SetBootstrapToken) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SetBootstrapToken) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.BootstrapToken) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.BootstrapToken)))
-		i += copy(dAtA[i:], m.BootstrapToken)
-	}
 	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
-	return i, nil
+	if len(m.BootstrapToken) > 0 {
+		i -= len(m.BootstrapToken)
+		copy(dAtA[i:], m.BootstrapToken)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.BootstrapToken)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *ResultPayload) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8923,44 +8966,54 @@ func (m *ResultPayload) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ResultPayload) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ResultPayload) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.Udid) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.Udid)))
-		i += copy(dAtA[i:], m.Udid)
-	}
-	if len(m.CommandUuid) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.CommandUuid)))
-		i += copy(dAtA[i:], m.CommandUuid)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if len(m.ErrorChain) > 0 {
-		for _, msg := range m.ErrorChain {
-			dAtA[i] = 0x1a
-			i++
-			i = encodeVarintMdm(dAtA, i, uint64(msg.Size()))
-			n, err := msg.MarshalTo(dAtA[i:])
-			if err != nil {
-				return 0, err
+		for iNdEx := len(m.ErrorChain) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.ErrorChain[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintMdm(dAtA, i, uint64(size))
 			}
-			i += n
+			i--
+			dAtA[i] = 0x1a
 		}
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.CommandUuid) > 0 {
+		i -= len(m.CommandUuid)
+		copy(dAtA[i:], m.CommandUuid)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.CommandUuid)))
+		i--
+		dAtA[i] = 0x12
 	}
-	return i, nil
+	if len(m.Udid) > 0 {
+		i -= len(m.Udid)
+		copy(dAtA[i:], m.Udid)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.Udid)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func (m *ErrorChain) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
-	n, err := m.MarshalTo(dAtA)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
 	if err != nil {
 		return nil, err
 	}
@@ -8968,47 +9021,58 @@ func (m *ErrorChain) Marshal() (dAtA []byte, err error) {
 }
 
 func (m *ErrorChain) MarshalTo(dAtA []byte) (int, error) {
-	var i int
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *ErrorChain) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
 	_ = i
 	var l int
 	_ = l
-	if len(m.LocalizedDescription) > 0 {
-		dAtA[i] = 0xa
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.LocalizedDescription)))
-		i += copy(dAtA[i:], m.LocalizedDescription)
-	}
-	if len(m.UsEnglishDescription) > 0 {
-		dAtA[i] = 0x12
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.UsEnglishDescription)))
-		i += copy(dAtA[i:], m.UsEnglishDescription)
-	}
-	if len(m.ErrorDomain) > 0 {
-		dAtA[i] = 0x1a
-		i++
-		i = encodeVarintMdm(dAtA, i, uint64(len(m.ErrorDomain)))
-		i += copy(dAtA[i:], m.ErrorDomain)
+	if m.XXX_unrecognized != nil {
+		i -= len(m.XXX_unrecognized)
+		copy(dAtA[i:], m.XXX_unrecognized)
 	}
 	if m.ErrorCode != 0 {
-		dAtA[i] = 0x20
-		i++
 		i = encodeVarintMdm(dAtA, i, uint64(m.ErrorCode))
+		i--
+		dAtA[i] = 0x20
 	}
-	if m.XXX_unrecognized != nil {
-		i += copy(dAtA[i:], m.XXX_unrecognized)
+	if len(m.ErrorDomain) > 0 {
+		i -= len(m.ErrorDomain)
+		copy(dAtA[i:], m.ErrorDomain)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.ErrorDomain)))
+		i--
+		dAtA[i] = 0x1a
 	}
-	return i, nil
+	if len(m.UsEnglishDescription) > 0 {
+		i -= len(m.UsEnglishDescription)
+		copy(dAtA[i:], m.UsEnglishDescription)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.UsEnglishDescription)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.LocalizedDescription) > 0 {
+		i -= len(m.LocalizedDescription)
+		copy(dAtA[i:], m.LocalizedDescription)
+		i = encodeVarintMdm(dAtA, i, uint64(len(m.LocalizedDescription)))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
 }
 
 func encodeVarintMdm(dAtA []byte, offset int, v uint64) int {
+	offset -= sovMdm(v)
+	base := offset
 	for v >= 1<<7 {
 		dAtA[offset] = uint8(v&0x7f | 0x80)
 		v >>= 7
 		offset++
 	}
 	dAtA[offset] = uint8(v)
-	return offset + 1
+	return base
 }
 func (m *CommandPayload) Size() (n int) {
 	if m == nil {
@@ -11058,10 +11122,7 @@ func (m *CommandPayload) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -12474,10 +12535,7 @@ func (m *Command) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -12562,10 +12620,7 @@ func (m *InstallProfile) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -12648,10 +12703,7 @@ func (m *RemoveProfile) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -12736,10 +12788,7 @@ func (m *InstallProvisioningProfile) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -12822,10 +12871,7 @@ func (m *RemoveProvisioningProfile) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -12928,10 +12974,7 @@ func (m *InstalledApplicationList) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -13014,10 +13057,7 @@ func (m *DeviceInformation) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -13102,10 +13142,7 @@ func (m *ClearPasscode) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -13252,10 +13289,7 @@ func (m *DeviceLock) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -13378,10 +13412,7 @@ func (m *EraseDevice) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -13560,10 +13591,7 @@ func (m *RequestMirroring) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -13634,10 +13662,7 @@ func (m *Restrictions) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -13720,10 +13745,7 @@ func (m *UnlockUserAccount) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -13826,10 +13848,7 @@ func (m *DeleteUser) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -13976,10 +13995,7 @@ func (m *EnableLostMode) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -14272,10 +14288,7 @@ func (m *InstallApplication) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -14345,10 +14358,7 @@ func (m *InstallApplicationOptions) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -14399,10 +14409,7 @@ func (m *InstallApplicationConfiguration) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -14453,10 +14460,7 @@ func (m *InstallApplicationAttributes) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -14627,10 +14631,7 @@ func (m *InstallEnterpriseApplication) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -14715,10 +14716,7 @@ func (m *Manifest) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -14839,10 +14837,7 @@ func (m *ManifestItem) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -15059,10 +15054,7 @@ func (m *Asset) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -15326,10 +15318,7 @@ func (m *Metadata) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -15444,10 +15433,7 @@ func (m *BundleInfo) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -15562,10 +15548,7 @@ func (m *ApplyRedemptionCode) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -15648,10 +15631,7 @@ func (m *ManagedApplicationList) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -15734,10 +15714,7 @@ func (m *RemoveApplication) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -15852,10 +15829,7 @@ func (m *InviteToProgram) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -15938,10 +15912,7 @@ func (m *ValidateApplications) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -16170,10 +16141,7 @@ func (m *AccountConfiguration) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -16342,10 +16310,7 @@ func (m *AutoSetupAdminAccounts) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -16479,10 +16444,7 @@ func (m *InstallMedia) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -16616,10 +16578,7 @@ func (m *RemoveMedia) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -16704,10 +16663,7 @@ func (m *Settings) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17330,10 +17286,7 @@ func (m *Setting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17404,10 +17357,7 @@ func (m *VoiceRoamingSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17478,10 +17428,7 @@ func (m *PersonalHotspotSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17585,10 +17532,7 @@ func (m *WallpaperSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17659,10 +17603,7 @@ func (m *DataRoamingSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17733,10 +17674,7 @@ func (m *BluetoothSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17855,10 +17793,7 @@ func (m *ApplicationAttributesSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -17975,10 +17910,7 @@ func (m *ApplicationConfigurationSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18061,10 +17993,7 @@ func (m *ApplicationAttributes) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18147,10 +18076,7 @@ func (m *DeviceNameSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18233,10 +18159,7 @@ func (m *TimeZoneSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18319,10 +18242,7 @@ func (m *HostnameSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18409,10 +18329,7 @@ func (m *MDMOptionsSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18483,10 +18400,7 @@ func (m *MDMOptions) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18556,10 +18470,7 @@ func (m *PasscodeLockGracePeriodSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18629,10 +18540,7 @@ func (m *MaximumResidentUsersSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18703,10 +18611,7 @@ func (m *DiagnosticSubmissionSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18777,10 +18682,7 @@ func (m *AppAnalyticsSetting) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18863,10 +18765,7 @@ func (m *ManagedApplicationConfiguration) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -18949,10 +18848,7 @@ func (m *ManagedApplicationAttributes) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19055,10 +18951,7 @@ func (m *ManagedApplicationFeedback) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19213,10 +19106,7 @@ func (m *SetFirmwarePassword) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19299,10 +19189,7 @@ func (m *VerifyFirmwarePassword) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19457,10 +19344,7 @@ func (m *SetRecoveryLock) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19543,10 +19427,7 @@ func (m *VerifyRecoveryLock) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19663,10 +19544,7 @@ func (m *SetAutoAdminPassword) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19751,10 +19629,7 @@ func (m *ScheduleOSUpdate) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19901,10 +19776,7 @@ func (m *Update) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -19975,10 +19847,7 @@ func (m *ScheduleOSUpdateScan) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -20061,10 +19930,7 @@ func (m *ActiveNSExtensions) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -20251,10 +20117,7 @@ func (m *RotateFileVaultKey) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -20403,10 +20266,7 @@ func (m *FileVaultUnlock) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -20489,10 +20349,7 @@ func (m *SetBootstrapToken) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -20641,10 +20498,7 @@ func (m *ResultPayload) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -20810,10 +20664,7 @@ func (m *ErrorChain) Unmarshal(dAtA []byte) error {
 			if err != nil {
 				return err
 			}
-			if skippy < 0 {
-				return ErrInvalidLengthMdm
-			}
-			if (iNdEx + skippy) < 0 {
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
 				return ErrInvalidLengthMdm
 			}
 			if (iNdEx + skippy) > l {
@@ -20832,6 +20683,7 @@ func (m *ErrorChain) Unmarshal(dAtA []byte) error {
 func skipMdm(dAtA []byte) (n int, err error) {
 	l := len(dAtA)
 	iNdEx := 0
+	depth := 0
 	for iNdEx < l {
 		var wire uint64
 		for shift := uint(0); ; shift += 7 {
@@ -20863,10 +20715,8 @@ func skipMdm(dAtA []byte) (n int, err error) {
 					break
 				}
 			}
-			return iNdEx, nil
 		case 1:
 			iNdEx += 8
-			return iNdEx, nil
 		case 2:
 			var length int
 			for shift := uint(0); ; shift += 7 {
@@ -20887,55 +20737,30 @@ func skipMdm(dAtA []byte) (n int, err error) {
 				return 0, ErrInvalidLengthMdm
 			}
 			iNdEx += length
-			if iNdEx < 0 {
-				return 0, ErrInvalidLengthMdm
-			}
-			return iNdEx, nil
 		case 3:
-			for {
-				var innerWire uint64
-				var start int = iNdEx
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return 0, ErrIntOverflowMdm
-					}
-					if iNdEx >= l {
-						return 0, io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					innerWire |= (uint64(b) & 0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				innerWireType := int(innerWire & 0x7)
-				if innerWireType == 4 {
-					break
-				}
-				next, err := skipMdm(dAtA[start:])
-				if err != nil {
-					return 0, err
-				}
-				iNdEx = start + next
-				if iNdEx < 0 {
-					return 0, ErrInvalidLengthMdm
-				}
-			}
-			return iNdEx, nil
+			depth++
 		case 4:
-			return iNdEx, nil
+			if depth == 0 {
+				return 0, ErrUnexpectedEndOfGroupMdm
+			}
+			depth--
 		case 5:
 			iNdEx += 4
-			return iNdEx, nil
 		default:
 			return 0, fmt.Errorf("proto: illegal wireType %d", wireType)
 		}
+		if iNdEx < 0 {
+			return 0, ErrInvalidLengthMdm
+		}
+		if depth == 0 {
+			return iNdEx, nil
+		}
 	}
-	panic("unreachable")
+	return 0, io.ErrUnexpectedEOF
 }
 
 var (
-	ErrInvalidLengthMdm = fmt.Errorf("proto: negative length found during unmarshaling")
-	ErrIntOverflowMdm   = fmt.Errorf("proto: integer overflow")
+	ErrInvalidLengthMdm        = fmt.Errorf("proto: negative length found during unmarshaling")
+	ErrIntOverflowMdm          = fmt.Errorf("proto: integer overflow")
+	ErrUnexpectedEndOfGroupMdm = fmt.Errorf("proto: unexpected end of group")
 )
