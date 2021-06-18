@@ -7,7 +7,7 @@ import (
 )
 
 type Service interface {
-	Checkin(ctx context.Context, event CheckinEvent) error
+	Checkin(ctx context.Context, event CheckinEvent) (payload []byte, err error)
 	Acknowledge(ctx context.Context, event AcknowledgeEvent) (payload []byte, err error)
 }
 
