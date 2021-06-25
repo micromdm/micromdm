@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Checkin is an MDM Service check-in
 func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) ([]byte, error) {
 	// reject user settings at the loginwindow.
 	// https://github.com/micromdm/micromdm/pull/379
