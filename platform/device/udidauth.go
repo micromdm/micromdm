@@ -85,7 +85,6 @@ func (mw *udidCertAuthMiddleware) Acknowledge(ctx context.Context, req mdm.Ackno
 	return mw.next.Acknowledge(ctx, req)
 }
 
-// Checkin is an MDM Service check-in
 func (mw *udidCertAuthMiddleware) Checkin(ctx context.Context, req mdm.CheckinEvent) ([]byte, error) {
 	// only validate device enrollments, user enrollments should be separate.
 	if req.Command.EnrollmentID != "" {

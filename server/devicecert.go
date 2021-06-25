@@ -96,7 +96,6 @@ func (mw *verifyCertificateMiddleware) Acknowledge(ctx context.Context, req mdm.
 	return mw.next.Acknowledge(ctx, req)
 }
 
-// Checkin is an MDM Service check-in
 func (mw *verifyCertificateMiddleware) Checkin(ctx context.Context, req mdm.CheckinEvent) ([]byte, error) {
 	devcert, err := mdm.DeviceCertificateFromContext(ctx)
 	if err != nil {
