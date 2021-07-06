@@ -255,6 +255,7 @@ func (d *Mysql) List(ctx context.Context, opt device.ListDevicesOption) ([]devic
 		PlaceholderFormat(sq.Question).
 		Select(columns()...).
 		From(tableName).
+		Where(sq.Or{sq.Expr("0=?",len(opt.FilterSerial)), sq.Eq{"serial_number": opt.FilterSerial}}).
 		ToSql()
 		
 	if err != nil {
