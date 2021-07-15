@@ -3,6 +3,7 @@ package enroll
 import (
 	"context"
 	"errors"
+	"github.com/micromdm/micromdm/pkg/httputil"
 	"io/ioutil"
 	"net/http"
 
@@ -20,6 +21,10 @@ type HTTPHandlers struct {
 	// In Apple's Over-the-Air design Phases 2 and 3 happen over the same URL.
 	// The differentiator is which certificate signed the CMS POST body.
 	OTAPhase2Phase3Handler http.Handler
+
+	MDMServiceConfigHandler http.Handler
+	DEPAnchorCertsHandler   http.Handler
+	TrustProfileHandler     http.Handler
 }
 
 func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
@@ -39,6 +44,24 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 		OTAPhase2Phase3Handler: httptransport.NewServer(
 			endpoints.OTAPhase2Phase3Endpoint,
 			decodeOTAPhase2Phase3Request,
+			encodeMobileconfigResponse,
+			opts...,
+		),
+		MDMServiceConfigHandler: httptransport.NewServer(
+			endpoints.MDMServiceConfigEndpoint,
+			decodeEmptyRequest,
+			httputil.EncodeJSONResponse,
+			opts...,
+		),
+		DEPAnchorCertsHandler: httptransport.NewServer(
+			endpoints.DEPAnchorCertsEndpoint,
+			decodeEmptyRequest,
+			httputil.EncodeJSONResponse,
+			opts...,
+		),
+		TrustProfileHandler: httptransport.NewServer(
+			endpoints.TrustProfileEndpoint,
+			decodeEmptyRequest,
 			encodeMobileconfigResponse,
 			opts...,
 		),

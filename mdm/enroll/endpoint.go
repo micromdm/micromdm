@@ -2,6 +2,7 @@ package enroll
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 
@@ -14,9 +15,12 @@ import (
 )
 
 type Endpoints struct {
-	GetEnrollEndpoint       endpoint.Endpoint
-	OTAEnrollEndpoint       endpoint.Endpoint
-	OTAPhase2Phase3Endpoint endpoint.Endpoint
+	GetEnrollEndpoint        endpoint.Endpoint
+	OTAEnrollEndpoint        endpoint.Endpoint
+	OTAPhase2Phase3Endpoint  endpoint.Endpoint
+	MDMServiceConfigEndpoint endpoint.Endpoint
+	DEPAnchorCertsEndpoint   endpoint.Endpoint
+	TrustProfileEndpoint     endpoint.Endpoint
 }
 
 type depEnrollmentRequest struct {
@@ -59,11 +63,20 @@ type mdmOTAPhase2Phase3Request struct {
 	p7                   *pkcs7.PKCS7
 }
 
+type mdmServiceConfigResponse struct {
+	DepEnrollmentUrl  string `json:"dep_enrollment_url,omitempty"`
+	DepAnchorCertsUrl string `json:"dep_anchor_certs_url,omitempty"`
+	TrustProfileUrl   string `json:"trust_profile_url,omitempty"`
+}
+
 func MakeServerEndpoints(s Service, scepDepot depot.Depot) Endpoints {
 	return Endpoints{
-		GetEnrollEndpoint:       MakeGetEnrollEndpoint(s),
-		OTAEnrollEndpoint:       MakeOTAEnrollEndpoint(s),
-		OTAPhase2Phase3Endpoint: MakeOTAPhase2Phase3Endpoint(s, scepDepot),
+		GetEnrollEndpoint:        MakeGetEnrollEndpoint(s),
+		OTAEnrollEndpoint:        MakeOTAEnrollEndpoint(s),
+		OTAPhase2Phase3Endpoint:  MakeOTAPhase2Phase3Endpoint(s, scepDepot),
+		MDMServiceConfigEndpoint: MakeMDMServiceConfigEndpoint(s),
+		DEPAnchorCertsEndpoint:   MakeDEPAnchorCertsEndpoint(s),
+		TrustProfileEndpoint:     MakeTrustProfileEndpoint(s),
 	}
 }
 
@@ -138,5 +151,49 @@ func MakeOTAPhase2Phase3Endpoint(s Service, scepDepot depot.Depot) endpoint.Endp
 			return mobileconfigResponse{mc, err}, nil
 		}
 		return mobileconfigResponse{profile.Mobileconfig{}, errors.New("unauthorized client")}, nil
+	}
+}
+
+func MakeMDMServiceConfigEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		serviceConfig, err := s.MDMServiceConfig(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		return mdmServiceConfigResponse{
+			DepEnrollmentUrl:  serviceConfig.depEnrollmentUrl,
+			DepAnchorCertsUrl: serviceConfig.depAnchorCertsUrl,
+			TrustProfileUrl:   serviceConfig.trustProfileUrl,
+		}, nil
+	}
+}
+
+func MakeDEPAnchorCertsEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		serviceConfig, err := s.MDMServiceConfig(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		fmt.Printf("%d anchor certificates supplied\n", len(serviceConfig.depAnchorCertificates))
+
+		anchorCertsBase64 := make([]string, 0, len(serviceConfig.depAnchorCertificates))
+		for _, cert := range serviceConfig.depAnchorCertificates {
+			anchorCertsBase64 = append(anchorCertsBase64, base64.StdEncoding.EncodeToString(cert))
+		}
+
+		return anchorCertsBase64, nil
+	}
+}
+
+func MakeTrustProfileEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		serviceConfig, err := s.MDMServiceConfig(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		return serviceConfig.depAnchorCertificates, nil
 	}
 }

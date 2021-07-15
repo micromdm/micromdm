@@ -105,6 +105,7 @@ func serve(args []string) error {
 		flServerURL              = flagset.String("server-url", env.String("MICROMDM_SERVER_URL", ""), "Public HTTPS url of your server")
 		flAPIKey                 = flagset.String("api-key", env.String("MICROMDM_API_KEY", ""), "API Token for mdmctl command")
 		flTLS                    = flagset.Bool("tls", env.Bool("MICROMDM_TLS", true), "Use https")
+		flTLSCACert              = flagset.String("tls-ca-cert", env.String("MICROMDM_TLS_CA_CERT", ""), "Path to CA certificate (if TLS is self signed)")
 		flTLSCert                = flagset.String("tls-cert", env.String("MICROMDM_TLS_CERT", ""), "Path to TLS certificate")
 		flTLSKey                 = flagset.String("tls-key", env.String("MICROMDM_TLS_KEY", ""), "Path to TLS private key")
 		flHTTPAddr               = flagset.String("http-addr", env.String("MICROMDM_HTTP_ADDR", ":https"), "http(s) listen address of mdm server. defaults to :8080 if tls is false")
@@ -162,6 +163,7 @@ func serve(args []string) error {
 		ServerPublicURL:        strings.TrimRight(*flServerURL, "/"),
 		Depsim:                 *flDepSim,
 		TLSCertPath:            *flTLSCert,
+		TLSCACertPath:          *flTLSCACert,
 		CommandWebhookURL:      *flCommandWebhookURL,
 		NoCmdHistory:           *flNoCmdHistory,
 		UseDynSCEPChallenge:    *flUseDynChallenge,
@@ -248,6 +250,9 @@ func serve(args []string) error {
 	r.Handle("/mdm/enroll", enrollHandlers.EnrollHandler).Methods("GET", "POST")
 	r.Handle("/ota/enroll", enrollHandlers.OTAEnrollHandler)
 	r.Handle("/ota/phase23", enrollHandlers.OTAPhase2Phase3Handler).Methods("POST")
+	r.Handle("/MDMServiceConfig", enrollHandlers.MDMServiceConfigHandler).Methods("GET")
+	r.Handle("/svc/dep_anchor_certs", enrollHandlers.DEPAnchorCertsHandler).Methods("GET")
+	r.Handle("/svc/trust_profile", enrollHandlers.TrustProfileHandler).Methods("GET")
 	r.Handle("/scep", scepHandler)
 	if *flHomePage {
 		r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
