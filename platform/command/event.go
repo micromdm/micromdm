@@ -3,9 +3,9 @@ package command
 import (
 	"time"
 
-	"github.com/gogo/protobuf/proto"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/micromdm/micromdm/mdm/mdm"
 	"github.com/micromdm/micromdm/platform/command/internal/commandproto"

@@ -3,7 +3,8 @@ package blueprint
 import (
 	"errors"
 
-	"github.com/gogo/protobuf/proto"
+	"google.golang.org/protobuf/proto"
+
 	"github.com/micromdm/micromdm/platform/blueprint/internal/blueprintproto"
 )
 

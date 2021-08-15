@@ -3,8 +3,8 @@ package queue
 import (
 	"time"
 
-	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/micromdm/micromdm/platform/queue/internal/devicecommandproto"
 )

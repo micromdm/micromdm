@@ -3,8 +3,8 @@ package sync
 import (
 	"time"
 
-	"github.com/gogo/protobuf/proto"
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/micromdm/micromdm/dep"
 	"github.com/micromdm/micromdm/platform/dep/sync/internal/depsyncproto"

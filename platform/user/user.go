@@ -2,9 +2,9 @@
 package user
 
 import (
-	"github.com/gogo/protobuf/proto"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/micromdm/micromdm/platform/user/internal/userproto"
 )

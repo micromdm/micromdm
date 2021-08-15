@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package userproto;
 
+option go_package = "github.com/micromdm/micromdm/platform/user/internal/userproto";
 
 message User {
     string uuid = 1; 

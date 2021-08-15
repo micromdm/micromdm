@@ -3,7 +3,8 @@ package mdm
 import (
 	"fmt"
 
-	"github.com/gogo/protobuf/proto"
+	"google.golang.org/protobuf/proto"
+
 	"github.com/micromdm/micromdm/mdm/mdm/internal/mdmproto"
 )
 

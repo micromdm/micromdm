@@ -1,3 +1,3 @@
 package commandproto
 
-//go:generate protoc command.proto -I. --gofast_out=.
+//go:generate protoc --go_out=. --go_opt=paths=source_relative command.proto

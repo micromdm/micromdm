@@ -1,9 +1,10 @@
 package mdm
 
 import (
-	"github.com/gogo/protobuf/proto"
 	"github.com/micromdm/micromdm/mdm/appmanifest"
 	"github.com/micromdm/micromdm/mdm/mdm/internal/mdmproto"
+
+	"google.golang.org/protobuf/proto"
 )
 
 func protoToCommand(pb *mdmproto.Command) *Command {

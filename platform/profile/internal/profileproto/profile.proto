@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package profileproto;
 
+option go_package = "github.com/micromdm/micromdm/platform/profile/internal/profileproto";
+
 message Profile {
 	string id = 1;
 	bytes mobileconfig = 2;

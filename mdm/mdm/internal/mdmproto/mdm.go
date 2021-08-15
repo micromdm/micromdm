@@ -1,3 +1,3 @@
 package mdmproto
 
-//go:generate protoc mdm.proto -I. --gofast_out=:.
+//go:generate protoc --go_out=. --go_opt=paths=source_relative mdm.proto

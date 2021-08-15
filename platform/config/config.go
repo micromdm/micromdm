@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/micromdm/micromdm/platform/config/internal/configproto"
 )

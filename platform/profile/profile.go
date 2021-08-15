@@ -3,10 +3,10 @@ package profile
 import (
 	"github.com/micromdm/micromdm/platform/profile/internal/profileproto"
 
-	"github.com/gogo/protobuf/proto"
 	"github.com/groob/plist"
 	"github.com/pkg/errors"
 	"go.mozilla.org/pkcs7"
+	"google.golang.org/protobuf/proto"
 )
 
 type Mobileconfig []byte

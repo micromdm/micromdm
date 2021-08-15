@@ -3,8 +3,8 @@ package remove
 import (
 	"context"
 
-	"github.com/gogo/protobuf/proto"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/remove/internal/removeproto"
