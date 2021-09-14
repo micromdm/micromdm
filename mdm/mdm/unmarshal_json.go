@@ -264,6 +264,20 @@ func (c *Command) UnmarshalJSON(data []byte) error {
 		}
 		c.VerifyFirmwarePassword = &payload
 		return nil
+	case "SetRecoveryLock":
+		var payload SetRecoveryLock
+		if err := json.Unmarshal(data, &payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
+		}
+		c.SetRecoveryLock = &payload
+		return nil
+	case "VerifyRecoveryLock":
+		var payload VerifyRecoveryLock
+		if err := json.Unmarshal(data, &payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
+		}
+		c.VerifyRecoveryLock = &payload
+		return nil
 	case "SetAutoAdminPassword":
 		var payload SetAutoAdminPassword
 		if err := json.Unmarshal(data, &payload); err != nil {

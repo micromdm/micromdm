@@ -58,7 +58,7 @@ func (mw removeMiddleware) Acknowledge(ctx context.Context, req mdm.AcknowledgeE
 	return mw.next.Acknowledge(ctx, req)
 }
 
-func (mw removeMiddleware) Checkin(ctx context.Context, req mdm.CheckinEvent) error {
+func (mw removeMiddleware) Checkin(ctx context.Context, req mdm.CheckinEvent) ([]byte, error) {
 	return mw.next.Checkin(ctx, req)
 }
 

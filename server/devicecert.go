@@ -96,25 +96,25 @@ func (mw *verifyCertificateMiddleware) Acknowledge(ctx context.Context, req mdm.
 	return mw.next.Acknowledge(ctx, req)
 }
 
-func (mw *verifyCertificateMiddleware) Checkin(ctx context.Context, req mdm.CheckinEvent) error {
+func (mw *verifyCertificateMiddleware) Checkin(ctx context.Context, req mdm.CheckinEvent) ([]byte, error) {
 	devcert, err := mdm.DeviceCertificateFromContext(ctx)
 	if err != nil {
-		return errors.Wrap(err, "error retrieving device certificate")
+		return nil, errors.Wrap(err, "error retrieving device certificate")
 	}
 	hasCN, err := mw.store.HasCN(devcert.Subject.CommonName, 0, devcert, false)
 	if err != nil {
-		return errors.Wrap(err, "error checking device certificate")
+		return nil, errors.Wrap(err, "error checking device certificate")
 	}
 	unauth_err := errors.New("unauthorized client")
 	if !hasCN && !mw.validateSCEPIssuer {
 		_ = level.Info(mw.logger).Log("err", unauth_err, "issuer", devcert.Issuer.String(), "expiration", devcert.NotAfter)
-		return unauth_err
+		return nil, unauth_err
 	}
 	if !hasCN && mw.validateSCEPIssuer {
 		err := mw.verifyIssuer(devcert)
 		if err != nil {
 			_ = level.Info(mw.logger).Log("err", err, "issuer", devcert.Issuer.String(), "expiration", devcert.NotAfter)
-			return unauth_err
+			return nil, unauth_err
 		}
 	}
 	return mw.next.Checkin(ctx, req)

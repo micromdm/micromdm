@@ -61,6 +61,8 @@ type Command struct {
 	ManagedApplicationFeedback      *ManagedApplicationFeedback
 	SetFirmwarePassword             *SetFirmwarePassword
 	VerifyFirmwarePassword          *VerifyFirmwarePassword
+	SetRecoveryLock                 *SetRecoveryLock
+	VerifyRecoveryLock              *VerifyRecoveryLock
 	SetAutoAdminPassword            *SetAutoAdminPassword
 	ScheduleOSUpdate                *ScheduleOSUpdate
 	ScheduleOSUpdateScan            *ScheduleOSUpdateScan
@@ -247,12 +249,24 @@ type ManagedApplicationFeedback struct {
 }
 
 type SetFirmwarePassword struct {
-	CurrentPassword string `plist:",omitempty" json:"current_password,omitempty"`
-	NewPassword     string `json:"new_password"`
-	AllowOroms      bool   `plist:",omitempty" json:"allow_oroms,omitempty"`
+	CurrentPassword              string `plist:",omitempty" json:"current_password,omitempty"`
+	NewPassword                  string `json:"new_password"`
+	RequestRequiresNetworkTether bool   `plist:",omitempty" json:"request_requires_network_tether,omitempty"`
+	AllowOroms                   bool   `plist:",omitempty" json:"allow_oroms,omitempty"`
 }
 
 type VerifyFirmwarePassword struct {
+	Password string `json:"password"`
+}
+
+type SetRecoveryLock struct {
+	CurrentPassword              string `plist:",omitempty" json:"current_password,omitempty"`
+	NewPassword                  string `json:"new_password"`
+	RequestRequiresNetworkTether bool   `plist:",omitempty" json:"request_requires_network_tether,omitempty"`
+	AllowOroms                   bool   `plist:",omitempty" json:"allow_oroms,omitempty"`
+}
+
+type VerifyRecoveryLock struct {
 	Password string `json:"password"`
 }
 

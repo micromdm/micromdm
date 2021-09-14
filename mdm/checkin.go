@@ -10,31 +10,31 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) error {
+func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) ([]byte, error) {
 	// reject user settings at the loginwindow.
 	// https://github.com/micromdm/micromdm/pull/379
 	if event.Command.MessageType == "UserAuthenticate" {
-		return &rejectUserAuth{}
+		return nil, &rejectUserAuth{}
 	}
 
 	msg, err := MarshalCheckinEvent(&event)
 	if err != nil {
-		return errors.Wrap(err, "marshal checkin event")
+		return nil, errors.Wrap(err, "marshal checkin event")
 	}
 
 	topic, err := topicFromMessage(event.Command.MessageType)
 	if err != nil {
-		return errors.Wrap(err, "get checkin topic from message")
+		return nil, errors.Wrap(err, "get checkin topic from message")
 	}
 
 	if topic == AuthenticateTopic {
 		if err := svc.queue.Clear(ctx, event); err != nil {
-			return errors.Wrap(err, "clearing queue on enrollment attempt")
+			return nil, errors.Wrap(err, "clearing queue on enrollment attempt")
 		}
 	}
 
 	err = svc.pub.Publish(ctx, topic, msg)
-	return errors.Wrapf(err, "publish checkin on topic: %s", topic)
+	return nil, errors.Wrapf(err, "publish checkin on topic: %s", topic)
 }
 
 func topicFromMessage(messageType string) (string, error) {
@@ -78,10 +78,12 @@ type checkinRequest struct {
 }
 
 type checkinResponse struct {
-	Err error `plist:"error,omitempty"`
+	Payload []byte
+	Err     error `plist:"error,omitempty"`
 }
 
-func (r checkinResponse) Failed() error { return r.Err }
+func (r checkinResponse) Response() []byte { return r.Payload }
+func (r checkinResponse) Failed() error    { return r.Err }
 
 func decodeCheckinRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var cmd CheckinCommand
@@ -110,7 +112,7 @@ func decodeCheckinRequest(ctx context.Context, r *http.Request) (interface{}, er
 func MakeCheckinEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(checkinRequest)
-		err := svc.Checkin(ctx, req.Event)
-		return checkinResponse{Err: err}, nil
+		payload, err := svc.Checkin(ctx, req.Event)
+		return checkinResponse{Payload: payload, Err: err}, nil
 	}
 }

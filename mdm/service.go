@@ -6,8 +6,15 @@ import (
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
+// Service describes the core MDM protocol interactions with clients.
 type Service interface {
-	Checkin(ctx context.Context, event CheckinEvent) error
+	// Checkin is called for all checkin messages (such as Authenticate
+	// and TokenUpdate). Checkin messages return a response to the
+	// client in payload.
+	Checkin(ctx context.Context, event CheckinEvent) (payload []byte, err error)
+	// Acknowledge is called when a client reports a command result and
+	// fetches the next command. Acknowledge calls return a command in
+	// payload.
 	Acknowledge(ctx context.Context, event AcknowledgeEvent) (payload []byte, err error)
 }
 

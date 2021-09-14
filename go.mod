@@ -4,6 +4,7 @@ require (
 	github.com/RobotsAndPencils/buford v0.12.0
 	github.com/boltdb/bolt v1.3.1
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/garyburd/go-oauth v0.0.0-20180319155456-bca2e7f09a17
 	github.com/go-kit/kit v0.7.0
 	github.com/go-sql-driver/mysql v1.4.0 // indirect
@@ -12,6 +13,7 @@ require (
 	github.com/golang/protobuf v1.4.3
 	github.com/google/uuid v1.1.1
 	github.com/gorilla/context v1.1.1 // indirect
+	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.6.2
 	github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda
 	github.com/groob/plist v0.0.0-20180203051248-dd56909aee38
@@ -22,19 +24,17 @@ require (
 	github.com/lib/pq v1.0.0
 	github.com/mattn/go-sqlite3 v1.9.0 // indirect
 	github.com/micromdm/go4 v0.0.0-20210104222236-8a0936d9e451
-	github.com/micromdm/scep/v2 v2.0.0
+	github.com/micromdm/scep/v2 v2.1.0
 	github.com/pkg/errors v0.8.0
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/pressly/goose v2.3.0+incompatible
 	github.com/stretchr/testify v1.2.2 // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect
-	go.mozilla.org/pkcs7 v0.0.0-20200128120323-432b2356ecb1
+	go.mozilla.org/pkcs7 v0.0.0-20210730143726-725912489c62
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/net v0.0.0-20201021035429-f5854403a974
 	google.golang.org/appengine v1.2.0 // indirect
 	gopkg.in/Masterminds/squirrel.v1 v1.0.0-20170825200431-a6b93000bd21
 )
-
-replace go.mozilla.org/pkcs7 v0.0.0-20200128120323-432b2356ecb1 => github.com/omorsi/pkcs7 v0.0.0-20210217142924-a7b80a2a8568
 
 go 1.13

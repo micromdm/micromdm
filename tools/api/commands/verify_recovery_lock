@@ -1,0 +1,15 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+jq -n \
+  --arg request_type "VerifyRecoveryLock" \
+  --arg udid "$1" \
+  --arg password $2 \
+  --arg request_requires_network_tether $3 \
+  --arg allow_oroms $4 \
+  '.udid = $udid 
+  |.password = $current_password  
+  |.request_requires_network_tether = $request_requires_network_tether 
+  |.request_type = $request_type
+  '|\
+  curl $CURL_OPTS -K <(cat <<< "-u micromdm:$API_TOKEN") "$SERVER_URL/$endpoint" -d@-

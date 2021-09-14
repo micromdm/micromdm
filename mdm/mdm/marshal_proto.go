@@ -326,15 +326,31 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 	case "SetFirmwarePassword":
 		cmdproto.Request = &mdmproto.Command_SetFirmwarePassword{
 			SetFirmwarePassword: &mdmproto.SetFirmwarePassword{
-				CurrentPassword: cmd.SetFirmwarePassword.CurrentPassword,
-				NewPassword:     cmd.SetFirmwarePassword.NewPassword,
-				AllowOroms:      cmd.SetFirmwarePassword.AllowOroms,
+				CurrentPassword:              cmd.SetFirmwarePassword.CurrentPassword,
+				NewPassword:                  cmd.SetFirmwarePassword.NewPassword,
+				AllowOroms:                   cmd.SetFirmwarePassword.AllowOroms,
+				RequestRequiresNetworkTether: cmd.SetFirmwarePassword.RequestRequiresNetworkTether,
+			},
+		}
+	case "SetRecoveryLock":
+		cmdproto.Request = &mdmproto.Command_SetRecoveryLock{
+			SetRecoveryLock: &mdmproto.SetRecoveryLock{
+				CurrentPassword:              cmd.SetRecoveryLock.CurrentPassword,
+				NewPassword:                  cmd.SetRecoveryLock.NewPassword,
+				AllowOroms:                   cmd.SetRecoveryLock.AllowOroms,
+				RequestRequiresNetworkTether: cmd.SetRecoveryLock.RequestRequiresNetworkTether,
 			},
 		}
 	case "VerifyFirmwarePassword":
 		cmdproto.Request = &mdmproto.Command_VerifyFirmwarePassword{
 			VerifyFirmwarePassword: &mdmproto.VerifyFirmwarePassword{
 				Password: cmd.VerifyFirmwarePassword.Password,
+			},
+		}
+	case "VerifyRecoveryLock":
+		cmdproto.Request = &mdmproto.Command_VerifyRecoveryLock{
+			VerifyRecoveryLock: &mdmproto.VerifyRecoveryLock{
+				Password: cmd.VerifyRecoveryLock.Password,
 			},
 		}
 	case "SetAutoAdminPassword":

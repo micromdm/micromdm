@@ -85,32 +85,32 @@ func (mw *udidCertAuthMiddleware) Acknowledge(ctx context.Context, req mdm.Ackno
 	return mw.next.Acknowledge(ctx, req)
 }
 
-func (mw *udidCertAuthMiddleware) Checkin(ctx context.Context, req mdm.CheckinEvent) error {
+func (mw *udidCertAuthMiddleware) Checkin(ctx context.Context, req mdm.CheckinEvent) ([]byte, error) {
 	// only validate device enrollments, user enrollments should be separate.
 	if req.Command.EnrollmentID != "" {
 		return mw.next.Checkin(ctx, req)
 	}
 	devcert, err := mdm.DeviceCertificateFromContext(ctx)
 	if err != nil {
-		return errors.Wrap(err, "error retrieving device certificate")
+		return nil, errors.Wrap(err, "error retrieving device certificate")
 	}
 	switch req.Command.MessageType {
 	case "Authenticate":
 		// unconditionally save the cert hash on Authenticate message
 		if err := mw.store.SaveUDIDCertHash([]byte(req.Command.UDID), hashCertRaw(devcert.Raw)); err != nil {
-			return err
+			return nil, err
 		}
 		return mw.next.Checkin(ctx, req)
 	case "TokenUpdate", "CheckOut", "GetBootstrapToken", "SetBootstrapToken":
 		matched, err := mw.validateUDIDCertAuth([]byte(req.Command.UDID), hashCertRaw(devcert.Raw))
 		if err != nil {
-			return err
+			return nil, err
 		}
 		if !matched && !mw.warnOnly {
-			return errors.New("device certifcate UDID mismatch")
+			return nil, errors.New("device certifcate UDID mismatch")
 		}
 		return mw.next.Checkin(ctx, req)
 	default:
-		return errors.Errorf("unknown checkin message type %s", req.Command.MessageType)
+		return nil, errors.Errorf("unknown checkin message type %s", req.Command.MessageType)
 	}
 }
