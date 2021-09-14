@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package mdmproto;
+option go_package = "/;mdmproto";
 
 message CommandPayload {
   string command_uuid = 1;

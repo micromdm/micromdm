@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package deviceproto;
-
+option go_package = "/;deviceproto";
 
 message Device {
     string uuid = 1;

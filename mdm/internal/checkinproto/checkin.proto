@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package checkinproto;
+option go_package = "/;checkinproto";
 
 message Event {
        	string  id = 1;
