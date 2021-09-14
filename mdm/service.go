@@ -29,6 +29,10 @@ const (
 	SetBootstrapTokenTopic = "mdm.SetBootstrapToken"
 )
 
+type BootstrapTokenRetriever interface {
+	GetBootstrapToken(context.Context, string) ([]byte, error)
+}
+
 // Queue is an MDM Command Queue.
 type Queue interface {
 	Next(context.Context, Response) ([]byte, error)
@@ -36,13 +40,15 @@ type Queue interface {
 }
 
 type MDMService struct {
-	pub   pubsub.Publisher
-	queue Queue
+	dev				BootstrapTokenRetriever
+	pub   			pubsub.Publisher
+	queue			Queue
 }
 
-func NewService(pub pubsub.Publisher, queue Queue) *MDMService {
+func NewService(pub pubsub.Publisher, queue Queue, dev BootstrapTokenRetriever) *MDMService {
 	return &MDMService{
-		pub:   pub,
-		queue: queue,
+		dev:			dev,
+		pub:   			pub,
+		queue: 			queue,
 	}
 }

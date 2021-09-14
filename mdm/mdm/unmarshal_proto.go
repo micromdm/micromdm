@@ -301,13 +301,6 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			AllowOroms:                   pbc.GetAllowOroms(),
 			RequestRequiresNetworkTether: pbc.GetRequestRequiresNetworkTether(),
 		}
-<<<<<<< HEAD
-=======
-	case "SetBootstrapToken":
-		pbc := pb.GetSetBootstrapToken()
-		cmd.SetBootstrapToken = &SetBootstrapToken{
-			BootstrapToken: pbc.GetBootstrapToken(),
-		}
 	case "SetRecoveryLock":
 		pbc := pb.GetSetRecoveryLock()
 		cmd.SetRecoveryLock = &SetRecoveryLock{
@@ -316,7 +309,6 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			AllowOroms:                   pbc.GetAllowOroms(),
 			RequestRequiresNetworkTether: pbc.GetRequestRequiresNetworkTether(),
 		}
->>>>>>> main
 	case "VerifyFirmwarePassword":
 		pbc := pb.GetVerifyFirmwarePassword()
 		cmd.VerifyFirmwarePassword = &VerifyFirmwarePassword{

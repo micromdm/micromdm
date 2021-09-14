@@ -2,13 +2,25 @@ package mdm
 
 import (
 	"context"
+	"encoding/base64"
 	"net/http"
 	"time"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/google/uuid"
+	"github.com/groob/plist"
 	"github.com/pkg/errors"
 )
+
+type b64Data []byte
+
+func (b b64Data) String() string {
+	return base64.StdEncoding.EncodeToString(b)
+}
+
+type BootstrapToken struct {
+	BootstrapToken b64Data
+}
 
 func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) ([]byte, error) {
 	// reject user settings at the loginwindow.
@@ -31,6 +43,25 @@ func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) ([]byte,
 		if err := svc.queue.Clear(ctx, event); err != nil {
 			return nil, errors.Wrap(err, "clearing queue on enrollment attempt")
 		}
+	}
+			
+	if topic == GetBootstrapTokenTopic {
+		udid := event.Command.UDID
+
+		btBytes, err := svc.dev.GetBootstrapToken(ctx, udid)
+		if err != nil {
+			return nil, errors.Wrap(err, "fetching bootstrap token")
+		}
+		
+		var bt BootstrapToken
+		bt = BootstrapToken{b64Data(btBytes)}
+
+		resp, err := plist.Marshal(bt)
+		if err != nil {
+			return nil, errors.Wrap(err, "marshal bootstrap token")
+		}
+
+		return resp, errors.Wrap(err, "getting bootstrap token")
 	}
 
 	err = svc.pub.Publish(ctx, topic, msg)

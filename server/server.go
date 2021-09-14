@@ -183,7 +183,7 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 
 	var mdmService mdm.Service
 	{
-		svc := mdm.NewService(c.PubClient, q)
+		svc := mdm.NewService(c.PubClient, q, devDB)
 		mdmService = svc
 		mdmService = block.RemoveMiddleware(c.RemoveDB)(mdmService)
 
