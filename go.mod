@@ -30,7 +30,7 @@ require (
 	github.com/pressly/goose v2.3.0+incompatible
 	github.com/stretchr/testify v1.2.2 // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect
-	go.mozilla.org/pkcs7 v0.0.0-20210730143726-725912489c62
+	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/net v0.0.0-20201021035429-f5854403a974
 	google.golang.org/appengine v1.2.0 // indirect
