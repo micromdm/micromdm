@@ -34,7 +34,6 @@ require (
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/net v0.0.0-20201021035429-f5854403a974
 	google.golang.org/appengine v1.2.0 // indirect
-	google.golang.org/protobuf v1.23.0
 	gopkg.in/Masterminds/squirrel.v1 v1.0.0-20170825200431-a6b93000bd21
 )
 

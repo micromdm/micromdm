@@ -1,7 +1,6 @@
 syntax = "proto3";
 
 package checkinproto;
-option go_package = "/;checkinproto";
 
 message Event {
        	string  id = 1;
@@ -51,6 +50,6 @@ message GetBootstrapToken {
 }
 
 message SetBootstrapToken {
-	bytes  bootstrap_token = 1;
+    bytes  bootstrap_token = 1;
     bool   s_awaiting_configuration = 2;
 }
