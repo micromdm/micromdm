@@ -66,6 +66,29 @@ func TestSave(t *testing.T) {
 
 }
 
+func TestGetBootstrapToken(t *testing.T) {
+	db := setupDB(t)
+	dev := &device.Device{
+		UUID:           "a-b-c-d",
+		UDID:           "UDID-FOO-BAR-BAZ",
+		BootstrapToken: "bootstrap",
+	}
+	ctx := context.Background()
+
+	if err := db.Save(ctx, dev); err != nil {
+		t.Fatalf("saving device in datastore: %s", err)
+	}
+
+	haveDev, err := db.DeviceByUDID(ctx, dev.UDID)
+	if err != nil {
+		t.Fatalf("getting device by UDID: %s", err)
+	}
+
+	if have, want := haveDev.BootstrapToken, dev.BootstrapToken; have != want {
+		t.Errorf("have %s, want %s", have, want)
+	}
+}
+
 func TestDeleteByUDID(t *testing.T) {
 	db := setupDB(t)
 	dev := &device.Device{
