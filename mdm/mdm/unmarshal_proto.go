@@ -184,7 +184,7 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			options = &InstallApplicationOptions{
 				PurchaseMethod: new(int64),
 			}
-			*options.PurchaseMethod = pboptions.GetPurchaseMethod();
+			*options.PurchaseMethod = pboptions.GetPurchaseMethod()
 		}
 
 		pbconfig := pbc.GetConfiguration()
@@ -414,8 +414,8 @@ func protoToSetting(s *mdmproto.Setting) Setting {
 		promptUserToAllowBootstrapToken := pbs.GetMdmOptions().GetPromptUserToAllowBootstrapTokenForAuthentication()
 		setting.MDMOptions = map[string]interface {
 		}{
-			"ActivationLockAllowedWhileSupervised": activationLockAllowed,
-			"BootstrapTokenAllowed": bootstrapTokenAllowed,
+			"ActivationLockAllowedWhileSupervised":             activationLockAllowed,
+			"BootstrapTokenAllowed":                            bootstrapTokenAllowed,
 			"PromptUserToAllowBootstrapTokenForAuthentication": promptUserToAllowBootstrapToken,
 		}
 	case "PasscodeLockGracePeriod":

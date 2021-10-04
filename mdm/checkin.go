@@ -18,6 +18,7 @@ func (b b64Data) String() string {
 	return base64.StdEncoding.EncodeToString(b)
 }
 
+// BootstrapToken holds MDM Bootstrap Token data
 type BootstrapToken struct {
 	BootstrapToken b64Data
 }
@@ -44,7 +45,7 @@ func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) ([]byte,
 			return nil, errors.Wrap(err, "clearing queue on enrollment attempt")
 		}
 	}
-			
+
 	if topic == GetBootstrapTokenTopic {
 		udid := event.Command.UDID
 
@@ -52,16 +53,15 @@ func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) ([]byte,
 		if err != nil {
 			return nil, errors.Wrap(err, "fetching bootstrap token")
 		}
-		
-		var bt BootstrapToken
-		bt = BootstrapToken{b64Data(btBytes)}
+
+		bt := &BootstrapToken{b64Data(btBytes)}
 
 		resp, err := plist.Marshal(bt)
 		if err != nil {
 			return nil, errors.Wrap(err, "marshal bootstrap token")
 		}
 
-		return resp, errors.Wrap(err, "getting bootstrap token")
+		return resp, nil
 	}
 
 	err = svc.pub.Publish(ctx, topic, msg)

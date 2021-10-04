@@ -19,9 +19,9 @@ type CheckinEvent struct {
 
 // CheckinRequest represents an MDM checkin command struct.
 type CheckinCommand struct {
-	// MessageType can be either Authenticate, 
-	// UserAuthenticate, CheckOut or TokenUpdate
-	// or GetBootstrapToken or SetBootstrapToken
+	// MessageType can be either
+	// Authenticate, CheckOut, TokenUpdate,
+	// GetBootstrapToken, or SetBootstrapToken
 
 	MessageType  string
 	Topic        string
