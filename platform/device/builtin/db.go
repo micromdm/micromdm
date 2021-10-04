@@ -3,7 +3,6 @@ package builtin
 import (
 	"context"
 	"fmt"
-	"encoding/hex"
 
 	"github.com/boltdb/bolt"
 	"github.com/pkg/errors"
@@ -48,21 +47,11 @@ func NewDB(db *bolt.DB) (*DB, error) {
 }
 
 func (db *DB) GetBootstrapToken(ctx context.Context, udid string) ([]byte, error) {
-	opts := device.ListDevicesOption{}
-	
-	var udids []string
-	udids = append(udids, udid)
-
-	opts.FilterUDID = udids
-	
-	devices, err := db.List(ctx, opts)
-	for _, d := range devices {
-		btstring, _ := hex.DecodeString(string(d.BootstrapToken))
-		btbytes := []byte(btstring)
-		return btbytes, err
+	d, err := db.DeviceByUDID(ctx, udid)
+	if err != nil {
+		return nil, errors.Wrap(err, "lookup device by uuid")
 	}
-
-	return nil, nil
+	return []byte(d.BootstrapToken), nil
 }
 
 func (db *DB) List(ctx context.Context, opt device.ListDevicesOption) ([]device.Device, error) {
@@ -76,7 +65,7 @@ func (db *DB) List(ctx context.Context, opt device.ListDevicesOption) ([]device.
 			if err := device.UnmarshalDevice(v, &dev); err != nil {
 				return err
 			}
-			if len(opt.FilterSerial) == 0 && len(opt.FilterUDID) == 0 {
+			if len(opt.FilterSerial) == 0 {
 				devices = append(devices, dev)
 				return nil
 			}
@@ -85,11 +74,6 @@ func (db *DB) List(ctx context.Context, opt device.ListDevicesOption) ([]device.
 					devices = append(devices, dev)
 				}
 			}
-			for _, fs := range opt.FilterUDID {
-				if fs == dev.UDID {
-					devices = append(devices, dev)
-				}
-			}			
 			return nil
 		})
 	})

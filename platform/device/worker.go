@@ -221,7 +221,7 @@ func (w *Worker) updateFromSetBootstrapToken(ctx context.Context, message []byte
 		return errors.Wrapf(err, "retrieve device with udid %s", ev.Command.UDID)
 	}
 
-	dev.BootstrapToken = ev.Command.BootstrapToken.String()
+	dev.BootstrapToken = string(ev.Command.BootstrapToken)
 	dev.AwaitingConfiguration = ev.Command.AwaitingConfiguration
 	dev.LastSeen = time.Now()
 

@@ -40,15 +40,15 @@ type Queue interface {
 }
 
 type MDMService struct {
-	dev				BootstrapTokenRetriever
-	pub   			pubsub.Publisher
-	queue			Queue
+	dev   BootstrapTokenRetriever
+	pub   pubsub.Publisher
+	queue Queue
 }
 
 func NewService(pub pubsub.Publisher, queue Queue, dev BootstrapTokenRetriever) *MDMService {
 	return &MDMService{
-		dev:			dev,
-		pub:   			pub,
-		queue: 			queue,
+		dev:   dev,
+		pub:   pub,
+		queue: queue,
 	}
 }

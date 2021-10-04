@@ -72,7 +72,7 @@ type getBootstrap struct {
 // Set Bootstrap Token Message Type # SetBootstrapTokenRequest
 type setBootstrap struct {
 	SetAwaitingConfiguration bool
-	BootstrapToken           hexData
+	BootstrapToken           []byte
 }
 
 // data decodes to []byte,

@@ -2,7 +2,6 @@ package mdm
 
 import (
 	"context"
-	"encoding/base64"
 	"net/http"
 	"time"
 
@@ -12,15 +11,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-type b64Data []byte
-
-func (b b64Data) String() string {
-	return base64.StdEncoding.EncodeToString(b)
-}
-
 // BootstrapToken holds MDM Bootstrap Token data
 type BootstrapToken struct {
-	BootstrapToken b64Data
+	BootstrapToken []byte
 }
 
 func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) ([]byte, error) {
@@ -46,6 +39,8 @@ func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) ([]byte,
 		}
 	}
 
+	var resp []byte
+
 	if topic == GetBootstrapTokenTopic {
 		udid := event.Command.UDID
 
@@ -54,18 +49,16 @@ func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) ([]byte,
 			return nil, errors.Wrap(err, "fetching bootstrap token")
 		}
 
-		bt := &BootstrapToken{b64Data(btBytes)}
+		bt := &BootstrapToken{BootstrapToken: btBytes}
 
-		resp, err := plist.Marshal(bt)
+		resp, err = plist.Marshal(bt)
 		if err != nil {
 			return nil, errors.Wrap(err, "marshal bootstrap token")
 		}
-
-		return resp, nil
 	}
 
 	err = svc.pub.Publish(ctx, topic, msg)
-	return nil, errors.Wrapf(err, "publish checkin on topic: %s", topic)
+	return resp, errors.Wrapf(err, "publish checkin on topic: %s", topic)
 }
 
 func topicFromMessage(messageType string) (string, error) {
