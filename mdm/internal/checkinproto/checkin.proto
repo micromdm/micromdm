@@ -46,10 +46,10 @@ message TokenUpdate {
 }
 
 message GetBootstrapToken {
-    bool   g_awaiting_configuration = 1;
+    bool   get_awaiting_configuration = 1;
 }
 
 message SetBootstrapToken {
     bytes  bootstrap_token = 1;
-    bool   s_awaiting_configuration = 2;
+    bool   set_awaiting_configuration = 2;
 }
