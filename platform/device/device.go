@@ -38,7 +38,7 @@ type Device struct {
 	DEPProfileAssignedDate time.Time        `db:"dep_profile_assigned_date"`
 	DEPProfileAssignedBy   string           `db:"dep_profile_assigned_by"`
 	LastSeen               time.Time        `db:"last_seen"`
-	BootstrapToken         string           `db:"bootstrap_token"`
+	BootstrapToken         []byte           `db:"bootstrap_token"`
 }
 
 // DEPProfileStatus is the status of the DEP Profile

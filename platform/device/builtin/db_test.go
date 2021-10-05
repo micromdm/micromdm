@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"bytes"
 	"context"
 	"io/ioutil"
 	"os"
@@ -71,7 +72,7 @@ func TestGetBootstrapToken(t *testing.T) {
 	dev := &device.Device{
 		UUID:           "a-b-c-d",
 		UDID:           "UDID-FOO-BAR-BAZ",
-		BootstrapToken: "bootstrap",
+		BootstrapToken: []byte("bootstrap"),
 	}
 	ctx := context.Background()
 
@@ -84,7 +85,7 @@ func TestGetBootstrapToken(t *testing.T) {
 		t.Fatalf("getting device by UDID: %s", err)
 	}
 
-	if have, want := haveDev.BootstrapToken, dev.BootstrapToken; have != want {
+	if have, want := haveDev.BootstrapToken, dev.BootstrapToken; bytes.Compare(have, want) != 0 {
 		t.Errorf("have %s, want %s", have, want)
 	}
 }

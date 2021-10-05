@@ -52,7 +52,7 @@ func (db *DB) GetBootstrapToken(ctx context.Context, udid string) ([]byte, error
 	if err != nil {
 		return nil, errors.Wrap(err, "lookup device by uuid")
 	}
-	return []byte(d.BootstrapToken), nil
+	return d.BootstrapToken, nil
 }
 
 func (db *DB) List(ctx context.Context, opt device.ListDevicesOption) ([]device.Device, error) {
