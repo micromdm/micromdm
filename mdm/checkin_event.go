@@ -22,7 +22,6 @@ type CheckinCommand struct {
 	// MessageType can be either
 	// Authenticate, CheckOut, TokenUpdate,
 	// GetBootstrapToken, or SetBootstrapToken
-
 	MessageType  string
 	Topic        string
 	UDID         string
