@@ -63,12 +63,12 @@ type userTokenUpdate struct {
 	NotOnConsole  bool   `plist:",omitempty"`
 }
 
-// Get Bootstrap Token Message Type # GetBootstrapTokenRequest
+// GetBootstrapToken Message Type
 type getBootstrap struct {
 	GetAwaitingConfiguration bool
 }
 
-// Set Bootstrap Token Message Type # SetBootstrapTokenRequest
+// SetBootstrapToken Message Type
 type setBootstrap struct {
 	SetAwaitingConfiguration bool
 	BootstrapToken           []byte

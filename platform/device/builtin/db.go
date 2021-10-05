@@ -46,6 +46,7 @@ func NewDB(db *bolt.DB) (*DB, error) {
 	return datastore, nil
 }
 
+// GetBootstrapToken returns the Bootstrap Token for the device by udid
 func (db *DB) GetBootstrapToken(ctx context.Context, udid string) ([]byte, error) {
 	d, err := db.DeviceByUDID(ctx, udid)
 	if err != nil {

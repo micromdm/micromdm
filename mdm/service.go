@@ -29,8 +29,10 @@ const (
 	SetBootstrapTokenTopic = "mdm.SetBootstrapToken"
 )
 
+// BootBootstrapTokenRetriever retrieves BootStrap Tokens for devices
 type BootstrapTokenRetriever interface {
-	GetBootstrapToken(context.Context, string) ([]byte, error)
+	// GetBootstrapToken returns the Bootstrap Token for the device by udid
+	GetBootstrapToken(ctx context.Context, udid string) ([]byte, error)
 }
 
 // Queue is an MDM Command Queue.
