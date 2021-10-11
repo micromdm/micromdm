@@ -14,11 +14,12 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/fullsailor/pkcs7"
-	"github.com/go-kit/kit/log"
 	"github.com/micromdm/micromdm/pkg/crypto"
 	"github.com/micromdm/micromdm/pkg/crypto/mdmcertutil"
+
+	"github.com/go-kit/kit/log"
 	"github.com/pkg/errors"
+	"go.mozilla.org/pkcs7"
 )
 
 const (

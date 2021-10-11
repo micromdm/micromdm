@@ -3,18 +3,11 @@ package server
 import (
 	"context"
 	"crypto/x509"
+	"fmt"
 	"net/http"
 	"net/url"
 	"path/filepath"
 	"time"
-
-	"github.com/boltdb/bolt"
-	"github.com/go-kit/kit/log"
-	"github.com/go-kit/kit/log/level"
-	challengestore "github.com/micromdm/scep/challenge/bolt"
-	boltdepot "github.com/micromdm/scep/depot/bolt"
-	scep "github.com/micromdm/scep/server"
-	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/dep"
 	"github.com/micromdm/micromdm/mdm"
@@ -33,9 +26,20 @@ import (
 	"github.com/micromdm/micromdm/platform/pubsub"
 	"github.com/micromdm/micromdm/platform/pubsub/inmem"
 	"github.com/micromdm/micromdm/platform/queue"
+	queueinmem "github.com/micromdm/micromdm/platform/queue/inmem"
 	block "github.com/micromdm/micromdm/platform/remove"
 	blockbuiltin "github.com/micromdm/micromdm/platform/remove/builtin"
 	"github.com/micromdm/micromdm/workflow/webhook"
+
+	"github.com/boltdb/bolt"
+	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
+	"github.com/micromdm/scep/v2/challenge"
+	boltchallenge "github.com/micromdm/scep/v2/challenge/bolt"
+	"github.com/micromdm/scep/v2/depot"
+	boltdepot "github.com/micromdm/scep/v2/depot/bolt"
+	scep "github.com/micromdm/scep/v2/server"
+	"github.com/pkg/errors"
 )
 
 type Server struct {
@@ -47,10 +51,10 @@ type Server struct {
 	SCEPChallenge          string
 	SCEPClientValidity     int
 	TLSCertPath            string
-	SCEPDepot              *boltdepot.Depot
+	SCEPDepot              depot.Depot
 	UseDynSCEPChallenge    bool
 	GenDynSCEPChallenge    bool
-	SCEPChallengeDepot     *challengestore.Depot
+	SCEPChallengeDepot     challenge.Store
 	ProfileDB              profile.Store
 	ConfigDB               config.Store
 	RemoveDB               block.Store
@@ -61,6 +65,7 @@ type Server struct {
 	ValidateSCEPIssuer     bool
 	ValidateSCEPExpiration bool
 	UDIDCertAuthWarnOnly   bool
+	Queue                  string
 
 	APNSPushService apns.Service
 	CommandService  command.Service
@@ -166,14 +171,26 @@ func (c *Server) setupCommandService() error {
 }
 
 func (c *Server) setupCommandQueue(logger log.Logger) error {
-	opts := []queue.Option{queue.WithLogger(logger)}
-	if c.NoCmdHistory {
-		opts = append(opts, queue.WithoutHistory())
+	var q mdm.Queue
+	switch c.Queue {
+	case "inmem":
+		q = queueinmem.New(c.PubClient, logger)
+	case "builtin":
+		opts := []queue.Option{queue.WithLogger(logger)}
+		if c.NoCmdHistory {
+			opts = append(opts, queue.WithoutHistory())
+		}
+		var err error
+		q, err = queue.NewQueue(c.DB, c.PubClient, opts...)
+		if err != nil {
+			return err
+		}
+	case "":
+		return errors.New("empty command queue type")
+	default:
+		return fmt.Errorf("invalid command queue type: %s", c.Queue)
 	}
-	q, err := queue.NewQueue(c.DB, c.PubClient, opts...)
-	if err != nil {
-		return err
-	}
+
 	devDB, err := devicebuiltin.NewDB(c.DB)
 	if err != nil {
 		return errors.Wrap(err, "new device db")
@@ -181,7 +198,7 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 
 	var mdmService mdm.Service
 	{
-		svc := mdm.NewService(c.PubClient, q)
+		svc := mdm.NewService(c.PubClient, q, devDB)
 		mdmService = svc
 		mdmService = block.RemoveMiddleware(c.RemoveDB)(mdmService)
 
@@ -340,37 +357,38 @@ func (c *Server) CreateDEPSyncer(logger log.Logger) (sync.Syncer, error) {
 }
 
 func (c *Server) setupSCEP(logger log.Logger) error {
-	depot, err := boltdepot.NewBoltDepot(c.DB)
+	svcBoltDepot, err := boltdepot.NewBoltDepot(c.DB)
+	if err != nil {
+		return err
+	}
+	c.SCEPDepot = svcBoltDepot
+
+	key, err := svcBoltDepot.CreateOrLoadKey(2048)
 	if err != nil {
 		return err
 	}
 
-	key, err := depot.CreateOrLoadKey(2048)
+	crt, err := svcBoltDepot.CreateOrLoadCA(key, 5, "MicroMDM", "US")
 	if err != nil {
 		return err
 	}
 
-	_, err = depot.CreateOrLoadCA(key, 5, "MicroMDM", "US")
-	if err != nil {
-		return err
-	}
-
-	opts := []scep.ServiceOption{
-		scep.ClientValidity(c.SCEPClientValidity),
-	}
-	var scepChalOpt scep.ServiceOption
+	var signer scep.CSRSigner = depot.NewSigner(
+		c.SCEPDepot,
+		depot.WithAllowRenewalDays(0),
+		depot.WithValidityDays(c.SCEPClientValidity),
+	)
 	if c.UseDynSCEPChallenge {
-		c.SCEPChallengeDepot, err = challengestore.NewBoltDepot(c.DB)
+		c.SCEPChallengeDepot, err = boltchallenge.NewBoltDepot(c.DB)
 		if err != nil {
 			return err
 		}
-		scepChalOpt = scep.WithDynamicChallenges(c.SCEPChallengeDepot)
+		signer = challenge.Middleware(c.SCEPChallengeDepot, signer)
 	} else {
-		scepChalOpt = scep.ChallengePassword(c.SCEPChallenge)
+		signer = scep.ChallengeMiddleware(c.SCEPChallenge, signer)
 	}
-	opts = append(opts, scepChalOpt)
-	c.SCEPDepot = depot
-	c.SCEPService, err = scep.NewService(depot, opts...)
+
+	c.SCEPService, err = scep.NewService(crt, key, signer)
 	if err != nil {
 		return err
 	}

@@ -1,12 +1,15 @@
 package mdm
 
 import (
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/micromdm/micromdm/mdm/appmanifest"
 )
 
 type CommandRequest struct {
-	UDID string `json:"udid"`
+	UDID        string `json:"udid"`
+	CommandUUID string `json:"command_uuid"`
 	*Command
 }
 
@@ -17,8 +20,11 @@ type CommandPayload struct {
 
 func NewCommandPayload(request *CommandRequest) (*CommandPayload, error) {
 	payload := &CommandPayload{
-		CommandUUID: uuid.New().String(),
+		CommandUUID: request.CommandUUID,
 		Command:     request.Command,
+	}
+	if strings.TrimSpace(payload.CommandUUID) == "" {
+		payload.CommandUUID = uuid.New().String()
 	}
 	return payload, nil
 }
@@ -55,12 +61,13 @@ type Command struct {
 	ManagedApplicationFeedback      *ManagedApplicationFeedback
 	SetFirmwarePassword             *SetFirmwarePassword
 	VerifyFirmwarePassword          *VerifyFirmwarePassword
+	SetRecoveryLock                 *SetRecoveryLock
+	VerifyRecoveryLock              *VerifyRecoveryLock
 	SetAutoAdminPassword            *SetAutoAdminPassword
 	ScheduleOSUpdate                *ScheduleOSUpdate
 	ScheduleOSUpdateScan            *ScheduleOSUpdateScan
 	ActiveNSExtensions              *ActiveNSExtensions
 	RotateFileVaultKey              *RotateFileVaultKey
-	SetBootstrapToken               *SetBootstrapToken
 }
 
 // InstallProfile is an InstallProfile MDM Command
@@ -242,22 +249,30 @@ type ManagedApplicationFeedback struct {
 }
 
 type SetFirmwarePassword struct {
-	CurrentPassword string `plist:",omitempty" json:"current_password,omitempty"`
-	NewPassword     string `json:"new_password"`
-	AllowOroms      bool   `plist:",omitempty" json:"allow_oroms,omitempty"`
+	CurrentPassword              string `plist:",omitempty" json:"current_password,omitempty"`
+	NewPassword                  string `json:"new_password"`
+	RequestRequiresNetworkTether bool   `plist:",omitempty" json:"request_requires_network_tether,omitempty"`
+	AllowOroms                   bool   `plist:",omitempty" json:"allow_oroms,omitempty"`
 }
 
 type VerifyFirmwarePassword struct {
 	Password string `json:"password"`
 }
 
+type SetRecoveryLock struct {
+	CurrentPassword              string `plist:",omitempty" json:"current_password,omitempty"`
+	NewPassword                  string `json:"new_password"`
+	RequestRequiresNetworkTether bool   `plist:",omitempty" json:"request_requires_network_tether,omitempty"`
+	AllowOroms                   bool   `plist:",omitempty" json:"allow_oroms,omitempty"`
+}
+
+type VerifyRecoveryLock struct {
+	Password string `json:"password"`
+}
+
 type SetAutoAdminPassword struct {
 	GUID         string `plist:",omitempty" json:"guid,omitempty"`
 	PasswordHash []byte `plist:"passwordHash" json:"password_hash"`
-}
-
-type SetBootstrapToken struct {
-	BootstrapToken string `plist:",omitempty" json:"bootstrap_token,omitempty"`
 }
 
 type OSUpdate struct {

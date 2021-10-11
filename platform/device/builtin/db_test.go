@@ -1,6 +1,7 @@
 package builtin
 
 import (
+	"bytes"
 	"context"
 	"io/ioutil"
 	"os"
@@ -64,6 +65,29 @@ func TestSave(t *testing.T) {
 	t.Run("byUDID", tf(byUDID))
 	t.Run("bySerial", tf(bySerial))
 
+}
+
+func TestGetBootstrapToken(t *testing.T) {
+	db := setupDB(t)
+	dev := &device.Device{
+		UUID:           "a-b-c-d",
+		UDID:           "UDID-FOO-BAR-BAZ",
+		BootstrapToken: []byte("bootstrap"),
+	}
+	ctx := context.Background()
+
+	if err := db.Save(ctx, dev); err != nil {
+		t.Fatalf("saving device in datastore: %s", err)
+	}
+
+	haveDev, err := db.DeviceByUDID(ctx, dev.UDID)
+	if err != nil {
+		t.Fatalf("getting device by UDID: %s", err)
+	}
+
+	if have, want := haveDev.BootstrapToken, dev.BootstrapToken; bytes.Compare(have, want) != 0 {
+		t.Errorf("have %s, want %s", have, want)
+	}
 }
 
 func TestDeleteByUDID(t *testing.T) {

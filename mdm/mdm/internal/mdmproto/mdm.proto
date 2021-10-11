@@ -69,6 +69,8 @@ message Command {
     RotateFileVaultKey rotate_filevault_key = 35;
     InstallEnterpriseApplication install_enterprise_application = 36;
     SetBootstrapToken set_bootstrap_token = 37;
+    SetRecoveryLock set_recovery_lock = 38;
+    VerifyRecoveryLock verify_recovery_lock = 39;
   }
 }
 
@@ -327,6 +329,8 @@ message MDMOptionsSetting {
 
 message MDMOptions {
   bool activation_lock_allowed_while_supervised = 1;
+  bool bootstrap_token_allowed = 2;
+  bool prompt_user_to_allow_bootstrap_token_for_authentication = 3;
 }
 
 message PasscodeLockGracePeriodSetting {
@@ -362,9 +366,21 @@ message SetFirmwarePassword {
   string current_password = 1;
   string new_password = 2;
   bool allow_oroms = 3;
+  bool request_requires_network_tether = 4;
 }
 
 message VerifyFirmwarePassword {
+  string password = 1;
+}
+
+message SetRecoveryLock {
+  string current_password = 1;
+  string new_password = 2;
+  bool allow_oroms = 3;
+  bool request_requires_network_tether = 4;
+}
+
+message VerifyRecoveryLock {
   string password = 1;
 }
 
@@ -407,7 +423,6 @@ message FileVaultUnlock {
 message SetBootstrapToken {
   string bootstrap_token = 1;
 }
-
 
 message ResultPayload {
   enum Status {

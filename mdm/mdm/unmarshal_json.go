@@ -11,12 +11,14 @@ func (c *CommandRequest) UnmarshalJSON(data []byte) error {
 	var request = struct {
 		UDID        string `json:"udid"`
 		RequestType string `json:"request_type"`
+		CommandUUID string `json:"command_uuid"`
 	}{}
 	if err := json.Unmarshal(data, &request); err != nil {
 		return errors.Wrap(err, "mdm: unmarshal json command request")
 	}
 	c.UDID = request.UDID
 	c.Command = &Command{}
+	c.CommandUUID = request.CommandUUID
 	return c.Command.UnmarshalJSON(data)
 }
 
@@ -262,6 +264,20 @@ func (c *Command) UnmarshalJSON(data []byte) error {
 		}
 		c.VerifyFirmwarePassword = &payload
 		return nil
+	case "SetRecoveryLock":
+		var payload SetRecoveryLock
+		if err := json.Unmarshal(data, &payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
+		}
+		c.SetRecoveryLock = &payload
+		return nil
+	case "VerifyRecoveryLock":
+		var payload VerifyRecoveryLock
+		if err := json.Unmarshal(data, &payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
+		}
+		c.VerifyRecoveryLock = &payload
+		return nil
 	case "SetAutoAdminPassword":
 		var payload SetAutoAdminPassword
 		if err := json.Unmarshal(data, &payload); err != nil {
@@ -296,13 +312,6 @@ func (c *Command) UnmarshalJSON(data []byte) error {
 			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.RotateFileVaultKey = &payload
-		return nil
-	case "SetBootstrapToken":
-		var payload SetBootstrapToken
-		if err := json.Unmarshal(data, &payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
-		}
-		c.SetBootstrapToken = &payload
 		return nil
 	default:
 		return fmt.Errorf("mdm: unknown RequestType: %s", c.RequestType)

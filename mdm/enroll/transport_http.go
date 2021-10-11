@@ -6,11 +6,11 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/fullsailor/pkcs7"
+	"github.com/micromdm/micromdm/pkg/crypto"
+
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/groob/plist"
-
-	"github.com/micromdm/micromdm/pkg/crypto"
+	"go.mozilla.org/pkcs7"
 )
 
 type HTTPHandlers struct {

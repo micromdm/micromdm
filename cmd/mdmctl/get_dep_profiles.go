@@ -29,8 +29,8 @@ The output of the dep-devices response will contain the profile UUIDs.
 func (cmd *getCommand) getDEPProfiles(args []string) error {
 	flagset := flag.NewFlagSet("dep-profiles", flag.ExitOnError)
 	var (
-		flProfilePath = flagset.String("f", "", "filename of DEP profile to apply")
-		flUUID        = flagset.String("uuid", "", "DEP Profile UUID(required)")
+		flProfilePath = flagset.String("f", "", "Filename to save downloaded DEP profile (JSON)")
+		flUUID        = flagset.String("uuid", "", "DEP Profile UUID (required)")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl get dep-profiles [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -88,7 +88,7 @@ func (cmd *getCommand) getDEPProfiles(args []string) error {
 		}
 
 		if *flProfilePath != "-" {
-			fmt.Printf("wrote DEP profile %s to: %s\n", *flUUID, *flProfilePath)
+			fmt.Printf("Wrote DEP profile %s to: %s\n", *flUUID, *flProfilePath)
 		}
 	}
 

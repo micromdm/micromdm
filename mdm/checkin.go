@@ -7,34 +7,58 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/google/uuid"
+	"github.com/groob/plist"
 	"github.com/pkg/errors"
 )
 
-func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) error {
+// BootstrapToken holds MDM Bootstrap Token data
+type BootstrapToken struct {
+	BootstrapToken []byte
+}
+
+func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) ([]byte, error) {
 	// reject user settings at the loginwindow.
 	// https://github.com/micromdm/micromdm/pull/379
 	if event.Command.MessageType == "UserAuthenticate" {
-		return &rejectUserAuth{}
+		return nil, &rejectUserAuth{}
 	}
 
 	msg, err := MarshalCheckinEvent(&event)
 	if err != nil {
-		return errors.Wrap(err, "marshal checkin event")
+		return nil, errors.Wrap(err, "marshal checkin event")
 	}
 
 	topic, err := topicFromMessage(event.Command.MessageType)
 	if err != nil {
-		return errors.Wrap(err, "get checkin topic from message")
+		return nil, errors.Wrap(err, "get checkin topic from message")
 	}
 
 	if topic == AuthenticateTopic {
 		if err := svc.queue.Clear(ctx, event); err != nil {
-			return errors.Wrap(err, "clearing queue on enrollment attempt")
+			return nil, errors.Wrap(err, "clearing queue on enrollment attempt")
+		}
+	}
+
+	var resp []byte
+
+	if topic == GetBootstrapTokenTopic {
+		udid := event.Command.UDID
+
+		btBytes, err := svc.dev.GetBootstrapToken(ctx, udid)
+		if err != nil {
+			return nil, errors.Wrap(err, "fetching bootstrap token")
+		}
+
+		bt := &BootstrapToken{BootstrapToken: btBytes}
+
+		resp, err = plist.Marshal(bt)
+		if err != nil {
+			return nil, errors.Wrap(err, "marshal bootstrap token")
 		}
 	}
 
 	err = svc.pub.Publish(ctx, topic, msg)
-	return errors.Wrapf(err, "publish checkin on topic: %s", topic)
+	return resp, errors.Wrapf(err, "publish checkin on topic: %s", topic)
 }
 
 func topicFromMessage(messageType string) (string, error) {
@@ -45,6 +69,10 @@ func topicFromMessage(messageType string) (string, error) {
 		return TokenUpdateTopic, nil
 	case "CheckOut":
 		return CheckoutTopic, nil
+	case "GetBootstrapToken":
+		return GetBootstrapTokenTopic, nil
+	case "SetBootstrapToken":
+		return SetBootstrapTokenTopic, nil
 	default:
 		return "", errors.Errorf("unknown checkin message type %s", messageType)
 	}
@@ -74,10 +102,12 @@ type checkinRequest struct {
 }
 
 type checkinResponse struct {
-	Err error `plist:"error,omitempty"`
+	Payload []byte
+	Err     error `plist:"error,omitempty"`
 }
 
-func (r checkinResponse) Failed() error { return r.Err }
+func (r checkinResponse) Response() []byte { return r.Payload }
+func (r checkinResponse) Failed() error    { return r.Err }
 
 func decodeCheckinRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var cmd CheckinCommand
@@ -106,7 +136,7 @@ func decodeCheckinRequest(ctx context.Context, r *http.Request) (interface{}, er
 func MakeCheckinEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(checkinRequest)
-		err := svc.Checkin(ctx, req.Event)
-		return checkinResponse{Err: err}, nil
+		payload, err := svc.Checkin(ctx, req.Event)
+		return checkinResponse{Payload: payload, Err: err}, nil
 	}
 }

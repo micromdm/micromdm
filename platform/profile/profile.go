@@ -1,13 +1,12 @@
 package profile
 
 import (
-	"github.com/pkg/errors"
+	"github.com/micromdm/micromdm/platform/profile/internal/profileproto"
 
-	"github.com/fullsailor/pkcs7"
 	"github.com/gogo/protobuf/proto"
 	"github.com/groob/plist"
-
-	"github.com/micromdm/micromdm/platform/profile/internal/profileproto"
+	"github.com/pkg/errors"
+	"go.mozilla.org/pkcs7"
 )
 
 type Mobileconfig []byte

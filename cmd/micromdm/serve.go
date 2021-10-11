@@ -14,18 +14,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/boltdb/bolt"
-	"github.com/go-kit/kit/auth/basic"
-	"github.com/go-kit/kit/log"
-	httptransport "github.com/go-kit/kit/transport/http"
-	"github.com/groob/finalizer/logutil"
-	"github.com/micromdm/go4/env"
-	"github.com/micromdm/go4/httputil"
-	"github.com/micromdm/go4/version"
-	scep "github.com/micromdm/scep/server"
-	"github.com/pkg/errors"
-	"golang.org/x/crypto/acme/autocert"
-
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/mdm/enroll"
 	httputil2 "github.com/micromdm/micromdm/pkg/httputil"
@@ -46,6 +34,19 @@ import (
 	"github.com/micromdm/micromdm/platform/user"
 	userbuiltin "github.com/micromdm/micromdm/platform/user/builtin"
 	"github.com/micromdm/micromdm/server"
+
+	"github.com/boltdb/bolt"
+	"github.com/go-kit/kit/auth/basic"
+	"github.com/go-kit/kit/log"
+	httptransport "github.com/go-kit/kit/transport/http"
+	"github.com/gorilla/handlers"
+	"github.com/groob/finalizer/logutil"
+	"github.com/micromdm/go4/env"
+	"github.com/micromdm/go4/httputil"
+	"github.com/micromdm/go4/version"
+	scep "github.com/micromdm/scep/v2/server"
+	"github.com/pkg/errors"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 const homePage = `<!doctype html>
@@ -83,7 +84,7 @@ body {
 <body>
 
 <h1>MicroMDM</h1>
-<svg xmlns="http://www.w3.org/2000/svg" width="204" height="192" viewBox="0 0 51 48">
+<svg xmlns="http://www.w3.org/2000/svg" width="204" height="192" viewBox="0 0 51 48" focusable="false" aria-hidden="true">
   <g fill="none" fill-rule="evenodd">
       <path fill="#366BE0" d="M34 38L0 20 34 0z"/>
       <path fill="#4A9DFF" d="M17 10l34 18-34 20z"/>
@@ -109,6 +110,7 @@ func serve(args []string) error {
 		flTLSKey                 = flagset.String("tls-key", env.String("MICROMDM_TLS_KEY", ""), "Path to TLS private key")
 		flHTTPAddr               = flagset.String("http-addr", env.String("MICROMDM_HTTP_ADDR", ":https"), "http(s) listen address of mdm server. defaults to :8080 if tls is false")
 		flHTTPDebug              = flagset.Bool("http-debug", env.Bool("MICROMDM_HTTP_DEBUG", false), "Enable debug for http(dumps full request)")
+		flHTTPProxyHeaders       = flagset.Bool("http-proxy-headers", env.Bool("MICROMDM_HTTP_PROXY_HEADERS", false), "Enable parsing of proxy headers for use behind a reverse proxy")
 		flRepoPath               = flagset.String("filerepo", env.String("MICROMDM_FILE_REPO", ""), "Path to http file repo")
 		flDepSim                 = flagset.String("depsim", env.String("MICROMDM_DEPSIM_URL", ""), "Use depsim URL")
 		flExamples               = flagset.Bool("examples", false, "Prints some example usage")
@@ -122,6 +124,7 @@ func serve(args []string) error {
 		flUDIDCertAuthWarnOnly   = flagset.Bool("udid-cert-auth-warn-only", env.Bool("MICROMDM_UDID_CERT_AUTH_WARN_ONLY", false), "warn only for udid cert mismatches")
 		flValidateSCEPExpiration = flagset.Bool("validate-scep-expiration", env.Bool("MICROMDM_VALIDATE_SCEP_EXPIRATION", false), "validate that the SCEP certificate is still valid")
 		flPrintArgs              = flagset.Bool("print-flags", false, "Print all flags and their values")
+		flQueue                  = flagset.String("queue", env.String("MICROMDM_QUEUE", "builtin"), "command queue type")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -173,6 +176,7 @@ func serve(args []string) error {
 		WebhooksHTTPClient: &http.Client{Timeout: time.Second * 30},
 
 		SCEPClientValidity: *flSCEPClientValidity,
+		Queue:              *flQueue,
 	}
 	if !sm.UseDynSCEPChallenge {
 		// TODO: we have a static SCEP challenge password here to prevent
@@ -232,7 +236,6 @@ func serve(args []string) error {
 	ctx := context.Background()
 	httpLogger := log.With(logger, "transport", "http")
 
-	dc := sm.DEPClient
 	appDB := &appsbuiltin.Repo{Path: *flRepoPath}
 
 	scepEndpoints := scep.MakeServerEndpoints(sm.SCEPService)
@@ -296,6 +299,10 @@ func serve(args []string) error {
 		commandEndpoints := command.MakeServerEndpoints(sm.CommandService, basicAuthEndpointMiddleware)
 		command.RegisterHTTPHandlers(r, commandEndpoints, options...)
 
+		var dc depapi.DEPClient
+		if sm.DEPClient != nil {
+			dc = sm.DEPClient
+		}
 		depsvc := depapi.New(dc, sm.PubClient)
 		depsvc.Run()
 		depEndpoints := depapi.MakeServerEndpoints(depsvc, basicAuthEndpointMiddleware)
@@ -326,6 +333,9 @@ func serve(args []string) error {
 		handler = httputil.HTTPDebugMiddleware(os.Stdout, true, logger.Log)(r)
 	} else {
 		handler = r
+	}
+	if *flHTTPProxyHeaders {
+		handler = handlers.ProxyHeaders(handler)
 	}
 	handler = logutil.NewHTTPLogger(httpLogger).Middleware(handler)
 

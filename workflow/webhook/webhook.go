@@ -81,6 +81,16 @@ func (w *Worker) Run(ctx context.Context) error {
 		return errors.Wrapf(err, "subscribe %s to %s", subscription, mdm.CheckoutTopic)
 	}
 
+	getBootstrapTokenEvents, err := w.sub.Subscribe(ctx, subscription, mdm.GetBootstrapTokenTopic)
+	if err != nil {
+		return errors.Wrapf(err, "subscribe %s to %s", subscription, mdm.GetBootstrapTokenTopic)
+	}
+
+	setBootstrapTokenEvents, err := w.sub.Subscribe(ctx, subscription, mdm.SetBootstrapTokenTopic)
+	if err != nil {
+		return errors.Wrapf(err, "subscribe %s to %s", subscription, mdm.SetBootstrapTokenTopic)
+	}
+
 	for {
 		var (
 			event *Event
@@ -96,6 +106,10 @@ func (w *Worker) Run(ctx context.Context) error {
 		case ev := <-tokenUpdateEvents:
 			event, err = checkinEvent(ev.Topic, ev.Message)
 		case ev := <-checkoutEvents:
+			event, err = checkinEvent(ev.Topic, ev.Message)
+		case ev := <-getBootstrapTokenEvents:
+			event, err = checkinEvent(ev.Topic, ev.Message)
+		case ev := <-setBootstrapTokenEvents:
 			event, err = checkinEvent(ev.Topic, ev.Message)
 		}
 

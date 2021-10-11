@@ -8,14 +8,14 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/groob/plist"
-	"github.com/pkg/errors"
-	"golang.org/x/net/context"
-
 	"github.com/micromdm/micromdm/platform/config"
 	"github.com/micromdm/micromdm/platform/profile"
 	"github.com/micromdm/micromdm/platform/pubsub"
-	challengestore "github.com/micromdm/scep/challenge/bolt"
+	"github.com/micromdm/scep/v2/challenge"
+
+	"github.com/groob/plist"
+	"github.com/pkg/errors"
+	"golang.org/x/net/context"
 )
 
 const (
@@ -30,7 +30,7 @@ type Service interface {
 	OTAPhase3(ctx context.Context) (profile.Mobileconfig, error)
 }
 
-func NewService(topic TopicProvider, sub pubsub.Subscriber, scepURL, scepChallenge, url, tlsCertPath, scepSubject string, profileDB profile.Store, cs *challengestore.Depot) (Service, error) {
+func NewService(topic TopicProvider, sub pubsub.Subscriber, scepURL, scepChallenge, url, tlsCertPath, scepSubject string, profileDB profile.Store, challengeStore challenge.Store) (Service, error) {
 	var tlsCert []byte
 	var err error
 
@@ -65,7 +65,7 @@ func NewService(topic TopicProvider, sub pubsub.Subscriber, scepURL, scepChallen
 		SCEPURL:            scepURL,
 		SCEPSubject:        subject,
 		SCEPChallenge:      scepChallenge,
-		SCEPChallengeStore: cs,
+		SCEPChallengeStore: challengeStore,
 		TLSCert:            tlsCert,
 		ProfileDB:          profileDB,
 		Topic:              pushTopic,
@@ -110,7 +110,7 @@ type service struct {
 	URL                string
 	SCEPURL            string
 	SCEPChallenge      string
-	SCEPChallengeStore *challengestore.Depot
+	SCEPChallengeStore challenge.Store
 	SCEPSubject        [][][]string
 	TLSCert            []byte
 	ProfileDB          profile.Store
@@ -165,6 +165,7 @@ func (svc *service) Enroll(ctx context.Context) (profile.Mobileconfig, error) {
 }
 
 const perUserConnections = "com.apple.mdm.per-user-connections"
+const bootstrapToken = "com.apple.mdm.bootstraptoken"
 
 func (svc *service) MakeEnrollmentProfile() (Profile, error) {
 	profile := NewProfile()
@@ -192,7 +193,7 @@ func (svc *service) MakeEnrollmentProfile() (Profile, error) {
 		ServerURL:           svc.URL + "/mdm/connect",
 		Topic:               topic,
 		SignMessage:         true,
-		ServerCapabilities:  []string{perUserConnections},
+		ServerCapabilities:  []string{perUserConnections, bootstrapToken},
 	}
 
 	payloadContent := []interface{}{}

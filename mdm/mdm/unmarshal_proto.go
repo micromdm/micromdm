@@ -296,18 +296,27 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 	case "SetFirmwarePassword":
 		pbc := pb.GetSetFirmwarePassword()
 		cmd.SetFirmwarePassword = &SetFirmwarePassword{
-			CurrentPassword: pbc.GetCurrentPassword(),
-			NewPassword:     pbc.GetNewPassword(),
-			AllowOroms:      pbc.GetAllowOroms(),
+			CurrentPassword:              pbc.GetCurrentPassword(),
+			NewPassword:                  pbc.GetNewPassword(),
+			AllowOroms:                   pbc.GetAllowOroms(),
+			RequestRequiresNetworkTether: pbc.GetRequestRequiresNetworkTether(),
 		}
-	case "SetBootstrapToken":
-		pbc := pb.GetSetBootstrapToken()
-		cmd.SetBootstrapToken = &SetBootstrapToken{
-			BootstrapToken: pbc.GetBootstrapToken(),
+	case "SetRecoveryLock":
+		pbc := pb.GetSetRecoveryLock()
+		cmd.SetRecoveryLock = &SetRecoveryLock{
+			CurrentPassword:              pbc.GetCurrentPassword(),
+			NewPassword:                  pbc.GetNewPassword(),
+			AllowOroms:                   pbc.GetAllowOroms(),
+			RequestRequiresNetworkTether: pbc.GetRequestRequiresNetworkTether(),
 		}
 	case "VerifyFirmwarePassword":
 		pbc := pb.GetVerifyFirmwarePassword()
 		cmd.VerifyFirmwarePassword = &VerifyFirmwarePassword{
+			Password: pbc.GetPassword(),
+		}
+	case "VerifyRecoveryLock":
+		pbc := pb.GetVerifyRecoveryLock()
+		cmd.VerifyRecoveryLock = &VerifyRecoveryLock{
 			Password: pbc.GetPassword(),
 		}
 	case "SetAutoAdminPassword":
@@ -401,9 +410,13 @@ func protoToSetting(s *mdmproto.Setting) Setting {
 	case "MDMOptions":
 		pbs := s.GetMdmOptions()
 		activationLockAllowed := pbs.GetMdmOptions().GetActivationLockAllowedWhileSupervised()
+		bootstrapTokenAllowed := pbs.GetMdmOptions().GetBootstrapTokenAllowed()
+		promptUserToAllowBootstrapToken := pbs.GetMdmOptions().GetPromptUserToAllowBootstrapTokenForAuthentication()
 		setting.MDMOptions = map[string]interface {
 		}{
-			"ActivationLockAllowedWhileSupervised": activationLockAllowed,
+			"ActivationLockAllowedWhileSupervised":             activationLockAllowed,
+			"BootstrapTokenAllowed":                            bootstrapTokenAllowed,
+			"PromptUserToAllowBootstrapTokenForAuthentication": promptUserToAllowBootstrapToken,
 		}
 	case "PasscodeLockGracePeriod":
 		pbs := s.GetPasscodeLockGracePeriod()

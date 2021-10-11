@@ -1,7 +1,20 @@
 ## [Unreleased](https://github.com/micromdm/micromdm/compare/v1.8.0...main) TBD
 
--  Add Docker workflow. Add ARM build. (#745)
+- Add GHCR container workflow. Add ARM build. (#745)
+- New in-memory-only command queue (#736)
+- Bootstrap token support (#781, #782)
+- Fix potential DEP sync data loss (#779)
+- Support logging proxy IP headers `X-Forwarded-For`, `X-Real-IP`. Enable with `-http-proxy-headers` switch (#744)
+- Allow MDM check-in messages to return data (#764)
+- Added support for SetRecoveryLock and VerifyRecoveryLock (#757)
 - Fix SetFirmwarePassword and VerifyFirmwarePassword parameters (#743)
+- Command UUID can now be passed in as as a request parameter (#754)
+- Update to SCEP v2, switch to Mozilla PKCS7, interface cleanup (#737, #772, #778)
+- Fix panic when using DEP mdmctl commands with no DEP tokens configured (#750)
+- Spruce up built-in landing page including better accessibility (#721, #751)
+- Documentation & CLI usage improvements (#729, #730, #748, #749)
+
+Thanks to our contributors for this release: @discentem, @korylprince, @williamtheaker, @bpmcneilly, @daemonsy, @ivanhata
 
 ## [v1.8.0](https://github.com/micromdm/micromdm/compare/v1.7.1...v1.8.0) February, 2021
 

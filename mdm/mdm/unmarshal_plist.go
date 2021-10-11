@@ -248,6 +248,20 @@ func (c *Command) UnmarshalPlist(unmarshal func(i interface{}) error) error {
 		}
 		c.VerifyFirmwarePassword = &payload
 		return nil
+	case "SetRecoveryLock":
+		var payload SetRecoveryLock
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.SetRecoveryLock = &payload
+		return nil
+	case "VerifyRecoveryLock":
+		var payload VerifyRecoveryLock
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.VerifyRecoveryLock = &payload
+		return nil
 	case "SetAutoAdminPassword":
 		var payload SetAutoAdminPassword
 		if err := unmarshal(&payload); err != nil {
@@ -282,13 +296,6 @@ func (c *Command) UnmarshalPlist(unmarshal func(i interface{}) error) error {
 			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
 		}
 		c.RotateFileVaultKey = &payload
-		return nil
-	case "SetBootstrapToken":
-		var payload SetBootstrapToken
-		if err := unmarshal(&payload); err != nil {
-			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
-		}
-		c.SetBootstrapToken = &payload
 		return nil
 	default:
 		return fmt.Errorf("mdm: unknown RequestType: %s", requestType.RequestType)

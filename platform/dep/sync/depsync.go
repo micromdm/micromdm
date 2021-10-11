@@ -3,6 +3,7 @@ package sync
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -327,12 +328,12 @@ func (w *Watcher) Run() error {
 				"more", resp.MoreToFollow,
 			)
 
+			if err := w.publishAndProcessDevices(resp.Devices); err != nil {
+				return fmt.Errorf("publish and process devices: %w", err)
+			}
 			w.cursor = Cursor{Value: resp.Cursor, CreatedAt: time.Now()}
 			if err := w.db.SaveCursor(w.cursor); err != nil {
 				return errors.Wrap(err, "saving cursor from fetch")
-			}
-			if err := w.publishAndProcessDevices(resp.Devices); err != nil {
-				return err
 			}
 
 			if resp.MoreToFollow {
