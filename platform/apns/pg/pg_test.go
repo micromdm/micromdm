@@ -1,3 +1,4 @@
+//go:build pg
 // +build pg
 
 package pg
