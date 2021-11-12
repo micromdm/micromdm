@@ -3,14 +3,31 @@
 
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+
+	goerrors "errors"
+
+	macospkg "github.com/korylprince/go-macos-pkg"
+	"github.com/pkg/errors"
+)
 
 func signPackage(path, outpath, developerID string) error {
-	fmt.Println("[WARNING] package signing only implemented on macOS")
+	fmt.Println("[WARNING] package signing with -sign only implemented on macOS. Use -sign-identity instead")
 	return nil
 }
 
 func checkSignature(pkgpath string) (bool, error) {
-	fmt.Println("[WARNING] package signing only implemented on macOS. An unsigned macOS package will not install with MDM.")
+	buf, err := os.ReadFile(pkgpath)
+	if err != nil {
+		return false, errors.Wrap(err, "reading package")
+	}
+	if err = macospkg.VerifyPkg(buf); err != nil {
+		if goerrors.Is(err, macospkg.ErrNotSigned) {
+			return false, nil
+		}
+		return false, errors.Wrap(err, "verifying package")
+	}
 	return true, nil
 }

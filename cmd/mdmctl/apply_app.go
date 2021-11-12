@@ -25,13 +25,16 @@ func (cmd *applyCommand) applyApp(args []string) error {
 	flagset := flag.NewFlagSet("app", flag.ExitOnError)
 	var (
 		flPkgPath     = flagset.String("pkg", "", "path to a distribution pkg.")
+		flOutputPath  = flagset.String("out", "", "pkg output path for -sign and -sign-identity (optional, defaults to OS temporary directory)")
 		flPkgURL      = flagset.String("pkg-url", "", "use custom pkg url")
 		flAppManifest = flagset.String("manifest", "-", `path to an app manifest. optional,
 		will be created if file does not exist.`)
 
-		flHashSize = flagset.Int64("md5size", appmanifest.DefaultMD5Size, "md5 hash size in bytes (optional)")
-		flSign     = flagset.String("sign", "", "sign package before importing, requires specifying a product ID (optional)")
-		flUpload   = flagset.Bool("upload", false, "upload package and/or manifest to micromdm repository.")
+		flHashSize     = flagset.Int64("md5size", appmanifest.DefaultMD5Size, "md5 hash size in bytes (optional)")
+		flSign         = flagset.String("sign", "", "sign package before importing, requires specifying id of developer identity in keychain (optional, macOS only)")
+		flSignIdentity = flagset.String("sign-identity", "", "sign package before importing, requires specifying path to .p12 developer identity (optional)")
+		flIdentityPass = flagset.String("password", "", "password used for -sign-identity (optional)")
+		flUpload       = flagset.Bool("upload", false, "upload package and/or manifest to micromdm repository.")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl apply app [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -70,13 +73,27 @@ Please rebuild the package and re-run the command.
 	}
 
 	if !signed {
-		if *flSign == "" {
+		if *flSign == "" && *flSignIdentity == "" {
 			flagset.Usage()
-			return errors.New(`MDM packages must be signed. Provide signed package or Developer ID with -sign flag`)
+			return errors.New(`MDM packages must be signed. Provide signed package or -sign or -sign-identity flags`)
 		}
-		outpath := filepath.Join(os.TempDir(), filepath.Base(*flPkgPath))
-		if err := signPackage(*flPkgPath, outpath, *flSign); err != nil {
-			return err
+		outpath := *flOutputPath
+		if outpath == "" {
+			outpath = filepath.Join(os.TempDir(), filepath.Base(*flPkgPath))
+		}
+		if outpath == *flPkgPath {
+			return errors.New("-out can't be the same as -pkg")
+		}
+
+		if *flSign != "" {
+			if err := signPackage(*flPkgPath, outpath, *flSign); err != nil {
+				return err
+			}
+		} else {
+			if err := signPackageWithIdentity(*flPkgPath, outpath, *flSignIdentity, *flIdentityPass); err != nil {
+				return err
+			}
+
 		}
 		pkg = outpath // use signed package to create the manifest
 	}

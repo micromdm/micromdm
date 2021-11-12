@@ -12,14 +12,15 @@ require (
 	github.com/groob/plist v0.0.0-20180203051248-dd56909aee38
 	github.com/jmoiron/sqlx v0.0.0-20180614180643-0dae4fefe7c0
 	github.com/kolide/kit v0.0.0-20180912215818-0c28f72eb2b0
+	github.com/korylprince/go-macos-pkg v1.3.2
 	github.com/lib/pq v1.0.0
 	github.com/micromdm/go4 v0.0.0-20210104222236-8a0936d9e451
 	github.com/micromdm/scep/v2 v2.1.0
 	github.com/pkg/errors v0.8.0
 	github.com/pressly/goose v2.3.0+incompatible
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
-	golang.org/x/net v0.0.0-20201021035429-f5854403a974
+	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa
+	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110
 	google.golang.org/protobuf v1.27.1
 	gopkg.in/Masterminds/squirrel.v1 v1.0.0-20170825200431-a6b93000bd21
 )
@@ -31,6 +32,8 @@ require (
 	github.com/go-sql-driver/mysql v1.4.0 // indirect
 	github.com/go-stack/stack v1.7.0 // indirect
 	github.com/gorilla/context v1.1.1 // indirect
+	github.com/korylprince/go-cpio-odc v0.9.0 // indirect
+	github.com/korylprince/goxar v0.0.0-20211111233330-e9f257bcdf25 // indirect
 	github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
@@ -38,7 +41,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/testify v1.2.2 // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect
-	golang.org/x/sys v0.0.0-20200930185726-fdedc70b468f // indirect
+	golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1 // indirect
 	golang.org/x/text v0.3.3 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.2.0 // indirect
