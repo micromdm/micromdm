@@ -12,7 +12,7 @@ require (
 	github.com/groob/plist v0.0.0-20180203051248-dd56909aee38
 	github.com/jmoiron/sqlx v0.0.0-20180614180643-0dae4fefe7c0
 	github.com/kolide/kit v0.0.0-20180912215818-0c28f72eb2b0
-	github.com/korylprince/go-macos-pkg v1.3.3
+	github.com/korylprince/go-macos-pkg v1.3.4
 	github.com/lib/pq v1.0.0
 	github.com/micromdm/go4 v0.0.0-20210104222236-8a0936d9e451
 	github.com/micromdm/scep/v2 v2.1.0
@@ -32,7 +32,7 @@ require (
 	github.com/go-sql-driver/mysql v1.4.0 // indirect
 	github.com/go-stack/stack v1.7.0 // indirect
 	github.com/gorilla/context v1.1.1 // indirect
-	github.com/korylprince/go-cpio-odc v0.9.1 // indirect
+	github.com/korylprince/go-cpio-odc v0.9.3 // indirect
 	github.com/korylprince/goxar v0.0.0-20211111233330-e9f257bcdf25 // indirect
 	github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
