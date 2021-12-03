@@ -1,5 +1,5 @@
-name: sigridci
-on: [push, pull_request]
+name: sigrid-pullrequest
+on: [pull_request]
 jobs:
   sigridci:
     runs-on: ubuntu-latest
@@ -11,4 +11,10 @@ jobs:
         env:
           SIGRID_CI_ACCOUNT: "${{ secrets.SIGRID_CI_ACCOUNT }}"
           SIGRID_CI_TOKEN: "${{ secrets.SIGRID_CI_TOKEN }}"
-        run: "./sigridci/sigridci/sigridci.py --customer ssm --system micromdm --source . --targetquality 1.5"
+        run: "./sigridci/sigridci/sigridci.py --customer ssm --system micromdm --source . --targetquality 1.0"
+      - name: "Save Sigrid CI results"
+        if: ${{ success() || failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          path: "sigrid-ci-output/**"
+          retention-days: 7
