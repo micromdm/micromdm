@@ -274,6 +274,9 @@ func switchServerConfig(name string) error {
 	if err != nil {
 		return err
 	}
+	if name == "" {
+		return errors.New("bad input: name can't be empty.")
+	}
 	if _, ok := clientCfg.Servers[name]; !ok {
 		return fmt.Errorf("no server named \"%s\" found", name)
 	}
