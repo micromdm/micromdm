@@ -178,6 +178,11 @@ func switchCmd(args []string) error {
 	if err := flagset.Parse(args); err != nil {
 		return err
 	}
+	
+	if flagset.NFlag() == 0 {
+		flagset.Usage()
+		os.Exit(1)
+	}
 
 	return switchServerConfig(*flName)
 }
