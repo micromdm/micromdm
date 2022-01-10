@@ -73,7 +73,7 @@ func (p *PushCertificateRequest) Encode() ([]byte, error) {
 
 const (
 	wwdrIntermediaryURL = "https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer"
-	appleRootCAURL      = "http://www.apple.com/appleca/AppleIncRootCertificate.cer"
+	appleRootCAURL      = "https://www.apple.com/appleca/AppleIncRootCertificate.cer"
 )
 
 // CreatePushCertificateRequest creates a request structure required by identity.apple.com.
