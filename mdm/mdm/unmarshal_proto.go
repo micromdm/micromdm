@@ -331,8 +331,10 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 		var updates []OSUpdate
 		for _, up := range pbc.GetUpdates() {
 			updates = append(updates, OSUpdate{
-				ProductKey:    up.GetProductKey(),
-				InstallAction: up.GetInstallAction(),
+				ProductKey:       up.GetProductKey(),
+				InstallAction:    up.GetInstallAction(),
+				MaxUserDeferrals: nilIfZeroInt64(up.GetMaxUserDeferrals()),
+				ProductVersion:   up.GetProductVersion(),
 			})
 		}
 		cmd.ScheduleOSUpdate = &ScheduleOSUpdate{

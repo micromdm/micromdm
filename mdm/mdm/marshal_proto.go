@@ -365,8 +365,10 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 		var updates []*mdmproto.Update
 		for _, u := range cmd.ScheduleOSUpdate.Updates {
 			updates = append(updates, &mdmproto.Update{
-				ProductKey:    u.ProductKey,
-				InstallAction: u.InstallAction,
+				ProductKey:       u.ProductKey,
+				InstallAction:    u.InstallAction,
+				MaxUserDeferrals: zeroInt64IfNil(u.MaxUserDeferrals),
+				ProductVersion:   u.ProductVersion,
 			})
 		}
 		cmdproto.Request = &mdmproto.Command_ScheduleOsUpdate{

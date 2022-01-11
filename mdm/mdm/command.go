@@ -276,8 +276,10 @@ type SetAutoAdminPassword struct {
 }
 
 type OSUpdate struct {
-	ProductKey    string `json:"product_key"`
-	InstallAction string `json:"install_action"`
+	ProductKey       string `plist:",omitempty" json:"product_key,omitempty"`
+	InstallAction    string `json:"install_action"`
+	MaxUserDeferrals *int64 `plist:",omitempty" json:"max_user_deferrals,omitempty"`
+	ProductVersion   string `plist:",omitempty" json:"product_version,omitempty"`
 }
 
 type ScheduleOSUpdate struct {

@@ -28,6 +28,7 @@ Not tested end to end but checked against pdf:
 */
 
 func TestMarshalCommand(t *testing.T) {
+	var deferrals int64 = 3
 	var tests = []struct {
 		Command Command
 	}{
@@ -107,6 +108,21 @@ func TestMarshalCommand(t *testing.T) {
 				RequestType: "SetRecoveryLock",
 				VerifyRecoveryLock: &VerifyRecoveryLock{
 					Password: "test",
+				},
+			},
+		},
+		{
+			Command: Command{
+				RequestType: "ScheduleOSUpdate",
+				ScheduleOSUpdate: &ScheduleOSUpdate{
+					Updates: []OSUpdate{
+						{
+							ProductKey:       "io.micromdm.micromdm",
+							InstallAction:    "InstallLater",
+							MaxUserDeferrals: &deferrals,
+							ProductVersion:   "1.0.0",
+						},
+					},
 				},
 			},
 		},
@@ -306,6 +322,31 @@ func TestEndToEnd(t *testing.T) {
 					[]byte(`display-image`),
 					[]byte(`Test Title`),
 					[]byte(`Test Subtitle`),
+				}
+				for _, b := range needToSee {
+					if !bytes.Contains(parts.plistData, b) {
+						t.Error(fmt.Sprintf("marshaled plist does not contain required bytes: '%s'", string(b)))
+					}
+				}
+			},
+		},
+
+		{
+			name: "ScheduleOSUpdate",
+			requestBytes: []byte(
+				`{"request_type":"ScheduleOSUpdate","updates":[{"product_key":"io.micromdm.micromdm","install_action":"InstallLater","max_user_deferrals":3,"product_version":"1.0.0"}]}`,
+			),
+			testFn: func(t *testing.T, parts endToEndParts) {
+				needToSee := [][]byte{
+					[]byte(`Updates`),
+					[]byte(`ProductKey`),
+					[]byte(`io.micromdm.micromdm`),
+					[]byte(`InstallAction`),
+					[]byte(`InstallLater`),
+					[]byte(`MaxUserDeferrals`),
+					[]byte(`3`),
+					[]byte(`ProductVersion`),
+					[]byte(`1.0.0`),
 				}
 				for _, b := range needToSee {
 					if !bytes.Contains(parts.plistData, b) {

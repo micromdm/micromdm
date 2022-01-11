@@ -399,6 +399,7 @@ message Update {
   string product_key = 1;
   string product_version = 2;
   string install_action = 3;
+  int64 max_user_deferrals = 4;
 }
 
 message ScheduleOSUpdateScan {
