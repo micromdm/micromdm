@@ -312,7 +312,7 @@ func (cmd *getCommand) getProfiles(args []string) error {
 		flProfilePath = flagset.String("f", "-", "filename of profile to write")
 		flIdentifier  = flagset.String("id", "", "profile Identifier")
 	)
-	flagset.Usage = usageFor(flagset, "mdmctl get blueprints [flags]")
+	flagset.Usage = usageFor(flagset, "mdmctl get profiles [flags]")
 	if err := flagset.Parse(args); err != nil {
 		return err
 	}
