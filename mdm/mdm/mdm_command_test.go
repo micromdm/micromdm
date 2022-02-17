@@ -126,6 +126,17 @@ func TestMarshalCommand(t *testing.T) {
 				},
 			},
 		},
+		{
+			Command: Command{
+				RequestType: "RotateFileVaultKey",
+				RotateFileVaultKey: &RotateFileVaultKey{
+					KeyType: "personal",
+					FileVaultUnlock: FileVaultUnlock{
+						Password: "password",
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.Command.RequestType+"_json", func(t *testing.T) {
