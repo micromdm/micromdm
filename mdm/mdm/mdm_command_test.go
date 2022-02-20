@@ -126,6 +126,14 @@ func TestMarshalCommand(t *testing.T) {
 				},
 			},
 		},
+		{
+			Command: Command{
+				RequestType: "RefreshCellularPlans",
+				RefreshCellularPlans: &RefreshCellularPlans{
+					EsimServerUrl: "example.server.com",
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.Command.RequestType+"_json", func(t *testing.T) {
@@ -483,6 +491,24 @@ func TestEndToEnd(t *testing.T) {
 			testFn: func(t *testing.T, parts endToEndParts) {
 				if parts.payload.CommandUUID != "this-uuid-should-be-used" {
 					t.Error("CommandUUID should be set to request payload's command_uuid")
+				}
+			},
+		},
+
+		{
+			name: "RefreshCellularPlans",
+			requestBytes: []byte(
+				`{"request_type":"RefreshCellularPlans","esim_server_url":"example.server.com"}`,
+			),
+			testFn: func(t *testing.T, parts endToEndParts) {
+				needToSee := [][]byte{
+					[]byte(`EsimServerUrl`),
+					[]byte(`example.server.com`),
+				}
+				for _, b := range needToSee {
+					if !bytes.Contains(parts.plistData, b) {
+						t.Error(fmt.Sprintf("marshaled plist does not contain required bytes: '%s'", string(b)))
+					}
 				}
 			},
 		},

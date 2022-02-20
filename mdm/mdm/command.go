@@ -309,5 +309,5 @@ type FileVaultUnlock struct {
 }
 
 type RefreshCellularPlans struct {
-	ESIMServerUrl string `plist:"eSIMServerURL,omitempty" json:"esim_server_url,omitempty"`
+	EsimServerUrl string `plist:"eSIMServerURL,omitempty" json:"esim_server_url,omitempty"`
 }
