@@ -3,6 +3,7 @@ build/
 *.zip
 *.DS_Store
 .vscode/
+.idea/
 
 cmd/mdmctl/mdmdctl
 cmd/micromdm/micromdm
