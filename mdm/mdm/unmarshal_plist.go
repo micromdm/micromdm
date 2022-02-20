@@ -297,6 +297,13 @@ func (c *Command) UnmarshalPlist(unmarshal func(i interface{}) error) error {
 		}
 		c.RotateFileVaultKey = &payload
 		return nil
+	case "RefreshCellularPlans":
+		var payload RefreshCellularPlans
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.RefreshCellularPlans = &payload
+		return nil
 	default:
 		return fmt.Errorf("mdm: unknown RequestType: %s", requestType.RequestType)
 	}

@@ -1,0 +1,12 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+jq -n \
+  --arg request_type "RefreshCellularPlans" \
+  --arg udid "$1" \
+  --arg esim_server_url $2 \
+  '.udid = $udid
+  |.esim_server_url = $esim_server_url
+  |.request_type = $request_type
+  '|\
+  curl $CURL_OPTS -K <(cat <<< "-u micromdm:$API_TOKEN") "$SERVER_URL/$endpoint" -d@-
