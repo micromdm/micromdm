@@ -402,6 +402,12 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 				},
 			},
 		}
+	case "RefreshCellularPlans":
+		cmdproto.Request = &mdmproto.Command_RefreshCellularPlans{
+			RefreshCellularPlans: &mdmproto.RefreshCellularPlans{
+				EsimServerUrl: cmd.RefreshCellularPlans.EsimServerUrl,
+			},
+		}
 	default:
 		return nil, fmt.Errorf("unknown command type %s", cmd.RequestType)
 	}
