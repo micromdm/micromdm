@@ -343,6 +343,14 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 			RequestType:        c.RequestType,
 			RotateFileVaultKey: c.RotateFileVaultKey,
 		}, nil
+	case "RefreshCellularPlans":
+		return &struct {
+			RequestType string
+			*RefreshCellularPlans
+		}{
+			RequestType:          c.RequestType,
+			RefreshCellularPlans: c.RefreshCellularPlans,
+		}, nil
 	default:
 		return nil, fmt.Errorf("mdm: unknown command RequestType, %s", c.RequestType)
 	}
