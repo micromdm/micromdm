@@ -280,6 +280,7 @@ type OSUpdate struct {
 	InstallAction    string `json:"install_action"`
 	MaxUserDeferrals *int64 `plist:",omitempty" json:"max_user_deferrals,omitempty"`
 	ProductVersion   string `plist:",omitempty" json:"product_version,omitempty"`
+	Priority         string `plist:",omitempty" json:"priority,omitempty"`
 }
 
 type ScheduleOSUpdate struct {

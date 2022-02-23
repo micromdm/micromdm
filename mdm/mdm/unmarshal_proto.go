@@ -335,6 +335,7 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 				InstallAction:    up.GetInstallAction(),
 				MaxUserDeferrals: nilIfZeroInt64(up.GetMaxUserDeferrals()),
 				ProductVersion:   up.GetProductVersion(),
+				Priority:         up.GetPriority(),
 			})
 		}
 		cmd.ScheduleOSUpdate = &ScheduleOSUpdate{

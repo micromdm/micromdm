@@ -369,6 +369,7 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 				InstallAction:    u.InstallAction,
 				MaxUserDeferrals: zeroInt64IfNil(u.MaxUserDeferrals),
 				ProductVersion:   u.ProductVersion,
+				Priority:         u.Priority,
 			})
 		}
 		cmdproto.Request = &mdmproto.Command_ScheduleOsUpdate{

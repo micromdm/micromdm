@@ -121,6 +121,7 @@ func TestMarshalCommand(t *testing.T) {
 							InstallAction:    "InstallLater",
 							MaxUserDeferrals: &deferrals,
 							ProductVersion:   "1.0.0",
+							Priority:         "Low",
 						},
 					},
 				},
@@ -334,7 +335,7 @@ func TestEndToEnd(t *testing.T) {
 		{
 			name: "ScheduleOSUpdate",
 			requestBytes: []byte(
-				`{"request_type":"ScheduleOSUpdate","updates":[{"product_key":"io.micromdm.micromdm","install_action":"InstallLater","max_user_deferrals":3,"product_version":"1.0.0"}]}`,
+				`{"request_type":"ScheduleOSUpdate","updates":[{"product_key":"io.micromdm.micromdm","install_action":"InstallLater","max_user_deferrals":3,"product_version":"1.0.0","priority":"Low"}]}`,
 			),
 			testFn: func(t *testing.T, parts endToEndParts) {
 				needToSee := [][]byte{
@@ -347,6 +348,8 @@ func TestEndToEnd(t *testing.T) {
 					[]byte(`3`),
 					[]byte(`ProductVersion`),
 					[]byte(`1.0.0`),
+					[]byte(`Priority`),
+					[]byte(`Low`),
 				}
 				for _, b := range needToSee {
 					if !bytes.Contains(parts.plistData, b) {
