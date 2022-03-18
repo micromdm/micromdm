@@ -364,7 +364,11 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 				PrivateKeyExportPassword: fvunlock.GetPrivateKeyExportPassword(),
 			},
 		}
-
+	case "RefreshCellularPlans":
+		pbc := pb.GetRefreshCellularPlans()
+		cmd.RefreshCellularPlans = &RefreshCellularPlans{
+			EsimServerUrl: pbc.GetEsimServerUrl(),
+		}
 	}
 	return &cmd
 }
