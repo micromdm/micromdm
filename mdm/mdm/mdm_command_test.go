@@ -515,7 +515,7 @@ func TestEndToEnd(t *testing.T) {
 			),
 			testFn: func(t *testing.T, parts endToEndParts) {
 				needToSee := [][]byte{
-					[]byte(`EsimServerUrl`),
+					[]byte(`eSIMServerURL`),
 					[]byte(`example.server.com`),
 				}
 				for _, b := range needToSee {
