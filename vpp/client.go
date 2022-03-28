@@ -3,17 +3,18 @@ package vpp
 import (
 	"bytes"
 	"encoding/json"
+	"encoding/base64"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"path"
-
 	"github.com/pkg/errors"
 )
 
+var version = "dev"
+
 const (
 	serverURL = "https://your.server.com" // This needs to be modified to be imported from server
-	version   = ""                        // This needs to be modified to be imported from server
 
 	defaultBaseURL               = "https://vpp.itunes.apple.com/WebObjects/MZFinance.woa/wa/VPPServiceConfigSrv"
 	mediaType                    = "application/json;charset=UTF8"
@@ -28,6 +29,7 @@ type HTTPClient interface {
 // Contains the sToken string used to authenticate to the various VPP services
 // Contains the return VPPServiceConfigSrv information
 type Client struct {
+	UDID								string
 	SToken              string
 	VPPServiceConfigSrv *VPPServiceConfigSrv
 	UserAgent           string
@@ -35,9 +37,18 @@ type Client struct {
 	BaseURL             *url.URL
 }
 
-func NewClient(sToken string) (*Client, error) {
+type VPPToken struct {
+	UDID    string `json:"udid"`
+	SToken  []byte `json:"sToken"`
+}
+
+func NewClient(vppToken VPPToken) (*Client, error) {
+
+	sToken := base64.StdEncoding.EncodeToString(vppToken.SToken)
+
 	baseURL, _ := url.Parse(defaultBaseURL)
 	c := Client{
+		UDID:      vppToken.UDID,
 		SToken:    sToken,
 		UserAgent: path.Join("micromdm", version),
 		Client:    http.DefaultClient,

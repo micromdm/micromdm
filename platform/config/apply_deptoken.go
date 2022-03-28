@@ -42,7 +42,7 @@ func (svc *ConfigService) ApplyDEPToken(ctx context.Context, P7MContent []byte) 
 	if err != nil {
 		return err
 	}
-	err = svc.store.AddToken(depToken.ConsumerKey, tokenJSON)
+	err = svc.store.AddDEPToken(depToken.ConsumerKey, tokenJSON)
 	if err != nil {
 		return err
 	}

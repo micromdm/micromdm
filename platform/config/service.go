@@ -12,6 +12,9 @@ type Service interface {
 	GetPushCertificate(ctx context.Context) ([]byte, error)
 	ApplyDEPToken(ctx context.Context, P7MContent []byte) error
 	GetDEPTokens(ctx context.Context) ([]DEPToken, []byte, error)
+	ApplyVPPToken(ctx context.Context, Content []byte) error
+	GetVPPTokens(ctx context.Context) ([]VPPToken, error)
+	RemoveVPPToken(ctx context.Context, UDID []byte) error
 }
 
 type Store interface {
@@ -20,8 +23,11 @@ type Store interface {
 	PushCertificate() (*tls.Certificate, error)
 	PushTopic() (string, error)
 	DEPKeypair() (key *rsa.PrivateKey, cert *x509.Certificate, err error)
-	AddToken(consumerKey string, json []byte) error
+	AddDEPToken(consumerKey string, json []byte) error
+	AddVPPToken(sToken string, json []byte) error
+	DeleteVPPToken(sToken string) error
 	DEPTokens() ([]DEPToken, error)
+	VPPTokens() ([]VPPToken, error)
 }
 
 type ConfigService struct {
