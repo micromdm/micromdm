@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "MicroMDM docs",
   "main": "index.js",
-  "repository": "git@github-kejeon:qiquanlu/micromdm.git",
+  "repository": "git@github.com:qiquanlu/micromdm.git",
   "author": "Qiquan Lu",
   "license": "MIT",
   "scripts": {
