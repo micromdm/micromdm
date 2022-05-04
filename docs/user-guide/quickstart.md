@@ -1,8 +1,10 @@
+# Quick Start
+
 The quickstart page is intended to provide a quick guide for setting up a running MicroMDM service. It does not cover all the possible deployment environments. More complex configuration details will be covered in their own sections. 
 
 Before proceeding, make sure to read the [Introduction](./introduction.md) page, which describes requirements you might need before using MicroMDM.
 
-# Up and Running with MicroMDM
+## Up and Running with MicroMDM
 
 First, [download](https://github.com/micromdm/micromdm/releases/latest) the latest release of MicroMDM. Copy the `micromdm` binary somewhere in your `$PATH`. 
 
@@ -112,7 +114,7 @@ Keep a backup of the `mdm-certificates` directory somewhere safe(like a 1Passwor
 
 See the renewals sections at the end of this document for renewals steps. 
 
-# Configure Apple Business Manager (DEP)
+## Configure Apple Business Manager (DEP)
 
 Using DEP is not required for MicroMDM, but is supported. If you do not need it, skip this section. 
 
@@ -141,7 +143,7 @@ mdmctl get dep-account
 
 Which will return the information about your account. 
 
-# Renewing certificates
+## Renewing certificates
 
 At least once a year you will have to renew your DEP and MDM certificate connections with Apple. It's a good idea not to wait until expiration, but to set a calendar reminder somewhere 9-10 months from the day you configured your services. 
 
@@ -149,7 +151,7 @@ To renew the MDM certificate you will re-do the entire process as described in t
 
 To renew your DEP tokens, follow the same instructions as setting up for the first time. 
 
-# Restart the server
+## Restart the server
 
 Once you configured DEP and the MDM certificates you should be good to begin enrolling devices. 
 To avoid any issues, restart the `micromdm` process once you configured everything. 

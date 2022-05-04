@@ -1,0 +1,27 @@
+{
+  "name": "micromdm-doc",
+  "version": "1.0.0",
+  "description": "MicroMDM docs",
+  "main": "index.js",
+  "repository": "git@github-kejeon:qiquanlu/micromdm.git",
+  "author": "Qiquan Lu",
+  "license": "MIT",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:serve": "vitepress serve docs"
+  },
+  "devDependencies": {
+    "vitepress": "^0.22.3"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "@algolia/client-search",
+        "react",
+        "react-dom",
+        "@types/react"
+      ]
+    }
+  }
+}
