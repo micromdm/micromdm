@@ -83,7 +83,7 @@ func (cmd *mdmcertDownloadCommand) Run(args []string) error {
 	flagset.Usage = usageFor(flagset, "mdmctl mdmcert.download [flags]")
 	var (
 		flNew       = flagset.Bool("new", false, "Generates a new privkey and uploads new MDM request")
-		flDecrypt   = flagset.String("decrypt", "", "Decrypts and mdmcert.download push certificate request")
+		flDecrypt   = flagset.String("decrypt", "", "Decrypts an mdmcert.download push certificate request")
 		flEmail     = flagset.String("email", "", "Email address to use in mdmcert request & CSR Subject")
 		flCountry   = flagset.String("country", "US", "Two letter country code for the CSR Subject (example: US).")
 		flCN        = flagset.String("cn", "mdm-push", "CommonName for the CSR Subject.")
