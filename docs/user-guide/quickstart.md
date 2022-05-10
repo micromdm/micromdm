@@ -70,12 +70,37 @@ To communicate with your device fleet, MDM needs an APNS certificate issued by A
 
 Apple has a separate flow for the MDM vendor than the one for customers. For an in-house deployment without third parties, you must complete both the vendor and the customer process yourself. The `mdmctl mdmcert` command will help you with your APNS certificate needs.
 
+**For testing and development scenarios**, you can also obtain a push certificate from [mdmcert.download](https://mdmcert.download/) if you meet the [requirements](https://mdmcert.download/about). Skip to [Generate MDM CSR](#generate-mdm-csr) if this does not apply to your situation.
+
+### mdmcert.download
+
+1. [Register for an mdmcert.download account](https://mdmcert.download/registration)
+1. Submit a CSR to mdmcert.download's API
+
+    `mdmctl mdmcert.download -new -email=THE_EMAIL_YOU_REGISTERED_WITH@acme.com`
+
+1. If successful, you should get this response from mdmcert.download
+
+    ```
+    Request successfully sent to mdmcert.download. Your CSR should now
+    be signed. Check your email for next steps. Then use the -decrypt option
+    to extract the CSR request which will then be uploaded to Apple.
+    ```
+1. Download the encrypted CSR from your email.
+1. Decrypt your CSR.
+
+    `mdmctl mdmcert.download decrypt=~/mdm_signed_request.20171122_094910_220.plist.b64.p7`
+1. Sign into [identity.apple.com]( with your Apple ID. This Apple ID will likely match the domain that you signed up to mdmcert.download with and the domain where you intend to host your MDM server. 
+1. Download your push cert 🎉
+
+### Generate MDM CSR
+
 Create a request for the MDM CSR, with a password used to encrypt the private key. 
 After this step you will have a new `mdm-certificates` directory, with the necessary files. 
 ```
 mdmctl mdmcert vendor -password=secret -country=US -email=admin@acme.co
 ```
-### Generate MDM CSR
+
 Log in to the Apple Developer Portal (https://developer.apple.com/account), and navigate to the Certificates, IDs & Profiles section (https://developer.apple.com/account/resources/certificates/list).
   1. Click the plus symbol (+) next to *Certificates*
   2. Select *MDM CSR* under the *Services* section, click *Continue*
