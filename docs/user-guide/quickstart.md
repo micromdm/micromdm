@@ -70,7 +70,7 @@ To communicate with your device fleet, MDM needs an APNS certificate issued by A
 
 Apple has a separate flow for the MDM vendor than the one for customers. For an in-house deployment without third parties, you must complete both the vendor and the customer process yourself. The `mdmctl mdmcert` command will help you with your APNS certificate needs.
 
-**For testing and development scenarios**, you can also obtain a push certificate from [mdmcert.download](https://mdmcert.download/) if you meet the [requirements](https://mdmcert.download/about). Skip to [Generate MDM CSR](#generate-mdm-csr) if this does not apply to your situation.
+**For testing and development scenarios only**, you can also obtain a push certificate from [mdmcert.download](https://mdmcert.download/) if you meet the [requirements](https://mdmcert.download/about). Skip to [Generate MDM CSR](#generate-mdm-csr) if this does not apply to your situation.
 
 ### mdmcert.download
 
@@ -90,7 +90,7 @@ Apple has a separate flow for the MDM vendor than the one for customers. For an 
 1. Decrypt your CSR.
 
     `mdmctl mdmcert.download decrypt=~/mdm_signed_request.20171122_094910_220.plist.b64.p7`
-1. Sign into [identity.apple.com]( with your Apple ID. This Apple ID will likely match the domain that you signed up to mdmcert.download with and the domain where you intend to host your MDM server. 
+1. Sign into [identity.apple.com](identity.apple.com) with your Apple ID. This Apple ID will likely match the domain that you signed up to mdmcert.download with and the domain where you intend to host your MDM server. 
 1. Download your push cert 🎉
 
 ### Generate MDM CSR
