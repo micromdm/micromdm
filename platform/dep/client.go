@@ -65,7 +65,7 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 		getAccountInfoEndpoint = httptransport.NewClient(
 			"GET",
 			httputil.CopyURL(u, "/v1/dep/account"),
-			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			httputil.EncodeRequestWithToken(token, httputil.EncodeEmptyRequest),
 			decodeGetAccountInfoResponse,
 			opts...,
 		).Endpoint()

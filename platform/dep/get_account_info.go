@@ -18,7 +18,6 @@ func (svc *DEPService) GetAccountInfo(ctx context.Context) (*dep.Account, error)
 	return svc.client.Account()
 }
 
-type getAccountInfoRequest struct{}
 type getAccountInfoResponse struct {
 	*dep.Account
 	Err error `json:"err,omitempty"`
@@ -44,8 +43,7 @@ func MakeGetAccountInfoEndpoint(svc Service) endpoint.Endpoint {
 }
 
 func (e Endpoints) GetAccountInfo(ctx context.Context) (*dep.Account, error) {
-	request := getAccountInfoRequest{}
-	response, err := e.GetAccountInfoEndpoint(ctx, request)
+	response, err := e.GetAccountInfoEndpoint(ctx, nil)
 	if err != nil {
 		return nil, err
 	}

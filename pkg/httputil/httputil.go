@@ -97,6 +97,10 @@ func JSONErrorDecoder(r *http.Response) error {
 	return errors.New(w.Error)
 }
 
+func EncodeEmptyRequest(c context.Context, r *http.Request, request interface{}) error {
+	return nil
+}
+
 func EncodeRequestWithToken(token string, next httptransport.EncodeRequestFunc) httptransport.EncodeRequestFunc {
 	return func(ctx context.Context, r *http.Request, request interface{}) error {
 		r.SetBasicAuth("micromdm", token)

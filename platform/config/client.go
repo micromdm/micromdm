@@ -42,7 +42,7 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 		getDEPTokensEndpoint = httptransport.NewClient(
 			"GET",
 			httputil.CopyURL(u, "/v1/dep-tokens"),
-			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			httputil.EncodeRequestWithToken(token, httputil.EncodeEmptyRequest),
 			decodeGetDEPTokensResponse,
 			opts...,
 		).Endpoint()

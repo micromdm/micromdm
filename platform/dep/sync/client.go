@@ -43,7 +43,7 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 		getAutoAssignersEndpoint = httptransport.NewClient(
 			"GET",
 			httputil.CopyURL(u, "/v1/dep/autoassigners"),
-			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			httputil.EncodeRequestWithToken(token, httputil.EncodeEmptyRequest),
 			decodeGetAutoAssignersResponse,
 			opts...,
 		).Endpoint()
