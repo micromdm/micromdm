@@ -96,13 +96,9 @@ Apple has a separate flow for the MDM vendor than the one for customers. For an 
 1. Sign into [identity.apple.com](identity.apple.com) with your Apple ID. This Apple ID will likely match the domain that you signed up to mdmcert.download with and the domain where you intend to host your MDM server. 
 1. Download your push cert 🎉
 
-You now have a push cert from mdmcert.download. You do not have to proceed with [Generate MDM CSR](#generate-mdm-csr) below.
+You now have a push cert from mdmcert.download. You do not have to proceed with [Generate MDM CSR](#generate-mdm-csr) below. Continue with [Upload your push certificate](#upload-your-push-certificate).
   
 </details>
-
-
-
-
 
 ### Generate MDM CSR
 
@@ -134,6 +130,8 @@ Sign in to [identity.apple.com](https://identity.apple.com) and upload the `Push
 If you're getting certificates for multiple environments (staging, production) or running multiple in house MDM instances, you MUST sign a separate push request for each one. Using the same vendor certificate is okay, but using the same push certificate is not. 
 
 If you've uploaded the plist, you will be offered a certificate, which is signed for the `mdm-certificates/PushCertificatePrivateKey.key` key. Copy the certificate to the same directory. 
+
+# Upload your push certificate
 
 Finally, upload the certificate to MicroMDM.
 
