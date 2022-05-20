@@ -45,7 +45,7 @@ mdm-certificates/
 
     mdmctl mdmcert vendor -password=secret -country=US -email=admin@acme.co
 
-Next, create a push CSR. This step generates a CSR required to get a signed a push certificate.
+Next, create a push CSR. This step generates a CSR required to get a signed push certificate.
 
 	mdmctl mdmcert push -password=secret -country=US -email=admin@acme.co
 

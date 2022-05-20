@@ -97,7 +97,7 @@ Apple has a separate flow for the MDM vendor than the one for customers. For an 
 1. Download your push cert 🎉
 
 You now have a push cert from mdmcert.download. You do not have to proceed with [Generate MDM CSR](#generate-mdm-csr) below. Continue with [Upload your push certificate](#upload-your-push-certificate).
-  
+ 
 </details>
 
 ### Generate MDM CSR
@@ -117,7 +117,13 @@ Log in to the Apple Developer Portal (https://developer.apple.com/account), and 
 
 You now have the vendor side of the certificate flow complete, and you need to complete the customer side of this flow, with the help of the vendor cert. 
 
-Sign a push certificate request with the vendor certificate. This step uses the private key you created above, so specify the same password to be able to decrypt it. 
+First, create a push CSR:
+
+```
+mdmctl mdmcert push -password=secret -country=US -email=admin@acme.co
+```
+
+Now sign the push certificate request with the vendor certificate. This step uses the private key you created above, so specify the same password to be able to decrypt it. 
 
 ```
 mdmctl mdmcert vendor -sign -cert=./mdm-certificates/mdm.cer -password=secret
