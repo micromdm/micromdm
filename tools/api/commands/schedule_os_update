@@ -6,11 +6,13 @@ jq -n \
   --arg udid "$1" \
   --arg product_key "$2" \
   --arg install_action "$3" \
+  --arg max_user_deferrals $4 \
   '.udid = $udid 
   |.request_type = $request_type
   |.updates = [
       .product_key = $product_key
       |.install_action = $install_action
+      |.max_user_deferrals = $max_user_deferrals
       ]
   '|\
   curl $CURL_OPTS -K <(cat <<< "-u micromdm:$API_TOKEN") "$SERVER_URL/$endpoint" -d@-
