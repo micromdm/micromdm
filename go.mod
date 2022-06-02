@@ -5,11 +5,12 @@ require (
 	github.com/boltdb/bolt v1.3.1
 	github.com/garyburd/go-oauth v0.0.0-20180319155456-bca2e7f09a17
 	github.com/go-kit/kit v0.7.0
-	github.com/google/uuid v1.1.1
+	github.com/google/uuid v1.1.2
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.6.2
 	github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda
 	github.com/groob/plist v0.0.0-20220217120414-63fa881b19a5
+	github.com/jessepeterson/cfgprofiles v0.2.0
 	github.com/jmoiron/sqlx v0.0.0-20180614180643-0dae4fefe7c0
 	github.com/kolide/kit v0.0.0-20180912215818-0c28f72eb2b0
 	github.com/korylprince/go-macos-pkg v1.3.5
