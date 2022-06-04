@@ -1,16 +1,97 @@
 #!/bin/bash
 source $MICROMDM_ENV_PATH
 endpoint="v1/commands"
+
+function help
+{
+  cat >&2 <<-eof
+	Usage: $0 udid key action
+	       $0 udid action [option] ...
+
+	The first invication (using three positional arguments) is provided for compatibility
+	with an earlier version of this script.
+
+	Positional arguments:
+	  udid			device udid
+	  action		InstallAction parameter of the UpdatesItem record
+	  key			ProductKey parameter of the UpdatesItem record
+
+	Options:
+	  -h, --help		show this help message and exit
+	  --version VER		set VER as ProductVersion parameter of the UpdatesItem record
+	  --key KEY		set KEY as ProductKey parameter of the UpdatesItem record
+	  --deferrals NUM	set NUM as MaxUserDeferrals parameter of the UpdatesItem record
+	  --priority PRI	set PRI as Priority parameter of the UpdatesItem record
+	  --uuid UUID		use UUID as the command uuid for this request
+
+	The ScheduleOSUpdate command is documented as part of Apple's Commands and Queries API
+	within the Mobile Device Management (MDM) protocol documentation. This documentaion if available
+	using this link:
+	  https://developer.apple.com/documentation/devicemanagement/scheduleosupdatecommand/
+	and the documentation for the UpdatesItem record is available here:
+	  https://developer.apple.com/documentation/devicemanagement/scheduleosupdatecommand/command/updatesitem.
+
+	Parameters with limited possible values:
+	  InstallAction		Default, DownloadOnly, InstallASAP, NotifyOnly, InstallLater, InstallForceRestart
+	  Priority		Low, High
+eof
+  exit
+}
+
+udid=$1
+unset version deferrals priority uuid key
+case $# in 
+  0|1) help ;;
+  3)
+    key=$2
+    action=$3
+    shift 3
+    ;;
+  *) 
+    action=$2
+    shift 2
+    ;;
+esac
+
+while (($# > 0)); do
+  case $1 in
+    -h|-help) help ;;
+    --version) version=$2 ;;
+    --deferrals) deferrals=$2 ;;
+    --priority) priority=$2 ;;
+    --uuid) uuid=$2 ;;
+    --key) key=$2 ;;
+    *) echo "$0: unknown option \`$1'." >&2
+       echo >&2
+       help ;;
+  esac
+  if (($# > 1)); then
+    shift 2
+  else
+    echo "$0: missing parameter for option \`$1'." >&2
+    echo >&2
+    help
+  fi
+done
+
 jq -n \
   --arg request_type "ScheduleOSUpdate" \
-  --arg udid "$1" \
-  --arg product_key "$2" \
-  --arg install_action "$3" \
-  '.udid = $udid 
-  |.request_type = $request_type
-  |.updates = [
-      .product_key = $product_key
-      |.install_action = $install_action
-      ]
+  --arg udid "$udid" \
+  --arg product_key "$key" \
+  --arg product_version "$version" \
+  --arg install_action "$action" \
+  --arg priority "$priority" \
+  --argjson max_user_deferrals "${deferrals--1}" \
+  --arg command_uuid "$uuid" \
+  '.udid = $udid
+     | if $command_uuid != "" then .command_uuid = $command_uuid else . end
+     | .request_type = $request_type
+     | .updates = [
+      .install_action = $install_action
+      | if $max_user_deferrals != -1 then .max_user_deferrals = $max_user_deferrals else . end
+      | if $product_key != "" then .product_key = $product_key else . end
+      | if $product_version != "" then .product_version = $product_version else . end
+      | if $priority != "" then .priority = $priority else . end
+     ]
   '|\
   curl $CURL_OPTS -K <(cat <<< "-u micromdm:$API_TOKEN") "$SERVER_URL/$endpoint" -d@-
