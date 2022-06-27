@@ -53,7 +53,7 @@ Once you created the push CSR, you mush sign the push CSR with the MDM Vendor Ce
 
     mdmctl mdmcert vendor -sign -cert=./mdm-certificates/mdm.cer -password=secret
 
-Once generated, upload the PushCertificateRequest.plist file to https://identity.apple.com to obtain your MDM Push Certificate.
+Once generated, upload the PushCertificateRequest.txt file to https://identity.apple.com to obtain your MDM Push Certificate.
 Use the push private key and the push cert you got from identity.apple.com in your MDM server.
 
 Commands:
@@ -97,7 +97,7 @@ const (
 	pushCertificatePrivateKeyFilename = "PushCertificatePrivateKey.key"
 	vendorPKeyFilename                = "VendorPrivateKey.key"
 	vendorCSRFilename                 = "VendorCertificateRequest.csr"
-	pushRequestFilename               = "PushCertificateRequest.plist"
+	pushRequestFilename               = "PushCertificateRequest.txt"
 	mdmcertdir                        = "mdm-certificates"
 )
 

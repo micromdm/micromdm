@@ -129,9 +129,9 @@ Now sign the push certificate request with the vendor certificate. This step use
 mdmctl mdmcert vendor -sign -cert=./mdm-certificates/mdm.cer -password=secret
 ```
 
-You should now have a `mdm-certificates/PushCertificateRequest.plist` file. 
+You should now have a `mdm-certificates/PushCertificateRequest.txt` file.
 
-Sign in to [identity.apple.com](https://identity.apple.com) and upload the `PushCertificateRequest.plist` file to get the APNS certificate. The site offers a notes field, it's a good idea to use it to mark which server you're obtaining a certificate for, as you will come back for renewals. 
+Sign in to [identity.apple.com](https://identity.apple.com) and upload the `PushCertificateRequest.txt` file to get the APNS certificate. The site offers a notes field, it's a good idea to use it to mark which server you're obtaining a certificate for, as you will come back for renewals.
 
 If you're getting certificates for multiple environments (staging, production) or running multiple in house MDM instances, you MUST sign a separate push request for each one. Using the same vendor certificate is okay, but using the same push certificate is not. 
 
