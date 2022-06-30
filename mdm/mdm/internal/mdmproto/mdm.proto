@@ -18,6 +18,7 @@ message Command {
      - CertificateList",
      - SecurityInfo
      - RestartDevice
+     - LOMSetupRequest
      - ShutDownDevice
      - StopMirroring
      - ClearRestrictionsPassword
@@ -74,6 +75,7 @@ message Command {
     SetRecoveryLock set_recovery_lock = 38;
     VerifyRecoveryLock verify_recovery_lock = 39;
     RefreshCellularPlans refresh_cellular_plans = 40;
+    LOMDeviceRequest lomDeviceRequestCommand = 41;
   }
 }
 
@@ -254,6 +256,19 @@ message RemoveMedia {
   string media_type = 1;
   int64 itunes_store_id = 2;
   string persistent_id = 3;
+}
+
+message LOMDeviceRequest {
+  repeated LOMDeviceRequestCommand requestList = 1;
+}
+
+message LOMDeviceRequestCommand {
+  string deviceDNSName = 1;
+	string deviceRequestType = 2;
+	string deviceRequestUUID = 3;
+	int64 lomProtocolVersion = 4;
+	repeated string primaryIPv6AddressList = 5;
+	repeated string secondaryIPv6AddressList = 6;
 }
 
 message Settings {

@@ -31,6 +31,7 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 		"CertificateList",
 		"SecurityInfo",
 		"RestartDevice",
+		"LOMSetupRequest",
 		"ShutDownDevice",
 		"StopMirroring",
 		"ClearRestrictionsPassword",
@@ -295,6 +296,24 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 				ItunesStoreId: zeroInt64IfNil(cmd.RemoveMedia.ITunesStoreID),
 				MediaType:     cmd.RemoveMedia.MediaType,
 				PersistentId:  cmd.RemoveMedia.PersistentID,
+			},
+		}
+	case "LOMDeviceRequest":
+		var requestList []*mdmproto.LOMDeviceRequestCommand
+		for _, r := range cmd.LOMDeviceRequest.RequestList {
+			requestList = append(requestList, &mdmproto.LOMDeviceRequestCommand{
+				DeviceDNSName:            r.DeviceDNSName,
+				DeviceRequestType:        r.DeviceRequestType,
+				DeviceRequestUUID:        r.DeviceRequestUUID,
+				LomProtocolVersion:       int64(r.LOMProtocolVersion),
+				PrimaryIPv6AddressList:   r.PrimaryIPv6AddressList,
+				SecondaryIPv6AddressList: r.SecondaryIPv6AddressList,
+			})
+		}
+
+		cmdproto.Request = &mdmproto.Command_LomDeviceRequestCommand{
+			LomDeviceRequestCommand: &mdmproto.LOMDeviceRequest{
+				RequestList: requestList,
 			},
 		}
 	case "Settings":

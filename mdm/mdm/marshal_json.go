@@ -12,6 +12,7 @@ func (c *Command) MarshalJSON() ([]byte, error) {
 		"CertificateList",
 		"SecurityInfo",
 		"RestartDevice",
+		"LOMSetupRequest",
 		"ShutDownDevice",
 		"StopMirroring",
 		"ClearRestrictionsPassword",
@@ -248,6 +249,15 @@ func (c *Command) MarshalJSON() ([]byte, error) {
 		}{
 			RequestType: c.RequestType,
 			RemoveMedia: c.RemoveMedia,
+		}
+		return json.Marshal(&x)
+	case "LOMDeviceRequest":
+		var x = struct {
+			RequestType string `json:"request_type"`
+			*LOMDeviceRequest
+		}{
+			RequestType:      c.RequestType,
+			LOMDeviceRequest: c.LOMDeviceRequest,
 		}
 		return json.Marshal(&x)
 	case "Settings":

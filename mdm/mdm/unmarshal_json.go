@@ -37,6 +37,7 @@ func (c *Command) UnmarshalJSON(data []byte) error {
 		"CertificateList",
 		"SecurityInfo",
 		"RestartDevice",
+		"LOMSetupRequest",
 		"ShutDownDevice",
 		"StopMirroring",
 		"ClearRestrictionsPassword",
@@ -221,6 +222,13 @@ func (c *Command) UnmarshalJSON(data []byte) error {
 			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
 		}
 		c.RemoveMedia = &payload
+		return nil
+	case "LOMDeviceRequest":
+		var payload LOMDeviceRequest
+		if err := json.Unmarshal(data, &payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command json", c.RequestType)
+		}
+		c.LOMDeviceRequest = &payload
 		return nil
 	case "Settings":
 		var payload Settings

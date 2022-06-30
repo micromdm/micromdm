@@ -69,6 +69,8 @@ type Command struct {
 	ActiveNSExtensions              *ActiveNSExtensions
 	RotateFileVaultKey              *RotateFileVaultKey
 	RefreshCellularPlans            *RefreshCellularPlans
+	LOMDeviceRequest                *LOMDeviceRequest
+	LOMSetupRequestCommand          *LOMSetupRequestCommand
 }
 
 // InstallProfile is an InstallProfile MDM Command
@@ -234,6 +236,23 @@ type Setting struct {
 	MaximumResidentUsers    *int                   `plist:",omitempty" json:"maximum_resident_users,omitempty"`
 	Configuration           map[string]interface{} `plist:",omitempty" json:"-"`
 	ConfigurationData       []byte                 `plist:"-" json:"configuration"` // used to build the dictionary
+}
+
+type LOMDeviceRequest struct {
+	RequestList []LOMDeviceRequestCommand `plist:",omitempty" json:"requestList,omitempty"`
+}
+
+type LOMDeviceRequestCommand struct {
+	DeviceDNSName            string   `json:"device_dns_name"`
+	DeviceRequestType        string   `json:"device_request_type"`
+	DeviceRequestUUID        string   `json:"device_request_uuid"`
+	LOMProtocolVersion       int      `json:"lom_protocol_version"`
+	PrimaryIPv6AddressList   []string `json:"primary_id_v6_address_list"`
+	SecondaryIPv6AddressList []string `json:"secondary_ip_v6_address_list"`
+}
+
+type LOMSetupRequestCommand struct {
+	RequestRequiresNetworkTether *bool `plist:",omitempty" json:"request_requires_network_tether,omitempty"`
 }
 
 type ManagedApplicationConfiguration struct {

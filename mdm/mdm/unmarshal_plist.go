@@ -21,6 +21,7 @@ func (c *Command) UnmarshalPlist(unmarshal func(i interface{}) error) error {
 		"CertificateList",
 		"SecurityInfo",
 		"RestartDevice",
+		"LOMSetupRequest",
 		"ShutDownDevice",
 		"StopMirroring",
 		"ClearRestrictionsPassword",
@@ -205,6 +206,13 @@ func (c *Command) UnmarshalPlist(unmarshal func(i interface{}) error) error {
 			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
 		}
 		c.RemoveMedia = &payload
+		return nil
+	case "LOMDeviceRequest":
+		var payload LOMDeviceRequest
+		if err := unmarshal(&payload); err != nil {
+			return errors.Wrapf(err, "mdm: unmarshal %s command plist", requestType.RequestType)
+		}
+		c.LOMDeviceRequest = &payload
 		return nil
 	case "Settings":
 		var payload Settings

@@ -17,6 +17,7 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 		"CertificateList",
 		"SecurityInfo",
 		"RestartDevice",
+		"LOMSetupRequest",
 		"ShutDownDevice",
 		"StopMirroring",
 		"ClearRestrictionsPassword",
@@ -268,6 +269,22 @@ func protoToCommand(pb *mdmproto.Command) *Command {
 			ITunesStoreID: nilIfZeroInt64(pbc.GetItunesStoreId()),
 			MediaType:     pbc.GetMediaType(),
 			PersistentID:  pbc.GetPersistentId(),
+		}
+	case "LOMDeviceRequest":
+		pbc := pb.GetLomDeviceRequestCommand()
+		var requestList []LOMDeviceRequestCommand
+		for _, r := range pbc.GetRequestList() {
+			requestList = append(requestList, LOMDeviceRequestCommand{
+				DeviceDNSName:            r.GetDeviceDNSName(),
+				DeviceRequestType:        r.GetDeviceRequestType(),
+				DeviceRequestUUID:        r.GetDeviceRequestUUID(),
+				LOMProtocolVersion:       int(r.GetLomProtocolVersion()),
+				PrimaryIPv6AddressList:   r.GetPrimaryIPv6AddressList(),
+				SecondaryIPv6AddressList: r.GetSecondaryIPv6AddressList(),
+			})
+		}
+		cmd.LOMDeviceRequest = &LOMDeviceRequest{
+			RequestList: requestList,
 		}
 	case "Settings":
 		pbc := pb.GetSettings()

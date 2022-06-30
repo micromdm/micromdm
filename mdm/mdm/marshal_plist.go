@@ -14,6 +14,7 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 		"CertificateList",
 		"SecurityInfo",
 		"RestartDevice",
+		"LOMSetupRequest",
 		"ShutDownDevice",
 		"StopMirroring",
 		"ClearRestrictionsPassword",
@@ -227,6 +228,14 @@ func (c *Command) MarshalPlist() (interface{}, error) {
 		}{
 			RequestType: c.RequestType,
 			RemoveMedia: c.RemoveMedia,
+		}, nil
+	case "LOMDeviceRequest":
+		return &struct {
+			RequestType string
+			*LOMDeviceRequest
+		}{
+			RequestType:      c.RequestType,
+			LOMDeviceRequest: c.LOMDeviceRequest,
 		}, nil
 	case "Settings":
 		// convert all the data plists into the dictionary inside settings before serialization.
