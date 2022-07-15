@@ -239,7 +239,7 @@ type Setting struct {
 }
 
 type LOMDeviceRequest struct {
-	RequestList []LOMDeviceRequestCommand `plist:",omitempty" json:"requestList,omitempty"`
+	RequestList []LOMDeviceRequestCommand `plist:",omitempty" json:"request_list,omitempty"`
 }
 
 type LOMDeviceRequestCommand struct {

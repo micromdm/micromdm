@@ -2704,7 +2704,7 @@ type LOMDeviceRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	RequestList []*LOMDeviceRequestCommand `protobuf:"bytes,1,rep,name=requestList,proto3" json:"requestList,omitempty"`
+	RequestList []*LOMDeviceRequestCommand `protobuf:"bytes,1,rep,name=request_list,proto3" json:"request_list,omitempty"`
 }
 
 func (x *LOMDeviceRequest) Reset() {
