@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package checkinproto;
+
+option go_package = "github.com/micromdm/micromdm/mdm/internal/checkinproto";
+
+message Event {
+       	string  id = 1;
+       	int64   time = 2;
+        Command command = 3;
+        bytes raw = 4;
+        map<string, string> params = 5;
+}
+
+message Command {
+    string message_type = 1;
+    string topic = 2;
+    string udid = 3;
+    Authenticate authenticate = 4;
+    TokenUpdate  token_update = 5;
+    string enrollment_id = 6;
+    GetBootstrapToken get_bootstrap_token = 7;
+    SetBootstrapToken set_bootstrap_token = 8;
+}
+
+message Authenticate {
+    string os_version = 1;
+    string build_version = 2;
+    string product_name = 3;
+    string serial_number = 4;
+    string imei = 5;
+    string meid = 6;
+    string device_name = 7;
+    bytes  challenge = 8;
+    string model = 9;
+    string model_name =10;
+}
+
+message TokenUpdate {
+    bytes  token = 1;
+    string push_magic = 2;
+    bytes  unlock_token = 3;
+    bool   awaiting_configuration = 4;
+    string user_id = 5;
+    string user_long_name = 6;
+    string user_short_name = 7;
+    bool   not_on_console = 8;
+}
+
+message GetBootstrapToken {
+    bool   get_awaiting_configuration = 1;
+}
+
+message SetBootstrapToken {
+    bytes  bootstrap_token = 1;
+    bool   set_awaiting_configuration = 2;
+}

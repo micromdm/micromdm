@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package blueprintproto;
+
+option go_package = "github.com/micromdm/micromdm/platform/blueprint/internal/blueprintproto";
+
+message Blueprint {
+	reserved 4;
+	reserved "mobileconfigs";
+
+	string uuid = 1;
+	string name = 2;
+	repeated string manifest_urls = 3;
+	repeated string profile_ids = 5;
+	repeated string apply_at = 6;
+    repeated string user_uuid = 7;
+    bool skip_primary_setup_account_creation= 8 ;
+    bool set_primary_setup_account_as_regular_user = 9;
+}

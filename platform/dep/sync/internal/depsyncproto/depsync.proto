@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package depsyncproto;
+
+option go_package = "github.com/micromdm/micromdm/platform/dep/sync/internal/depsyncproto";
+
+message Event {
+	string  id = 1;
+	int64   time = 2;
+	repeated Device devices = 3;
+}
+
+message Device {
+	string serial_number = 1;
+	string model = 2;
+	string description = 3;
+	string color = 4;
+	string asset_tag = 5;
+	string profile_status = 6;
+	string profile_uuid = 7;
+	int64 profile_assign_time = 8;
+	int64 profile_push_time = 9;
+	int64 device_assigned_date = 10;
+	string device_assigned_by = 11;
+
+	string op_type = 12;
+	int64 op_date = 13;
+}

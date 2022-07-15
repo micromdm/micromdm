@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package pushproto;
+
+option go_package = "github.com/micromdm/micromdm/platform/push/internal/pushproto";
+
+message PushInfo {
+    string udid = 1;
+    string  token = 2;
+    string push_magic = 3;
+    string mdm_topic = 4;
+}
+

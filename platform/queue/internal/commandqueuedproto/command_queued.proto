@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package commandqueued;
+
+option go_package = "github.com/micromdm/micromdm/platform/queue/internal/commandqueued";
+
+message CommandQueued {
+    string device_udid = 1;
+    string command_uuid = 2;
+}

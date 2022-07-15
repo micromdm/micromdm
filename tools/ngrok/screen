@@ -1,0 +1,11 @@
+#!/bin/bash
+NL=`echo -ne '\015'`
+session="micromdm"
+if ! screen -list | grep -q $session; then
+  screen -d -m -S $session
+  screen -S $session -p 0 -X stuff "ngrok http 8080$NL"
+  screen -S $session -X screen 1
+  sleep 2 # wait for ngrok to start
+  screen -S $session -p 1 -X stuff "./tools/ngrok/start_server -filerepo /tmp/micromdm$NL"
+  sleep 1
+fi
