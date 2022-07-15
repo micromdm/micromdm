@@ -51,6 +51,7 @@ type Server struct {
 	SCEPChallenge          string
 	SCEPClientValidity     int
 	TLSCertPath            string
+	TLSCACertPath          string
 	SCEPDepot              depot.Depot
 	UseDynSCEPChallenge    bool
 	GenDynSCEPChallenge    bool
@@ -281,6 +282,7 @@ func (c *Server) setupEnrollmentService() error {
 		c.ServerPublicURL,
 		c.TLSCertPath,
 		SCEPCertificateSubject,
+		c.TLSCACertPath,
 		c.ProfileDB,
 		chalStore,
 	)

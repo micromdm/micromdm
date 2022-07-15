@@ -21,22 +21,39 @@ import (
 const (
 	EnrollmentProfileId string = "com.github.micromdm.micromdm.enroll"
 	OTAProfileId        string = "com.github.micromdm.micromdm.ota"
+	TrustProfileId      string = "com.github.micromdm.micromdm.trust"
 )
+
+type mdmServiceConfiguration struct {
+	depEnrollmentUrl      string
+	depAnchorCertsUrl     string
+	trustProfileUrl       string
+	depAnchorCertificates [][]byte
+}
 
 type Service interface {
 	Enroll(ctx context.Context) (profile.Mobileconfig, error)
 	OTAEnroll(ctx context.Context) (profile.Mobileconfig, error)
 	OTAPhase2(ctx context.Context) (profile.Mobileconfig, error)
 	OTAPhase3(ctx context.Context) (profile.Mobileconfig, error)
+	MDMServiceConfig(ctx context.Context) (mdmServiceConfiguration, error)
 }
 
-func NewService(topic TopicProvider, sub pubsub.Subscriber, scepURL, scepChallenge, url, tlsCertPath, scepSubject string, profileDB profile.Store, challengeStore challenge.Store) (Service, error) {
+func NewService(topic TopicProvider, sub pubsub.Subscriber, scepURL, scepChallenge, url, tlsCertPath, scepSubject, tlsCACertPath string, profileDB profile.Store, challengeStore challenge.Store) (Service, error) {
 	var tlsCert []byte
+	var tlsCACert []byte
 	var err error
 
 	if tlsCertPath != "" {
 		tlsCert, err = ioutil.ReadFile(tlsCertPath)
 
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if tlsCACertPath != "" {
+		tlsCACert, err = ioutil.ReadFile(tlsCACertPath)
 		if err != nil {
 			return nil, err
 		}
@@ -67,6 +84,7 @@ func NewService(topic TopicProvider, sub pubsub.Subscriber, scepURL, scepChallen
 		SCEPChallenge:      scepChallenge,
 		SCEPChallengeStore: challengeStore,
 		TLSCert:            tlsCert,
+		TLSCACert:          tlsCACert,
 		ProfileDB:          profileDB,
 		Topic:              pushTopic,
 		topicProvier:       topic,
@@ -113,6 +131,7 @@ type service struct {
 	SCEPChallengeStore challenge.Store
 	SCEPSubject        [][][]string
 	TLSCert            []byte
+	TLSCACert          []byte
 	ProfileDB          profile.Store
 
 	topicProvier TopicProvider
@@ -315,4 +334,44 @@ func (svc *service) MakeOTAPhase2Profile() (Profile, error) {
 // TODO: Not implemented.
 func (svc *service) OTAPhase3(ctx context.Context) (profile.Mobileconfig, error) {
 	return profile.Mobileconfig{}, nil
+}
+
+func (svc *service) MakeTrustProfile() (Profile, error) {
+	profile := NewProfile()
+	profile.PayloadIdentifier = TrustProfileId
+	profile.PayloadOrganization = "MicroMDM"
+	profile.PayloadDisplayName = "Trust Profile"
+	profile.PayloadDescription = "Trusts the MicroMDM Server (If not publicly signed)"
+	profile.PayloadScope = "System"
+
+	trustPayload := NewPayload("com.apple.security.root")
+	trustPayload.PayloadDescription = "Trusts the Certificate Authority that issued the MDM servers SSL certificate"
+	trustPayload.PayloadDisplayName = "CA Trust"
+	trustPayload.PayloadIdentifier = TrustProfileId + ".root"
+	trustPayload.PayloadOrganization = "MicroMDM"
+	//trustPayload.PayloadContent = ""
+	trustPayload.PayloadScope = "System"
+
+	profile.PayloadContent = append(profile.PayloadContent, *trustPayload)
+
+	return *profile, nil
+}
+
+func (svc *service) MDMServiceConfig(ctx context.Context) (mdmServiceConfiguration, error) {
+	anchorCerts := make([][]byte, 0, 1)
+
+	// As per the documentation, it is valid for MDMServiceConfig to return a zero length array for anchor certs
+	// if the MDM endpoint would be trusted by the device out of the box.
+	if len(svc.TLSCACert) > 0 {
+		anchorCerts = append(anchorCerts, svc.TLSCACert)
+	}
+
+	serviceConfig := mdmServiceConfiguration{
+		depEnrollmentUrl:      svc.URL + "/mdm/enroll",
+		depAnchorCertificates: anchorCerts,
+		depAnchorCertsUrl:     svc.URL + "/svc/dep_anchor_certs",
+		trustProfileUrl:       svc.URL + "/svc/trust_profile",
+	}
+
+	return serviceConfig, nil
 }
