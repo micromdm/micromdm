@@ -2751,12 +2751,12 @@ type LOMDeviceRequestCommand struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	DeviceDNSName            string   `protobuf:"bytes,1,opt,name=deviceDNSName,proto3" json:"deviceDNSName,omitempty"`
-	DeviceRequestType        string   `protobuf:"bytes,2,opt,name=deviceRequestType,proto3" json:"deviceRequestType,omitempty"`
-	DeviceRequestUUID        string   `protobuf:"bytes,3,opt,name=deviceRequestUUID,proto3" json:"deviceRequestUUID,omitempty"`
-	LomProtocolVersion       int64    `protobuf:"varint,4,opt,name=lomProtocolVersion,proto3" json:"lomProtocolVersion,omitempty"`
-	PrimaryIPv6AddressList   []string `protobuf:"bytes,5,rep,name=primaryIPv6AddressList,proto3" json:"primaryIPv6AddressList,omitempty"`
-	SecondaryIPv6AddressList []string `protobuf:"bytes,6,rep,name=secondaryIPv6AddressList,proto3" json:"secondaryIPv6AddressList,omitempty"`
+	DeviceDNSName            string   `protobuf:"bytes,1,opt,name=device_dns_name,proto3" json:"device_dns_name,omitempty"`
+	DeviceRequestType        string   `protobuf:"bytes,2,opt,name=device_request_type,proto3" json:"device_request_type,omitempty"`
+	DeviceRequestUUID        string   `protobuf:"bytes,3,opt,name=device_request_uuid,proto3" json:"device_request_uuid,omitempty"`
+	LomProtocolVersion       int64    `protobuf:"varint,4,opt,name=lom_protocol_version,proto3" json:"lom_protocol_version,omitempty"`
+	PrimaryIPv6AddressList   []string `protobuf:"bytes,5,rep,name=primary_ip_v6_address_list,proto3" json:"primary_ip_v6_address_list,omitempty"`
+	SecondaryIPv6AddressList []string `protobuf:"bytes,6,rep,name=secondary_ipv6_address_list,proto3" json:"secondary_ipv6_address_list,omitempty"`
 }
 
 func (x *LOMDeviceRequestCommand) Reset() {
