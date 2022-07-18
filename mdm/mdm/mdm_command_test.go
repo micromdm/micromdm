@@ -146,6 +146,27 @@ func TestMarshalCommand(t *testing.T) {
 				},
 			},
 		},
+		{
+			Command: Command{
+				RequestType: "LOMDeviceRequest",
+				LOMDeviceRequest: &LOMDeviceRequest{
+					RequestList: []LOMDeviceRequestCommand{
+						LOMDeviceRequestCommand{
+							DeviceDNSName: "dns.name",
+							DeviceRequestType: "request.type",
+							DeviceRequestUUID: "uuid",
+							LOMProtocolVersion: 1356382,
+							PrimaryIPv6AddressList: []string{
+								"2fb2:244a:d925:ddf6:8a28:1a52:b0e2:ea62",
+							},
+							SecondaryIPv6AddressList: []string{
+								"2fb2:244a:d925:ddf6:8a28:1a52:b0e2:ea63",
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.Command.RequestType+"_json", func(t *testing.T) {
@@ -522,6 +543,33 @@ func TestEndToEnd(t *testing.T) {
 					if !bytes.Contains(parts.plistData, b) {
 						t.Error(fmt.Sprintf("marshaled plist does not contain required bytes: '%s'", string(b)))
 					}
+				}
+			},
+		},
+		{
+			name: "LOMDeviceRequest",
+			requestBytes: []byte(
+				`{"udid":"controllerUid","request_type":"LOMDeviceRequest","request_list":[{"device_dns_name":"deviceDnsName","device_request_type":"Reset","device_request_uuid":"B97F3491-E5E9-40D4-B163-36C41648CB46","lom_protocol_version":254,"primary_id_v6_address_list":["primaryIpV6"],"secondary_ip_v6_address_list":["secondaryIpV6"]}]}`,
+			),
+			testFn: func(t *testing.T, parts endToEndParts) {
+				needToSee := [][]byte{
+					[]byte(`LOMDeviceRequest`),
+					[]byte(`deviceDnsName`),
+					[]byte(`Reset`),
+					[]byte(`B97F3491-E5E9-40D4-B163-36C41648CB46`),
+					[]byte(`254`),
+					[]byte(`primaryIpV6`),
+					[]byte(`secondaryIpV6`),
+				}
+				
+				for _, b := range needToSee {
+					if !bytes.Contains(parts.plistData, b) {
+						t.Error(fmt.Sprintf("marshaled plist does not contain required bytes: '%s'", string(b)))
+					}
+				}
+
+				if parts.req.UDID != "controllerUid" {
+					t.Error("UDID should be set to request udid")
 				}
 			},
 		},
