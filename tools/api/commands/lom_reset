@@ -1,0 +1,33 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands"
+
+# apple documentation https://developer.apple.com/documentation/devicemanagement/lomdevicerequestcommand/command/requestlistitem
+
+requestUuid=$(cat /proc/sys/kernel/random/uuid)
+requestUuid=${requestUuid^^}
+
+jq -n \
+  --arg request_type "LOMDeviceRequest" \
+  --arg udid "$1" \
+  --arg requestUuid "$requestUuid" \
+  --arg deviceDnsName "$2" \
+  --arg deviceIpV6 "$3" \
+ '.udid = $udid 
+  |.request_type = $request_type
+  |.request_list = [
+    {
+      "device_dns_name": $deviceDnsName,
+      "device_request_type": "Reset",
+      "device_request_uuid": $requestUuid,
+      "lom_protocol_version": 1,
+      "primary_id_v6_address_list": [
+        $deviceIpV6
+      ],
+      "secondary_ip_v6_address_list": [
+        
+      ]
+    }
+  ]
+  '| \
+  curl $CURL_OPTS -K <(cat <<< "-u micromdm:$API_TOKEN") "$SERVER_URL/$endpoint" -d@-
