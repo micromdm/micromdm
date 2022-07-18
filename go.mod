@@ -31,7 +31,6 @@ require (
 	github.com/go-logfmt/logfmt v0.3.0 // indirect
 	github.com/go-sql-driver/mysql v1.4.0 // indirect
 	github.com/go-stack/stack v1.7.0 // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/korylprince/go-cpio-odc v0.9.4 // indirect
 	github.com/korylprince/goxar v0.0.0-20211111233330-e9f257bcdf25 // indirect
