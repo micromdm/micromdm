@@ -246,7 +246,6 @@ func (svc *service) MakeEnrollmentProfile() (*cfgprofiles.Profile, error) {
 		tlsPayload := cfgprofiles.NewCertificatePKCS1Payload(EnrollmentProfileId + ".cert.selfsigned")
 		tlsPayload.PayloadDisplayName = "Self-signed TLS certificate for MicroMDM"
 		tlsPayload.PayloadDescription = "Installs the TLS certificate for MicroMDM"
-		tlsPayload.PayloadIdentifier = EnrollmentProfileId + ".cert.selfsigned"
 		tlsPayload.PayloadContent = svc.TLSCert
 		profile.AddPayload(tlsPayload)
 	}
