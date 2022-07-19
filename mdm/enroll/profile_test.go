@@ -11,14 +11,13 @@ func TestEnrollProfile(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var payloadContent MDMPayloadContent
-	for _, payload := range profile.PayloadContent {
-		if c, ok := payload.(MDMPayloadContent); ok {
-			payloadContent = c
-		}
+	mdmPayloads := profile.MDMPayloads()
+	if len(mdmPayloads) != 1 {
+		t.Fatal("number of MDM payloads is not 1")
 	}
+	payloadContent := mdmPayloads[0]
 
-	if have, want := payloadContent.AccessRights, AccessRights(8191); have != want {
+	if have, want := payloadContent.AccessRights, 8191; have != want {
 		t.Errorf("have %d, want %d", have, want)
 	}
 

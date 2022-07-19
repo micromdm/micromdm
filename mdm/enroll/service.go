@@ -14,6 +14,7 @@ import (
 	"github.com/micromdm/scep/v2/challenge"
 
 	"github.com/groob/plist"
+	"github.com/jessepeterson/cfgprofiles"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 )
@@ -21,6 +22,17 @@ import (
 const (
 	EnrollmentProfileId string = "com.github.micromdm.micromdm.enroll"
 	OTAProfileId        string = "com.github.micromdm.micromdm.ota"
+
+	profilePayloadOrganization = "MicroMDM"
+	profilePayloadDisplayName  = "Enrollment Profile"
+	profilePayloadDescription  = "The server may alter your settings"
+
+	mdmPayloadDescription     = "Enrolls with the MDM server"
+	mdmPayloadServerEndpoint  = "/mdm/connect"
+	mdmPayloadCheckInEndpoint = "/mdm/checkin"
+
+	scepPayloadDescription = "Configures SCEP"
+	scepPayloadDisplayName = "SCEP"
 )
 
 type Service interface {
@@ -126,17 +138,20 @@ type TopicProvider interface {
 }
 
 func profileOrPayloadFromFunc(f interface{}) (interface{}, error) {
-	fPayload, ok := f.(func() (Payload, error))
+	fProfile, ok := f.(func() (*cfgprofiles.Profile, error))
 	if !ok {
-		fProfile := f.(func() (Profile, error))
-		return fProfile()
+		fPayload := f.(func() (*ProfileServicePayload, error))
+		return fPayload()
 	}
-	return fPayload()
+	return fProfile()
 }
 
 func profileOrPayloadToMobileconfig(in interface{}) (profile.Mobileconfig, error) {
-	if _, ok := in.(Payload); !ok {
-		_ = in.(Profile)
+	switch in.(type) {
+	case *ProfileServicePayload, *cfgprofiles.Profile:
+		break
+	default:
+		return nil, errors.New("invalid profile type")
 	}
 	buf := new(bytes.Buffer)
 	enc := plist.NewEncoder(buf)
@@ -164,88 +179,78 @@ func (svc *service) Enroll(ctx context.Context) (profile.Mobileconfig, error) {
 	return svc.findOrMakeMobileconfig(ctx, EnrollmentProfileId, svc.MakeEnrollmentProfile)
 }
 
+func (svc *service) scepChallenge() (challenge string, err error) {
+	if svc.SCEPChallengeStore != nil {
+		challenge, err = svc.SCEPChallengeStore.SCEPChallenge()
+	} else if svc.SCEPChallenge != "" {
+		challenge = svc.SCEPChallenge
+	}
+	return
+}
+
 const perUserConnections = "com.apple.mdm.per-user-connections"
 const bootstrapToken = "com.apple.mdm.bootstraptoken"
 
-func (svc *service) MakeEnrollmentProfile() (Profile, error) {
-	profile := NewProfile()
-	profile.PayloadIdentifier = EnrollmentProfileId
-	profile.PayloadOrganization = "MicroMDM"
-	profile.PayloadDisplayName = "Enrollment Profile"
-	profile.PayloadDescription = "The server may alter your settings"
+func (svc *service) MakeEnrollmentProfile() (*cfgprofiles.Profile, error) {
+	profile := cfgprofiles.NewProfile(EnrollmentProfileId)
 	profile.PayloadScope = "System"
+	profile.PayloadOrganization = profilePayloadOrganization
+	profile.PayloadDisplayName = profilePayloadDisplayName
+	profile.PayloadDescription = profilePayloadDescription
 
-	mdmPayload := NewPayload("com.apple.mdm")
-	mdmPayload.PayloadDescription = "Enrolls with the MDM server"
-	mdmPayload.PayloadOrganization = "MicroMDM"
-	mdmPayload.PayloadIdentifier = EnrollmentProfileId + ".mdm"
-	mdmPayload.PayloadScope = "System"
+	mdmPayload := cfgprofiles.NewMDMPayload(EnrollmentProfileId + ".mdm")
+	mdmPayload.PayloadOrganization = profilePayloadOrganization
+	mdmPayload.PayloadDescription = mdmPayloadDescription
+
+	mdmPayload.ServerURL = svc.URL + mdmPayloadServerEndpoint
+	mdmPayload.CheckInURL = svc.URL + mdmPayloadCheckInEndpoint
+	mdmPayload.CheckOutWhenRemoved = true
+	mdmPayload.AccessRights = 8191
 
 	svc.mu.Lock()
-	topic := svc.Topic
+	mdmPayload.Topic = svc.Topic
 	svc.mu.Unlock()
 
-	mdmPayloadContent := MDMPayloadContent{
-		Payload:             *mdmPayload,
-		AccessRights:        allRights(),
-		CheckInURL:          svc.URL + "/mdm/checkin",
-		CheckOutWhenRemoved: true,
-		ServerURL:           svc.URL + "/mdm/connect",
-		Topic:               topic,
-		SignMessage:         true,
-		ServerCapabilities:  []string{perUserConnections, bootstrapToken},
-	}
-
-	payloadContent := []interface{}{}
+	mdmPayload.SignMessage = true
+	mdmPayload.ServerCapabilities = []string{perUserConnections, bootstrapToken}
 
 	if svc.SCEPURL != "" {
-		scepContent := SCEPPayloadContent{
+		scepPayload := cfgprofiles.NewSCEPPayload(EnrollmentProfileId + ".scep")
+		scepPayload.PayloadDescription = scepPayloadDescription
+		scepPayload.PayloadDisplayName = scepPayloadDisplayName
+		scepPayload.PayloadOrganization = profilePayloadOrganization
+
+		scepPayload.PayloadContent = cfgprofiles.SCEPPayloadContent{
 			URL:      svc.SCEPURL,
-			Keysize:  2048,
+			KeySize:  2048,
 			KeyType:  "RSA",
 			KeyUsage: int(x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment),
 			Name:     "Device Management Identity Certificate",
 			Subject:  svc.SCEPSubject,
 		}
 
-		if svc.SCEPChallengeStore != nil {
-			challenge, err := svc.SCEPChallengeStore.SCEPChallenge()
-			if err != nil {
-				return *profile, err
-			}
-			scepContent.Challenge = challenge
-		} else if svc.SCEPChallenge != "" {
-			scepContent.Challenge = svc.SCEPChallenge
+		var err error
+		scepPayload.PayloadContent.Challenge, err = svc.scepChallenge()
+		if err != nil {
+			return nil, err
 		}
 
-		scepPayload := NewPayload("com.apple.security.scep")
-		scepPayload.PayloadDescription = "Configures SCEP"
-		scepPayload.PayloadDisplayName = "SCEP"
-		scepPayload.PayloadIdentifier = EnrollmentProfileId + ".scep"
-		scepPayload.PayloadOrganization = "MicroMDM"
-		scepPayload.PayloadContent = scepContent
-		scepPayload.PayloadScope = "System"
-
-		payloadContent = append(payloadContent, *scepPayload)
-		mdmPayloadContent.IdentityCertificateUUID = scepPayload.PayloadUUID
+		profile.AddPayload(scepPayload)
+		mdmPayload.IdentityCertificateUUID = scepPayload.PayloadUUID
 	}
 
-	payloadContent = append(payloadContent, mdmPayloadContent)
+	profile.AddPayload(mdmPayload)
 
 	// Client needs to trust us at this point if we are using a self signed certificate.
 	if len(svc.TLSCert) > 0 {
-		tlsPayload := NewPayload("com.apple.security.pem")
+		tlsPayload := cfgprofiles.NewCertificatePKCS1Payload(EnrollmentProfileId + ".cert.selfsigned")
 		tlsPayload.PayloadDisplayName = "Self-signed TLS certificate for MicroMDM"
 		tlsPayload.PayloadDescription = "Installs the TLS certificate for MicroMDM"
-		tlsPayload.PayloadIdentifier = EnrollmentProfileId + ".cert.selfsigned"
 		tlsPayload.PayloadContent = svc.TLSCert
-
-		payloadContent = append(payloadContent, *tlsPayload)
+		profile.AddPayload(tlsPayload)
 	}
 
-	profile.PayloadContent = payloadContent
-
-	return *profile, nil
+	return profile, nil
 }
 
 // OTAEnroll returns an Over-the-Air "Profile Service" Payload for enrollment.
@@ -253,20 +258,32 @@ func (svc *service) OTAEnroll(ctx context.Context) (profile.Mobileconfig, error)
 	return svc.findOrMakeMobileconfig(ctx, OTAProfileId, svc.MakeOTAEnrollPayload)
 }
 
-func (svc *service) MakeOTAEnrollPayload() (Payload, error) {
-	payload := NewPayload("Profile Service")
-	payload.PayloadIdentifier = OTAProfileId
-	payload.PayloadDisplayName = "MicroMDM Profile Service"
-	payload.PayloadDescription = "Profile Service enrollment"
-	payload.PayloadOrganization = "MicroMDM"
-	payload.PayloadContent = ProfileServicePayload{
-		URL:              svc.URL + "/ota/phase23",
-		Challenge:        "",
-		DeviceAttributes: []string{"UDID", "VERSION", "PRODUCT", "SERIAL", "MEID", "IMEI"},
+type ProfileServicePayloadContent struct {
+	URL              string
+	Challenge        string `plist:",omitempty"`
+	DeviceAttributes []string
+}
+
+type ProfileServicePayload struct {
+	*cfgprofiles.Payload
+	PayloadContent ProfileServicePayloadContent
+}
+
+func (svc *service) MakeOTAEnrollPayload() (*ProfileServicePayload, error) {
+	payload := &ProfileServicePayload{
+		Payload: cfgprofiles.NewPayload("Profile Service", OTAProfileId),
+		PayloadContent: ProfileServicePayloadContent{
+			URL:              svc.URL + "/ota/phase23",
+			Challenge:        "",
+			DeviceAttributes: []string{"UDID", "VERSION", "PRODUCT", "SERIAL", "MEID", "IMEI"},
+		},
 	}
+	payload.PayloadOrganization = profilePayloadOrganization
+	payload.PayloadDescription = "Profile Service enrollment"
+	payload.PayloadDisplayName = "MicroMDM Profile Service"
 
 	// yes, this is a bare Payload, not a Profile
-	return *payload, nil
+	return payload, nil
 }
 
 // OTAPhase2 returns a SCEP Profile for use in phase 2 of Over-the-Air enrollment.
@@ -274,38 +291,36 @@ func (svc *service) OTAPhase2(ctx context.Context) (profile.Mobileconfig, error)
 	return svc.findOrMakeMobileconfig(ctx, OTAProfileId+".phase2", svc.MakeOTAPhase2Profile)
 }
 
-func (svc *service) MakeOTAPhase2Profile() (Profile, error) {
-	profile := NewProfile()
-	profile.PayloadIdentifier = OTAProfileId + ".phase2"
-	profile.PayloadOrganization = "MicroMDM"
+func (svc *service) MakeOTAPhase2Profile() (*cfgprofiles.Profile, error) {
+	profile := cfgprofiles.NewProfile(OTAProfileId + ".phase2")
+	profile.PayloadOrganization = profilePayloadOrganization
 	profile.PayloadDisplayName = "OTA Phase 2"
-	profile.PayloadDescription = "The server may alter your settings"
+	profile.PayloadDescription = profilePayloadDescription
 	profile.PayloadScope = "System"
 
-	scepContent := SCEPPayloadContent{
+	scepPayload := cfgprofiles.NewSCEPPayload(OTAProfileId + ".phase2.scep")
+	scepPayload.PayloadDescription = scepPayloadDescription
+	scepPayload.PayloadDisplayName = scepPayloadDisplayName
+	scepPayload.PayloadOrganization = profilePayloadOrganization
+
+	scepPayload.PayloadContent = cfgprofiles.SCEPPayloadContent{
 		URL:      svc.SCEPURL,
-		Keysize:  2048, // NOTE: OTA docs recommend 1024
+		KeySize:  2048, // NOTE: OTA docs recommend 1024
 		KeyType:  "RSA",
 		KeyUsage: int(x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment),
 		Name:     "OTA Phase 2 Certificate",
 		Subject:  svc.SCEPSubject,
 	}
 
-	if svc.SCEPChallenge != "" {
-		scepContent.Challenge = svc.SCEPChallenge
+	var err error
+	scepPayload.PayloadContent.Challenge, err = svc.scepChallenge()
+	if err != nil {
+		return profile, err
 	}
 
-	scepPayload := NewPayload("com.apple.security.scep")
-	scepPayload.PayloadDescription = "Configures SCEP"
-	scepPayload.PayloadDisplayName = "SCEP"
-	scepPayload.PayloadIdentifier = OTAProfileId + ".phase2.scep"
-	scepPayload.PayloadOrganization = "MicroMDM"
-	scepPayload.PayloadContent = scepContent
-	scepPayload.PayloadScope = "System"
+	profile.AddPayload(scepPayload)
 
-	profile.PayloadContent = append(profile.PayloadContent, *scepPayload)
-
-	return *profile, nil
+	return profile, nil
 }
 
 // OTAPhase3 returns a Profile for use in phase 3 of Over-the-Air profile enrollment.
