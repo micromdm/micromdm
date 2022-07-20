@@ -151,10 +151,10 @@ func TestMarshalCommand(t *testing.T) {
 				RequestType: "LOMDeviceRequest",
 				LOMDeviceRequest: &LOMDeviceRequest{
 					RequestList: []LOMDeviceRequestCommand{
-						LOMDeviceRequestCommand{
-							DeviceDNSName: "dns.name",
-							DeviceRequestType: "request.type",
-							DeviceRequestUUID: "uuid",
+						{
+							DeviceDNSName:      "dns.name",
+							DeviceRequestType:  "request.type",
+							DeviceRequestUUID:  "uuid",
 							LOMProtocolVersion: 1356382,
 							PrimaryIPv6AddressList: []string{
 								"2fb2:244a:d925:ddf6:8a28:1a52:b0e2:ea62",
@@ -561,7 +561,7 @@ func TestEndToEnd(t *testing.T) {
 					[]byte(`primaryIpV6`),
 					[]byte(`secondaryIpV6`),
 				}
-				
+
 				for _, b := range needToSee {
 					if !bytes.Contains(parts.plistData, b) {
 						t.Error(fmt.Sprintf("marshaled plist does not contain required bytes: '%s'", string(b)))
