@@ -21,7 +21,7 @@ jq -n \
       "device_request_type": "Reset",
       "device_request_uuid": $requestUuid,
       "lom_protocol_version": 1,
-      "primary_id_v6_address_list": [
+      "primary_ip_v6_address_list": [
         $deviceIpV6
       ],
       "secondary_ip_v6_address_list": [

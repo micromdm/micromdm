@@ -549,7 +549,7 @@ func TestEndToEnd(t *testing.T) {
 		{
 			name: "LOMDeviceRequest",
 			requestBytes: []byte(
-				`{"udid":"controllerUid","request_type":"LOMDeviceRequest","request_list":[{"device_dns_name":"deviceDnsName","device_request_type":"Reset","device_request_uuid":"B97F3491-E5E9-40D4-B163-36C41648CB46","lom_protocol_version":254,"primary_id_v6_address_list":["primaryIpV6"],"secondary_ip_v6_address_list":["secondaryIpV6"]}]}`,
+				`{"udid":"controllerUid","request_type":"LOMDeviceRequest","request_list":[{"device_dns_name":"deviceDnsName","device_request_type":"Reset","device_request_uuid":"B97F3491-E5E9-40D4-B163-36C41648CB46","lom_protocol_version":254,"primary_ip_v6_address_list":["primaryIpV6"],"secondary_ip_v6_address_list":["secondaryIpV6"]}]}`,
 			),
 			testFn: func(t *testing.T, parts endToEndParts) {
 				needToSee := [][]byte{

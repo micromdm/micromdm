@@ -247,7 +247,7 @@ type LOMDeviceRequestCommand struct {
 	DeviceRequestType        string   `json:"device_request_type"`
 	DeviceRequestUUID        string   `json:"device_request_uuid"`
 	LOMProtocolVersion       int      `json:"lom_protocol_version"`
-	PrimaryIPv6AddressList   []string `json:"primary_id_v6_address_list"`
+	PrimaryIPv6AddressList   []string `json:"primary_ip_v6_address_list"`
 	SecondaryIPv6AddressList []string `json:"secondary_ip_v6_address_list"`
 }
 
