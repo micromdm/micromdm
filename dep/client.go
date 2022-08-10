@@ -25,19 +25,17 @@ const (
 )
 
 type HTTPError struct {
-	err        string
 	StatusCode int
 	Body       string
 }
 
 func (e *HTTPError) Error() string {
-	return e.err
+	return fmt.Sprintf("unexpected dep response. status=%d DEP API Error: %s", e.StatusCode, e.Body)
 }
 
 func NewHTTPError(resp *http.Response) *HTTPError {
 	body, _ := ioutil.ReadAll(resp.Body)
 	return &HTTPError{
-		err:        fmt.Sprintf("unexpected dep response. status=%d DEP API Error: %s", resp.StatusCode, string(body)),
 		StatusCode: resp.StatusCode,
 		Body:       string(body),
 	}
