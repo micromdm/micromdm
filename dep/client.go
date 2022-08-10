@@ -3,6 +3,7 @@ package dep
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -22,6 +23,25 @@ const (
 	XServerProtocolVersionHeader = "X-Server-Protocol-Version"
 	XServerProtocolVersion       = "3"
 )
+
+type HTTPError struct {
+	err        string
+	StatusCode int
+	Body       string
+}
+
+func (e *HTTPError) Error() string {
+	return e.err
+}
+
+func NewHTTPError(resp *http.Response) *HTTPError {
+	body, _ := ioutil.ReadAll(resp.Body)
+	return &HTTPError{
+		err:        fmt.Sprintf("unexpected dep response. status=%d DEP API Error: %s", resp.StatusCode, string(body)),
+		StatusCode: resp.StatusCode,
+		Body:       string(body),
+	}
+}
 
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
@@ -205,8 +225,7 @@ func (c *Client) do(req *http.Request, into interface{}) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(resp.Body)
-		return errors.Errorf("unexpected dep response. status=%d DEP API Error: %s", resp.StatusCode, string(body))
+		return NewHTTPError(resp)
 	}
 	err = json.NewDecoder(resp.Body).Decode(into)
 	return errors.Wrap(err, "decode DEP response body")
