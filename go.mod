@@ -1,4 +1,4 @@
-module github.com/micromdm/micromdm
+module github.com/jc-public/micromdm
 
 require (
 	github.com/RobotsAndPencils/buford v0.12.0
@@ -16,6 +16,7 @@ require (
 	github.com/korylprince/go-macos-pkg v1.3.5
 	github.com/lib/pq v1.0.0
 	github.com/micromdm/go4 v0.0.0-20210104222236-8a0936d9e451
+	github.com/micromdm/micromdm v1.9.0
 	github.com/micromdm/scep/v2 v2.1.0
 	github.com/pkg/errors v0.8.0
 	github.com/pressly/goose v2.3.0+incompatible
@@ -27,7 +28,6 @@ require (
 )
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect
 	github.com/go-logfmt/logfmt v0.3.0 // indirect
 	github.com/go-sql-driver/mysql v1.4.0 // indirect
@@ -39,12 +39,10 @@ require (
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/mattn/go-sqlite3 v1.9.0 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/stretchr/testify v1.2.2 // indirect
+	github.com/stretchr/testify v1.8.0 // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect
 	golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1 // indirect
 	golang.org/x/text v0.3.3 // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.2.0 // indirect
 )
 
