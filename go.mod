@@ -1,4 +1,4 @@
-module github.com/micromdm/micromdm
+module github.com/jc-public/micromdm
 
 require (
 	github.com/RobotsAndPencils/buford v0.12.0
