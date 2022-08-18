@@ -170,7 +170,7 @@ func (c *Client) newSession() error {
 
 	// check resp statuscode
 	if resp.StatusCode != http.StatusOK {
-		return errors.Errorf("establishing DEP session: %v", resp.Status)
+		return errors.Wrapf(NewHTTPError(resp), "establishing DEP session: %v", resp.Status)
 	}
 
 	if err := json.NewDecoder(resp.Body).Decode(&authSessionToken); err != nil {
