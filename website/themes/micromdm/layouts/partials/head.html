@@ -1,6 +1,6 @@
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    {{ .Hugo.Generator }}
+    {{ hugo.Generator }}
 
     {{ if .IsHome }}
     <title>{{ .Site.Title }}</title>
@@ -21,5 +21,7 @@
     <link rel="stylesheet" href="/css/micromdm.css">
 
     <!-- RSS -->
-    <link href="{{ .RSSLink }}" rel="alternate" type="application/rss+xml" title="{{ .Site.Title }}" />
+    {{ with .OutputFormats.Get "rss" -}}
+        {{ printf `<link rel="%s" type="%s" href="%s" title="%s" />` .Rel .MediaType.Type .Permalink $.Site.Title | safeHTML }}
+    {{ end -}}
 </head>
