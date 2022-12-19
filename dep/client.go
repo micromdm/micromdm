@@ -53,7 +53,7 @@ type Client struct {
 	userAgent string
 	client    HTTPClient
 
-	baseURL *url.URL
+	baseURL      *url.URL
 	sessionMutex sync.Mutex
 }
 
