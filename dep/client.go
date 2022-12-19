@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"path"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/garyburd/go-oauth/oauth"
@@ -53,6 +54,7 @@ type Client struct {
 	client    HTTPClient
 
 	baseURL *url.URL
+	sessionMutex sync.Mutex
 }
 
 type OAuthParameters struct {
@@ -80,6 +82,9 @@ func NewClient(p OAuthParameters, opts ...Option) *Client {
 }
 
 func (c *Client) session() error {
+	// making sure the session creation is thread safe if the client is used amongst multiple go routine
+	c.sessionMutex.Lock()
+	defer c.sessionMutex.Unlock()
 	if c.authSessionToken == "" {
 		if err := c.newSession(); err != nil {
 			return errors.Wrap(err, "creating new auth session for dep")
