@@ -8,7 +8,7 @@ type ManageVPPLicensesByAdamIdSrv struct {
 	ProductTypeName string        `json:"productTypeName,omitempty"`
 	IsIrrevocable   bool          `json:"isIrrevocable,omitempty"`
 	PricingParam    string        `json:"pricingParam,omitempty"`
-	UID             string        `json:"uId,omitempty,omitempty"`
+	UID             string        `json:"uId,omitempty"`
 	AdamIdStr       string        `json:"adamIdStr,omitempty"`
 	Status          int           `json:"status"`
 	ClientContext   string        `json:"clientContext,omitempty"`
@@ -20,7 +20,8 @@ type ManageVPPLicensesByAdamIdSrv struct {
 
 // Contains information about an app association
 type Association struct {
-	SerialNumber           string   `json:"serialNumber"`
+	SerialNumber           string   `json:"serialNumber,omitempty"`
+	ClientUserIdStr        string   `json:"clientUserIdStr,omitempty"`
 	ErrorMessage           string   `json:"errorMessage,omitempty"`
 	ErrorCode              int      `json:"errorCode,omitempty"`
 	ErrorNumber            int      `json:"errorNumber,omitempty"`
@@ -30,11 +31,13 @@ type Association struct {
 
 // Contains options to pass to the ManageVPPLicensesByAdamIdSrv
 type ManageVPPLicensesByAdamIdSrvOptions struct {
-	SToken                    string   `json:"sToken"`
-	AdamIDStr                 string   `json:"adamIdStr"`
-	PricingParam              string   `json:"pricingParam"`
-	AssociateSerialNumbers    []string `json:"associateSerialNumbers,omitempty"`
-	DisassociateSerialNumbers []string `json:"disassociateSerialNumbers,omitempty"`
+	SToken                       string   `json:"sToken"`
+	AdamIDStr                    string   `json:"adamIdStr"`
+	PricingParam                 string   `json:"pricingParam"`
+	AssociateClientUserIdStrs    []string `json:"associateClientUserIdStrs,omitempty"`
+	AssociateSerialNumbers       []string `json:"associateSerialNumbers,omitempty"`
+	DisassociateClientUserIdStrs []string `json:"disassociateClientUserIdStrs,omitempty"`
+	DisassociateSerialNumbers    []string `json:"disassociateSerialNumbers,omitempty"`
 }
 
 // Associates a list of serials to a VPP app license
