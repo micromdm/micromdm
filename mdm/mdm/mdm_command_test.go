@@ -29,6 +29,7 @@ Not tested end to end but checked against pdf:
 
 func TestMarshalCommand(t *testing.T) {
 	var deferrals int64 = 3
+	var cadence int
 	var tests = []struct {
 		Command Command
 	}{
@@ -164,6 +165,14 @@ func TestMarshalCommand(t *testing.T) {
 							},
 						},
 					},
+				},
+			},
+		},
+		{
+			Command: Command{
+				RequestType: "Settings",
+				Settings: &Settings{
+					Settings: []Setting{{Item: "SoftwareUpdateSettings", RecommendationCadence: &cadence}},
 				},
 			},
 		},
@@ -570,6 +579,25 @@ func TestEndToEnd(t *testing.T) {
 
 				if parts.req.UDID != "controllerUid" {
 					t.Error("UDID should be set to request udid")
+				}
+			},
+		},
+		{
+			name: "SoftwareUpdateSettings",
+			requestBytes: []byte(
+				`{"request_type":"Settings","settings":[{"item":"SoftwareUpdateSettings","recommendation_cadence":0}]}`,
+			),
+			testFn: func(t *testing.T, parts endToEndParts) {
+				needToSee := [][]byte{
+					[]byte(`Settings`),
+					[]byte(`SoftwareUpdateSettings`),
+					[]byte(`RecommendationCadence`),
+					[]byte(`0`),
+				}
+				for _, b := range needToSee {
+					if !bytes.Contains(parts.plistData, b) {
+						t.Error(fmt.Sprintf("marshaled plist does not contain required bytes: '%s'", string(b)))
+					}
 				}
 			},
 		},

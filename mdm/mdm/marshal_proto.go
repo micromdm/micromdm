@@ -514,6 +514,10 @@ func settingToProto(s Setting) *mdmproto.Setting {
 		pbs.AppAnalytics = &mdmproto.AppAnalyticsSetting{
 			Enabled: falseIfNil(s.Enabled),
 		}
+	case "SoftwareUpdateSettings":
+		pbs.SoftwareUpdateSettings = &mdmproto.SoftwareUpdateSettingsSetting{
+			RecommendationCadence: int64(zeroIntIfNil(s.RecommendationCadence)),
+		}
 	}
 	return &pbs
 }

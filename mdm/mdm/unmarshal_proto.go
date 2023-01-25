@@ -455,6 +455,10 @@ func protoToSetting(s *mdmproto.Setting) Setting {
 	case "AppAnalytics":
 		pbs := s.GetAppAnalytics()
 		setting.Enabled = nilIfFalse(pbs.GetEnabled())
+	case "SoftwareUpdateSettings":
+		pbs := s.GetSoftwareUpdateSettings()
+		cadence := int(pbs.GetRecommendationCadence())
+		setting.RecommendationCadence = &cadence
 	}
 	return setting
 }

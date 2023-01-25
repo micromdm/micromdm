@@ -292,6 +292,7 @@ message Setting {
   AppAnalyticsSetting app_analytics = 14;
   ApplicationConfigurationSetting application_configuration = 15;
   TimeZoneSetting time_zone = 16;
+  SoftwareUpdateSettingsSetting software_update_settings = 17;
 }
 
 message VoiceRoamingSetting {
@@ -335,6 +336,10 @@ message DeviceNameSetting {
 
 message TimeZoneSetting {
   string time_zone = 1;
+}
+
+message SoftwareUpdateSettingsSetting {
+  int64 recommendation_cadence = 1;
 }
 
 message HostnameSetting {
