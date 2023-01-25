@@ -1,6 +1,6 @@
 ## [Unreleased](https://github.com/micromdm/micromdm/compare/v1.10.1...main)
 
-This release is eagerly awaiting *your* awesome contribution!
+- Add SoftwareUpdateSettings to Settings command (#771, #856)
 
 ## [v1.10.1](https://github.com/micromdm/micromdm/compare/v1.10.0...v1.10.1) January 24, 2023
 
