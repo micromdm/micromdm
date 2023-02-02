@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/" # Don't change this despite the path being .github/workflows
+    schedule:
+      # Check for updates to GitHub Actions on the first day of the month
+      interval: "monthly"
+
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      # Check for updates to Go modules on the first day of the month
+      interval: "monthly"
