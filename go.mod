@@ -7,7 +7,7 @@ require (
 	github.com/go-kit/kit v0.7.0
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/handlers v1.5.1
-	github.com/gorilla/mux v1.6.2
+	github.com/gorilla/mux v1.8.0
 	github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda
 	github.com/groob/plist v0.0.0-20220217120414-63fa881b19a5
 	github.com/jessepeterson/cfgprofiles v0.2.0
@@ -32,7 +32,6 @@ require (
 	github.com/go-logfmt/logfmt v0.3.0 // indirect
 	github.com/go-sql-driver/mysql v1.4.0 // indirect
 	github.com/go-stack/stack v1.7.0 // indirect
-	github.com/gorilla/context v1.1.1 // indirect
 	github.com/korylprince/go-cpio-odc v0.9.4 // indirect
 	github.com/korylprince/goxar v0.0.0-20211111233330-e9f257bcdf25 // indirect
 	github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515 // indirect
