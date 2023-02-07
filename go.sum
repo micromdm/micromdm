@@ -65,8 +65,9 @@ github.com/micromdm/go4 v0.0.0-20210104222236-8a0936d9e451 h1:xHy+uslAu/WFXOQHqy
 github.com/micromdm/go4 v0.0.0-20210104222236-8a0936d9e451/go.mod h1:uZTekMktf1ayaNK9onByUXwKleUvJNQw/cpZaNkvvRo=
 github.com/micromdm/scep/v2 v2.1.0 h1:2fS9Rla7qRR266hvUoEauBJ7J6FhgssEiq2OkSKXmaU=
 github.com/micromdm/scep/v2 v2.1.0/go.mod h1:BkF7TkPPhmgJAMtHfP+sFTKXmgzNJgLQlvvGoOExBcc=
-github.com/pkg/errors v0.8.0 h1:WdK/asTD0HN+q6hsWO3/vpuAkAr+tw6aNJNDFFf0+qw=
 github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
+github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/pressly/goose v2.3.0+incompatible h1:Nc9o+JsN4j8sS4hvRzcfKYOrr7W2EXMDY2wNYtKmaVc=

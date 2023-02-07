@@ -17,7 +17,7 @@ require (
 	github.com/lib/pq v1.0.0
 	github.com/micromdm/go4 v0.0.0-20210104222236-8a0936d9e451
 	github.com/micromdm/scep/v2 v2.1.0
-	github.com/pkg/errors v0.8.0
+	github.com/pkg/errors v0.9.1
 	github.com/pressly/goose v2.3.0+incompatible
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
 	golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa
