@@ -9,6 +9,7 @@ import (
 
 type Service interface {
 	NewCommand(context.Context, *mdm.CommandRequest) (*mdm.CommandPayload, error)
+	NewRawCommand(context.Context, *RawCommand) error
 }
 
 type CommandService struct {

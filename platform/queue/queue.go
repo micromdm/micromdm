@@ -212,6 +212,10 @@ func NewQueue(db *bolt.DB, pubsub pubsub.PublishSubscriber, opts ...Option) (*St
 		return nil, err
 	}
 
+	if err := datastore.pollRawCommands(pubsub); err != nil {
+		return nil, err
+	}
+
 	return datastore, nil
 }
 
@@ -304,6 +308,58 @@ func (db *Store) pollCommands(pubsub pubsub.PublishSubscriber) error {
 				)
 
 				err = PublishCommandQueued(pubsub, ev.DeviceUDID, ev.Payload.CommandUUID)
+				if err != nil {
+					level.Info(db.logger).Log(
+						"msg", "publish command to queued topic",
+						"err", err,
+					)
+					continue
+				}
+			}
+		}
+	}()
+
+	return nil
+}
+
+func (db *Store) pollRawCommands(pubsub pubsub.PublishSubscriber) error {
+	commandEvents, err := pubsub.Subscribe(context.TODO(), "command-queue", command.RawCommandTopic)
+	if err != nil {
+		return errors.Wrapf(err,
+			"subscribing push to %s topic", command.RawCommandTopic)
+	}
+	go func() {
+		for {
+			select {
+			case event := <-commandEvents:
+				var ev command.RawEvent
+				if err := command.UnmarshalRawEvent(event.Message, &ev); err != nil {
+					level.Info(db.logger).Log("msg", "unmarshal raw command event in queue", "err", err)
+					continue
+				}
+
+				cmd := new(DeviceCommand)
+				cmd.DeviceUDID = ev.DeviceUDID
+				byUDID, err := db.DeviceCommand(ev.DeviceUDID)
+				if err == nil && byUDID != nil {
+					cmd = byUDID
+				}
+				newCmd := Command{
+					UUID:    ev.CommandUUID,
+					Payload: ev.Payload,
+				}
+				cmd.Commands = append(cmd.Commands, newCmd)
+				if err := db.Save(cmd); err != nil {
+					level.Info(db.logger).Log("msg", "save command in db", "err", err)
+					continue
+				}
+				level.Info(db.logger).Log(
+					"msg", "queued raw event for device",
+					"device_udid", ev.DeviceUDID,
+					"command_uuid", ev.CommandUUID,
+				)
+
+				err = PublishCommandQueued(pubsub, ev.DeviceUDID, ev.CommandUUID)
 				if err != nil {
 					level.Info(db.logger).Log(
 						"msg", "publish command to queued topic",

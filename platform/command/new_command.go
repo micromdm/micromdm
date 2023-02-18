@@ -1,9 +1,12 @@
 package command
 
 import (
+	"bytes"
 	"net/http"
 
 	"github.com/go-kit/kit/endpoint"
+	"github.com/gorilla/mux"
+	"github.com/groob/plist"
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 
@@ -14,6 +17,9 @@ import (
 const (
 	// CommandTopic is a PubSub topic that events are published to.
 	CommandTopic = "mdm.Command"
+
+	// RawCommandTopic is a PubSub topic that events are published to.
+	RawCommandTopic = "mdm.RawCommand"
 )
 
 func (svc *CommandService) NewCommand(ctx context.Context, request *mdm.CommandRequest) (*mdm.CommandPayload, error) {
@@ -33,6 +39,21 @@ func (svc *CommandService) NewCommand(ctx context.Context, request *mdm.CommandR
 		return nil, errors.Wrapf(err, "publish mdm command on topic: %s", CommandTopic)
 	}
 	return payload, nil
+}
+
+func (svc *CommandService) NewRawCommand(ctx context.Context, cmd *RawCommand) error {
+	if cmd == nil {
+		return errors.New("empty RawCommand")
+	}
+	event := NewRawEvent(cmd)
+	msg, err := MarshalRawEvent(event)
+	if err != nil {
+		return errors.Wrap(err, "marshalling raw mdm command event")
+	}
+	if err := svc.publisher.Publish(context.TODO(), RawCommandTopic, msg); err != nil {
+		return errors.Wrapf(err, "publish raw mdm command on topic: %s", RawCommandTopic)
+	}
+	return nil
 }
 
 type newCommandRequest struct {
@@ -67,5 +88,62 @@ func MakeNewCommandEndpoint(svc Service) endpoint.Endpoint {
 			return newCommandResponse{Err: err}, nil
 		}
 		return newCommandResponse{Payload: payload}, nil
+	}
+}
+
+type RawCommand struct {
+	UDID        string `json:"udid" plist:"-"`
+	CommandUUID string `json:"command_uuid"`
+	Command     struct {
+		RequestType string `json:"request_type"`
+	} `json:"command"`
+	Raw []byte `plist:"-"`
+}
+
+type newRawCommandRequest struct {
+	RawCommand
+}
+
+type newRawCommandResponse struct {
+	Payload *RawCommand `json:"payload,omitempty"`
+	Err     error       `json:"error,omitempty"`
+}
+
+func (r newRawCommandResponse) Failed() error   { return r.Err }
+func (r newRawCommandResponse) StatusCode() int { return http.StatusCreated }
+
+func decodeNewRawCommandRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	udid, ok := mux.Vars(r)["udid"]
+	if !ok {
+		return nil, errors.New("empty udid")
+	}
+
+	buf := new(bytes.Buffer)
+	if _, err := buf.ReadFrom(r.Body); err != nil {
+		return nil, err
+	}
+
+	// verify body is valid plist and parse CommandUUID and RequestType
+	var req newRawCommandRequest
+	if err := plist.NewXMLDecoder(buf).Decode(&req); err != nil {
+		return nil, err
+	}
+
+	req.UDID = udid
+	req.Raw = buf.Bytes()
+	return req, nil
+}
+
+// MakeNewRawCommandEndpoint creates an endpoint which creates new raw MDM Commands.
+func MakeNewRawCommandEndpoint(svc Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(newRawCommandRequest)
+		if req.CommandUUID == "" || req.Command.RequestType == "" {
+			return newRawCommandResponse{Err: errEmptyRequest}, nil
+		}
+		if err := svc.NewRawCommand(ctx, &req.RawCommand); err != nil {
+			return newRawCommandResponse{Err: err}, nil
+		}
+		return newRawCommandResponse{Payload: &req.RawCommand}, nil
 	}
 }

@@ -33,6 +33,7 @@ func New(pubsub pubsub.PublishSubscriber, logger log.Logger) *QueueInMem {
 		queue:  make(map[string]*list.List),
 	}
 	q.startPolling(pubsub)
+	q.startRawPolling(pubsub)
 	return q
 }
 
@@ -158,6 +159,47 @@ func (q *QueueInMem) startPolling(pubsub pubsub.PublishSubscriber) error {
 				)
 
 				err = boltqueue.PublishCommandQueued(pubsub, cmdEvent.DeviceUDID, cmdEvent.Payload.CommandUUID)
+				if err != nil {
+					level.Info(q.logger).Log(
+						"msg", "publish command to queued topic",
+						"err", err,
+					)
+				}
+			}
+		}
+	}()
+	return nil
+}
+
+func (q *QueueInMem) startRawPolling(pubsub pubsub.PublishSubscriber) error {
+	events, err := pubsub.Subscribe(context.TODO(), "command-queue", command.RawCommandTopic)
+	if err != nil {
+		return err
+	}
+	go func() {
+		for {
+			select {
+			case event := <-events:
+				var cmdEvent command.RawEvent
+				if err := command.UnmarshalRawEvent(event.Message, &cmdEvent); err != nil {
+					level.Info(q.logger).Log(
+						"msg", "unmarshal command event from pubsub",
+						"err", err,
+					)
+					continue
+				}
+				q.enqueue(
+					q.getList(cmdEvent.DeviceUDID),
+					cmdEvent.CommandUUID,
+					cmdEvent.Payload,
+				)
+				level.Info(q.logger).Log(
+					"msg", "queued raw command for device",
+					"device_udid", cmdEvent.DeviceUDID,
+					"command_uuid", cmdEvent.CommandUUID,
+				)
+
+				err = boltqueue.PublishCommandQueued(pubsub, cmdEvent.DeviceUDID, cmdEvent.CommandUUID)
 				if err != nil {
 					level.Info(q.logger).Log(
 						"msg", "publish command to queued topic",
