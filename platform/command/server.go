@@ -10,12 +10,14 @@ import (
 type Endpoints struct {
 	NewCommandEndpoint    endpoint.Endpoint
 	NewRawCommandEndpoint endpoint.Endpoint
+	ClearQueueEndpoint    endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
 		NewCommandEndpoint:    endpoint.Chain(outer, others...)(MakeNewCommandEndpoint(s)),
 		NewRawCommandEndpoint: endpoint.Chain(outer, others...)(MakeNewRawCommandEndpoint(s)),
+		ClearQueueEndpoint:    endpoint.Chain(outer, others...)(MakeClearQueueEndpoint(s)),
 	}
 }
 
@@ -32,6 +34,14 @@ func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.S
 	r.Methods("POST").Path("/v1/commands/{udid}").Handler(httptransport.NewServer(
 		e.NewRawCommandEndpoint,
 		decodeNewRawCommandRequest,
+		httputil.EncodeJSONResponse,
+		options...,
+	))
+
+	// DELETE     /v1/commands/udid		Clear device queue.
+	r.Methods("POST").Path("/v1/commands/{udid}").Handler(httptransport.NewServer(
+		e.ClearQueueEndpoint,
+		decodeClearRequest,
 		httputil.EncodeJSONResponse,
 		options...,
 	))

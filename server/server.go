@@ -74,6 +74,8 @@ type Server struct {
 	SCEPService     scep.Service
 	ConfigService   config.Service
 
+	CommandQueue mdm.Queue
+
 	WebhooksHTTPClient *http.Client
 }
 
@@ -102,15 +104,15 @@ func (c *Server) Setup(logger log.Logger) error {
 		return err
 	}
 
-	if err := c.setupCommandService(); err != nil {
-		return err
-	}
-
 	if err := c.setupWebhooks(logger); err != nil {
 		return err
 	}
 
 	if err := c.setupCommandQueue(logger); err != nil {
+		return err
+	}
+
+	if err := c.setupCommandService(); err != nil {
 		return err
 	}
 
@@ -162,7 +164,7 @@ func (c *Server) setupRemoveService() error {
 }
 
 func (c *Server) setupCommandService() error {
-	commandService, err := command.New(c.PubClient)
+	commandService, err := command.New(c.PubClient, c.CommandQueue)
 	if err != nil {
 		return err
 	}
@@ -190,6 +192,8 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 	default:
 		return fmt.Errorf("invalid command queue type: %s", c.Queue)
 	}
+
+	c.CommandQueue = q
 
 	devDB, err := devicebuiltin.NewDB(c.DB)
 	if err != nil {
