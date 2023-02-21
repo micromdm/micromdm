@@ -97,10 +97,6 @@ func UnmarshalRawEvent(data []byte, e *RawEvent) error {
 	if err := proto.Unmarshal(data, &pb); err != nil {
 		return errors.Wrap(err, "unmarshal pb Event")
 	}
-	var payload mdm.CommandPayload
-	if err := mdm.UnmarshalCommandPayload(pb.PayloadBytes, &payload); err != nil {
-		return err
-	}
 	e.CommandUUID = pb.Id
 	e.Time = time.Unix(0, pb.Time).UTC()
 	e.DeviceUDID = pb.DeviceUdid
