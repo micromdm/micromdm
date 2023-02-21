@@ -39,7 +39,7 @@ func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.S
 	))
 
 	// DELETE     /v1/commands/udid		Clear device queue.
-	r.Methods("POST").Path("/v1/commands/{udid}").Handler(httptransport.NewServer(
+	r.Methods("DELETE").Path("/v1/commands/{udid}").Handler(httptransport.NewServer(
 		e.ClearQueueEndpoint,
 		decodeClearRequest,
 		httputil.EncodeJSONResponse,
