@@ -97,7 +97,7 @@ type RawCommand struct {
 	Command     struct {
 		RequestType string `json:"request_type"`
 	} `json:"command"`
-	Raw []byte `plist:"-"`
+	Raw []byte `plist:"-" json:"payload"`
 }
 
 type newRawCommandRequest struct {
