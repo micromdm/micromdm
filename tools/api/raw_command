@@ -1,0 +1,6 @@
+#!/bin/bash
+# raw_cmd $udid $path/to/cmd.plist
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands/$1"
+
+curl $CURL_OPTS -K <(cat <<< "-u micromdm:$API_TOKEN") --data "@$2" "$SERVER_URL/$endpoint" 
