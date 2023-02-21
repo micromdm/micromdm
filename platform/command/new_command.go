@@ -2,6 +2,8 @@ package command
 
 import (
 	"bytes"
+	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/go-kit/kit/endpoint"
@@ -118,19 +120,19 @@ func decodeNewRawCommandRequest(ctx context.Context, r *http.Request) (interface
 		return nil, errors.New("empty udid")
 	}
 
-	buf := new(bytes.Buffer)
-	if _, err := buf.ReadFrom(r.Body); err != nil {
-		return nil, err
+	payload, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read payload body: %w", err)
 	}
 
 	// verify body is valid plist and parse CommandUUID and RequestType
 	var req newRawCommandRequest
-	if err := plist.NewXMLDecoder(buf).Decode(&req); err != nil {
-		return nil, err
+	if err := plist.NewXMLDecoder(bytes.NewBuffer(payload)).Decode(&req); err != nil {
+		return nil, fmt.Errorf("parse payload as plist: %w", err)
 	}
 
 	req.UDID = udid
-	req.Raw = buf.Bytes()
+	req.Raw = payload
 	return req, nil
 }
 
