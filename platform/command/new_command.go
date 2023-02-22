@@ -136,12 +136,17 @@ func decodeNewRawCommandRequest(ctx context.Context, r *http.Request) (interface
 	return req, nil
 }
 
+var errMalformedRequest = errors.New("request is malformed")
+
 // MakeNewRawCommandEndpoint creates an endpoint which creates new raw MDM Commands.
 func MakeNewRawCommandEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req := request.(newRawCommandRequest)
-		if req.CommandUUID == "" || req.Command.RequestType == "" {
+		if req.UDID == "" {
 			return newRawCommandResponse{Err: errEmptyRequest}, nil
+		}
+		if req.CommandUUID == "" || req.Command.RequestType == "" {
+			return newRawCommandResponse{Err: errMalformedRequest}, nil
 		}
 		if err := svc.NewRawCommand(ctx, &req.RawCommand); err != nil {
 			return newRawCommandResponse{Err: err}, nil
