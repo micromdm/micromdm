@@ -1,4 +1,6 @@
 #!/bin/bash  
+# Install VPP application on device
+# VPP app needs to be registered with the device serial number using the apple endpoint (https://vpp.itunes.apple.com/mdm/v2/assets/associate)  before one can install it on a device
 source $MICROMDM_ENV_PATH
 endpoint="v1/commands"
 jq -n \
