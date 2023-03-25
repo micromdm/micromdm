@@ -13,6 +13,7 @@ import (
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/mux"
 	"github.com/groob/plist"
+	"github.com/micromdm/micromdm/pkg/crypto"
 	"github.com/pkg/errors"
 	"go.mozilla.org/pkcs7"
 )
@@ -29,12 +30,12 @@ func MakeServerEndpoints(s Service) Endpoints {
 	}
 }
 
-func RegisterHTTPHandlers(r *mux.Router, e Endpoints, logger log.Logger) {
+func RegisterHTTPHandlers(r *mux.Router, e Endpoints, v *crypto.PKCS7Verifier, logger log.Logger) {
 	options := []httptransport.ServerOption{
 		httptransport.ServerErrorEncoder(encodeError),
 		httptransport.ServerErrorLogger(logger),
 		httptransport.ServerBefore(httptransport.PopulateRequestContext),
-		httptransport.ServerBefore(populateDeviceCertificateFromSignRequestHeader),
+		httptransport.ServerBefore((verifier{PKCS7Verifier: v}).populateDeviceCertificateFromSignRequestHeader),
 	}
 
 	r.Methods(http.MethodPut).Path("/mdm/checkin").Handler(httptransport.NewServer(
@@ -65,7 +66,11 @@ func DeviceCertificateFromContext(ctx context.Context) (*x509.Certificate, error
 	return cert, err
 }
 
-func populateDeviceCertificateFromSignRequestHeader(ctx context.Context, r *http.Request) context.Context {
+type verifier struct {
+	*crypto.PKCS7Verifier
+}
+
+func (v verifier) populateDeviceCertificateFromSignRequestHeader(ctx context.Context, r *http.Request) context.Context {
 	bodyReader := r.Body
 	defer bodyReader.Close()
 
@@ -76,7 +81,7 @@ func populateDeviceCertificateFromSignRequestHeader(ctx context.Context, r *http
 	// Replace our body object with a fully buffered response
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
-	cert, err := verifySignature(r.Header.Get("Mdm-Signature"), body)
+	cert, err := v.verifySignature(r.Header.Get("Mdm-Signature"), body)
 	ctx = context.WithValue(ctx, ContextKeyDeviceCertificate, cert)
 	ctx = context.WithValue(ctx, ContextKeyDeviceCertificateVerifyError, err)
 
@@ -107,7 +112,7 @@ func mdmRequestBody(r *http.Request, s interface{}) ([]byte, error) {
 }
 
 // Verify MDM header signature. Note: does NOT verify device certificate
-func verifySignature(header string, body []byte) (*x509.Certificate, error) {
+func (v verifier) verifySignature(header string, body []byte) (*x509.Certificate, error) {
 	if header == "" {
 		return nil, errors.New("signature missing")
 	}
@@ -120,7 +125,7 @@ func verifySignature(header string, body []byte) (*x509.Certificate, error) {
 		return nil, errors.Wrap(err, "CMS parse decoded MDM SignMessage signature")
 	}
 	p7.Content = body
-	if err := p7.Verify(); err != nil {
+	if err := v.Verify(p7); err != nil {
 		return nil, errors.Wrap(err, "CMS verify MDM Signed Message")
 	}
 	cert := p7.GetOnlySigner()

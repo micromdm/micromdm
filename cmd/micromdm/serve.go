@@ -16,6 +16,7 @@ import (
 
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/mdm/enroll"
+	"github.com/micromdm/micromdm/pkg/crypto"
 	httputil2 "github.com/micromdm/micromdm/pkg/httputil"
 	"github.com/micromdm/micromdm/platform/apns"
 	"github.com/micromdm/micromdm/platform/appstore"
@@ -127,6 +128,7 @@ func serve(args []string) error {
 		flQueue                  = flagset.String("queue", env.String("MICROMDM_QUEUE", "builtin"), "command queue type")
 		flDMURL                  = flagset.String("dm", env.String("DM", ""), "URL to send Declarative Management requests to")
 		flLogTime                = flagset.Bool("log-time", false, "Include timestamp in log messages")
+		flP7Skew                 = flagset.Int("device-signature-skew", env.Int("MICROMDM_DEVICE_SIGNATURE_SKEW", 0), "Sets the allowable clock skew (in seconds) when verifying device signatures")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -250,7 +252,9 @@ func serve(args []string) error {
 	scepEndpoints.PostEndpoint = scep.EndpointLoggingMiddleware(scepComponentLogger)(scepEndpoints.PostEndpoint)
 	scepHandler := scep.MakeHTTPHandler(scepEndpoints, sm.SCEPService, scepComponentLogger)
 
-	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPDepot), httptransport.ServerErrorLogger(httpLogger))
+	pkcs7Verifier := &crypto.PKCS7Verifier{MaxSkew: time.Duration(*flP7Skew) * time.Second}
+
+	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPDepot), pkcs7Verifier, httptransport.ServerErrorLogger(httpLogger))
 
 	r, options := httputil2.NewRouter(logger)
 
@@ -266,7 +270,7 @@ func serve(args []string) error {
 	}
 
 	mdmEndpoints := mdm.MakeServerEndpoints(sm.MDMService)
-	mdm.RegisterHTTPHandlers(r, mdmEndpoints, logger)
+	mdm.RegisterHTTPHandlers(r, mdmEndpoints, pkcs7Verifier, logger)
 
 	// API commands. Only handled if the user provides an api key.
 	if *flAPIKey != "" {

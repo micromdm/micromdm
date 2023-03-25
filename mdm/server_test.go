@@ -45,7 +45,7 @@ func Test_mdmMdmSignatureHeader(t *testing.T) {
 	req.Header.Set("Mdm-Signature", b64sig)
 
 	ctx := context.Background()
-	ctx = populateDeviceCertificateFromSignRequestHeader(ctx, req)
+	ctx = (verifier{PKCS7Verifier: &crypto.PKCS7Verifier{}}).populateDeviceCertificateFromSignRequestHeader(ctx, req)
 
 	reqcert, err := DeviceCertificateFromContext(ctx)
 	if err != nil {

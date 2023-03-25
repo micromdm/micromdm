@@ -22,11 +22,12 @@ type HTTPHandlers struct {
 	OTAPhase2Phase3Handler http.Handler
 }
 
-func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptransport.ServerOption) HTTPHandlers {
+func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, v *crypto.PKCS7Verifier, opts ...httptransport.ServerOption) HTTPHandlers {
+	ver := verifier{PKCS7Verifier: v}
 	h := HTTPHandlers{
 		EnrollHandler: httptransport.NewServer(
 			endpoints.GetEnrollEndpoint,
-			decodeMDMEnrollRequest,
+			ver.decodeMDMEnrollRequest,
 			encodeMobileconfigResponse,
 			opts...,
 		),
@@ -38,7 +39,7 @@ func MakeHTTPHandlers(ctx context.Context, endpoints Endpoints, opts ...httptran
 		),
 		OTAPhase2Phase3Handler: httptransport.NewServer(
 			endpoints.OTAPhase2Phase3Endpoint,
-			decodeOTAPhase2Phase3Request,
+			ver.decodeOTAPhase2Phase3Request,
 			encodeMobileconfigResponse,
 			opts...,
 		),
@@ -50,7 +51,11 @@ func decodeEmptyRequest(_ context.Context, _ *http.Request) (interface{}, error)
 	return nil, nil
 }
 
-func decodeMDMEnrollRequest(_ context.Context, r *http.Request) (interface{}, error) {
+type verifier struct {
+	*crypto.PKCS7Verifier
+}
+
+func (v verifier) decodeMDMEnrollRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	switch r.Method {
 	case "GET":
 		return mdmEnrollRequest{}, nil
@@ -63,7 +68,7 @@ func decodeMDMEnrollRequest(_ context.Context, r *http.Request) (interface{}, er
 		if err != nil {
 			return nil, err
 		}
-		err = p7.Verify()
+		err = v.Verify(p7)
 		if err != nil {
 			return nil, err
 		}
@@ -93,7 +98,7 @@ func encodeMobileconfigResponse(ctx context.Context, w http.ResponseWriter, resp
 	return err
 }
 
-func decodeOTAPhase2Phase3Request(_ context.Context, r *http.Request) (interface{}, error) {
+func (v verifier) decodeOTAPhase2Phase3Request(_ context.Context, r *http.Request) (interface{}, error) {
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return nil, err
@@ -102,7 +107,7 @@ func decodeOTAPhase2Phase3Request(_ context.Context, r *http.Request) (interface
 	if err != nil {
 		return nil, err
 	}
-	err = p7.Verify()
+	err = v.Verify(p7)
 	if err != nil {
 		return nil, err
 	}

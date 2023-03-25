@@ -14,6 +14,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"go.mozilla.org/pkcs7"
 )
 
 func GenerateRandomCertificateSerialNumber() (*big.Int, error) {
@@ -191,4 +193,22 @@ func TopicFromCert(cert *x509.Certificate) (string, error) {
 	}
 
 	return "", errors.New("could not find Push Topic (UserID OID) in certificate")
+}
+
+// PKCS7Verifier verifies PKCS7 objects with a configurable clock skew
+type PKCS7Verifier struct {
+	// MaxSkew is the maximum amount of clock skew permitted between the the server time and the pkcs7 signature validity
+	MaxSkew time.Duration
+}
+
+// Verify checks the signatures of a PKCS7 object
+func (v *PKCS7Verifier) Verify(p7 *pkcs7.PKCS7) error {
+	// verify with skew added to beginning of validity window
+	err := p7.VerifyWithChainAtTime(nil, time.Now().Add(v.MaxSkew))
+	// if verification fails due to missing the validity window, try verifying with the skew added to the end of the validity window
+	// the pkcs7 lib doesn't return a concrete error, so check against the error string
+	if err != nil && strings.Contains(err.Error(), "is outside of certificate validity") {
+		return p7.VerifyWithChainAtTime(nil, time.Now().Add(-v.MaxSkew))
+	}
+	return err
 }
