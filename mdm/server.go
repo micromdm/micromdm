@@ -138,8 +138,7 @@ func encodeResponse(ctx context.Context, w http.ResponseWriter, response interfa
 	}
 
 	if e, ok := response.(failer); ok && e.Failed() != nil {
-		encodeError(ctx, e.Failed(), w)
-		return nil
+		return e.Failed()
 	}
 
 	w.WriteHeader(http.StatusOK)
