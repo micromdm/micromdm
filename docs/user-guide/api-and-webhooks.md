@@ -212,6 +212,7 @@ For example, to install a configuration profile to a device, you can schedule th
 ```
 POST /v1/commands HTTP/1.1
 Authorization: Basic bWljcm9tZG06c3VwZXJzZWNyZXQ=
+
 {  
     "udid": "55693EB3-DF03-5FD1-9263-F7CDB8AD7FFD", 
     "request_type": "InstallProfile",
@@ -220,3 +221,53 @@ Authorization: Basic bWljcm9tZG06c3VwZXJzZWNyZXQ=
 ```
 
 MicroMDM will convert this request into a complete command, and schedule it on the queue. It will then send a push notification to ask the device to check in, and respond with the InstallProfile command. 
+
+# Schedule Raw Commands with the API
+
+[PR #864](https://github.com/micromdm/micromdm/pull/864) added support for queuing raw plist commands. This is useful for queuing commands that aren't currently supported (e.g. missing commands or missing fields) by MicroMDM and can also help migrate to NanoMDM.
+
+The raw command endpoint differs from the main command endpoint in the following ways:
+
+* The MDM topic (e.g. the device UDID) is specified in the URL
+* The body is the raw command plist instead of MicroMDM's JSON schema
+* The command is not validated (the body is only checked to be a valid plist)
+
+Here's an example [ProfileList](https://developer.apple.com/documentation/devicemanagement/list_the_installed_profiles) command:
+
+```
+POST /v1/commands/55693EB3-DF03-5FD1-9263-F7CDB8AD7FFD HTTP/1.1
+Authorization: Basic bWljcm9tZG06c3VwZXJzZWNyZXQ=
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Command</key>
+    <dict>
+        <key>ManagedOnly</key>
+        <false/>
+        <key>RequestType</key>
+        <string>ProfileList</string>
+    </dict>
+    <key>CommandUUID</key>
+    <string>0001_ProfileList</string>
+</dict>
+</plist>
+```
+
+A helper script is also available at `./tools/api/raw_command`:
+
+`$ ./raw_command 55693EB3-DF03-5FD1-9263-F7CDB8AD7FFD path/to/cmd.plist`
+
+## Clearing the Command Queue
+
+Since the raw command api endpoint doesn't validate the body as a valid command, it's possible to queue a malformed command, which may cause the client device to stop processing commands from the queue. [PR #864](https://github.com/micromdm/micromdm/pull/864) also includes an endpoint to clear the command queue for a device:
+
+```
+DELETE /v1/commands/<udid> HTTP/1.1
+Authorization: Basic bWljcm9tZG06c3VwZXJzZWNyZXQ=
+```
+
+A helper script is also available at `./tools/api/clear_queue`:
+
+`$ ./clear_queue 55693EB3-DF03-5FD1-9263-F7CDB8AD7FFD`
