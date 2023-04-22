@@ -11,7 +11,7 @@ import (
 )
 
 func (svc *CommandService) ClearQueue(ctx context.Context, udid string) error {
-	if err := svc.queue.Clear(context.TODO(), mdm.CheckinEvent{Command: mdm.CheckinCommand{UDID: udid}}); err != nil {
+	if err := svc.queue.Clear(ctx, mdm.CheckinEvent{Command: mdm.CheckinCommand{UDID: udid}}); err != nil {
 		return errors.Wrap(err, "clearing command queue")
 	}
 	return nil
