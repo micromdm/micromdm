@@ -1,6 +1,8 @@
 ## [Unreleased](https://github.com/micromdm/micromdm/compare/v1.10.1...main)
 
 - Add SoftwareUpdateSettings to Settings command (#771, #856)
+- Ensure errors are logged on the checkin and connect endpoints (#871)
+- Add support for raw plist commands (#864)
 
 ## [v1.10.1](https://github.com/micromdm/micromdm/compare/v1.10.0...v1.10.1) January 24, 2023
 
