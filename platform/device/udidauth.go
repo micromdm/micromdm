@@ -94,23 +94,19 @@ func (mw *udidCertAuthMiddleware) Checkin(ctx context.Context, req mdm.CheckinEv
 	if err != nil {
 		return nil, errors.Wrap(err, "error retrieving device certificate")
 	}
-	switch req.Command.MessageType {
-	case "Authenticate":
+	if req.Command.MessageType == "Authenticate" {
 		// unconditionally save the cert hash on Authenticate message
 		if err := mw.store.SaveUDIDCertHash([]byte(req.Command.UDID), hashCertRaw(devcert.Raw)); err != nil {
 			return nil, err
 		}
 		return mw.next.Checkin(ctx, req)
-	case "TokenUpdate", "CheckOut", "GetBootstrapToken", "SetBootstrapToken":
-		matched, err := mw.validateUDIDCertAuth([]byte(req.Command.UDID), hashCertRaw(devcert.Raw))
-		if err != nil {
-			return nil, err
-		}
-		if !matched && !mw.warnOnly {
-			return nil, errors.New("device certifcate UDID mismatch")
-		}
-		return mw.next.Checkin(ctx, req)
-	default:
-		return nil, errors.Errorf("unknown checkin message type %s", req.Command.MessageType)
 	}
+	matched, err := mw.validateUDIDCertAuth([]byte(req.Command.UDID), hashCertRaw(devcert.Raw))
+	if err != nil {
+		return nil, err
+	}
+	if !matched && !mw.warnOnly {
+		return nil, errors.New("device certifcate UDID mismatch")
+	}
+	return mw.next.Checkin(ctx, req)
 }

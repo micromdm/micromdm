@@ -66,6 +66,7 @@ type Server struct {
 	ValidateSCEPExpiration bool
 	UDIDCertAuthWarnOnly   bool
 	Queue                  string
+	DMURL                  string
 
 	APNSPushService apns.Service
 	CommandService  command.Service
@@ -202,7 +203,15 @@ func (c *Server) setupCommandQueue(logger log.Logger) error {
 
 	var mdmService mdm.Service
 	{
-		svc := mdm.NewService(c.PubClient, q, devDB)
+		var dm mdm.DeclarativeManagement
+		if c.DMURL != "" {
+			dm, err = NewDeclarativeManagementHTTPCaller(c.DMURL, http.DefaultClient)
+			if err != nil {
+				return fmt.Errorf("setting up declarative management: %w", err)
+			}
+		}
+
+		svc := mdm.NewService(c.PubClient, q, devDB, dm)
 		mdmService = svc
 		mdmService = block.RemoveMiddleware(c.RemoveDB)(mdmService)
 

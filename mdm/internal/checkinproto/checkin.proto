@@ -21,6 +21,7 @@ message Command {
     string enrollment_id = 6;
     GetBootstrapToken get_bootstrap_token = 7;
     SetBootstrapToken set_bootstrap_token = 8;
+    DeclarativeManagement declarative_management = 9;
 }
 
 message Authenticate {
@@ -54,4 +55,9 @@ message GetBootstrapToken {
 message SetBootstrapToken {
     bytes  bootstrap_token = 1;
     bool   set_awaiting_configuration = 2;
+}
+
+message DeclarativeManagement {
+    bytes  data = 1;
+    string endpoint = 2;
 }

@@ -21,12 +21,13 @@ type Service interface {
 type Middleware func(Service) Service
 
 const (
-	ConnectTopic           = "mdm.Connect"
-	AuthenticateTopic      = "mdm.Authenticate"
-	TokenUpdateTopic       = "mdm.TokenUpdate"
-	CheckoutTopic          = "mdm.CheckOut"
-	GetBootstrapTokenTopic = "mdm.GetBootstrapToken"
-	SetBootstrapTokenTopic = "mdm.SetBootstrapToken"
+	ConnectTopic               = "mdm.Connect"
+	AuthenticateTopic          = "mdm.Authenticate"
+	TokenUpdateTopic           = "mdm.TokenUpdate"
+	CheckoutTopic              = "mdm.CheckOut"
+	GetBootstrapTokenTopic     = "mdm.GetBootstrapToken"
+	SetBootstrapTokenTopic     = "mdm.SetBootstrapToken"
+	DeclarativeManagementTopic = "mdm.DeclarativeManagement"
 )
 
 // BootBootstrapTokenRetriever retrieves BootStrap Tokens for devices
@@ -45,12 +46,14 @@ type MDMService struct {
 	dev   BootstrapTokenRetriever
 	pub   pubsub.Publisher
 	queue Queue
+	dm    DeclarativeManagement
 }
 
-func NewService(pub pubsub.Publisher, queue Queue, dev BootstrapTokenRetriever) *MDMService {
+func NewService(pub pubsub.Publisher, queue Queue, dev BootstrapTokenRetriever, dm DeclarativeManagement) *MDMService {
 	return &MDMService{
 		dev:   dev,
 		pub:   pub,
 		queue: queue,
+		dm:    dm,
 	}
 }

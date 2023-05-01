@@ -30,6 +30,7 @@ type CheckinCommand struct {
 	update
 	getBootstrap
 	setBootstrap
+	declarativeManagementMessage
 }
 
 // Authenticate Message Type
@@ -72,6 +73,12 @@ type getBootstrap struct {
 type setBootstrap struct {
 	SetAwaitingConfiguration bool
 	BootstrapToken           []byte
+}
+
+// DeclarativeManagement Message Type
+type declarativeManagementMessage struct {
+	Data     []byte
+	Endpoint string
 }
 
 // data decodes to []byte,
@@ -124,6 +131,11 @@ func MarshalCheckinEvent(e *CheckinEvent) ([]byte, error) {
 		command.SetBootstrapToken = &checkinproto.SetBootstrapToken{
 			BootstrapToken:           e.Command.BootstrapToken,
 			SetAwaitingConfiguration: e.Command.SetAwaitingConfiguration,
+		}
+	case "DeclarativeManagament":
+		command.DeclarativeManagement = &checkinproto.DeclarativeManagement{
+			Data:     e.Command.Data,
+			Endpoint: e.Command.Endpoint,
 		}
 	}
 	return proto.Marshal(&checkinproto.Event{
@@ -179,6 +191,9 @@ func UnmarshalCheckinEvent(data []byte, e *CheckinEvent) error {
 	case "SetBootstrapToken":
 		e.Command.BootstrapToken = pb.Command.SetBootstrapToken.BootstrapToken
 		e.Command.SetAwaitingConfiguration = pb.Command.SetBootstrapToken.SetAwaitingConfiguration
+	case "DeclarativeManagement":
+		e.Command.Data = pb.Command.DeclarativeManagement.Data
+		e.Command.Endpoint = pb.Command.DeclarativeManagement.Endpoint
 	}
 	e.Raw = pb.GetRaw()
 	e.Params = pb.GetParams()

@@ -2,6 +2,8 @@ package mdm
 
 import (
 	"context"
+	stderrors "errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -14,6 +16,10 @@ import (
 // BootstrapToken holds MDM Bootstrap Token data
 type BootstrapToken struct {
 	BootstrapToken []byte
+}
+
+type DeclarativeManagement interface {
+	DeclarativeManagement(ctx context.Context, id, endpoint string, data []byte) ([]byte, error)
 }
 
 func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) ([]byte, error) {
@@ -33,15 +39,14 @@ func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) ([]byte,
 		return nil, errors.Wrap(err, "get checkin topic from message")
 	}
 
-	if topic == AuthenticateTopic {
+	var resp []byte
+
+	switch topic {
+	case AuthenticateTopic:
 		if err := svc.queue.Clear(ctx, event); err != nil {
 			return nil, errors.Wrap(err, "clearing queue on enrollment attempt")
 		}
-	}
-
-	var resp []byte
-
-	if topic == GetBootstrapTokenTopic {
+	case GetBootstrapTokenTopic:
 		udid := event.Command.UDID
 
 		btBytes, err := svc.dev.GetBootstrapToken(ctx, udid)
@@ -54,6 +59,23 @@ func (svc *MDMService) Checkin(ctx context.Context, event CheckinEvent) ([]byte,
 		resp, err = plist.Marshal(bt)
 		if err != nil {
 			return nil, errors.Wrap(err, "marshal bootstrap token")
+		}
+	case DeclarativeManagementTopic:
+		if svc.dm == nil {
+			return nil, stderrors.New("no Declarative Management handler")
+		}
+
+		udid := event.Command.UDID
+		if event.Command.UserID != "" {
+			udid = event.Command.UserID
+		}
+		if event.Command.EnrollmentID != "" {
+			udid = event.Command.EnrollmentID
+		}
+
+		resp, err = svc.dm.DeclarativeManagement(ctx, udid, event.Command.Endpoint, event.Command.Data)
+		if err != nil {
+			return resp, fmt.Errorf("declarative management: %w", err)
 		}
 	}
 
@@ -73,6 +95,8 @@ func topicFromMessage(messageType string) (string, error) {
 		return GetBootstrapTokenTopic, nil
 	case "SetBootstrapToken":
 		return SetBootstrapTokenTopic, nil
+	case "DeclarativeManagement":
+		return DeclarativeManagementTopic, nil
 	default:
 		return "", errors.Errorf("unknown checkin message type %s", messageType)
 	}
