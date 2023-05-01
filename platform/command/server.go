@@ -30,8 +30,8 @@ func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.S
 		options...,
 	))
 
-	// POST     /v1/commands/udid		Add new MDM Command with raw plist to device queue.
-	r.Methods("POST").Path("/v1/commands/{udid}").Handler(httptransport.NewServer(
+	// POST,PUT /v1/commands/udid		Add new MDM Command with raw plist to device queue.
+	r.Methods("POST", "PUT").Path("/v1/commands/{udid}").Handler(httptransport.NewServer(
 		e.NewRawCommandEndpoint,
 		decodeNewRawCommandRequest,
 		httputil.EncodeJSONResponse,
