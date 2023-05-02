@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 )
@@ -62,11 +62,11 @@ func (c *DeclarativeManagementHTTPCaller) DeclarativeManagement(ctx context.Cont
 	if err != nil {
 		return nil, err
 	}
-	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	defer resp.Body.Close()
+	bodyBytes, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 	if resp.StatusCode != 200 {
 		// return the same HTTP status with a Go-kit StatusCoder
 		return bodyBytes, HTTPStatusError{
