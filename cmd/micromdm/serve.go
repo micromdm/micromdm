@@ -99,7 +99,11 @@ body {
 </html>
 `
 
-func serve(args []string) error {
+func main() {
+	serve()
+
+}
+func serve() error {
 	flagset := flag.NewFlagSet("serve", flag.ExitOnError)
 	var (
 		flConfigPath             = flagset.String("config-path", env.String("MICROMDM_CONFIG_PATH", "/var/db/micromdm"), "Path to configuration directory")
@@ -127,10 +131,6 @@ func serve(args []string) error {
 		flQueue                  = flagset.String("queue", env.String("MICROMDM_QUEUE", "builtin"), "command queue type")
 		flDMURL                  = flagset.String("dm", env.String("DM", ""), "URL to send Declarative Management requests to")
 	)
-	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
-	if err := flagset.Parse(args); err != nil {
-		return err
-	}
 
 	if *flPrintArgs {
 		flagset.VisitAll(func(fl *flag.Flag) {
