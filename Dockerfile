@@ -1,27 +1,15 @@
-FROM golang:1.17 as builder
+# Use the official Golang image from the Docker Hub
+FROM golang:latest
 
-WORKDIR /go/src/github.com/micromdm/micromdm/
+# Create a directory inside the container to store all our application and then make it the working directory.
+WORKDIR /app/bin/mdm
 
-ARG TARGETARCH
-ARG TARGETOS
-
-ENV CGO_ENABLED=0 \
-	GOARCH=$TARGETARCH \
-	GOOS=$TARGETOS
-
+# Copy the entire project
 COPY . .
 
-RUN make deps
-RUN make
 
+# Download all the dependencies
+RUN go get -d -v ./...
 
-FROM alpine:latest
-
-RUN apk --update add ca-certificates
-
-COPY --from=builder /go/src/github.com/micromdm/micromdm/build/linux/micromdm /usr/bin/
-COPY --from=builder /go/src/github.com/micromdm/micromdm/build/linux/mdmctl /usr/bin/
-
-EXPOSE 80 443
-VOLUME ["/var/db/micromdm"]
-CMD ["micromdm", "serve"]
+# Run the command
+CMD ["go", "run", "./cmd/micromdm/serve.go"]

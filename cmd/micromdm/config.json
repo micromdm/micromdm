@@ -1,0 +1,5 @@
+{
+  "ServerURL": "https://87aa-2405-201-5018-501b-c960-5ad2-ae19-4af.ngrok-free.app",
+  "APIKey": "12345678API",
+  "WebhookURL": "http://localhost:3000/webhook"
+}

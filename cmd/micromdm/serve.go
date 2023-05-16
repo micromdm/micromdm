@@ -2,10 +2,12 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	stdlog "log"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"os"
@@ -47,6 +49,9 @@ import (
 	scep "github.com/micromdm/scep/v2/server"
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/acme/autocert"
+
+	secretmanager "cloud.google.com/go/secretmanager/apiv1"
+	secretmanagerpb "google.golang.org/genproto/googleapis/cloud/secretmanager/v1"
 )
 
 const homePage = `<!doctype html>
@@ -99,17 +104,59 @@ body {
 </html>
 `
 
-func main() {
-	serve()
+type Credentials struct {
+	ServerURL  string `json:"ServerUrl"`
+	APIKey     string `json:"APIKey"`
+	WebhookURL string `json:"WebhookURL"`
+}
 
+func GetSecret(projectID, secretID, versionID string) (string, error) {
+	// Create the client.
+	ctx := context.Background()
+	client, err := secretmanager.NewClient(ctx)
+	if err != nil {
+		return "", fmt.Errorf("failed to create secretmanager client: %v", err)
+	}
+	defer client.Close()
+
+	// Build the request.
+	accessRequest := &secretmanagerpb.AccessSecretVersionRequest{
+		Name: fmt.Sprintf("projects/%s/secrets/%s/versions/%s", projectID, secretID, versionID),
+	}
+
+	// Call the API.
+	result, err := client.AccessSecretVersion(ctx, accessRequest)
+	if err != nil {
+		return "", fmt.Errorf("failed to access secret version: %v", err)
+	}
+
+	// WARNING: Do not print secrets in production environments.
+	// This is shown here for illustrative purposes. Also, the secret value
+	// is always a string, but it can be parsed from result.Payload.Data
+	// into different types depending on how it was stored in Secret Manager.
+	return string(result.Payload.Data), nil
 }
 func serve() error {
+	secret, err := GetSecret("micromdm-df039", "mdm_creds", "1")
+	if err != nil {
+		fmt.Printf("Failed to get secret: %v\n", err)
+		return err
+	}
+
+	// Parse the secret into a Credentials struct.
+	var creds Credentials
+	err = json.Unmarshal([]byte(secret), &creds)
+	if err != nil {
+		fmt.Printf("Failed to parse secret: %v\n", err)
+		return err
+	}
+	fmt.Println("Secrets Manager Creds Recieved", creds)
 	flagset := flag.NewFlagSet("serve", flag.ExitOnError)
 	var (
-		flConfigPath             = flagset.String("config-path", env.String("MICROMDM_CONFIG_PATH", "/var/db/micromdm"), "Path to configuration directory")
-		flServerURL              = flagset.String("server-url", env.String("MICROMDM_SERVER_URL", ""), "Public HTTPS url of your server")
-		flAPIKey                 = flagset.String("api-key", env.String("MICROMDM_API_KEY", ""), "API Token for mdmctl command")
-		flTLS                    = flagset.Bool("tls", env.Bool("MICROMDM_TLS", true), "Use https")
+		flConfigPath             = flagset.String("config-path", env.String("MICROMDM_CONFIG_PATH", "./var/db/micromdm"), "Path to configuration directory")
+		flServerURL              = creds.ServerURL
+		flAPIKey                 = creds.APIKey
+		flTLS                    = flagset.Bool("tls", env.Bool("MICROMDM_TLS", false), "Use https")
 		flTLSCert                = flagset.String("tls-cert", env.String("MICROMDM_TLS_CERT", ""), "Path to TLS certificate")
 		flTLSKey                 = flagset.String("tls-key", env.String("MICROMDM_TLS_KEY", ""), "Path to TLS private key")
 		flHTTPAddr               = flagset.String("http-addr", env.String("MICROMDM_HTTP_ADDR", ":https"), "http(s) listen address of mdm server. defaults to :8080 if tls is false")
@@ -118,7 +165,7 @@ func serve() error {
 		flRepoPath               = flagset.String("filerepo", env.String("MICROMDM_FILE_REPO", ""), "Path to http file repo")
 		flDepSim                 = flagset.String("depsim", env.String("MICROMDM_DEPSIM_URL", ""), "Use depsim URL")
 		flExamples               = flagset.Bool("examples", false, "Prints some example usage")
-		flCommandWebhookURL      = flagset.String("command-webhook-url", env.String("MICROMDM_WEBHOOK_URL", ""), "URL to send command responses")
+		flCommandWebhookURL      = creds.WebhookURL
 		flHomePage               = flagset.Bool("homepage", env.Bool("MICROMDM_HTTP_HOMEPAGE", true), "Hosts a simple built-in webpage at the / address")
 		flSCEPClientValidity     = flagset.Int("scep-client-validity", env.Int("MICROMDM_SCEP_CLIENT_VALIDITY", 365), "Sets the scep certificate validity in days")
 		flNoCmdHistory           = flagset.Bool("no-command-history", env.Bool("MICROMDM_NO_COMMAND_HISTORY", false), "disables saving of command history")
@@ -129,7 +176,6 @@ func serve() error {
 		flValidateSCEPExpiration = flagset.Bool("validate-scep-expiration", env.Bool("MICROMDM_VALIDATE_SCEP_EXPIRATION", false), "validate that the SCEP certificate is still valid")
 		flPrintArgs              = flagset.Bool("print-flags", false, "Print all flags and their values")
 		flQueue                  = flagset.String("queue", env.String("MICROMDM_QUEUE", "builtin"), "command queue type")
-		flDMURL                  = flagset.String("dm", env.String("DM", ""), "URL to send Declarative Management requests to")
 	)
 
 	if *flPrintArgs {
@@ -143,10 +189,10 @@ func serve() error {
 		return nil
 	}
 
-	if *flServerURL == "" {
+	if flServerURL == "" {
 		return errors.New("must supply -server-url")
 	}
-	if !strings.HasPrefix(*flServerURL, "https://") {
+	if !strings.HasPrefix(flServerURL, "https://") {
 		return errors.New("-server-url must begin with https://")
 	}
 	if !*flTLS && (*flTLSCert != "" || *flTLSKey != "") {
@@ -161,12 +207,13 @@ func serve() error {
 	if err := os.MkdirAll(*flConfigPath, 0755); err != nil {
 		return errors.Wrapf(err, "creating config directory %s", *flConfigPath)
 	}
+	fmt.Printf(flCommandWebhookURL)
 	sm := &server.Server{
 		ConfigPath:             *flConfigPath,
-		ServerPublicURL:        strings.TrimRight(*flServerURL, "/"),
+		ServerPublicURL:        strings.TrimRight(flServerURL, "/"),
 		Depsim:                 *flDepSim,
 		TLSCertPath:            *flTLSCert,
-		CommandWebhookURL:      *flCommandWebhookURL,
+		CommandWebhookURL:      flCommandWebhookURL,
 		NoCmdHistory:           *flNoCmdHistory,
 		UseDynSCEPChallenge:    *flUseDynChallenge,
 		GenDynSCEPChallenge:    *flGenDynChalEnroll,
@@ -178,7 +225,6 @@ func serve() error {
 
 		SCEPClientValidity: *flSCEPClientValidity,
 		Queue:              *flQueue,
-		DMURL:              *flDMURL,
 	}
 	if !sm.UseDynSCEPChallenge {
 		// TODO: we have a static SCEP challenge password here to prevent
@@ -265,8 +311,8 @@ func serve() error {
 	mdm.RegisterHTTPHandlers(r, mdmEndpoints, logger)
 
 	// API commands. Only handled if the user provides an api key.
-	if *flAPIKey != "" {
-		basicAuthEndpointMiddleware := basic.AuthMiddleware("micromdm", *flAPIKey, "micromdm")
+	if flAPIKey != "" {
+		basicAuthEndpointMiddleware := basic.AuthMiddleware("micromdm", flAPIKey, "micromdm")
 
 		configsvc := config.New(sm.ConfigDB)
 		configEndpoints := config.MakeServerEndpoints(configsvc, basicAuthEndpointMiddleware)
@@ -318,7 +364,7 @@ func serve() error {
 			challenge.RegisterHTTPHandlers(r, challengeEndpoints, options...)
 		}
 
-		r.HandleFunc("/boltbackup", httputil2.RequireBasicAuth(boltBackup(sm.DB), "micromdm", *flAPIKey, "micromdm"))
+		r.HandleFunc("/boltbackup", httputil2.RequireBasicAuth(boltBackup(sm.DB), "micromdm", flAPIKey, "micromdm"))
 	} else {
 		mainLogger.Log("msg", "no api key specified")
 	}
@@ -358,6 +404,18 @@ func serve() error {
 	)
 	err = httputil.ListenAndServe(serveOpts...)
 	return errors.Wrap(err, "calling ListenAndServe")
+}
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+func main() {
+	var run func([]string) error
+	serve()
+
+	if err := run(os.Args[1:]); err != nil {
+		fmt.Printf("Error running server: %v", err)
+	}
 }
 
 // serveOptions configures the []httputil.Options for ListenAndServe
