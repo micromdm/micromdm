@@ -105,12 +105,12 @@ body {
 `
 
 type Credentials struct {
-	ServerURL  string `json:"ServerUrl"`
+	ServerUrl  string `json:"ServerURL"`
 	APIKey     string `json:"APIKey"`
 	WebhookURL string `json:"WebhookURL"`
 }
 
-func GetSecret(projectID, secretID, versionID string) (string, error) {
+func GetSecret(projectID, secretID string) (string, error) {
 	// Create the client.
 	ctx := context.Background()
 	client, err := secretmanager.NewClient(ctx)
@@ -121,7 +121,7 @@ func GetSecret(projectID, secretID, versionID string) (string, error) {
 
 	// Build the request.
 	accessRequest := &secretmanagerpb.AccessSecretVersionRequest{
-		Name: fmt.Sprintf("projects/%s/secrets/%s/versions/%s", projectID, secretID, versionID),
+		Name: fmt.Sprintf("projects/%s/secrets/%s/versions/latest", projectID, secretID),
 	}
 
 	// Call the API.
@@ -134,10 +134,12 @@ func GetSecret(projectID, secretID, versionID string) (string, error) {
 	// This is shown here for illustrative purposes. Also, the secret value
 	// is always a string, but it can be parsed from result.Payload.Data
 	// into different types depending on how it was stored in Secret Manager.
+	fmt.Printf(result.Payload.String())
 	return string(result.Payload.Data), nil
 }
 func serve() error {
-	secret, err := GetSecret("micromdm-df039", "mdm_creds", "1")
+	secret, err := GetSecret("micromdm-df039", "mdm_creds")
+	fmt.Printf(secret)
 	if err != nil {
 		fmt.Printf("Failed to get secret: %v\n", err)
 		return err
@@ -154,7 +156,7 @@ func serve() error {
 	flagset := flag.NewFlagSet("serve", flag.ExitOnError)
 	var (
 		flConfigPath             = flagset.String("config-path", env.String("MICROMDM_CONFIG_PATH", "./var/db/micromdm"), "Path to configuration directory")
-		flServerURL              = creds.ServerURL
+		flServerURL              = creds.ServerUrl
 		flAPIKey                 = creds.APIKey
 		flTLS                    = flagset.Bool("tls", env.Bool("MICROMDM_TLS", false), "Use https")
 		flTLSCert                = flagset.String("tls-cert", env.String("MICROMDM_TLS_CERT", ""), "Path to TLS certificate")
@@ -438,9 +440,15 @@ func serveOptions(
 	if tlsFromFile {
 		serveOpts = append(serveOpts, httputil.WithKeyPair(certPath, keyPath))
 	}
+
 	if !tls && addr == ":https" {
-		serveOpts = append(serveOpts, httputil.WithAddress(":8080"))
+		port := os.Getenv("PORT")
+		if port == "" {
+			port = "8080" // default port if not specified
+		}
+		serveOpts = append(serveOpts, httputil.WithAddress(":"+port))
 	}
+
 	if tls {
 		serveOpts = append(serveOpts, httputil.WithAutocertCache(autocert.DirCache(filepath.Join(configPath, "le-certificates"))))
 	}
