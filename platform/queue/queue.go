@@ -54,7 +54,7 @@ func (db *Store) Next(ctx context.Context, resp mdm.Response) ([]byte, error) {
 	return cmd.Payload, nil
 }
 
-func (db *Store) View(ctx context.Context, event mdm.CheckinEvent) (*DeviceCommand, error) {
+func (db *Store) ViewQueue(ctx context.Context, event mdm.CheckinEvent) (*DeviceCommand, error) {
 	out := DeviceCommand{}
 
 	udid := event.Command.UDID

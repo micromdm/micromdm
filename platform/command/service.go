@@ -18,7 +18,7 @@ type Service interface {
 // Queue is an MDM Command Queue.
 type Queue interface {
 	Clear(context.Context, mdmsvc.CheckinEvent) error
-	View(context.Context, mdmsvc.CheckinEvent) ([]byte, error)
+	ViewQueue(context.Context, mdmsvc.CheckinEvent) ([]byte, error)
 }
 
 type CommandService struct {

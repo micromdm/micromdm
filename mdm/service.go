@@ -40,7 +40,7 @@ type BootstrapTokenRetriever interface {
 type Queue interface {
 	Next(context.Context, Response) ([]byte, error)
 	Clear(context.Context, CheckinEvent) error
-	View(context.Context, CheckinEvent) ([]byte, error)
+	ViewQueue(context.Context, CheckinEvent) ([]byte, error)
 }
 
 type MDMService struct {

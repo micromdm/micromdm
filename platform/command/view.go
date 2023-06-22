@@ -12,7 +12,10 @@ import (
 )
 
 func (svc *CommandService) ViewQueue(ctx context.Context, udid string) ([]byte, error) {
-	commands, err := svc.queue.View(ctx, mdm.CheckinEvent{Command: mdm.CheckinCommand{UDID: udid}})
+	commands, err := svc.queue.ViewQueue(
+		ctx,
+		mdm.CheckinEvent{Command: mdm.CheckinCommand{UDID: udid}},
+	)
 	if err != nil {
 		return []byte{}, errors.Wrap(err, "clearing command queue")
 	}
