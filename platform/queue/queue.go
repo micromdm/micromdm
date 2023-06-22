@@ -54,6 +54,27 @@ func (db *Store) Next(ctx context.Context, resp mdm.Response) ([]byte, error) {
 	return cmd.Payload, nil
 }
 
+func (db *Store) View(ctx context.Context, event mdm.CheckinEvent) (*DeviceCommand, error) {
+	out := DeviceCommand{}
+
+	udid := event.Command.UDID
+	if event.Command.UserID != "" {
+		udid = event.Command.UserID
+	}
+	if event.Command.EnrollmentID != "" {
+		udid = event.Command.EnrollmentID
+	}
+
+	dc, err := db.DeviceCommand(udid)
+	if isNotFound(err) {
+		return &out, nil
+	} else if err != nil {
+		return &out, errors.Wrapf(err, "get device commands, udid: %s", udid)
+	}
+
+	return dc, nil
+}
+
 func (db *Store) Clear(ctx context.Context, event mdm.CheckinEvent) error {
 	udid := event.Command.UDID
 	if event.Command.UserID != "" {
@@ -334,7 +355,8 @@ func (db *Store) pollRawCommands(pubsub pubsub.PublishSubscriber) error {
 			case event := <-commandEvents:
 				var ev command.RawEvent
 				if err := command.UnmarshalRawEvent(event.Message, &ev); err != nil {
-					level.Info(db.logger).Log("msg", "unmarshal raw command event in queue", "err", err)
+					level.Info(db.logger).
+						Log("msg", "unmarshal raw command event in queue", "err", err)
 					continue
 				}
 

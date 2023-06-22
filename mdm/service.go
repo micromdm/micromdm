@@ -40,6 +40,7 @@ type BootstrapTokenRetriever interface {
 type Queue interface {
 	Next(context.Context, Response) ([]byte, error)
 	Clear(context.Context, CheckinEvent) error
+	View(context.Context, CheckinEvent) ([]byte, error)
 }
 
 type MDMService struct {
@@ -49,7 +50,12 @@ type MDMService struct {
 	dm    DeclarativeManagement
 }
 
-func NewService(pub pubsub.Publisher, queue Queue, dev BootstrapTokenRetriever, dm DeclarativeManagement) *MDMService {
+func NewService(
+	pub pubsub.Publisher,
+	queue Queue,
+	dev BootstrapTokenRetriever,
+	dm DeclarativeManagement,
+) *MDMService {
 	return &MDMService{
 		dev:   dev,
 		pub:   pub,

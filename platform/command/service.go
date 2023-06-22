@@ -12,11 +12,13 @@ type Service interface {
 	NewCommand(context.Context, *mdm.CommandRequest) (*mdm.CommandPayload, error)
 	NewRawCommand(context.Context, *RawCommand) error
 	ClearQueue(ctx context.Context, udid string) error
+	ViewQueue(ctx context.Context, udid string) ([]byte, error)
 }
 
 // Queue is an MDM Command Queue.
 type Queue interface {
 	Clear(context.Context, mdmsvc.CheckinEvent) error
+	View(context.Context, mdmsvc.CheckinEvent) ([]byte, error)
 }
 
 type CommandService struct {
