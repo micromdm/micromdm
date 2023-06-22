@@ -14,11 +14,7 @@ type Endpoints struct {
 	ViewQueueEndpoint     endpoint.Endpoint
 }
 
-func MakeServerEndpoints(
-	s Service,
-	outer endpoint.Middleware,
-	others ...endpoint.Middleware,
-) Endpoints {
+func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
 		NewCommandEndpoint:    endpoint.Chain(outer, others...)(MakeNewCommandEndpoint(s)),
 		NewRawCommandEndpoint: endpoint.Chain(outer, others...)(MakeNewRawCommandEndpoint(s)),

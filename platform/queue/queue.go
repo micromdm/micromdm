@@ -354,8 +354,7 @@ func (db *Store) pollRawCommands(pubsub pubsub.PublishSubscriber) error {
 			case event := <-commandEvents:
 				var ev command.RawEvent
 				if err := command.UnmarshalRawEvent(event.Message, &ev); err != nil {
-					level.Info(db.logger).
-						Log("msg", "unmarshal raw command event in queue", "err", err)
+					level.Info(db.logger).Log("msg", "unmarshal raw command event in queue", "err", err)
 					continue
 				}
 

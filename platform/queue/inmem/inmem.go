@@ -185,11 +185,7 @@ func (q *QueueInMem) startPolling(pubsub pubsub.PublishSubscriber) error {
 					"request_type", cmdEvent.Payload.Command.RequestType,
 				)
 
-				err = boltqueue.PublishCommandQueued(
-					pubsub,
-					cmdEvent.DeviceUDID,
-					cmdEvent.Payload.CommandUUID,
-				)
+				err = boltqueue.PublishCommandQueued(pubsub, cmdEvent.DeviceUDID, cmdEvent.Payload.CommandUUID)
 				if err != nil {
 					level.Info(q.logger).Log(
 						"msg", "publish command to queued topic",
@@ -230,11 +226,7 @@ func (q *QueueInMem) startRawPolling(pubsub pubsub.PublishSubscriber) error {
 					"command_uuid", cmdEvent.CommandUUID,
 				)
 
-				err = boltqueue.PublishCommandQueued(
-					pubsub,
-					cmdEvent.DeviceUDID,
-					cmdEvent.CommandUUID,
-				)
+				err = boltqueue.PublishCommandQueued(pubsub, cmdEvent.DeviceUDID, cmdEvent.CommandUUID)
 				if err != nil {
 					level.Info(q.logger).Log(
 						"msg", "publish command to queued topic",
