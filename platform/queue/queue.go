@@ -3,6 +3,7 @@ package queue
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -54,9 +55,7 @@ func (db *Store) Next(ctx context.Context, resp mdm.Response) ([]byte, error) {
 	return cmd.Payload, nil
 }
 
-func (db *Store) ViewQueue(ctx context.Context, event mdm.CheckinEvent) (*DeviceCommand, error) {
-	out := DeviceCommand{}
-
+func (db *Store) ViewQueue(ctx context.Context, event mdm.CheckinEvent) ([]byte, error) {
 	udid := event.Command.UDID
 	if event.Command.UserID != "" {
 		udid = event.Command.UserID
@@ -67,12 +66,12 @@ func (db *Store) ViewQueue(ctx context.Context, event mdm.CheckinEvent) (*Device
 
 	dc, err := db.DeviceCommand(udid)
 	if isNotFound(err) {
-		return &out, nil
+		return []byte{}, nil
 	} else if err != nil {
-		return &out, errors.Wrapf(err, "get device commands, udid: %s", udid)
+		return []byte{}, errors.Wrapf(err, "get device commands, udid: %s", udid)
 	}
 
-	return dc, nil
+	return json.Marshal(dc)
 }
 
 func (db *Store) Clear(ctx context.Context, event mdm.CheckinEvent) error {

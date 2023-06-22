@@ -3,6 +3,7 @@ package inmem
 import (
 	"container/list"
 	"context"
+	"encoding/json"
 
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/command"
@@ -121,6 +122,32 @@ func (q *QueueInMem) Clear(_ context.Context, event mdm.CheckinEvent) error {
 	return nil
 }
 
+// View returns the command queue for the device in event
+func (q *QueueInMem) ViewQueue(_ context.Context, event mdm.CheckinEvent) ([]byte, error) {
+	udid := event.Command.UDID
+	if event.Command.UserID != "" {
+		udid = event.Command.UserID
+	}
+	if event.Command.EnrollmentID != "" {
+		udid = event.Command.EnrollmentID
+	}
+
+	l := q.getList(udid)
+	return listToJSON(l)
+}
+
+func listToJSON(l *list.List) ([]byte, error) {
+	var cmds []boltqueue.Command
+	for e := l.Front(); e != nil; e = e.Next() {
+		qCmd := e.Value.(*queuedCommand)
+		cmds = append(cmds, boltqueue.Command{
+			UUID:    qCmd.uuid,
+			Payload: qCmd.payload,
+		})
+	}
+	return json.Marshal(cmds)
+}
+
 func (q *QueueInMem) startPolling(pubsub pubsub.PublishSubscriber) error {
 	events, err := pubsub.Subscribe(context.TODO(), "command-queue", command.CommandTopic)
 	if err != nil {
@@ -158,7 +185,11 @@ func (q *QueueInMem) startPolling(pubsub pubsub.PublishSubscriber) error {
 					"request_type", cmdEvent.Payload.Command.RequestType,
 				)
 
-				err = boltqueue.PublishCommandQueued(pubsub, cmdEvent.DeviceUDID, cmdEvent.Payload.CommandUUID)
+				err = boltqueue.PublishCommandQueued(
+					pubsub,
+					cmdEvent.DeviceUDID,
+					cmdEvent.Payload.CommandUUID,
+				)
 				if err != nil {
 					level.Info(q.logger).Log(
 						"msg", "publish command to queued topic",
@@ -199,7 +230,11 @@ func (q *QueueInMem) startRawPolling(pubsub pubsub.PublishSubscriber) error {
 					"command_uuid", cmdEvent.CommandUUID,
 				)
 
-				err = boltqueue.PublishCommandQueued(pubsub, cmdEvent.DeviceUDID, cmdEvent.CommandUUID)
+				err = boltqueue.PublishCommandQueued(
+					pubsub,
+					cmdEvent.DeviceUDID,
+					cmdEvent.CommandUUID,
+				)
 				if err != nil {
 					level.Info(q.logger).Log(
 						"msg", "publish command to queued topic",
