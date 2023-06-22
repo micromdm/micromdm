@@ -2,7 +2,6 @@ package command
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
 	"github.com/go-kit/kit/endpoint"
@@ -11,13 +10,13 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (svc *CommandService) ViewQueue(ctx context.Context, udid string) ([]byte, error) {
+func (svc *CommandService) ViewQueue(ctx context.Context, udid string) ([]*mdm.Command, error) {
 	commands, err := svc.queue.ViewQueue(
 		ctx,
 		mdm.CheckinEvent{Command: mdm.CheckinCommand{UDID: udid}},
 	)
 	if err != nil {
-		return []byte{}, errors.Wrap(err, "clearing command queue")
+		return nil, errors.Wrap(err, "clearing command queue")
 	}
 	return commands, nil
 }
@@ -27,8 +26,8 @@ type viewQueueRequest struct {
 }
 
 type viewQueueResponse struct {
-	Err           error       `json:"error,omitempty"`
-	DeviceCommand interface{} `json:"device_command,omitempty"`
+	Err      error          `json:"error,omitempty"`
+	Commands []*mdm.Command `json:"commands,omitempty"`
 }
 
 func (r viewQueueResponse) Failed() error   { return r.Err }
@@ -47,19 +46,9 @@ func MakeViewQueueEndpoint(svc Service) endpoint.Endpoint {
 		}
 		commands, err := svc.ViewQueue(ctx, req.UDID)
 		if err != nil {
-			return clearResponse{Err: err}, nil
-		}
-
-		var out interface{}
-		err = json.Unmarshal(commands, &out)
-		if err != nil {
 			return viewQueueResponse{Err: err}, nil
 		}
 
-		resp := viewQueueResponse{
-			DeviceCommand: out,
-			Err:           nil,
-		}
-		return resp, nil
+		return viewQueueResponse{Commands: commands}, nil
 	}
 }

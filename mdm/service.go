@@ -36,11 +36,17 @@ type BootstrapTokenRetriever interface {
 	GetBootstrapToken(ctx context.Context, udid string) ([]byte, error)
 }
 
+// Command is an MDM Command
+type Command struct {
+	UUID    string `json:"uuid"`
+	Payload []byte `json:"payload"`
+}
+
 // Queue is an MDM Command Queue.
 type Queue interface {
 	Next(context.Context, Response) ([]byte, error)
 	Clear(context.Context, CheckinEvent) error
-	ViewQueue(context.Context, CheckinEvent) ([]byte, error)
+	ViewQueue(context.Context, CheckinEvent) ([]*Command, error)
 }
 
 type MDMService struct {

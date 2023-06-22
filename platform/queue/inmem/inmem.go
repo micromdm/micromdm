@@ -3,7 +3,6 @@ package inmem
 import (
 	"container/list"
 	"context"
-	"encoding/json"
 
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/command"
@@ -123,7 +122,7 @@ func (q *QueueInMem) Clear(_ context.Context, event mdm.CheckinEvent) error {
 }
 
 // View returns the command queue for the device in event
-func (q *QueueInMem) ViewQueue(_ context.Context, event mdm.CheckinEvent) ([]byte, error) {
+func (q *QueueInMem) ViewQueue(_ context.Context, event mdm.CheckinEvent) ([]*mdm.Command, error) {
 	udid := event.Command.UDID
 	if event.Command.UserID != "" {
 		udid = event.Command.UserID
@@ -133,19 +132,17 @@ func (q *QueueInMem) ViewQueue(_ context.Context, event mdm.CheckinEvent) ([]byt
 	}
 
 	l := q.getList(udid)
-	return listToJSON(l)
-}
 
-func listToJSON(l *list.List) ([]byte, error) {
-	var cmds []boltqueue.Command
-	for e := l.Front(); e != nil; e = e.Next() {
-		qCmd := e.Value.(*queuedCommand)
-		cmds = append(cmds, boltqueue.Command{
-			UUID:    qCmd.uuid,
-			Payload: qCmd.payload,
+	cmds := make([]*mdm.Command, 0, l.Len())
+	for item := l.Front(); item != nil; item = item.Next() {
+		cmd := item.Value.(*queuedCommand)
+		cmds = append(cmds, &mdm.Command{
+			UUID:    cmd.uuid,
+			Payload: cmd.payload,
 		})
 	}
-	return json.Marshal(cmds)
+
+	return cmds, nil
 }
 
 func (q *QueueInMem) startPolling(pubsub pubsub.PublishSubscriber) error {
