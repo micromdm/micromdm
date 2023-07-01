@@ -20,8 +20,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/pressly/goose v2.3.0+incompatible
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
-	golang.org/x/crypto v0.6.0
-	golang.org/x/net v0.7.0
+	golang.org/x/crypto v0.10.0
+	golang.org/x/net v0.10.0
 	google.golang.org/protobuf v1.30.0
 	gopkg.in/Masterminds/squirrel.v1 v1.0.0-20170825200431-a6b93000bd21
 )
@@ -41,8 +41,8 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/stretchr/testify v1.2.2 // indirect
 	github.com/ziutek/mymysql v1.5.4 // indirect
-	golang.org/x/sys v0.5.0 // indirect
-	golang.org/x/text v0.7.0 // indirect
+	golang.org/x/sys v0.9.0 // indirect
+	golang.org/x/text v0.10.0 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.2.0 // indirect
 )
