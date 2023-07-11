@@ -78,8 +78,9 @@ func (cmd *configCommand) Usage() error {
 	const help = `
 mdmctl config print
 mdmctl config set -h
-mdmctl config switch -h`
-	fmt.Println(help)
+mdmctl config switch -h
+`
+	fmt.Print(help)
 	return nil
 }
 

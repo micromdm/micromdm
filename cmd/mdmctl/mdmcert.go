@@ -59,8 +59,10 @@ Use the push private key and the push cert you got from identity.apple.com in yo
 Commands:
     vendor
     push
-    upload`
-	fmt.Println(usageText)
+    upload
+
+`
+	fmt.Print(usageText)
 	return nil
 
 }
