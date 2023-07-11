@@ -72,6 +72,7 @@ Upload this file to https://identity.apple.com and download the signed
 certificate. Then use the 'mdmctl mdmcert upload' command to upload it,
 (and the above private key) into MicroMDM.
 
+
 `
 	fmt.Print(usageText)
 	return nil

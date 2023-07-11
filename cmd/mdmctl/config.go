@@ -79,6 +79,7 @@ func (cmd *configCommand) Usage() error {
 mdmctl config print
 mdmctl config set -h
 mdmctl config switch -h
+
 `
 	fmt.Print(help)
 	return nil
