@@ -1,0 +1,5 @@
+#!/bin/bash
+source $MICROMDM_ENV_PATH
+endpoint="v1/commands/$1"
+
+curl $CURL_OPTS -K <(cat <<< "-u micromdm:$API_TOKEN") -X GET "$SERVER_URL/$endpoint" 

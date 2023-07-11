@@ -294,3 +294,27 @@ Authorization: Basic bWljcm9tZG06c3VwZXJzZWNyZXQ=
 A helper script is also available at `./tools/api/clear_queue`:
 
 `$ ./clear_queue 55693EB3-DF03-5FD1-9263-F7CDB8AD7FFD`
+
+# Inspecting the Command Queue
+
+[PR #895](https://github.com/micromdm/micromdm/pull/895) added support for inspecting the command queue, which can be useful when diagnosing issues with commands.
+
+Assuming the example command from [Schedule Raw Commands with the API](#schedule-raw-commands-with-the-api) is in the command queue, inspecting the queue looks like:
+
+```
+GET /v1/commands/55693EB3-DF03-5FD1-9263-F7CDB8AD7FFD HTTP/1.1
+Authorization: Basic bWljcm9tZG06c3VwZXJzZWNyZXQ=
+
+{
+  "commands": [
+    {
+      "uuid": "0001_ProfileList",
+      "payload": "<base64 encoding of plist command>"
+    }
+  ]
+}
+```
+
+A helper script is also available at `./tools/api/inspect_queue`:
+
+`$ ./inspect_queue 55693EB3-DF03-5FD1-9263-F7CDB8AD7FFD`
