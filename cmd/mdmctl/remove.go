@@ -68,8 +68,7 @@ Valid resource types:
   * devices
   * profiles
   * block
-  * dep-autoassigner
-`
+  * dep-autoassigner`
 
 	fmt.Println(getUsage)
 	return nil
