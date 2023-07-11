@@ -117,7 +117,7 @@ func migrateServerConfig(configName string) error {
 	}
 	err = switchServerConfig(configName)
 	if err != nil {
-		err = fmt.Errorf("Failed to set %s as active config", configName)
+		err = fmt.Errorf("failed to set %s as active config", configName)
 		if err != nil {
 			return errors.Wrapf(err, "Failed to set %s as active config", configName)
 		}
@@ -308,8 +308,7 @@ func LoadServerConfig() (*ServerConfig, error) {
 	if err != nil {
 		return nil, err
 	}
-	var serverCfg ServerConfig
-	serverCfg = cfg.Servers[cfg.Active]
+	var serverCfg ServerConfig = cfg.Servers[cfg.Active]
 	return &serverCfg, nil
 }
 

@@ -277,7 +277,7 @@ func sendMdmcertDownloadRequest(client *http.Client, req *http.Request) error {
 		return err
 	}
 	if jsn.Result != "success" {
-		return fmt.Errorf("got unexpected result body: %q\n", jsn.Result)
+		return fmt.Errorf("got unexpected result body: %q", jsn.Result)
 	}
 	return nil
 }

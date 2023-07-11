@@ -24,7 +24,7 @@ func (cmd *applyCommand) applyDEPAutoAssigner(args []string) error {
 		return errors.New("bad input: must provide both -filter and -uuid")
 	}
 
-	assigner := sync.AutoAssigner{*flFilter, *flProfileUUID}
+	assigner := sync.AutoAssigner{Filter: *flFilter, ProfileUUID: *flProfileUUID}
 
 	err := cmd.depsyncsvc.ApplyAutoAssigner(context.TODO(), &assigner)
 	if err != nil {
