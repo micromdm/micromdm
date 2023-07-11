@@ -70,8 +70,10 @@ need to decrypt the push certificate request:
 This will output the push certificate request to mdmcert.download.req.
 Upload this file to https://identity.apple.com and download the signed
 certificate. Then use the 'mdmctl mdmcert upload' command to upload it,
-(and the above private key) into MicroMDM.`
-	fmt.Println(usageText)
+(and the above private key) into MicroMDM.
+
+`
+	fmt.Print(usageText)
 	return nil
 
 }
