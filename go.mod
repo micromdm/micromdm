@@ -15,7 +15,7 @@ require (
 	github.com/kolide/kit v0.0.0-20180912215818-0c28f72eb2b0
 	github.com/korylprince/go-macos-pkg v1.3.5
 	github.com/lib/pq v1.0.0
-	github.com/micromdm/go4 v0.0.0-20210104222236-8a0936d9e451
+	github.com/micromdm/go4 v0.0.0-20230719210527-7c4a9b165b09
 	github.com/micromdm/scep/v2 v2.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/pressly/goose v2.3.0+incompatible
