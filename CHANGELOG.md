@@ -5,6 +5,7 @@
 - Tidy code for Go 1.20 and update Go version for Docker and CI (#902)
 - Add support for inspecting the MDM command queue (#895)
   - See the [docs](https://github.com/micromdm/micromdm/blob/main/docs/user-guide/api-and-webhooks.md#inspecting-the-command-queue) for how to use
+- Fix HTTP status codes being swallowed by -http-debug flag (#906)
 - Project dependency updates (#888, #889, #900)
 
 Thanks to our contributors: @grahamgilbert, @jamesez, @korylprince
