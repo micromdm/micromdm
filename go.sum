@@ -45,8 +45,8 @@ github.com/kolide/kit v0.0.0-20180912215818-0c28f72eb2b0 h1:8UB0NJBoB/lN2O9zG9+U
 github.com/kolide/kit v0.0.0-20180912215818-0c28f72eb2b0/go.mod h1:N3Yv8okDVC/5qZhPA9uxVYRfkp4mD2vrlQiSCWlNCpg=
 github.com/korylprince/go-cpio-odc v0.9.4 h1:N0Afrp7Z5qCZF8cbpzF5CvyiC/KHK5IcLJwqm5MWpNU=
 github.com/korylprince/go-cpio-odc v0.9.4/go.mod h1:1iHsjUXO64Hui0YsubGp0Tm/Uf04Iow2iy+1LJIarMw=
-github.com/korylprince/go-macos-pkg v1.3.5 h1:jwwefLR1yRKQPNu51QTwk2B4abIjjISj/BHipcvKKGs=
-github.com/korylprince/go-macos-pkg v1.3.5/go.mod h1:jlPGliXXjjCMpISR30/fL60hXKrCJ2LNQSptdx+WQkc=
+github.com/korylprince/go-macos-pkg v1.3.6 h1:dvAppt2qyiRJ4pOIIhXuJDiXpvtEjmETgbgquifLG4Y=
+github.com/korylprince/go-macos-pkg v1.3.6/go.mod h1:jlPGliXXjjCMpISR30/fL60hXKrCJ2LNQSptdx+WQkc=
 github.com/korylprince/goxar v0.0.0-20211111233330-e9f257bcdf25 h1:XVf+U+WekiGPPD27w7qI+0Pe8NehaTWPqRuO3BddefY=
 github.com/korylprince/goxar v0.0.0-20211111233330-e9f257bcdf25/go.mod h1:Lm6kfGMVHcpiBP6oOZd3ugv2EpQ/dOyW02tVIa3qo2Q=
 github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515 h1:T+h1c/A9Gawja4Y9mFVWj2vyii2bbUNDw3kt9VxK2EY=
