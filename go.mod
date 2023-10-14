@@ -4,7 +4,7 @@ require (
 	github.com/RobotsAndPencils/buford v0.14.0
 	github.com/boltdb/bolt v1.3.1
 	github.com/garyburd/go-oauth v0.0.0-20180319155456-bca2e7f09a17
-	github.com/go-kit/kit v0.7.0
+	github.com/go-kit/kit v0.13.0
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
@@ -28,11 +28,10 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/felixge/httpsnoop v1.0.2 // indirect
-	github.com/go-logfmt/logfmt v0.3.0 // indirect
-	github.com/go-stack/stack v1.7.0 // indirect
+	github.com/go-kit/log v0.2.0 // indirect
+	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/korylprince/go-cpio-odc v0.9.4 // indirect
 	github.com/korylprince/goxar v0.0.0-20211111233330-e9f257bcdf25 // indirect
-	github.com/kr/logfmt v0.0.0-20140226030751-b84e30acd515 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
