@@ -5,7 +5,7 @@ require (
 	github.com/boltdb/bolt v1.3.1
 	github.com/garyburd/go-oauth v0.0.0-20180319155456-bca2e7f09a17
 	github.com/go-kit/kit v0.13.0
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.4.0
 	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda
