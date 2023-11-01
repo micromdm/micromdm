@@ -261,8 +261,8 @@ github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpO
 github.com/hudl/fargo v1.4.0/go.mod h1:9Ai6uvFy5fQNq6VPKtg+Ceq1+eTY4nKUlR2JElEOcDo=
 github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6/go.mod h1:aSSvb/t6k1mPoxDqO4vJh6VOCGPwU4O0C2/Eqndh1Sc=
 github.com/influxdata/influxdb1-client v0.0.0-20200827194710-b269163b24ab/go.mod h1:qj24IKcXYK6Iy9ceXlo3Tc+vtHo9lIhSX5JddghvEPo=
-github.com/jessepeterson/cfgprofiles v0.3.0 h1:pSF57KG3+AXWRxJOUD6dNcv27gzKMjUzEU3Ri/9Zl7I=
-github.com/jessepeterson/cfgprofiles v0.3.0/go.mod h1:RFwCi5vxmxUM0OisisiXYb/P3fMFhUa9y75JFpQZjZ8=
+github.com/jessepeterson/cfgprofiles v0.4.0 h1:jjrQafO+uKyHMiiJ1mJrkXrwECa8R9x3HHMKZAwVfoo=
+github.com/jessepeterson/cfgprofiles v0.4.0/go.mod h1:RFwCi5vxmxUM0OisisiXYb/P3fMFhUa9y75JFpQZjZ8=
 github.com/jmespath/go-jmespath v0.4.0/go.mod h1:T8mJZnbsbmF+m6zOOFylbeCJqk5+pHWvzYPziyZiYoo=
 github.com/jmespath/go-jmespath/internal/testify v1.5.1/go.mod h1:L3OGu8Wl2/fWfCI6z80xFu9LTZmf1ZRjMHUOPmWr69U=
 github.com/jmoiron/sqlx v1.3.5 h1:vFFPA71p1o5gAeqtEAwLU4dnX2napprKtHr7PYIcN3g=

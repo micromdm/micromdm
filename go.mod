@@ -10,7 +10,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/groob/finalizer v0.0.0-20170707115354-4c2ed49aabda
 	github.com/groob/plist v0.0.0-20220217120414-63fa881b19a5
-	github.com/jessepeterson/cfgprofiles v0.3.0
+	github.com/jessepeterson/cfgprofiles v0.4.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/kolide/kit v0.0.0-20180912215818-0c28f72eb2b0
 	github.com/korylprince/go-macos-pkg v1.3.6
