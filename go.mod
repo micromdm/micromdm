@@ -14,7 +14,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/kolide/kit v0.0.0-20180912215818-0c28f72eb2b0
 	github.com/korylprince/go-macos-pkg v1.3.6
-	github.com/lib/pq v1.2.0
+	github.com/lib/pq v1.10.9
 	github.com/micromdm/go4 v0.0.0-20230719210527-7c4a9b165b09
 	github.com/micromdm/scep/v2 v2.1.0
 	github.com/pkg/errors v0.9.1
