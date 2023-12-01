@@ -16,7 +16,7 @@ require (
 	github.com/korylprince/go-macos-pkg v1.3.6
 	github.com/lib/pq v1.10.9
 	github.com/micromdm/go4 v0.0.0-20230719210527-7c4a9b165b09
-	github.com/micromdm/scep/v2 v2.1.0
+	github.com/micromdm/scep/v2 v2.2.0
 	github.com/pkg/errors v0.9.1
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
 	golang.org/x/crypto v0.14.0
@@ -35,6 +35,7 @@ require (
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/smallstep/pkcs7 v0.0.0-20231107075624-be1870d87d13 // indirect
 	github.com/stretchr/testify v1.2.2 // indirect
 	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
