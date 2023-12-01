@@ -10,7 +10,7 @@ import (
 
 	"github.com/micromdm/micromdm/pkg/crypto"
 
-	"go.mozilla.org/pkcs7"
+	"github.com/smallstep/pkcs7"
 )
 
 // imitate a Mdm-Signature header

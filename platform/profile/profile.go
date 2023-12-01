@@ -5,7 +5,7 @@ import (
 
 	"github.com/groob/plist"
 	"github.com/pkg/errors"
-	"go.mozilla.org/pkcs7"
+	"github.com/smallstep/pkcs7"
 	"google.golang.org/protobuf/proto"
 )
 

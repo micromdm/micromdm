@@ -386,11 +386,11 @@ func (c *Server) setupSCEP(logger log.Logger) error {
 		return err
 	}
 
-	var signer scep.CSRSigner = depot.NewSigner(
+	var signer scep.CSRSignerContext = scep.SignCSRAdapter(depot.NewSigner(
 		c.SCEPDepot,
 		depot.WithAllowRenewalDays(0),
 		depot.WithValidityDays(c.SCEPClientValidity),
-	)
+	))
 	if c.UseDynSCEPChallenge {
 		c.SCEPChallengeDepot, err = boltchallenge.NewBoltDepot(c.DB)
 		if err != nil {
@@ -398,7 +398,7 @@ func (c *Server) setupSCEP(logger log.Logger) error {
 		}
 		signer = challenge.Middleware(c.SCEPChallengeDepot, signer)
 	} else {
-		signer = scep.ChallengeMiddleware(c.SCEPChallenge, signer)
+		signer = scep.StaticChallengeMiddleware(c.SCEPChallenge, signer)
 	}
 
 	c.SCEPService, err = scep.NewService(crt, key, signer)

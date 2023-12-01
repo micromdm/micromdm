@@ -15,7 +15,7 @@ import (
 	"github.com/groob/plist"
 	"github.com/micromdm/micromdm/pkg/crypto"
 	"github.com/pkg/errors"
-	"go.mozilla.org/pkcs7"
+	"github.com/smallstep/pkcs7"
 )
 
 type Endpoints struct {

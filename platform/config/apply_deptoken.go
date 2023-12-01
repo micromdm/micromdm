@@ -14,7 +14,7 @@ import (
 	"github.com/micromdm/micromdm/pkg/httputil"
 
 	"github.com/go-kit/kit/endpoint"
-	"go.mozilla.org/pkcs7"
+	"github.com/smallstep/pkcs7"
 )
 
 func (svc *ConfigService) ApplyDEPToken(ctx context.Context, P7MContent []byte) error {

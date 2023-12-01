@@ -6,7 +6,7 @@ import (
 	"crypto/x509"
 
 	"github.com/pkg/errors"
-	"go.mozilla.org/pkcs7"
+	"github.com/smallstep/pkcs7"
 )
 
 // Sign takes an unsigned payload and signs it with the provided private key and certificate.

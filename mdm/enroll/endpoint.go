@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/scep/v2/depot"
-	"go.mozilla.org/pkcs7"
+	"github.com/smallstep/pkcs7"
 )
 
 type Endpoints struct {

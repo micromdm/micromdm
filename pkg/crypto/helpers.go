@@ -15,7 +15,7 @@ import (
 	"strings"
 	"time"
 
-	"go.mozilla.org/pkcs7"
+	"github.com/smallstep/pkcs7"
 )
 
 func GenerateRandomCertificateSerialNumber() (*big.Int, error) {
