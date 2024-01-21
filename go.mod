@@ -13,7 +13,7 @@ require (
 	github.com/jessepeterson/cfgprofiles v0.4.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/kolide/kit v0.0.0-20180912215818-0c28f72eb2b0
-	github.com/korylprince/go-macos-pkg v1.3.6
+	github.com/korylprince/go-macos-pkg v1.4.2
 	github.com/lib/pq v1.10.9
 	github.com/micromdm/go4 v0.0.0-20230719210527-7c4a9b165b09
 	github.com/micromdm/scep/v2 v2.2.0
@@ -26,19 +26,16 @@ require (
 )
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/go-kit/log v0.2.0 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
-	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/korylprince/go-cpio-odc v0.9.4 // indirect
-	github.com/korylprince/goxar v0.0.0-20211111233330-e9f257bcdf25 // indirect
+	github.com/korylprince/goxar v0.1.2 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
-	github.com/stretchr/testify v1.7.2 // indirect
+	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a // indirect
 	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 )
 
 go 1.17
