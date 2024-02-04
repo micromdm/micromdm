@@ -129,6 +129,7 @@ func serve(args []string) error {
 		flDMURL                  = flagset.String("dm", env.String("DM", ""), "URL to send Declarative Management requests to")
 		flLogTime                = flagset.Bool("log-time", false, "Include timestamp in log messages")
 		flP7Skew                 = flagset.Int("device-signature-skew", env.Int("MICROMDM_DEVICE_SIGNATURE_SKEW", 0), "Sets the allowable clock skew (in seconds) when verifying device signatures")
+		flDisableRedirect        = flagset.Bool("disable-redirect", env.Bool("MICROMDM_DISABLE_REDIRECT", false), "disable the :80 -> :443 redirect if listening on :443")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -363,6 +364,7 @@ func serve(args []string) error {
 		*flTLSKey,
 		sm.ConfigPath,
 		*flTLS,
+		*flDisableRedirect,
 	)
 	err = httputil.ListenAndServe(serveOpts...)
 	return errors.Wrap(err, "calling ListenAndServe")
@@ -378,6 +380,7 @@ func serveOptions(
 	keyPath string,
 	configPath string,
 	tls bool,
+	disableRedirect bool,
 ) []httputil.Option {
 	tlsFromFile := (certPath != "" && keyPath != "")
 	serveOpts := []httputil.Option{
@@ -396,6 +399,9 @@ func serveOptions(
 	}
 	if addr != ":https" {
 		serveOpts = append(serveOpts, httputil.WithAddress(addr))
+	}
+	if disableRedirect {
+		serveOpts = append(serveOpts, httputil.WithAllowRedirectHTTPS(false))
 	}
 	return serveOpts
 }
