@@ -401,7 +401,7 @@ func serveOptions(
 		serveOpts = append(serveOpts, httputil.WithAddress(addr))
 	}
 	if disableRedirect {
-		serveOpts = append(serveOpts, httputil.WithAllowRedirectHTTPS(false))
+		serveOpts = append(serveOpts, httputil.WithDisableRedirect(true))
 	}
 	return serveOpts
 }
