@@ -321,8 +321,8 @@ github.com/mattn/go-isatty v0.0.16/go.mod h1:kYGgaQfpe5nmfYZH+SKPsOc2e4SrIfOl2e/
 github.com/mattn/go-sqlite3 v1.14.6 h1:dNPt6NO46WmLVt2DLNpwczCmdV5boIZ6g/tlDrlRUbg=
 github.com/mattn/go-sqlite3 v1.14.6/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
-github.com/micromdm/go4 v0.0.0-20230719210527-7c4a9b165b09 h1:COW3H2j8Xcx1va6z8FwbwaegIviz33rWuAiyp4MVL8A=
-github.com/micromdm/go4 v0.0.0-20230719210527-7c4a9b165b09/go.mod h1:uZTekMktf1ayaNK9onByUXwKleUvJNQw/cpZaNkvvRo=
+github.com/micromdm/go4 v0.0.0-20240215190618-908f27575419 h1:vIJ+N4FitO3izetK3FJTQrjF3besjgWWvQMxtSdffZI=
+github.com/micromdm/go4 v0.0.0-20240215190618-908f27575419/go.mod h1:uZTekMktf1ayaNK9onByUXwKleUvJNQw/cpZaNkvvRo=
 github.com/micromdm/scep/v2 v2.2.0 h1:MO2vZl5dSyojC2KpN4ik3671ZjdZvM8lpxS/YukhIMs=
 github.com/micromdm/scep/v2 v2.2.0/go.mod h1:mEmykFaZklQfGZ1Dl9oRJOx/3fxvF2D1l+cDJokzDwk=
 github.com/miekg/dns v1.1.26/go.mod h1:bPDLeHnStXmXAq1m/Ch/hvfNHr14JKNPMBo3VZKjuso=

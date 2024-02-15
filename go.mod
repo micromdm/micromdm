@@ -15,7 +15,7 @@ require (
 	github.com/kolide/kit v0.0.0-20180912215818-0c28f72eb2b0
 	github.com/korylprince/go-macos-pkg v1.3.6
 	github.com/lib/pq v1.10.9
-	github.com/micromdm/go4 v0.0.0-20230719210527-7c4a9b165b09
+	github.com/micromdm/go4 v0.0.0-20240215190618-908f27575419
 	github.com/micromdm/scep/v2 v2.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/smallstep/pkcs7 v0.0.0-20231107075624-be1870d87d13
