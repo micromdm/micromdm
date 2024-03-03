@@ -125,7 +125,7 @@ func (db *DB) BlueprintByName(name string) (*blueprint.Blueprint, error) {
 			return &notFound{"Blueprint", fmt.Sprintf("name %s", name)}
 		}
 		v := b.Get(idx)
-		if idx == nil {
+		if v == nil {
 			return &notFound{"Blueprint", fmt.Sprintf("uuid %s", string(idx))}
 		}
 		return blueprint.UnmarshalBlueprint(v, &bp)
