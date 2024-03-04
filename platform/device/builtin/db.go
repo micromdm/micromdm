@@ -185,7 +185,7 @@ func (db *DB) deviceByIndex(key string) (*device.Device, error) {
 			return &notFound{"Device", fmt.Sprintf("key %s", key)}
 		}
 		v := b.Get(idx)
-		if idx == nil {
+		if v == nil {
 			return &notFound{"Device", fmt.Sprintf("uuid %s", string(idx))}
 		}
 		return device.UnmarshalDevice(v, &dev)
