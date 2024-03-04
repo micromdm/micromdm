@@ -122,7 +122,7 @@ func (db *DB) UserByUserID(userID string) (*user.User, error) {
 			return &notFound{"User", fmt.Sprintf("user id %s", userID)}
 		}
 		v := b.Get(idx)
-		if idx == nil {
+		if v == nil {
 			return &notFound{"User", fmt.Sprintf("uuid %s", string(idx))}
 		}
 		return user.UnmarshalUser(v, &u)
