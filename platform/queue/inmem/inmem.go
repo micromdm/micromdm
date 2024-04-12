@@ -91,7 +91,9 @@ func (q *QueueInMem) Next(_ context.Context, resp mdm.Response) ([]byte, error) 
 	switch resp.Status {
 	case "NotNow":
 		qCmd, _ := q.findCommandByUUID(l, resp.CommandUUID)
-		qCmd.notNow = true
+		if qCmd != nil {
+			qCmd.notNow = true
+		}
 	case "Acknowledged", "Error", "CommandFormatError":
 		_, e := q.findCommandByUUID(l, resp.CommandUUID)
 		if e != nil {
