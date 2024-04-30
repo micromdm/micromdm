@@ -29,6 +29,14 @@ func TestVerifyFromAppleDeviceCA(t *testing.T) {
 		t.Errorf("received error verifying Apple Device CA: %v", err)
 	}
 
+	// supplied from an AppleTV 4th gen PKCS#7 signature during ABM enrollment
+	// signed using RSA SHA-2
+	cert, _ = ReadPEMCertificateFile("testdata/appleca_signed_newer.pem")
+
+	if err := VerifyFromAppleDeviceCA(cert); err != nil {
+		t.Errorf("received error verifying Apple Device CA (cert newer): %v", err)
+	}
+
 	// test invalidly-signed cert
 	// reuse cert so we don't need to generate one. This should fail since it's not self-signed.
 	block, _ := pem.Decode([]byte(appleiPhoneDeviceCAPEM))
