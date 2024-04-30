@@ -127,7 +127,7 @@ func VerifyFromAppleDeviceCA(c *x509.Certificate) error {
 	case x509.SHA256WithRSA:
 		hashType = crypto.SHA256
 	default:
-		return x509.ErrUnsupportedAlgorithm
+		return fmt.Errorf("%w: %s", x509.ErrUnsupportedAlgorithm, c.SignatureAlgorithm)
 	}
 
 	hasher := hashType.New()
