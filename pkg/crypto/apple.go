@@ -96,7 +96,7 @@ pyQPbp8orlXe+tA8JA==
 `
 
 func mustParsePublicKey(cert string) *rsa.PublicKey {
-	block, _ := pem.Decode([]byte(appleiPhoneDeviceCAPEM))
+	block, _ := pem.Decode([]byte(cert))
 	if block == nil || block.Type != "CERTIFICATE" {
 		panic("appleiPhoneDeviceCAPEM: invalid PEM block")
 	}
@@ -133,6 +133,7 @@ func VerifyFromAppleDeviceCA(c *x509.Certificate) error {
 	hasher := hashType.New()
 	hasher.Write(c.RawTBSCertificate)
 	hashed := hasher.Sum(nil)
+
 	if err := rsa.VerifyPKCS1v15(appleiPhoneDeviceCAPublicKey, hashType, hashed, c.Signature); err != nil {
 		return err
 	}
