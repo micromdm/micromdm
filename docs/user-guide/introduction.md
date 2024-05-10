@@ -47,7 +47,7 @@ Notably, `mdmctl` does not need to beinstalled on the same server as `micromdm`.
 `micromdm` is a native Go binary and can be run on any hardware/VM/container environment. The release versions are built for `darwin` (for test environments on macOS) and `linux` for running on a server. Of course, you can compile for any platform that Go [supports](https://github.com/golang/go/wiki/MinimumRequirements). 
 
 Currently, `micromdm` does not use a distributed database such as PostgreSQL and requires a persistent disk to be available. Because of this, only a single `micromdm` process can run at once, and high-availability setups are not possible. However, the database can be backed up/replicated while the server is running, allowing for failover with minimal downtime.  
-PostgreSQL database support is planned as a future option. 
+If you need a more horizontally scalable open source MDM solution, take a look at [NanoMDM](https://github.com/micromdm/nanomdm).
 
 Unlike many other services, once enrolled, devices do not maintain communication until an [APNS](https://developer.apple.com/library/archive/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/APNSOverview.html#//apple_ref/doc/uid/TP40008194-CH8-SW1) command is scheduled to ask the device to check in. This architecture, makes the default setup of MicroMDM have relatively low hardware/requirements.  
 For installations with under 10,000 device enrollments the recommended VM size is the GCP `n1-standard-2` [instance type](https://cloud.google.com/compute/docs/machine-types) or similar. This is roughly equivalent to 2 vCPUs and 7.5GB of RAM. 

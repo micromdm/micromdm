@@ -118,35 +118,3 @@ docker-tag: docker-build
 
 ngrok:
 	@./tools/ngrok/screen
-
-docker-compose:
-	docker-compose -f docker-compose-dev.yaml up -d
-
-db-psql-test:
-	$(call psql_db,micromdm_test)
-
-db-psql:
-	$(call psql_db,micromdm)
-
-define psql_db
-	PGPASSWORD=micromdm psql --host=${PG_HOST} --port=5432 --username=micromdm --dbname=$(1)
-endef
-
-db-reset-test:
-	$(call psql_exec,'DROP DATABASE IF EXISTS micromdm_test;')
-	$(call psql_exec,'CREATE DATABASE micromdm_test;')
-
-define psql_exec
-	PGPASSWORD=micromdm psql --host=${PG_HOST} --port=5432 --username=micromdm -c $(1)
-endef
-
-db-migrate-test:
-	$(call goose_up,micromdm_test)
-
-db-migrate:
-	$(call goose_up,micromdm)
-
-define goose_up
-	cd ./pg/migrations && goose postgres "host=${PG_HOST} port=5432 user=micromdm dbname=$(1) password=micromdm sslmode=disable" up
-endef
-
