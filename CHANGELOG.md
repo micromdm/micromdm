@@ -1,5 +1,6 @@
 ## [Unreleased](https://github.com/micromdm/micromdm/compare/v1.12.1...main)
 
+- Remove legacy code (#998)
 - Fix verifying SHA-2 signatures on on ABM enrollment (#989)
 - Fix nil panic in inmem queue (#984)
 - Project dependency updates (#976, #981)
