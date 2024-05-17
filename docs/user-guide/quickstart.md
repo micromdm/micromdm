@@ -92,7 +92,7 @@ Apple has a separate flow for the MDM vendor than the one for customers. For an 
 1. Download the encrypted CSR from your email.
 1. Decrypt your CSR.
 
-    `mdmctl mdmcert.download decrypt=~/mdm_signed_request.20171122_094910_220.plist.b64.p7`
+    `mdmctl mdmcert.download -decrypt=~/mdm_signed_request.20171122_094910_220.plist.b64.p7`
 1. Sign into [identity.apple.com](identity.apple.com) with your Apple ID. This Apple ID will likely match the domain that you signed up to mdmcert.download with and the domain where you intend to host your MDM server. 
 1. Download your push cert 🎉
 
