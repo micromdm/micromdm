@@ -21,7 +21,7 @@ require (
 	github.com/smallstep/pkcs7 v0.0.0-20231107075624-be1870d87d13
 	golang.org/x/crypto v0.18.0
 	golang.org/x/net v0.20.0
-	google.golang.org/protobuf v1.33.0
+	google.golang.org/protobuf v1.34.1
 	gopkg.in/Masterminds/squirrel.v1 v1.0.0-20170825200431-a6b93000bd21
 )
 
