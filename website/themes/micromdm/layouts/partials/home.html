@@ -50,7 +50,7 @@
 
 <section class="blog-teaser">
   <h1 class="blog-teaser__header">What's new with MicroMDM?</h1>
-  {{ range first 1 .Data.Pages }}
+  {{ range ( where .Site.RegularPages "Type" "blog" | first 1 ) }}
     <article class="blog-post">
       <h1 class="blog-post__title">{{ .Title }}</h1>
       <p class="blog-post__preview">
@@ -66,7 +66,7 @@
             <a href="/blog">View All Articles</a>
           </span>
           <span class="blog-post__action blog-post__contribute-link">
-            <a href="https://github.com/micromdm/website">Contribute An Article</a>
+            <a href="https://github.com/micromdm/micromdm/tree/v2dev/website/content/blog">Contribute An Article</a>
           </span>
         </div>
       </div>
