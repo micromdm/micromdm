@@ -337,7 +337,16 @@ func (w *Watcher) Run() error {
 			}
 
 			if resp.MoreToFollow {
-				continue
+				if resp.Cursor != w.cursor.Value {
+					continue
+				}
+				level.Info(w.logger).Log(
+					"msg", "DEP returned the same cursor that was sent, exiting sync early",
+					"phase", fetchNextLabel[fetchNext],
+					"cursor", w.cursor.Value,
+					"fetched", resp.FetchedUntil,
+					"more", resp.MoreToFollow,
+				)
 			} else if fetchNext {
 				fetchNext = false
 				continue
