@@ -32,7 +32,7 @@ For example, `-api-key` becomes `MICROMDM_API_KEY`.
 
 **NOTE**: In a production environment, secrets should _always_ be set via environment variables and not CLI flags, so they don't remain in your shell history or server monitoring logs.  
 
-This section described how to start the `micromdm` process interactively in a shell, but that won't persist a server restart or exiting your current session. Having the process remain persistent depends on your environment. Since systemd is a common choice, there are [notes](https://github.com/micromdm/micromdm/wiki/Using-MicroMDM-with-systemd) from users on the wiki. 
+This section described how to start the `micromdm` process interactively in a shell, but that won't persist a server restart or exiting your current session. Having the process remain persistent depends on your environment. Since systemd is a common choice, there are [notes](https://github.com/micromdm/micromdm/wiki/Running-MicroMDM-as-a-Service) from users on the wiki. 
 
 # Configure mdmctl
 
