@@ -4,15 +4,17 @@ import (
 	"context"
 	"sync"
 
+	"github.com/go-kit/kit/log"
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
-func NewPubSub() *Inmem {
+func NewPubSub(logger log.Logger) *Inmem {
 	publish := make(chan pubsub.Event)
 	subscriptions := make(map[string][]subscription)
 	inmem := &Inmem{
 		publish:       publish,
 		subscriptions: subscriptions,
+		logger:        logger,
 	}
 	go inmem.dispatch()
 	return inmem
@@ -23,6 +25,7 @@ type Inmem struct {
 	subscriptions map[string][]subscription
 
 	publish chan pubsub.Event
+	logger  log.Logger
 }
 
 type subscription struct {
