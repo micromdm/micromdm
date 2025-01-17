@@ -15,7 +15,7 @@ require (
 	github.com/micromdm/go4 v0.0.0-20240215190618-908f27575419
 	github.com/micromdm/scep/v2 v2.2.0
 	github.com/pkg/errors v0.9.1
-	github.com/smallstep/pkcs7 v0.0.0-20231107075624-be1870d87d13
+	github.com/smallstep/pkcs7 v0.1.1
 	golang.org/x/crypto v0.31.0
 	golang.org/x/net v0.30.0
 	google.golang.org/protobuf v1.33.0
@@ -25,7 +25,6 @@ require (
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/go-kit/log v0.2.0 // indirect
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
-	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/korylprince/go-cpio-odc v0.9.4 // indirect
 	github.com/korylprince/goxar v0.1.2 // indirect
 	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a // indirect
