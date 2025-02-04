@@ -493,3 +493,11 @@ section p {
 .post blockquote p {
   padding:0.5em;
 }
+
+.header-hidden-anchor a {
+  visibility: hidden;
+}
+
+.header-hidden-anchor:hover a {
+  visibility: visible;
+}
