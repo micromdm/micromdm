@@ -16,13 +16,13 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
     - name: setup go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go-version }}
       id: go
 
     - name: checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: test
       run: |
