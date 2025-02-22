@@ -2,9 +2,12 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	stdlog "log"
 	"net/http"
 	"net/url"
@@ -264,6 +267,7 @@ func serve(args []string) error {
 	r.Handle("/ota/enroll", enrollHandlers.OTAEnrollHandler)
 	r.Handle("/ota/phase23", enrollHandlers.OTAPhase2Phase3Handler).Methods("POST")
 	r.Handle("/scep", scepHandler)
+	r.HandleFunc("/manifest", handleManifest(*flRepoPath))
 	if *flHomePage {
 		r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 			io.WriteString(w, homePage)
@@ -368,6 +372,46 @@ func serve(args []string) error {
 	)
 	err = httputil.ListenAndServe(serveOpts...)
 	return errors.Wrap(err, "calling ListenAndServe")
+}
+
+type ManifestRequest struct {
+	Base64Content string `json:"base64Content"`
+	FileName      string `json:"fileName"`
+}
+
+type ManifestResponse struct {
+	FilePath string `json:"filePath"`
+}
+
+func handleManifest(flRepoPath string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+			return
+		}
+
+		var req ManifestRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "Failed to parse request", http.StatusBadRequest)
+			return
+		}
+
+		decodedData, err := base64.StdEncoding.DecodeString(req.Base64Content)
+		if err != nil {
+			http.Error(w, "Failed to decode base64 content", http.StatusBadRequest)
+			return
+		}
+
+		filePath := fmt.Sprintf("%s/%s", flRepoPath, req.FileName)
+		if err := ioutil.WriteFile(filePath, decodedData, 0644); err != nil {
+			http.Error(w, "Failed to write file", http.StatusInternalServerError)
+			return
+		}
+
+		response := map[string]string{"message": "File saved successfully", "path": filePath}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+	}
 }
 
 // serveOptions configures the []httputil.Options for ListenAndServe
