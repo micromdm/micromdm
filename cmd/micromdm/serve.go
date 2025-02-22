@@ -359,6 +359,7 @@ func serve(args []string) error {
 		return errors.Wrapf(err, "parsing serverURL %q", sm.ServerPublicURL)
 	}
 
+	deleteOldFiles(*flRepoPath) // Start cleanup routine
 	serveOpts := serveOptions(
 		handler,
 		*flHTTPAddr,
@@ -383,6 +384,7 @@ type ManifestResponse struct {
 	FilePath string `json:"filePath"`
 }
 
+// handleManifest handles the manifest file request
 func handleManifest(flRepoPath string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -396,22 +398,55 @@ func handleManifest(flRepoPath string) http.HandlerFunc {
 			return
 		}
 
-		decodedData, err := base64.StdEncoding.DecodeString(req.Base64Content)
-		if err != nil {
-			http.Error(w, "Failed to decode base64 content", http.StatusBadRequest)
-			return
-		}
-
 		filePath := fmt.Sprintf("%s/%s", flRepoPath, req.FileName)
-		if err := ioutil.WriteFile(filePath, decodedData, 0644); err != nil {
-			http.Error(w, "Failed to write file", http.StatusInternalServerError)
-			return
+		if _, err := os.Stat(filePath); err == nil {
+			// File exists, update modified time
+			currentTime := time.Now().Local()
+			if err := os.Chtimes(filePath, currentTime, currentTime); err != nil {
+				http.Error(w, "Failed to update file timestamp", http.StatusInternalServerError)
+				return
+			}
+		} else {
+			// Decode and save the file if it does not exist
+			decodedData, err := base64.StdEncoding.DecodeString(req.Base64Content)
+			if err != nil {
+				http.Error(w, "Failed to decode base64 content", http.StatusBadRequest)
+				return
+			}
+			if err := ioutil.WriteFile(filePath, decodedData, 0644); err != nil {
+				http.Error(w, "Failed to write file", http.StatusInternalServerError)
+				return
+			}
 		}
 
-		response := map[string]string{"message": "File saved successfully", "path": filePath}
+		response := map[string]string{"message": "File processed successfully", "path": filePath}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(response)
 	}
+}
+
+// deleteOldFiles removes files older than 1 hour
+func deleteOldFiles(flRepoPath string) {
+	ticker := time.NewTicker(1 * time.Hour)
+	go func() {
+		for range ticker.C {
+			files, err := ioutil.ReadDir(flRepoPath)
+			if err != nil {
+				fmt.Println("Failed to read directory:", err)
+				continue
+			}
+			for _, file := range files {
+				if time.Since(file.ModTime()) > time.Hour {
+					filePath := fmt.Sprintf("%s/%s", flRepoPath, file.Name())
+					if err := os.Remove(filePath); err != nil {
+						fmt.Println("Failed to delete file:", filePath, err)
+					} else {
+						fmt.Println("Deleted old file:", filePath)
+					}
+				}
+			}
+		}
+	}()
 }
 
 // serveOptions configures the []httputil.Options for ListenAndServe
