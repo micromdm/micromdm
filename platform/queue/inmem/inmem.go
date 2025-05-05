@@ -3,6 +3,7 @@ package inmem
 import (
 	"container/list"
 	"context"
+	"sync"
 
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/platform/command"
@@ -16,8 +17,9 @@ import (
 
 // QueueInMem represents an in-memory command queue
 type QueueInMem struct {
-	logger log.Logger
-	queue  map[string]*list.List
+	logger  log.Logger
+	queueMu sync.Mutex
+	queue   map[string]*list.List
 }
 
 type queuedCommand struct {
@@ -38,11 +40,17 @@ func New(pubsub pubsub.PublishSubscriber, logger log.Logger) *QueueInMem {
 }
 
 func (q *QueueInMem) clearList(udid string) {
+	q.queueMu.Lock()
+	defer q.queueMu.Unlock()
+
 	delete(q.queue, udid)
 	return
 }
 
 func (q *QueueInMem) getList(udid string) *list.List {
+	q.queueMu.Lock()
+	defer q.queueMu.Unlock()
+
 	if _, ok := q.queue[udid]; !ok {
 		q.queue[udid] = list.New()
 	}
