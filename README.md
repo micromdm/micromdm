@@ -1,8 +1,11 @@
-# MicroMDM - a devops friendly MDM server 
+# MicroMDM v1 - a devops friendly MDM server
 
-[![CI](https://github.com/micromdm/micromdm/workflows/CI/badge.svg)](https://github.com/micromdm/micromdm/actions)
+> [!WARNING]
+> The [MicroMDM "v1" project is in maintenance mode](https://micromdm.io/blog/micromdm-v1-maintenance-mode/) and support officially ends at the end of 2025. You are encouraged to explore or migrate to [NanoMDM](https://github.com/micromdm/nanomdm) and other projects in the Nano-suite of projects.
 
-MicroMDM is a Mobile Device Management server for Apple Devices, focused on giving you all the power through an API. 
+[![CI](https://github.com/micromdm/micromdm/actions/workflows/CI.yml/badge.svg)](https://github.com/micromdm/micromdm/actions/workflows/CI.yml)
+
+MicroMDM v1 is a Mobile Device Management server for Apple Devices, focused on giving you all the power through an API. 
 
 # User Guide
 
