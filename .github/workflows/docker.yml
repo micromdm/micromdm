@@ -30,4 +30,5 @@ jobs:
            --tag ghcr.io/micromdm/micromdm:latest \
            --tag ghcr.io/micromdm/micromdm:${{ github.event.release.tag_name }} \
            --push \
-           .
+           
+  uses: actions/setup-go@v5.5.0
