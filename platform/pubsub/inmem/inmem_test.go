@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"testing"
 	"time"
+
+	"github.com/go-kit/kit/log"
 )
 
 func TestPubSub(t *testing.T) {
 	ctx := context.Background()
-	inmem := NewPubSub()
+	inmem := NewPubSub(log.NewNopLogger())
 	tests := []string{"a", "b", "c"}
 	for _, tt := range tests {
 		if err := inmem.Publish(ctx, tt, []byte(tt+tt+tt)); err != nil {

@@ -2,6 +2,7 @@ package inmem
 
 import (
 	"context"
+	"time"
 
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
@@ -24,11 +25,13 @@ func (p *Inmem) dispatch() {
 	for {
 		select {
 		case ev := <-p.publish:
+			begin := time.Now()
 			p.mtx.Lock()
 			for _, sub := range p.subscriptions[ev.Topic] {
 				go func(s subscription) { s.eventChan <- ev }(sub)
 			}
 			p.mtx.Unlock()
+			p.logger.Log("msg", "handled event dispatch", "took", time.Since(begin))
 		}
 	}
 }
