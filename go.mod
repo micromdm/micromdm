@@ -16,7 +16,7 @@ require (
 	github.com/micromdm/scep/v2 v2.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/smallstep/pkcs7 v0.2.1
-	golang.org/x/crypto v0.33.0
+	golang.org/x/crypto v0.39.0
 	golang.org/x/net v0.34.0
 	google.golang.org/protobuf v1.33.0
 )
@@ -29,8 +29,8 @@ require (
 	github.com/korylprince/goxar v0.1.2 // indirect
 	github.com/smallstep/scep v0.0.0-20241223071629-a37a330173bc // indirect
 	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
 )
 
-go 1.17
+go 1.23.0
