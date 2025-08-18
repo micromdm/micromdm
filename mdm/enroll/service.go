@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"io/ioutil"
 	"log"
+	"net/url"
 	"strings"
 	"sync"
 
@@ -36,7 +37,7 @@ const (
 )
 
 type Service interface {
-	Enroll(ctx context.Context) (profile.Mobileconfig, error)
+	Enroll(ctx context.Context, queryParams map[string]string) (profile.Mobileconfig, error)
 	OTAEnroll(ctx context.Context) (profile.Mobileconfig, error)
 	OTAPhase2(ctx context.Context) (profile.Mobileconfig, error)
 	OTAPhase3(ctx context.Context) (profile.Mobileconfig, error)
@@ -175,8 +176,10 @@ func (svc *service) findOrMakeMobileconfig(ctx context.Context, id string, f int
 	return p.Mobileconfig, nil
 }
 
-func (svc *service) Enroll(ctx context.Context) (profile.Mobileconfig, error) {
-	return svc.findOrMakeMobileconfig(ctx, EnrollmentProfileId, svc.MakeEnrollmentProfile)
+func (svc *service) Enroll(ctx context.Context, queryParams map[string]string) (profile.Mobileconfig, error) {
+	return svc.findOrMakeMobileconfig(ctx, EnrollmentProfileId, func() (*cfgprofiles.Profile, error) {
+		return svc.MakeEnrollmentProfile(queryParams)
+	})
 }
 
 func (svc *service) scepChallenge() (challenge string, err error) {
@@ -191,7 +194,7 @@ func (svc *service) scepChallenge() (challenge string, err error) {
 const perUserConnections = "com.apple.mdm.per-user-connections"
 const bootstrapToken = "com.apple.mdm.bootstraptoken"
 
-func (svc *service) MakeEnrollmentProfile() (*cfgprofiles.Profile, error) {
+func (svc *service) MakeEnrollmentProfile(queryParams map[string]string) (*cfgprofiles.Profile, error) {
 	profile := cfgprofiles.NewProfile(EnrollmentProfileId)
 	profile.PayloadOrganization = profilePayloadOrganization
 	profile.PayloadDisplayName = profilePayloadDisplayName
@@ -202,7 +205,21 @@ func (svc *service) MakeEnrollmentProfile() (*cfgprofiles.Profile, error) {
 	mdmPayload.PayloadDescription = mdmPayloadDescription
 
 	mdmPayload.ServerURL = svc.URL + mdmPayloadServerEndpoint
-	mdmPayload.CheckInURL = svc.URL + mdmPayloadCheckInEndpoint
+
+	// Build query string from parameters with proper URL encoding
+	checkInURL := svc.URL + mdmPayloadCheckInEndpoint
+	if len(queryParams) > 0 {
+		values := url.Values{}
+		for key, value := range queryParams {
+			if value != "" {
+				values.Set(key, value)
+			}
+		}
+		if len(values) > 0 {
+			checkInURL += "?" + values.Encode()
+		}
+	}
+	mdmPayload.CheckInURL = checkInURL
 	mdmPayload.CheckOutWhenRemoved = true
 	mdmPayload.AccessRights = 8191
 

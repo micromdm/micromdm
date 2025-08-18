@@ -6,7 +6,7 @@ import (
 
 func TestEnrollProfile(t *testing.T) {
 	svc := new(service)
-	profile, err := svc.MakeEnrollmentProfile()
+	profile, err := svc.MakeEnrollmentProfile("")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -81,6 +81,21 @@ body {
   text-decoration: none;
 }
   </style>
+  <script>
+    window.onload = function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const enrollLink = document.getElementById('enroll-link');      
+      const queryParams = new URLSearchParams();
+      for (const [key, value] of urlParams.entries()) {
+        if (value) {
+          queryParams.set(key, value);
+        }
+      }
+      if (queryParams.toString()) {
+        enrollLink.href = 'mdm/enroll?' + queryParams.toString();
+      }
+    };
+  </script>
  </head>
 <body>
 
@@ -94,7 +109,7 @@ body {
 </svg>
 
 
-<p><a class=enrollment href="mdm/enroll">Enroll a device</a></p>
+<p><a id="enroll-link" class=enrollment href="mdm/enroll">Enroll a device</a></p>
 
 </body>
 </html>

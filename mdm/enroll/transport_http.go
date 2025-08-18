@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"html"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	"github.com/micromdm/micromdm/pkg/crypto"
 
@@ -59,7 +61,20 @@ type verifier struct {
 func (v verifier) decodeMDMEnrollRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	switch r.Method {
 	case "GET":
-		return mdmEnrollRequest{}, nil
+		queryParams := make(map[string]string)
+		decodedQuery := html.UnescapeString(r.URL.RawQuery)
+		if decodedQuery != "" {
+			parsedQuery, err := url.ParseQuery(decodedQuery)
+			if err != nil {
+				return nil, fmt.Errorf("failed to parse query string: %w", err)
+			}
+			for key, values := range parsedQuery {
+				if len(values) > 0 {
+					queryParams[key] = values[0]
+				}
+			}
+		}
+		return mdmEnrollRequest{QueryParams: queryParams}, nil
 	case "POST": // DEP request
 		data, err := ioutil.ReadAll(r.Body)
 		if err != nil {

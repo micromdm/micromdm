@@ -47,7 +47,9 @@ type otaEnrollmentRequest struct {
 	UserShortName string
 }
 
-type mdmEnrollRequest struct{}
+type mdmEnrollRequest struct {
+	QueryParams map[string]string
+}
 
 type mobileconfigResponse struct {
 	profile.Mobileconfig
@@ -71,11 +73,11 @@ func MakeGetEnrollEndpoint(s Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		switch req := request.(type) {
 		case mdmEnrollRequest:
-			mc, err := s.Enroll(ctx)
+			mc, err := s.Enroll(ctx, req.QueryParams)
 			return mobileconfigResponse{mc, err}, nil
 		case depEnrollmentRequest:
 			fmt.Printf("got DEP enrollment request from %s\n", req.Serial)
-			mc, err := s.Enroll(ctx)
+			mc, err := s.Enroll(ctx, make(map[string]string))
 			return mobileconfigResponse{mc, err}, nil
 		default:
 			return nil, errors.New("unknown enrollment type")
@@ -133,7 +135,7 @@ func MakeOTAPhase2Phase3Endpoint(s Service, scepDepot depot.Depot) endpoint.Endp
 			// TODO: the SCEP CA checking ought to be more robust
 			// see: https://github.com/micromdm/scep/issues/32
 
-			mc, err := s.Enroll(ctx)
+			mc, err := s.Enroll(ctx, make(map[string]string))
 			// profile, err := s.OTAPhase3(ctx)
 			return mobileconfigResponse{mc, err}, nil
 		}
