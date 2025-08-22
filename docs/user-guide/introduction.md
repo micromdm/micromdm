@@ -29,7 +29,10 @@ It is probably not a good idea to deploy MicroMDM as a cost cutting option, as t
 # Apple Requirements
 
 If you've decided to run an instance of MicroMDM in your organization, there are a few Apple specific requirements you need to meet.  
-First, you need to [enroll](https://developer.apple.com/programs/enterprise/enroll/) your organization in the Apple Developer Enterprise Portal. Enrolling costs $299/year and requires that your organization have a [DUNS](https://en.wikipedia.org/wiki/Data_Universal_Numbering_System) number.  
+First, you need to [enroll](https://developer.apple.com/programs/enterprise/enroll/) your organization in the Apple Developer Enterprise Portal. Enrolling costs $299/year and requires that your organization have a [DUNS](https://en.wikipedia.org/wiki/Data_Universal_Numbering_System) number. 
+
+If you are an individual wanting to use/test MicroMDM you can [enroll](https://developer.apple.com/programs/enroll/) in Apple's standard Developer Account for $99/year. You won't be able to use Apple School/Business Manager or Automated Device Enrollment, but you can still have the `MDM CSR` option enabled in your account.
+
 Once signed up, or during the verification process in the first step, you need to ask Apple to enable the `MDM CSR` option. This option enables the signing of the APNS Push Certificate. The MDM CSR is typically reserved for commercial vendors, but Apple should enable it for you once you specify that you intend to use it for managing your company owned devices.
 
 Finally, familiarize yourself with the [education](https://www.apple.com/education/it/) or [business](https://www.apple.com/business/it/) programs and enroll in Apple School/Business Manager(ABM). While MicroMDM does not require that you use the [deployment programs](https://support.apple.com/en-ca/HT204142) to enroll your devices, this is an increasingly popular option for enterprise deployments.
