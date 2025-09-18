@@ -319,6 +319,9 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 	case "Settings":
 		var settings []*mdmproto.Setting
 		for _, s := range cmd.Settings.Settings {
+			if s.Item == "Bluetooth" && s.Enabled == nil {
+				continue
+			}
 			settings = append(settings, settingToProto(s))
 		}
 		cmdproto.Request = &mdmproto.Command_Settings{
