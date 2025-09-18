@@ -27,12 +27,13 @@ As you see, MicroMDM itself lacks many features that are usually present in devi
 It is probably not a good idea to deploy MicroMDM as a cost cutting option, as the money you save will likely go towards hiring emplyees with the required domain knowledge and development expertise.*
 
 # Apple Requirements
+To use MicroMDM, you need an Apple Developer Account. Most organizations and individuals can enroll in the [Apple Developer Program](https://developer.apple.com/programs/enroll/) for $99/year.
 
-If you've decided to run an instance of MicroMDM in your organization, there are a few Apple specific requirements you need to meet.  
-First, you need to [enroll](https://developer.apple.com/programs/enterprise/enroll/) your organization in the Apple Developer Enterprise Portal. Enrolling costs $299/year and requires that your organization have a [DUNS](https://en.wikipedia.org/wiki/Data_Universal_Numbering_System) number.  
-Once signed up, or during the verification process in the first step, you need to ask Apple to enable the `MDM CSR` option. This option enables the signing of the APNS Push Certificate. The MDM CSR is typically reserved for commercial vendors, but Apple should enable it for you once you specify that you intend to use it for managing your company owned devices.
+If you are testing or experimenting, you can use an Apple developer account or try [mdmcert.download](https://mdmcert.download/) for a quick way to generate a testing certificate.
 
-Finally, familiarize yourself with the [education](https://www.apple.com/education/it/) or [business](https://www.apple.com/business/it/) programs and enroll in Apple School/Business Manager(ABM). While MicroMDM does not require that you use the [deployment programs](https://support.apple.com/en-ca/HT204142) to enroll your devices, this is an increasingly popular option for enterprise deployments.
+After enrolling, make a request to Apple Support to enable the `MDM CSR` option in your account. This is typically reserved for commercial vendors, but Apple will enable it if you specify you intend to manage your own devices.
+
+For larger deployments, consider enrolling in [Apple School Manager](https://www.apple.com/education/it/) or [Apple Business Manager](https://www.apple.com/business/it/) to take advantage of [Automated Device Enrollment](https://support.apple.com/en-ca/102300). While not required, these programs make device enrollment and management easier. ASM/ABM or AxM requires a [DUNS number](https://micromdm.io/blog/accounts/).
 
 # Requirements for running MicroMDM
 
