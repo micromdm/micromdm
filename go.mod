@@ -18,7 +18,7 @@ require (
 	github.com/smallstep/pkcs7 v0.2.1
 	golang.org/x/crypto v0.33.0
 	golang.org/x/net v0.34.0
-	google.golang.org/protobuf v1.33.0
+	google.golang.org/protobuf v1.36.9
 )
 
 require (
@@ -33,4 +33,4 @@ require (
 	golang.org/x/text v0.22.0 // indirect
 )
 
-go 1.17
+go 1.23
