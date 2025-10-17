@@ -1,8 +1,17 @@
-## [Unreleased](https://github.com/micromdm/micromdm/compare/v1.13.0...main)
+## [v1.13.1](https://github.com/micromdm/micromdm/compare/v1.13.0...v1.31.1)
 
-Thanks to our contributors!
+Thanks to our contributors: @drkr-sl, @csandrew-dev!
 
-- [Submit a PR!](https://github.com/micromdm/micromdm/pulls)
+* Fix `inmem` queue panic: #1078
+* Maintenance mode changes:
+  * README update: c81059c474485489b8aa9e50a1c0498b6f5f9350
+  * Issue template: e9a868a217f6d8cbf6912c79ca79280d4bbe02d8, 644ecbdf3833eaac02e18c43ad3fc41cf51e1264
+  * Reduce CI/CD platform builds: 4b68e2e81230004ac5f912bd16124a5baf3be666
+  * Remove dependabot schedules: 44931fb31c3031e4fc4f618dc7a72740ee95df54
+* Doc improvements: e27f41532f095c6b9f6c97d58e4dd22673bbef08
+* Dependencies:
+  * GitHub dependabot bumps: #1065, #1071, #1086, #1112, #1113
+  * Go dependencies: SCEP: #1058, PKCS7: #1064
 
 ## [v1.13.0](https://github.com/micromdm/micromdm/compare/v1.12.1...v1.13.0)
 
