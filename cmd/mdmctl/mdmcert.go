@@ -72,9 +72,18 @@ func (cmd *mdmcertCommand) Run(args []string) error {
 		cmd.Usage()
 		os.Exit(1)
 	}
+	
+	localonly := false
+	for _, a := range args {
+		if a == "-local-only" {
+			localonly=true
+		}
+	}
 
-	if err := cmd.setup(); err != nil {
-		return err
+	if !localonly {
+		if err := cmd.setup(); err != nil {
+			return err
+		}
 	}
 
 	var run func([]string) error
