@@ -4,11 +4,11 @@ package main
 import (
 	"bytes"
 	"html/template"
+	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
-
-	"micromdm.io/v2/pkg/log"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -23,16 +23,16 @@ var vanityTemplate = template.Must(template.New("vanity.html").Parse(`
 `))
 
 type server struct {
-	logger log.Logger
+	logger *log.Logger
 	myURL  *url.URL
 }
 
 func (srv server) handler(request events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
-	log.Info(srv.logger).Log("request_path", request.Path)
+	srv.logger.Printf("request_path=%s", request.Path)
 
 	pURL, err := srv.myURL.Parse(request.Path)
 	if err != nil {
-		log.Info(srv.logger).Log("msg", "parsing relative to  base url", "err", err)
+		srv.logger.Printf("parsing relative to base url: %v", err)
 		return &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusInternalServerError,
 			Body:       "oops",
@@ -49,14 +49,11 @@ func (srv server) handler(request events.APIGatewayProxyRequest) (*events.APIGat
 		Tree:      "v2dev",
 	}
 
-	log.Info(srv.logger).Log(
-		"request_path", request.Path,
-		"permalink", vanity.Permalink,
-	)
+	srv.logger.Printf("request_path=%s permalink=%s", request.Path, vanity.Permalink)
 
 	buf := new(bytes.Buffer)
 	if err := vanityTemplate.Execute(buf, vanity); err != nil {
-		log.Info(srv.logger).Log("msg", "execute vanityTemplate", err, "err")
+		srv.logger.Printf("execute vanityTemplate: %v", err)
 		return &events.APIGatewayProxyResponse{
 			StatusCode: http.StatusInternalServerError,
 			Body:       "oops",
@@ -73,7 +70,7 @@ func (srv server) handler(request events.APIGatewayProxyRequest) (*events.APIGat
 func main() {
 	myURL, _ := url.Parse("https://micromdm.io/")
 	srv := server{
-		logger: log.New(),
+		logger: log.New(os.Stderr, "", log.LstdFlags),
 		myURL:  myURL,
 	}
 	lambda.Start(srv.handler)
