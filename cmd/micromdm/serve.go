@@ -130,6 +130,7 @@ func serve(args []string) error {
 		flLogTime                = flagset.Bool("log-time", false, "Include timestamp in log messages")
 		flP7Skew                 = flagset.Int("device-signature-skew", env.Int("MICROMDM_DEVICE_SIGNATURE_SKEW", 0), "Sets the allowable clock skew (in seconds) when verifying device signatures")
 		flDisableRedirect        = flagset.Bool("disable-redirect", env.Bool("MICROMDM_DISABLE_REDIRECT", false), "disable the :80 -> :443 redirect if listening on :443")
+		flMigration              = flagset.Bool("migration", env.Bool("MICROMDM_MIGRATION", false), "enable the Basic-Auth /mdm/migration-checkin endpoint for NanoMDM migration dual-write (skips device signature verification)")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -328,6 +329,10 @@ func serve(args []string) error {
 		}
 
 		r.HandleFunc("/boltbackup", httputil2.RequireBasicAuth(boltBackup(sm.DB), "micromdm", *flAPIKey, "micromdm"))
+
+		if *flMigration {
+			mdm.RegisterMigrationSyncHandler(r, sm.PubClient, "micromdm", *flAPIKey)
+		}
 	} else {
 		mainLogger.Log("msg", "no api key specified")
 	}
