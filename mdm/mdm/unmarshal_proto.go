@@ -414,7 +414,8 @@ func protoToSetting(s *mdmproto.Setting) Setting {
 		setting.Enabled = nilIfFalse(pbs.GetEnabled())
 	case "Bluetooth":
 		pbs := s.GetBluetooth()
-		setting.Enabled = nilIfFalse(pbs.GetEnabled())
+		setting.Enabled = new(bool)
+		*setting.Enabled = pbs.GetEnabled()
 	case "ApplicationAttributes":
 		pbs := s.GetApplicationAttributes()
 		attr := pbs.GetApplicationAttributes()
