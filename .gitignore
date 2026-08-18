@@ -1,9 +1,2 @@
 build/
 *.zip
-*.DS_Store
-.vscode/
-
-## website gitignore
-website/public/
-public/
-website/.netlify
