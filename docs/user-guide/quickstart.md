@@ -34,6 +34,26 @@ For example, `-api-key` becomes `MICROMDM_API_KEY`.
 
 This section described how to start the `micromdm` process interactively in a shell, but that won't persist a server restart or exiting your current session. Having the process remain persistent depends on your environment. Since systemd is a common choice, there are [notes](https://github.com/micromdm/micromdm/wiki/Running-MicroMDM-as-a-Service) from users on the wiki. 
 
+Alternatively, it's possible to run MicroMDM in a docker container. Docker images of MicroMDM can be found on [packages](https://github.com/micromdm/micromdm/pkgs/container/micromdm) page.  
+Pull MicroMDM image:
+```
+docker pull ghcr.io/micromdm/micromdm:latest
+```
+
+Run the image:
+```
+docker run --rm -ti -p 9000:443 \
+	-v $(pwd)/micromdm-config:/var/db/micromdm \
+	-v $(pwd)/.certs:/.certs \
+	ghcr.io/micromdm/micromdm:latest micromdm serve \
+	-apns-cert /.certs/apns.p12 \
+	-apns-password ApnsPassword \
+	-api-key MySecretAPIKey  \
+	-server-url https://your-mdm-domain:9000 \
+	-tls-cert="/.certs/tls-cert.pem" \
+	-tls-key="/.certs/tls-private.pem"
+```
+
 # Configure mdmctl
 
 At this point, you should have a running server process, but you do not yet have a working MDM service. Some important configuration is still required. MicroMDM does not come with a built in web interface for administrators. Instead, it comes with a CLI utility called `mdmctl` which uses the API to provide helpful commands for the MDM administrator.  
