@@ -4,7 +4,27 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-MicroMDM is an API-driven Mobile Device Management server for Apple devices, written in Go. This repo is a fork (`origin` = `paragpatel/micromdm`) of upstream https://github.com/micromdm/micromdm. The fork's own changes so far extend the `InstallApplication` command (`VPNUUID`, `removable` options). Day-to-day work happens on the `working` branch.
+MicroMDM is an API-driven Mobile Device Management server for Apple devices, written in Go. This repo is a fork (`origin` = `paragpatel/micromdm`) of upstream https://github.com/micromdm/micromdm.
+
+**Upstream MicroMDM v1 is in maintenance mode; its support ended at the end of 2025.** Migrating to NanoMDM is planned: micro2nano `llorne` moves enrollments and `cmdapi` translates the JSON command API. Gaps to cover in the migration: enrollment profile serving, SCEP (reuse the exported CA), `/v1/devices`, and the fork's `vpn_uuid`/`removable` attributes.
+
+Fork changes:
+- `InstallApplication` attributes `vpn_uuid` and `removable`.
+- `tools/dbtools`.
+- The temporary flag `-accept-expired-device-certs-until` (see Certificates).
+
+**Git workflow:**
+1. Work on a feature branch.
+2. Open a PR into `main`.
+3. Merge `main` into `working`, the deploy branch.
+4. Build from `working`.
+
+Upstream syncs arrive as PRs from `micromdm:main`. The fork has no CI configured, so run `go test ./...` and `gofmt -s -l .` locally.
+
+Runbooks (slash commands in `.claude/commands/`):
+- `/mdm-status`: read-only health check.
+- `/push-cert-renewal`: yearly APNs renewal.
+- `/micromdm-deploy`: build, upgrade, rollback.
 
 Two binaries:
 - `cmd/micromdm` — the server (`micromdm serve`). State lives in BoltDB under `-config-path` (default `/var/db/micromdm`).
@@ -66,7 +86,10 @@ Adding or changing a command field usually means editing `command.go`, `mdm.prot
 The live server runs on `parag@85.90.246.210` (Ubuntu 22.04, a shared box that also runs many unrelated Docker services). Its public hostname is `https://mdm.vartit.com`.
 
 - **systemd:** `micromdm.service` runs `/home/parag/mdm/build/linux/run.sh`. Logs: `journalctl -u micromdm` (`MICROMDM_HTTP_DEBUG=true`, so full request and response bodies are logged).
-- **Binary:** `/home/parag/mdm/build/linux/micromdm` is built from this fork; `micromdm version` reports `v1.11.0-19-g475ea58`. It's a prebuilt Linux binary copied over (`make xp-micromdm`). `/home/parag/mdm/micromdm/` on the server is an old upstream checkout and is *not* what's running.
+- **Binary:** `/home/parag/mdm/build/linux/micromdm`, built from `working` with `make xp-micromdm`. Since 2026-11-16 it reports `v1.12.1-23-gfdca542`.
+  - The previous binary is kept as `micromdm-475ea58`; `upgrade-fdca542.sh` / `rollback-475ea58.sh` live next to it (run with `sudo` by the user).
+  - `/home/parag/mdm/micromdm/` on the server is an old upstream checkout and is *not* what's running.
+- **Access:** `ssh parag@85.90.246.210` works with a key. `sudo` needs the user's password, so stopping or restarting the service and swapping binaries are the user's steps.
 - **Data:** BoltDB is at `/var/db/micromdm/micromdm.db` (default `-config-path`). The push certificate and DEP config are stored in this DB.
 - **Request path:**
   - Devices go through Cloudflare, then nginx on `:443` (`/etc/nginx/conf.d/mdm.conf`, Cloudflare-only allowlist), then `https://localhost:8443` (micromdm, self-signed `server.crt`/`server.key`).
@@ -75,10 +98,10 @@ The live server runs on `parag@85.90.246.210` (Ubuntu 22.04, a shared box that a
   - nginx on `127.0.0.1:80` proxies that to a Flask app on `localhost:8444` (`build/linux/webhook/webhook.py`, started by `run.sh`).
   - The Flask app publishes the raw event JSON to Redis channel `mdm_webhook`, and the decoded acknowledge plist to `mdm_webhook_payload`. That Redis server is external (`172.104.178.91:6379`), and downstream consumers read from it.
 - **VPN:** MicroMDM does not issue VPN certificates.
-  - An IKEv2 VPN runs in Docker (`ipsec-vpn-server`, image hwdsl2) on the same host. Its CA, server, and `vpnclient` certificates were all created 2024-03-14 and are valid until 2034, stored in `/etc/ipsec.d` inside the container.
-  - The client profile `~/vpnclient.mobileconfig` (a `com.apple.vpn.managed` payload plus PKCS12 and root CA payloads) is pushed to devices as a profile.
-  - The fork's `InstallApplication` `vpn_uuid` attribute ties an installed app to that VPN's `VPNUUID` (per-app VPN).
-  - `~/micromdm-1.11.0/` on the server is an older source snapshot containing only the first `VPNUUID` commit; this git repo is the source of truth.
+  - The KidsNanny "VPN" is the iOS app's own local packet tunnel (`com.kidsnanny.ios.kidsPacketTunnel`). It is configured by a VPN profile that the backend pushes.
+  - `vpn_uuid` makes browsers use it per-app.
+  - The IKEv2 container on this host (`ipsec-vpn-server`, hwdsl2; certs valid to 2034) is unrelated to the KidsNanny flow.
+  - `~/micromdm-1.11.0/` on the server is an old source snapshot; this git repo is the source of truth.
 - `run.sh` sets `GODEBUG=x509sha1=1` and passes the API key on the command line.
 
 ### Certificates and backups
@@ -86,12 +109,29 @@ The live server runs on `parag@85.90.246.210` (Ubuntu 22.04, a shared box that a
 | What | Lifetime | How it's renewed |
 |---|---|---|
 | **APNs push certificate** | Yearly; current one expires 2027-11-16 | The `mdmctl mdmcert.download` API is deprecated, so use the mdmcert.download website, then **Renew** at identity.apple.com |
-| **Device identity certificates** | 365 days (`-scep-client-validity`) | `InstallProfile` with the backend's per-child enrollment profile (identifier `com.github.micromdm.micromdm.enroll`) before expiry. Expired devices can't be reached. |
+| **Device identity certificates** | 365 days (`-scep-client-validity`) | The KidsNanny backend job (`mdm.cert-renewal.*`, daily 03:40 UTC) sends `InstallProfile` with the per-child enrollment profile (identifier `com.github.micromdm.micromdm.enroll`) 30 days before expiry. The phone gets a new SCEP cert and re-Authenticates, and Authenticate saves the new cert hash. |
 | **SCEP CA** | 5 years; MicroMDM created it at install, so it expires **2028-02-03** | No built-in way to rotate it |
 
 - Step-by-step runbooks and the backup copies of certificates, keys and server config are in the internal repo `~/projects/mdm` (`server/backup-YYYY-MM-DD/README.md`).
 - `tools/dbtools/` has read-only BoltDB inspectors (device/certificate report, push certificate and SCEP CA export). Run them on a **copy** of the DB.
 - `/boltbackup` times out on large DBs, so take backup copies with the service stopped.
+
+**Temporary expired-certificate recovery** (`pkg/crypto/expired.go`, flag `-accept-expired-device-certs-until 2027-02-15` in `run.sh`):
+- **What it does:** devices whose identity cert already expired were rejected before any command could reach them. While the flag is set, a request whose only failure is the signer cert's validity window is accepted when:
+  - the cert is really expired;
+  - it was issued and signed by our SCEP CA;
+  - the message digest and signature verify.
+
+  The UDID↔cert binding still applies.
+- **How the phones recover:** the KidsNanny overlay `mdm.cert-renewal.include-expired=true` makes the backend send those phones the renewal profile.
+- **Cleanup:** after 2027-02-15, remove both the flag and `include-expired`.
+
+**Gotchas:**
+- **iOS sends BER, not DER.** The `Mdm-Signature` CMS uses indefinite lengths, which Go's `encoding/asn1` rejects. Parse with `pkcs7.Parse` (it converts) and work on the parsed object.
+- **The skew flag can't fix expired certs.** The pkcs7 "signing time ... outside of certificate validity" check compares the device's own signing time with the cert, so `-device-signature-skew` cannot help.
+- **The deprecated mdmcert API hides its reason.** It returns `"failure"`; the real reason is in the `reason` field, which upstream commit 90831d0 prints.
+- **The device record's `Enrolled` field is unreliable.** In the BoltDB device record it reads false; use the API's `enrollment_status`.
+- **Queues grow without limit.** They hold undeliverable commands plus full command history (`-no-command-history` is not set). Clear dead devices with `DELETE /v1/commands/{udid}`.
 
 ## Main consumer: KidsNanny
 
