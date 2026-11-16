@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"io/ioutil"
 	"net/http"
+	"time"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/go-kit/kit/log"
@@ -35,7 +36,7 @@ func RegisterHTTPHandlers(r *mux.Router, e Endpoints, v *crypto.PKCS7Verifier, l
 		httptransport.ServerErrorEncoder(encodeError),
 		httptransport.ServerErrorLogger(logger),
 		httptransport.ServerBefore(httptransport.PopulateRequestContext),
-		httptransport.ServerBefore((verifier{PKCS7Verifier: v}).populateDeviceCertificateFromSignRequestHeader),
+		httptransport.ServerBefore((verifier{PKCS7Verifier: v, logger: log.With(logger, "component", "mdm-signature")}).populateDeviceCertificateFromSignRequestHeader),
 	}
 
 	r.Methods(http.MethodPut).Path("/mdm/checkin").Handler(httptransport.NewServer(
@@ -68,6 +69,7 @@ func DeviceCertificateFromContext(ctx context.Context) (*x509.Certificate, error
 
 type verifier struct {
 	*crypto.PKCS7Verifier
+	logger log.Logger
 }
 
 func (v verifier) populateDeviceCertificateFromSignRequestHeader(ctx context.Context, r *http.Request) context.Context {
@@ -126,6 +128,21 @@ func (v verifier) verifySignature(header string, body []byte) (*x509.Certificate
 	}
 	p7.Content = body
 	if err := v.Verify(p7); err != nil {
+		// Temporary recovery path for devices whose MDM identity certificate already expired:
+		// see crypto.ExpiredDeviceCertPolicy. Everything except the certificate's validity window
+		// is still verified, and the UDID <-> certificate binding is checked by the next middleware.
+		if now := time.Now(); crypto.IsSignerValidityError(err) && v.ExpiredDevicePolicy.Active(now) {
+			if cert, ferr := v.ExpiredDevicePolicy.VerifyExpiredSigner(p7, now); ferr == nil {
+				if v.logger != nil {
+					v.logger.Log("msg", "accepted expired device certificate (temporary recovery)",
+						"cert_serial", cert.SerialNumber.String(), "cert_not_after", cert.NotAfter.Format(time.RFC3339),
+						"policy_until", v.ExpiredDevicePolicy.Until.Format(time.RFC3339))
+				}
+				return cert, nil
+			} else if v.logger != nil {
+				v.logger.Log("msg", "rejected expired device certificate", "err", ferr)
+			}
+		}
 		return nil, errors.Wrap(err, "CMS verify MDM Signed Message")
 	}
 	cert := p7.GetOnlySigner()

@@ -215,7 +215,10 @@ func commandToProto(cmd *Command) (*mdmproto.Command, error) {
 			configuration = &mdmproto.InstallApplicationConfiguration{}
 		}
 		if cmd.InstallApplication.Attributes != nil {
-			attributes = &mdmproto.InstallApplicationAttributes{}
+			attributes = &mdmproto.InstallApplicationAttributes{
+				VpnUuid:   emptyStringIfNil(cmd.InstallApplication.Attributes.VpnUuid),
+				Removable: trueIfNil(cmd.InstallApplication.Attributes.Removable), //Default value is true
+			}
 		}
 		cmdproto.Request = &mdmproto.Command_InstallApplication{
 			InstallApplication: &mdmproto.InstallApplication{
@@ -525,6 +528,12 @@ func settingToProto(s Setting) *mdmproto.Setting {
 func falseIfNil(b *bool) bool {
 	if b == nil {
 		return false
+	}
+	return *b
+}
+func trueIfNil(b *bool) bool {
+	if b == nil {
+		return true
 	}
 	return *b
 }
