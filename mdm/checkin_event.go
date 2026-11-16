@@ -132,7 +132,7 @@ func MarshalCheckinEvent(e *CheckinEvent) ([]byte, error) {
 			BootstrapToken:           e.Command.BootstrapToken,
 			SetAwaitingConfiguration: e.Command.SetAwaitingConfiguration,
 		}
-	case "DeclarativeManagament":
+	case "DeclarativeManagement":
 		command.DeclarativeManagement = &checkinproto.DeclarativeManagement{
 			Data:     e.Command.Data,
 			Endpoint: e.Command.Endpoint,
@@ -192,8 +192,8 @@ func UnmarshalCheckinEvent(data []byte, e *CheckinEvent) error {
 		e.Command.BootstrapToken = pb.Command.SetBootstrapToken.BootstrapToken
 		e.Command.SetAwaitingConfiguration = pb.Command.SetBootstrapToken.SetAwaitingConfiguration
 	case "DeclarativeManagement":
-		e.Command.Data = pb.Command.DeclarativeManagement.Data
-		e.Command.Endpoint = pb.Command.DeclarativeManagement.Endpoint
+		e.Command.Data = pb.Command.GetDeclarativeManagement().GetData()
+		e.Command.Endpoint = pb.Command.GetDeclarativeManagement().GetEndpoint()
 	}
 	e.Raw = pb.GetRaw()
 	e.Params = pb.GetParams()
