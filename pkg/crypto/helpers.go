@@ -199,6 +199,9 @@ func TopicFromCert(cert *x509.Certificate) (string, error) {
 type PKCS7Verifier struct {
 	// MaxSkew is the maximum amount of clock skew permitted between the the server time and the pkcs7 signature validity
 	MaxSkew time.Duration
+	// ExpiredDevicePolicy, when active, lets MDM requests signed with an expired device identity
+	// certificate from our SCEP CA through, so the device can be sent a renewal profile. Nil = off.
+	ExpiredDevicePolicy *ExpiredDeviceCertPolicy
 }
 
 // Verify checks the signatures of a PKCS7 object
