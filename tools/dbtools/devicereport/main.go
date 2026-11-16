@@ -54,7 +54,7 @@ func main() {
 				lastSeen: d.LastSeen.Format("2006-01-02"), days: int(now.Sub(d.LastSeen).Hours() / 24), left: -99999}
 			if h := auth.Get([]byte(d.UDID)); h != nil {
 				if c, ok := certs[string(h)]; ok {
-					r.notAfter = c.NotAfter.Format("2006-01-02")
+					r.notAfter = c.NotAfter.UTC().Format(time.RFC3339)
 					r.left = int(c.NotAfter.Sub(now).Hours() / 24)
 				}
 			}
