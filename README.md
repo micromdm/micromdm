@@ -1,7 +1,7 @@
 # MicroMDM v1 - a devops friendly MDM server
 
-> [!WARNING]
-> The [MicroMDM "v1" project is in maintenance mode](https://micromdm.io/blog/micromdm-v1-maintenance-mode/) and support officially ends at the end of 2025. You are encouraged to explore or migrate to [NanoMDM](https://github.com/micromdm/nanomdm) and other projects in the Nano-suite of projects.
+> [!CAUTION]
+> The [MicroMDM "v1" project is deprecated and unsupported](https://micromdm.io/blog/micromdm-v1-maintenance-mode/) as of the end of 2025. You are encouraged to explore or migrate to [NanoMDM](https://github.com/micromdm/nanomdm) and other projects in the Nano-suite of projects.
 
 [![CI](https://github.com/micromdm/micromdm/actions/workflows/CI.yml/badge.svg)](https://github.com/micromdm/micromdm/actions/workflows/CI.yml)
 
