@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"crypto/rsa"
+	"crypto/x509"
 	"flag"
 	"fmt"
 	"io"
@@ -39,6 +41,7 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/auth/basic"
 	"github.com/go-kit/kit/log"
+	"github.com/go-kit/kit/log/level"
 	httptransport "github.com/go-kit/kit/transport/http"
 	"github.com/gorilla/handlers"
 	"github.com/groob/finalizer/logutil"
@@ -130,6 +133,7 @@ func serve(args []string) error {
 		flLogTime                = flagset.Bool("log-time", false, "Include timestamp in log messages")
 		flP7Skew                 = flagset.Int("device-signature-skew", env.Int("MICROMDM_DEVICE_SIGNATURE_SKEW", 0), "Sets the allowable clock skew (in seconds) when verifying device signatures")
 		flDisableRedirect        = flagset.Bool("disable-redirect", env.Bool("MICROMDM_DISABLE_REDIRECT", false), "disable the :80 -> :443 redirect if listening on :443")
+		flAcceptExpiredUntil     = flagset.String("accept-expired-device-certs-until", env.String("MICROMDM_ACCEPT_EXPIRED_DEVICE_CERTS_UNTIL", ""), "TEMPORARY recovery: until this date (YYYY-MM-DD or RFC3339) accept MDM requests signed with an expired device certificate issued by our SCEP CA, so devices can be sent a renewal profile. Max 180 days ahead. Empty = off")
 	)
 	flagset.Usage = usageFor(flagset, "micromdm serve [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -254,6 +258,15 @@ func serve(args []string) error {
 	scepHandler := scep.MakeHTTPHandler(scepEndpoints, sm.SCEPService, scepComponentLogger)
 
 	pkcs7Verifier := &crypto.PKCS7Verifier{MaxSkew: time.Duration(*flP7Skew) * time.Second}
+	if *flAcceptExpiredUntil != "" {
+		policy, err := expiredDeviceCertPolicy(*flAcceptExpiredUntil, sm.SCEPDepot, time.Now())
+		if err != nil {
+			return errors.Wrap(err, "accept-expired-device-certs-until")
+		}
+		pkcs7Verifier.ExpiredDevicePolicy = policy
+		level.Info(logger).Log("msg", "TEMPORARY: accepting expired device certificates issued by the SCEP CA",
+			"until", policy.Until.Format(time.RFC3339), "ca_subject", policy.Issuer.Subject.String())
+	}
 
 	enrollHandlers := enroll.MakeHTTPHandlers(ctx, enroll.MakeServerEndpoints(sm.EnrollService, sm.SCEPDepot), pkcs7Verifier, httptransport.ServerErrorLogger(httpLogger))
 
@@ -427,4 +440,33 @@ func printExamples() {
 		micromdm serve -server-url=https://my-server-url -tls-cert tls.crt -tls-key tls.key
 		`
 	fmt.Println(exampleText)
+}
+
+// expiredDeviceCertPolicy builds the temporary expired-device-certificate exception from the
+// -accept-expired-device-certs-until flag value and the SCEP CA in the depot.
+func expiredDeviceCertPolicy(until string, scepDepot interface {
+	CA(pass []byte) ([]*x509.Certificate, *rsa.PrivateKey, error)
+}, now time.Time) (*crypto.ExpiredDeviceCertPolicy, error) {
+	t, err := time.Parse(time.RFC3339, until)
+	if err != nil {
+		d, derr := time.Parse("2006-01-02", until)
+		if derr != nil {
+			return nil, fmt.Errorf("invalid date %q: use YYYY-MM-DD or RFC3339", until)
+		}
+		t = d.Add(24 * time.Hour) // end of that day (UTC)
+	}
+	if !t.After(now) {
+		return nil, fmt.Errorf("date %s is in the past", t.Format(time.RFC3339))
+	}
+	if t.After(now.Add(180 * 24 * time.Hour)) {
+		return nil, fmt.Errorf("date %s is more than 180 days ahead; this is a temporary recovery switch", t.Format(time.RFC3339))
+	}
+	if scepDepot == nil {
+		return nil, errors.New("no SCEP depot")
+	}
+	certs, _, err := scepDepot.CA(nil)
+	if err != nil || len(certs) == 0 {
+		return nil, fmt.Errorf("load SCEP CA: %v", err)
+	}
+	return &crypto.ExpiredDeviceCertPolicy{Until: t, Issuer: certs[0]}, nil
 }
